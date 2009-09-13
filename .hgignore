@@ -17,3 +17,4 @@ glob:*.bak
 glob:*\Release\*
 glob:*\Debug\*
 glob:maps\*\*
+glob:code\*\*.user
