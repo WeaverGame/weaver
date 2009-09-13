@@ -1,0 +1,116 @@
+import os, string, sys
+
+Import('env')
+
+# the file with vmMain function MUST be the first one of the list
+game_src = [
+'#weaver/code/game/g_main.c',
+'#weaver/code/game/acebot_ai.c',
+'#weaver/code/game/acebot_cmds.c',
+'#weaver/code/game/acebot_items.c',
+'#weaver/code/game/acebot_movement.c',
+'#weaver/code/game/acebot_nodes.c',
+'#weaver/code/game/acebot_spawn.c',
+'#weaver/code/game/bg_misc.c',
+'#weaver/code/game/bg_pmove.c',
+'#weaver/code/game/bg_slidemove.c',
+'#weaver/code/game/g_active.c',
+'#weaver/code/game/g_arenas.c',
+'#weaver/code/game/g_bot.c',
+'#weaver/code/game/g_client.c',
+'#weaver/code/game/g_cmds.c',
+'#weaver/code/game/g_combat.c',
+'#weaver/code/game/g_explosive.c',
+'#weaver/code/game/g_items.c',
+'#weaver/code/game/g_mem.c',
+'#weaver/code/game/g_misc.c',
+'#weaver/code/game/g_missile.c',
+'#weaver/code/game/g_mover.c',
+'#weaver/code/game/g_session.c',
+'#weaver/code/game/g_spawn.c',
+'#weaver/code/game/g_svcmds.c',
+'#weaver/code/game/g_target.c',
+'#weaver/code/game/g_team.c',
+'#weaver/code/game/g_trigger.c',
+#'#weaver/code/game/g_unlagged.c',
+'#weaver/code/game/g_utils.c',
+'#weaver/code/game/g_weapon.c',
+'#weaver/code/game/g_spell_effects.c',
+'#weaver/code/game/g_spell_weave.c',
+'#weaver/code/game/g_spell_misc.c',
+'#weaver/code/game/spell_shared.c',
+'#code/qcommon/q_math.c',
+'#code/qcommon/q_shared.c'
+]
+
+dll_src = [
+'#weaver/code/game/g_syscalls.c',
+]
+
+lua_src = [
+'#code/lua-5.1/src/lapi.c',
+'#code/lua-5.1/src/lcode.c',
+'#code/lua-5.1/src/ldebug.c',
+'#code/lua-5.1/src/ldo.c',
+'#code/lua-5.1/src/ldump.c',
+'#code/lua-5.1/src/lfunc.c',
+'#code/lua-5.1/src/lgc.c',
+'#code/lua-5.1/src/llex.c',
+'#code/lua-5.1/src/lmem.c',
+'#code/lua-5.1/src/lobject.c',
+'#code/lua-5.1/src/lopcodes.c',
+'#code/lua-5.1/src/lparser.c',
+'#code/lua-5.1/src/lstate.c',
+'#code/lua-5.1/src/lstring.c',
+'#code/lua-5.1/src/ltable.c',
+'#code/lua-5.1/src/ltm.c',
+'#code/lua-5.1/src/lundump.c',
+'#code/lua-5.1/src/lvm.c',
+'#code/lua-5.1/src/lzio.c',
+'#code/lua-5.1/src/lauxlib.c',
+'#code/lua-5.1/src/lbaselib.c',
+'#code/lua-5.1/src/ldblib.c',
+#'#code/lua-5.1/src/liolib.c',
+#'#code/lua-5.1/src/lmathlib.c',
+'#code/lua-5.1/src/ltablib.c',
+'#code/lua-5.1/src/lstrlib.c',
+'#code/lua-5.1/src/loadlib.c',
+'#weaver/code/game/g_lua.c',
+'#weaver/code/game/lua_entity.c',
+'#weaver/code/game/lua_game.c',
+'#weaver/code/game/lua_qmath.c',
+'#weaver/code/game/lua_vector.c'
+]
+
+game_env = env.Clone()
+game_env.Append(CCFLAGS='-DQAGAME')
+game_env.Append(CCFLAGS='-DLUA')
+game_env.Append(CCFLAGS='-Icode/lua-5.1/src')
+
+if env['arch'] == 'linux-i386':
+	game_env.SharedLibrary('game', [game_src, dll_src, lua_src], LIBS=['m'])
+	game_env.InstallAs('#weaver/qagamei386.so', 'libgame.so')
+	
+elif env['arch'] == 'linux-x86_64':
+	game_env.SharedLibrary('game', [game_src, dll_src, lua_src], LIBS=['m'])
+	game_env.InstallAs('#weaver/qagamex86_64.so', 'libgame.so')
+
+elif env['arch'] == 'netbsd-i386':
+	game_env.SharedLibrary('game', [game_src, dll_src, lua_src], LIBS=['m'])
+	game_env.InstallAs('#weaver/qagamei386.so', 'libgame.so')
+
+elif env['arch'] == 'freebsd-i386':
+	game_env.SharedLibrary('game', [game_src, dll_src, lua_src], LIBS=['m'])
+	game_env.InstallAs('#weaver/qagamei386.so', 'libgame.so')
+
+elif env['arch'] == 'win32-mingw':
+	game_env.SharedLibrary('game', [game_src, dll_src, lua_src], LIBS=['m'])
+	game_env.InstallAs('#weaver/qagamex86.dll', 'game.dll')
+
+elif env['arch'] == 'darwin-ppc':
+	game_env.SharedLibrary('game', [game_src, dll_src, lua_src], LIBS=['m'])
+	game_env.InstallAs('#weaver/qagameppc.dylib', 'libgame.dylib')
+
+elif env['arch'] == 'darwin-i386':
+	game_env.SharedLibrary('game', [game_src, dll_src, lua_src], LIBS=['m'])
+	game_env.InstallAs('#weaver/qagamei386.dylib', 'libgame.dylib')
