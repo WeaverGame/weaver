@@ -48,44 +48,49 @@ dll_src = [
 ]
 
 lua_src = [
-'#code/lua-5.1/src/lapi.c',
-'#code/lua-5.1/src/lcode.c',
-'#code/lua-5.1/src/ldebug.c',
-'#code/lua-5.1/src/ldo.c',
-'#code/lua-5.1/src/ldump.c',
-'#code/lua-5.1/src/lfunc.c',
-'#code/lua-5.1/src/lgc.c',
-'#code/lua-5.1/src/llex.c',
-'#code/lua-5.1/src/lmem.c',
-'#code/lua-5.1/src/lobject.c',
-'#code/lua-5.1/src/lopcodes.c',
-'#code/lua-5.1/src/lparser.c',
-'#code/lua-5.1/src/lstate.c',
-'#code/lua-5.1/src/lstring.c',
-'#code/lua-5.1/src/ltable.c',
-'#code/lua-5.1/src/ltm.c',
-'#code/lua-5.1/src/lundump.c',
-'#code/lua-5.1/src/lvm.c',
-'#code/lua-5.1/src/lzio.c',
-'#code/lua-5.1/src/lauxlib.c',
-'#code/lua-5.1/src/lbaselib.c',
-'#code/lua-5.1/src/ldblib.c',
-#'#code/lua-5.1/src/liolib.c',
-#'#code/lua-5.1/src/lmathlib.c',
-'#code/lua-5.1/src/ltablib.c',
-'#code/lua-5.1/src/lstrlib.c',
-'#code/lua-5.1/src/loadlib.c',
-'#weaver/code/game/g_lua.c',
-'#weaver/code/game/lua_entity.c',
-'#weaver/code/game/lua_game.c',
-'#weaver/code/game/lua_qmath.c',
-'#weaver/code/game/lua_vector.c'
+'code/lua/src/lapi.c',
+'code/lua/src/lcode.c',
+'code/lua/src/ldebug.c',
+'code/lua/src/ldo.c',
+'code/lua/src/ldump.c',
+'code/lua/src/lfunc.c',
+'code/lua/src/lgc.c',
+'code/lua/src/llex.c',
+'code/lua/src/lmem.c',
+'code/lua/src/lobject.c',
+'code/lua/src/lopcodes.c',
+'code/lua/src/lparser.c',
+'code/lua/src/lstate.c',
+'code/lua/src/lstring.c',
+'code/lua/src/ltable.c',
+'code/lua/src/ltm.c',
+'code/lua/src/lundump.c',
+'code/lua/src/lvm.c',
+'code/lua/src/lzio.c',
+'code/lua/src/lauxlib.c',
+'code/lua/src/lbaselib.c',
+'code/lua/src/ldblib.c',
+'code/lua/src/liolib.c',
+'code/lua/src/lmathlib.c',
+'code/lua/src/ltablib.c',
+'code/lua/src/lstrlib.c',
+'code/lua/src/loadlib.c',
+'code/lua/src/linit.c',
+'code/lua/src/loslib.c',
+'weaver/code/game/g_lua.c',
+'weaver/code/game/lua_entity.c',
+'weaver/code/game/lua_game.c',
+'weaver/code/game/lua_qmath.c',
+'weaver/code/game/lua_vector.c',
+'weaver/code/game/lua_et.c',
+'weaver/code/game/lua_mover.c'
 ]
+
 
 game_env = env.Clone()
 game_env.Append(CCFLAGS='-DQAGAME')
 game_env.Append(CCFLAGS='-DLUA')
-game_env.Append(CCFLAGS='-Icode/lua-5.1/src')
+game_env.Append(CCFLAGS='-Icode/lua/src')
 
 if env['arch'] == 'linux-i386':
 	game_env.SharedLibrary('game', [game_src, dll_src, lua_src], LIBS=['m'])
