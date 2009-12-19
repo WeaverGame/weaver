@@ -4,47 +4,47 @@ Import('env')
 
 # the file with vmMain function MUST be the first one of the list
 cgame_src = [
-'#weaver/code/cgame/cg_main.c',
-'#weaver/code/game/bg_misc.c',
-'#weaver/code/game/bg_pmove.c',
-'#weaver/code/game/bg_slidemove.c',
-'#code/qcommon/q_math.c',
-'#code/qcommon/q_shared.c',
-'#weaver/code/cgame/cg_animation.c',
-'#weaver/code/cgame/cg_consolecmds.c',
-'#weaver/code/cgame/cg_draw.c',
-'#weaver/code/cgame/cg_drawtools.c',
-'#weaver/code/cgame/cg_effects.c',
-'#weaver/code/cgame/cg_ents.c',
-'#weaver/code/cgame/cg_event.c',
-'#weaver/code/cgame/cg_info.c',
-'#weaver/code/cgame/cg_localents.c',
-'#weaver/code/cgame/cg_marks.c',
-'#weaver/code/cgame/cg_particles.c',
-'#weaver/code/cgame/cg_osd.c',
-'#weaver/code/cgame/cg_players.c',
-'#weaver/code/cgame/cg_playerstate.c',
-'#weaver/code/cgame/cg_predict.c',
-'#weaver/code/cgame/cg_scoreboard.c',
-'#weaver/code/cgame/cg_servercmds.c',
-'#weaver/code/cgame/cg_snapshot.c',
-'#weaver/code/cgame/cg_view.c',
-#'#weaver/code/cgame/cg_unlagged.c',
-'#weaver/code/cgame/cg_weapons.c',
-'#weaver/code/cgame/cg_spell_effects.c',
-'#weaver/code/cgame/cg_spell_hud.c',
-'#weaver/code/cgame/cg_spell_sense.c',
-'#weaver/code/cgame/cg_spell_weaves.c',
-'#weaver/code/game/spell_shared.c'
+'weaver/code/cgame/cg_main.c',
+'weaver/code/game/bg_misc.c',
+'weaver/code/game/bg_pmove.c',
+'weaver/code/game/bg_slidemove.c',
+'code/qcommon/q_math.c',
+'code/qcommon/q_shared.c',
+'weaver/code/cgame/cg_animation.c',
+'weaver/code/cgame/cg_consolecmds.c',
+'weaver/code/cgame/cg_draw.c',
+'weaver/code/cgame/cg_drawtools.c',
+'weaver/code/cgame/cg_effects.c',
+'weaver/code/cgame/cg_ents.c',
+'weaver/code/cgame/cg_event.c',
+'weaver/code/cgame/cg_info.c',
+'weaver/code/cgame/cg_localents.c',
+'weaver/code/cgame/cg_marks.c',
+'weaver/code/cgame/cg_particles.c',
+'weaver/code/cgame/cg_osd.c',
+'weaver/code/cgame/cg_players.c',
+'weaver/code/cgame/cg_playerstate.c',
+'weaver/code/cgame/cg_predict.c',
+'weaver/code/cgame/cg_scoreboard.c',
+'weaver/code/cgame/cg_servercmds.c',
+'weaver/code/cgame/cg_snapshot.c',
+'weaver/code/cgame/cg_view.c',
+#'weaver/code/cgame/cg_unlagged.c',
+'weaver/code/cgame/cg_weapons.c',
+'weaver/code/cgame/cg_spell_effects.c',
+'weaver/code/cgame/cg_spell_hud.c',
+'weaver/code/cgame/cg_spell_sense.c',
+'weaver/code/cgame/cg_spell_weaves.c',
+'weaver/code/game/spell_shared.c'
 ]
 
 ta_src = [
-'#weaver/code/cgame/cg_newdraw.c',
-'#code/ui/ui_shared.c'
+'weaver/code/cgame/cg_newdraw.c',
+'weaver/code/ui/ui_shared.c'
 ]
 
 dll_src = [
-'#weaver/code/cgame/cg_syscalls.c'
+'weaver/code/cgame/cg_syscalls.c'
 ]
 
 lua_src = [
