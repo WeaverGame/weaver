@@ -1,0 +1,201 @@
+import os, string, sys
+
+Import('env')
+
+# the file with vmMain function MUST be the first one of the list
+rendererGL_src = [
+'code/renderer/qgl.c',
+'code/renderer/tr_animation.c',
+'code/renderer/tr_backend.c',
+'code/renderer/tr_bsp.c',
+'code/renderer/tr_cmds.c',
+'code/renderer/tr_curve.c',
+'code/renderer/tr_fbo.c',
+'code/renderer/tr_flares.c',
+'code/renderer/tr_font.c',
+'code/renderer/tr_image.c',
+'code/renderer/tr_image_exr.cpp',
+'code/renderer/tr_image_dds.c',
+'code/renderer/tr_image_jpg.c',
+'code/renderer/tr_image_png.c',
+'code/renderer/tr_image_tga.c',
+'code/renderer/tr_init.cpp',
+'code/renderer/tr_light.c',
+'code/renderer/tr_main.c',
+'code/renderer/tr_marks.c',
+'code/renderer/tr_mesh.c',
+'code/renderer/tr_model.c',
+'code/renderer/tr_noise.c',
+'code/renderer/tr_scene.c',
+'code/renderer/tr_shade.c',
+'code/renderer/tr_shade_calc.c',
+'code/renderer/tr_shader.c',
+'code/renderer/tr_shadows.c',
+'code/renderer/tr_sky.c',
+'code/renderer/tr_surface.c',
+'code/renderer/tr_vbo.c',
+'code/renderer/tr_world.c',
+'code/jpeg-6/jcapimin.c',
+'code/jpeg-6/jchuff.c',
+'code/jpeg-6/jcinit.c',
+'code/jpeg-6/jccoefct.c',
+'code/jpeg-6/jccolor.c',
+'code/jpeg-6/jfdctflt.c',
+'code/jpeg-6/jcdctmgr.c',
+'code/jpeg-6/jcphuff.c',
+'code/jpeg-6/jcmainct.c',
+'code/jpeg-6/jcmarker.c',
+'code/jpeg-6/jcmaster.c',
+'code/jpeg-6/jcomapi.c',
+'code/jpeg-6/jcparam.c',
+'code/jpeg-6/jcprepct.c',
+'code/jpeg-6/jcsample.c',
+'code/jpeg-6/jdapimin.c',
+'code/jpeg-6/jdapistd.c',
+'code/jpeg-6/jdatasrc.c',
+'code/jpeg-6/jdcoefct.c',
+'code/jpeg-6/jdcolor.c',
+'code/jpeg-6/jddctmgr.c',
+'code/jpeg-6/jdhuff.c',
+'code/jpeg-6/jdinput.c',
+'code/jpeg-6/jdmainct.c',
+'code/jpeg-6/jdmarker.c',
+'code/jpeg-6/jdmaster.c',
+'code/jpeg-6/jdpostct.c',
+'code/jpeg-6/jdsample.c',
+'code/jpeg-6/jdtrans.c',
+'code/jpeg-6/jerror.c',
+'code/jpeg-6/jidctflt.c',
+'code/jpeg-6/jmemmgr.c',
+'code/jpeg-6/jmemnobs.c',
+'code/jpeg-6/jutils.c',
+'code/png/png.c',
+'code/png/pngset.c',
+'code/png/pngget.c',
+'code/png/pngrutil.c',
+'code/png/pngtrans.c',
+'code/png/pngwutil.c',
+'code/png/pngread.c',
+'code/png/pngrio.c',
+'code/png/pngwio.c',
+'code/png/pngwrite.c',
+'code/png/pngrtran.c',
+'code/png/pngwtran.c',
+'code/png/pngmem.c',
+'code/png/pngerror.c',
+'code/png/pngpread.c',
+'code/zlib/adler32.c',
+'code/zlib/compress.c',
+'code/zlib/crc32.c',
+'code/zlib/gzio.c',
+'code/zlib/uncompr.c',
+'code/zlib/deflate.c',
+'code/zlib/trees.c',
+'code/zlib/zutil.c',
+'code/zlib/inflate.c',
+'code/zlib/infback.c',
+'code/zlib/inftrees.c',
+'code/zlib/inffast.c',
+'code/zlib/ioapi.c',
+#'code/freetype/src/autofit/autofit.c',
+#'code/freetype/src/bdf/bdf.c',
+#'code/freetype/src/cff/cff.c',
+#'code/freetype/src/base/ftbase.c',
+#'code/freetype/src/base/ftbitmap.c',
+#'code/freetype/src/cache/ftcache.c',
+#'code/freetype/src/base/ftdebug.c',
+#'code/freetype/src/base/ftgasp.c',
+#'code/freetype/src/base/ftglyph.c',
+#'code/freetype/src/gzip/ftgzip.c',
+#'code/freetype/src/base/ftinit.c',
+#'code/freetype/src/lzw/ftlzw.c',
+#'code/freetype/src/base/ftstroke.c',
+#'code/freetype/src/base/ftsystem.c',
+#'code/freetype/src/smooth/smooth.c',
+#'code/freetype/src/base/ftbbox.c',
+#'code/freetype/src/base/ftmm.c',
+#'code/freetype/src/base/ftpfr.c',
+#'code/freetype/src/base/ftsynth.c',
+#'code/freetype/src/base/fttype1.c',
+#'code/freetype/src/base/ftwinfnt.c',
+#'code/freetype/src/pcf/pcf.c',
+#'code/freetype/src/pfr/pfr.c',
+#'code/freetype/src/psaux/psaux.c',
+#'code/freetype/src/pshinter/pshinter.c',
+#'code/freetype/src/psnames/psmodule.c',
+#'code/freetype/src/raster/raster.c',
+#'code/freetype/src/sfnt/sfnt.c',
+#'code/freetype/src/truetype/truetype.c',
+#'code/freetype/src/type1/type1.c',
+#'code/freetype/src/cid/type1cid.c',
+#'code/freetype/src/type42/type42.c',
+#'code/freetype/src/winfonts/winfnt.c',
+'code/openexr/half.cpp',
+'code/qcommon/q_math.c',
+'code/qcommon/q_shared.c',
+'code/sys/sdl_gamma.c',
+'code/sys/sdl_glimp.c',
+]
+
+
+rendererGL_env = env.Clone()
+
+if env['compatq3a'] == 1:
+	rendererGL_env.Append(CCFLAGS='-DCOMPAT_Q3A')
+
+if env['arch'] == 'linux-i386':
+	rendererGL_env.ParseConfig('sdl-config --cflags --libs')
+	rendererGL_env.Append(LIBS=['dl', 'm', 'GL'])
+	rendererGL_env.Append(CCFLAGS='-DPNG_NO_ASSEMBLER_CODE')
+	rendererGL_env.ParseConfig('freetype-config --cflags --libs')
+	rendererGL_env.Append(CCFLAGS='-DBUILD_FREETYPE')
+
+	if env['smp'] == 1:
+		rendererGL_env.Append(CCFLAGS='-DSMP')
+		rendererGL_env.Append(LIBS=['pthread'])
+		
+	rendererGL_env.SharedLibrary('rendererGL', rendererGL_src)
+	rendererGL_env.InstallAs('#rendererGLi386.so', 'librendererGL.so')
+	
+elif env['arch'] == 'linux-x86_64':
+	rendererGL_env.ParseConfig('sdl-config --cflags --libs')
+	rendererGL_env.Append(LIBS=['dl', 'm', 'GL'])
+	rendererGL_env.Append(CCFLAGS='-DPNG_NO_ASSEMBLER_CODE')
+	rendererGL_env.ParseConfig('freetype-config --cflags --libs')
+	rendererGL_env.Append(CCFLAGS='-DBUILD_FREETYPE')
+
+	if env['smp'] == 1:
+		rendererGL_env.Append(CCFLAGS='-DSMP')
+		rendererGL_env.Append(LIBS=['pthread'])
+		
+	rendererGL_env.SharedLibrary('rendererGL', rendererGL_src)
+	rendererGL_env.InstallAs('#rendererGLx86_64.so', 'librendererGL.so')
+
+elif env['arch'] == 'netbsd-i386':
+	rendererGL_env.SharedLibrary('rendererGL', rendererGL_src)
+	rendererGL_env.InstallAs('#rendererGLi386.so', 'librendererGL.so')
+
+elif env['arch'] == 'freebsd-i386':
+	rendererGL_env.SharedLibrary('rendererGL', rendererGL_src)
+	rendererGL_env.InstallAs('#rendererGLi386.so', 'librendererGL.so')
+
+elif env['arch'] == 'darwin-ppc ' or env['arch'] == 'darwin-i386':
+	rendererGL_env.ParseConfig('sdl-config --cflags --libs')
+	rendererGL_env.Append(LIBS=['m'])
+	rendererGL_env.Append(CCFLAGS='-DPNG_NO_ASSEMBLER_CODE -DMACOS_X')
+	
+	# HACK: for now disable altivec because there are some compiling issues
+	if env['arch'] == 'darwin-ppc':
+		rendererGL_env.Append(CCFLAGS='-Didppc_altivec=0')
+
+	rendererGL_env.ParseConfig('freetype-config --cflags --libs')
+	rendererGL_env.Append(CCFLAGS='-DBUILD_FREETYPE')
+	rendererGL_env.Append(LINKFLAGS= ['-framework', 'IOKit', '-framework', 'OpenAL', '-framework', 'OpenGL'])
+
+	rendererGL_env.SharedLibrary('rendererGL', rendererGL_src)
+	if env['arch'] == 'darwin-ppc':
+		rendererGL_env.InstallAs('#rendererGLppc.dylib', 'librendererGL.dylib')
+	elif env['arch'] == 'darwin-i386':
+		rendererGL_env.InstallAs('#rendererGLi386.dylib', 'librendererGL.dylib')
+
+

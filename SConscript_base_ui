@@ -1,0 +1,89 @@
+import os, string, sys
+
+Import('env')
+
+# the file with vmMain function MUST be the first one of the list
+ui_src = [
+'base/code/ui/ui_main.c',
+'base/code/ui/ui_addbots.c',
+'base/code/ui/ui_atoms.c',
+'base/code/ui/ui_cinematics.c',
+'base/code/ui/ui_confirm.c',
+'base/code/ui/ui_connect.c',
+'base/code/ui/ui_controls2.c',
+'base/code/ui/ui_credits.c',
+'base/code/ui/ui_demo2.c',
+'base/code/ui/ui_display.c',
+'base/code/ui/ui_gameinfo.c',
+'base/code/ui/ui_ingame.c',
+'base/code/ui/ui_loadconfig.c',
+#'base/code/ui/ui_login.c',
+'base/code/ui/ui_menu.c',
+'base/code/ui/ui_mfield.c',
+'base/code/ui/ui_mods.c',
+'base/code/ui/ui_network.c',
+'base/code/ui/ui_options.c',
+'base/code/ui/ui_playermodel.c',
+'base/code/ui/ui_players.c',
+'base/code/ui/ui_playersettings.c',
+'base/code/ui/ui_preferences.c',
+'base/code/ui/ui_qmenu.c',
+#'base/code/ui/ui_rankings.c',
+#'base/code/ui/ui_rankstatus.c',
+'base/code/ui/ui_removebots.c',
+'base/code/ui/ui_saveconfig.c',
+'base/code/ui/ui_serverinfo.c',
+'base/code/ui/ui_servers2.c',
+'base/code/ui/ui_setup.c',
+#'base/code/ui/ui_signup.c',
+'base/code/ui/ui_sound.c',
+'base/code/ui/ui_sparena.c',
+#'base/code/ui/ui_specifyleague.c',
+'base/code/ui/ui_specifyserver.c',
+'base/code/ui/ui_splevel.c',
+'base/code/ui/ui_sppostgame.c',
+#'base/code/ui/ui_spreset.c',
+'base/code/ui/ui_spskill.c',
+'base/code/ui/ui_startserver.c',
+'base/code/ui/ui_team.c',
+'base/code/ui/ui_teamorders.c',
+'base/code/ui/ui_video.c',
+'base/code/ui/ui_xppm.c',
+'base/code/game/bg_misc.c',
+'code/qcommon/q_math.c',
+'code/qcommon/q_shared.c'
+]
+
+dll_src = [
+'base/code/ui/ui_syscalls.c'
+]
+
+ui_env = env.Clone()
+
+if env['arch'] == 'linux-i386':
+	ui_env.SharedLibrary('ui', [ui_src, dll_src], LIBS=['m'])
+	ui_env.InstallAs('#base/uii386.so', 'libui.so')
+
+elif env['arch'] == 'linux-x86_64':
+	ui_env.SharedLibrary('ui', [ui_src, dll_src], LIBS=['m'])
+	ui_env.InstallAs('#base/uix86_64.so', 'libui.so')
+
+elif env['arch'] == 'sdl':
+	ui_env.SharedLibrary('ui', [ui_src, dll_src], LIBS=['m'])
+	ui_env.InstallAs('#base/ui.so', 'libui.so')
+
+elif env['arch'] == 'freebsd-i386':
+	ui_env.SharedLibrary('ui', [ui_src, dll_src], LIBS=['m'])
+	ui_env.InstallAs('#base/uii386.so', 'libui.so')
+
+elif env['arch'] == 'win32-mingw':
+	ui_env.SharedLibrary('ui', [ui_src, dll_src], LIBS=['m'])
+	ui_env.InstallAs('#base/uix86.dll', 'ui.dll')
+
+elif env['arch'] == 'darwin-ppc':
+	ui_env.SharedLibrary('ui', [ui_src, dll_src], LIBS=['m'])
+	ui_env.InstallAs('#base/uiippc.dylib', 'libui.dylib')
+
+elif env['arch'] == 'darwin-i386':
+	ui_env.SharedLibrary('ui', [ui_src, dll_src], LIBS=['m'])
+	ui_env.InstallAs('#base/uii386.dylib', 'libui.dylib')

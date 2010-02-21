@@ -1,0 +1,13 @@
+libgtksourceview-dev
+libvorbis-dev
+libsdl1.2-dev
+libfreetype6-dev
+libopenal-dev
+libcurl4-dev
+libvorbis-dev
+libgtk2.0-dev 
+libgtkglext1-dev
+libxml2-dev
+zlib1g-dev
+libglew1.5-dev
+libboost-dev
