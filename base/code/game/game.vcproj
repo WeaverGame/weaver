@@ -47,7 +47,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\..\code\lua-5.1\src"
+				AdditionalIncludeDirectories="..\..\..\code\lua\src"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;DEBUG;GLOBALRANK;LUA"
 				RuntimeLibrary="1"
 				UsePrecompiledHeader="0"
