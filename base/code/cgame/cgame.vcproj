@@ -967,126 +967,374 @@
 					<File
 						RelativePath="..\..\..\code\lua\src\lapi.c"
 						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								WarningLevel="1"
+							/>
+						</FileConfiguration>
 					</File>
 					<File
 						RelativePath="..\..\..\code\lua\src\lauxlib.c"
 						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								WarningLevel="1"
+							/>
+						</FileConfiguration>
 					</File>
 					<File
 						RelativePath="..\..\..\code\lua\src\lbaselib.c"
 						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								WarningLevel="1"
+							/>
+						</FileConfiguration>
 					</File>
 					<File
 						RelativePath="..\..\..\code\lua\src\lcode.c"
 						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								WarningLevel="1"
+							/>
+						</FileConfiguration>
 					</File>
 					<File
 						RelativePath="..\..\..\code\lua\src\ldblib.c"
 						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								WarningLevel="1"
+							/>
+						</FileConfiguration>
 					</File>
 					<File
 						RelativePath="..\..\..\code\lua\src\ldebug.c"
 						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								WarningLevel="1"
+							/>
+						</FileConfiguration>
 					</File>
 					<File
 						RelativePath="..\..\..\code\lua\src\ldo.c"
 						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								WarningLevel="1"
+							/>
+						</FileConfiguration>
 					</File>
 					<File
 						RelativePath="..\..\..\code\lua\src\ldump.c"
 						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								WarningLevel="1"
+							/>
+						</FileConfiguration>
 					</File>
 					<File
 						RelativePath="..\..\..\code\lua\src\lfunc.c"
 						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								WarningLevel="1"
+							/>
+						</FileConfiguration>
 					</File>
 					<File
 						RelativePath="..\..\..\code\lua\src\lgc.c"
 						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								WarningLevel="1"
+							/>
+						</FileConfiguration>
 					</File>
 					<File
 						RelativePath="..\..\..\code\lua\src\linit.c"
 						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								WarningLevel="1"
+							/>
+						</FileConfiguration>
 					</File>
 					<File
 						RelativePath="..\..\..\code\lua\src\liolib.c"
 						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								WarningLevel="1"
+							/>
+						</FileConfiguration>
 					</File>
 					<File
 						RelativePath="..\..\..\code\lua\src\llex.c"
 						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								WarningLevel="1"
+							/>
+						</FileConfiguration>
 					</File>
 					<File
 						RelativePath="..\..\..\code\lua\src\lmathlib.c"
 						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								WarningLevel="1"
+							/>
+						</FileConfiguration>
 					</File>
 					<File
 						RelativePath="..\..\..\code\lua\src\lmem.c"
 						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								WarningLevel="1"
+							/>
+						</FileConfiguration>
 					</File>
 					<File
 						RelativePath="..\..\..\code\lua\src\loadlib.c"
 						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								WarningLevel="1"
+							/>
+						</FileConfiguration>
 					</File>
 					<File
 						RelativePath="..\..\..\code\lua\src\lobject.c"
 						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								WarningLevel="1"
+							/>
+						</FileConfiguration>
 					</File>
 					<File
 						RelativePath="..\..\..\code\lua\src\lopcodes.c"
 						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								WarningLevel="1"
+							/>
+						</FileConfiguration>
 					</File>
 					<File
 						RelativePath="..\..\..\code\lua\src\loslib.c"
 						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								WarningLevel="1"
+							/>
+						</FileConfiguration>
 					</File>
 					<File
 						RelativePath="..\..\..\code\lua\src\lparser.c"
 						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								WarningLevel="1"
+							/>
+						</FileConfiguration>
 					</File>
 					<File
 						RelativePath="..\..\..\code\lua\src\lstate.c"
 						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								WarningLevel="1"
+							/>
+						</FileConfiguration>
 					</File>
 					<File
 						RelativePath="..\..\..\code\lua\src\lstring.c"
 						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								WarningLevel="1"
+							/>
+						</FileConfiguration>
 					</File>
 					<File
 						RelativePath="..\..\..\code\lua\src\lstrlib.c"
 						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								WarningLevel="1"
+							/>
+						</FileConfiguration>
 					</File>
 					<File
 						RelativePath="..\..\..\code\lua\src\ltable.c"
 						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								WarningLevel="1"
+							/>
+						</FileConfiguration>
 					</File>
 					<File
 						RelativePath="..\..\..\code\lua\src\ltablib.c"
 						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								WarningLevel="1"
+							/>
+						</FileConfiguration>
 					</File>
 					<File
 						RelativePath="..\..\..\code\lua\src\ltm.c"
 						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								WarningLevel="1"
+							/>
+						</FileConfiguration>
 					</File>
 					<File
 						RelativePath="..\..\..\code\lua\src\lua.c"
 						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								WarningLevel="1"
+							/>
+						</FileConfiguration>
 					</File>
 					<File
 						RelativePath="..\..\..\code\lua\src\lundump.c"
 						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								WarningLevel="1"
+							/>
+						</FileConfiguration>
 					</File>
 					<File
 						RelativePath="..\..\..\code\lua\src\lvm.c"
 						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								WarningLevel="1"
+							/>
+						</FileConfiguration>
 					</File>
 					<File
 						RelativePath="..\..\..\code\lua\src\lzio.c"
 						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								WarningLevel="1"
+							/>
+						</FileConfiguration>
 					</File>
 					<File
 						RelativePath="..\..\..\code\lua\src\print.c"
 						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								WarningLevel="1"
+							/>
+						</FileConfiguration>
 					</File>
 				</Filter>
 			</Filter>

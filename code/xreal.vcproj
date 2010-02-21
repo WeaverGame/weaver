@@ -1422,6 +1422,14 @@
 					<File
 						RelativePath=".\ogg\src\bitwise.c"
 						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								WarningLevel="3"
+							/>
+						</FileConfiguration>
 					</File>
 					<File
 						RelativePath=".\ogg\src\framing.c"
@@ -1694,6 +1702,14 @@
 					<File
 						RelativePath=".\speex\jitter.c"
 						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								WarningLevel="2"
+							/>
+						</FileConfiguration>
 					</File>
 					<File
 						RelativePath=".\speex\kiss_fft.c"
@@ -1710,26 +1726,74 @@
 					<File
 						RelativePath=".\speex\ltp.c"
 						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								WarningLevel="1"
+							/>
+						</FileConfiguration>
 					</File>
 					<File
 						RelativePath=".\speex\mdf.c"
 						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								WarningLevel="1"
+							/>
+						</FileConfiguration>
 					</File>
 					<File
 						RelativePath=".\speex\modes.c"
 						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								WarningLevel="1"
+							/>
+						</FileConfiguration>
 					</File>
 					<File
 						RelativePath=".\speex\modes_wb.c"
 						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								WarningLevel="1"
+							/>
+						</FileConfiguration>
 					</File>
 					<File
 						RelativePath=".\speex\nb_celp.c"
 						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								WarningLevel="1"
+							/>
+						</FileConfiguration>
 					</File>
 					<File
 						RelativePath=".\speex\preprocess.c"
 						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								WarningLevel="1"
+							/>
+						</FileConfiguration>
 					</File>
 					<File
 						RelativePath=".\speex\quant_lsp.c"
@@ -1738,10 +1802,26 @@
 					<File
 						RelativePath=".\speex\resample.c"
 						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								WarningLevel="2"
+							/>
+						</FileConfiguration>
 					</File>
 					<File
 						RelativePath=".\speex\sb_celp.c"
 						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								WarningLevel="1"
+							/>
+						</FileConfiguration>
 					</File>
 					<File
 						RelativePath=".\speex\smallft.c"
@@ -1770,6 +1850,14 @@
 					<File
 						RelativePath=".\speex\speex_window.c"
 						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								WarningLevel="1"
+							/>
+						</FileConfiguration>
 					</File>
 					<File
 						RelativePath=".\speex\stereo.c"
@@ -1778,6 +1866,14 @@
 					<File
 						RelativePath=".\speex\vbr.c"
 						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								WarningLevel="1"
+							/>
+						</FileConfiguration>
 					</File>
 					<File
 						RelativePath=".\speex\vq.c"
@@ -2054,6 +2150,14 @@
 					<File
 						RelativePath=".\theora\lib\dec\bitpack.c"
 						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								WarningLevel="2"
+							/>
+						</FileConfiguration>
 					</File>
 					<File
 						RelativePath=".\theora\lib\dec\decapiwrapper.c"
@@ -2082,6 +2186,14 @@
 					<File
 						RelativePath=".\theora\lib\dec\idct.c"
 						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								WarningLevel="2"
+							/>
+						</FileConfiguration>
 					</File>
 					<File
 						RelativePath=".\theora\lib\dec\internal.c"
