@@ -841,13 +841,13 @@ void Use_BinaryMover(gentity_t * ent, gentity_t * other, gentity_t * activator)
 	}
 
 	//teamsallowed = none
-	if(!ent->red_only && !ent->blue_only && activator->client)
+	if(!ent->red_only && !ent->blue_only)
 		return;
 
 	//teamsallowed is not 'both' and not the same team as the player
 	if(!(ent->red_only && ent->blue_only) && activator->client)
 	{
-		if((ent->red_only && activator->client->sess.sessionTeam != TEAM_RED) && (ent->blue_only && activator->client->sess.sessionTeam != TEAM_BLUE))
+		if((ent->red_only && activator->client->sess.sessionTeam != TEAM_RED) || (ent->blue_only && activator->client->sess.sessionTeam != TEAM_BLUE))
 			return;
 	}
 
@@ -1523,7 +1523,7 @@ void SP_func_door_rotating( gentity_t *ent )
 	// default damage of 2 points
 	G_SpawnInt("dmg", "2", &ent->damage);
 
-	if(!G_SpawnString("allowteams", "none", &allowTeams))
+	if(!G_SpawnString("allowteams", "both", &allowTeams))
 	{
 		G_Printf("%s at %s with no allowteams set, defaulting to none\n", ent->classname, vtos(ent->s.origin));
 	}
