@@ -533,6 +533,14 @@ void G_MoverTeam(gentity_t * ent)
 				}
 			}
 		}
+		// DUTCHMEAT
+		if ( part->s.apos.trType == TR_LINEAR_STOP ) {
+			if ( level.time >= part->s.apos.trTime + part->s.apos.trDuration ) {
+				if ( part->reached ) {
+					part->reached( part );
+				}
+			}
+		}
 	}
 }
 
@@ -584,6 +592,8 @@ void SetMoverState(gentity_t * ent, moverState_t moverState, int time)
 	ent->moverState = moverState;
 
 	ent->s.pos.trTime = time;
+	ent->s.apos.trTime = time;
+
 	switch (moverState)
 	{
 		case MOVER_POS1:
@@ -608,10 +618,35 @@ void SetMoverState(gentity_t * ent, moverState_t moverState, int time)
 			VectorScale(delta, f, ent->s.pos.trDelta);
 			ent->s.pos.trType = TR_LINEAR_STOP;
 			break;
+		case ROTATOR_POS1:
+			VectorCopy(ent->pos1, ent->s.apos.trBase);
+			ent->s.apos.trType = TR_STATIONARY;
+			break;
+		case ROTATOR_POS2:
+			VectorCopy(ent->pos2, ent->s.apos.trBase);
+			ent->s.apos.trType = TR_STATIONARY;
+			break;
+		case ROTATOR_1TO2:
+			VectorCopy(ent->pos1, ent->s.apos.trBase);
+			VectorSubtract(ent->pos2, ent->pos1, delta);
+			f = 1000.0 / ent->s.apos.trDuration;
+			VectorScale(delta, f, ent->s.apos.trDelta);
+			ent->s.apos.trType = TR_LINEAR_STOP;
+			break;
+		case ROTATOR_2TO1:
+			VectorCopy(ent->pos2, ent->s.apos.trBase);
+			VectorSubtract(ent->pos1, ent->pos2, delta);
+			f = 1000.0 / ent->s.apos.trDuration;
+			VectorScale(delta, f, ent->s.apos.trDelta);
+			ent->s.apos.trType = TR_LINEAR_STOP;
+			break;
+
 		case MOVER_MISC:
 			break;
 	}
 	BG_EvaluateTrajectory(&ent->s.pos, level.time, ent->r.currentOrigin);
+	BG_EvaluateTrajectory(&ent->s.apos, level.time, ent->r.currentAngles);
+
 	trap_LinkEntity(ent);
 }
 
@@ -643,6 +678,24 @@ ReturnToPos1
 void ReturnToPos1(gentity_t * ent)
 {
 	MatchTeam(ent, MOVER_2TO1, level.time);
+
+	// looping sound
+	ent->s.loopSound = ent->soundLoop;
+
+	// starting sound
+	if(ent->sound2to1)
+	{
+		G_AddEvent(ent, EV_GENERAL_SOUND, ent->sound2to1);
+	}
+}
+/*
+================
+ReturnToApos1
+================
+*/
+void ReturnToApos1(gentity_t *ent)
+{
+	MatchTeam(ent, ROTATOR_2TO1, level.time);
 
 	// looping sound
 	ent->s.loopSound = ent->soundLoop;
@@ -723,19 +776,58 @@ void Reached_BinaryMover(gentity_t * ent)
 	else if(ent->moverState == MOVER_MISC)
 	{
 		//Movement was set by lua, its fine.
-	}
+	} 
+	// DUTCHMEAT
+	else if ( ent->moverState == ROTATOR_1TO2 ) 
+	{
+		// reached pos2
+		SetMoverState( ent, ROTATOR_POS2, level.time );
+
+		// play sound
+		if ( ent->soundPos2 ) 
+		{
+			G_AddEvent( ent, EV_GENERAL_SOUND, ent->soundPos2 );
+		}
+
+		// return to apos1 after a delay
+		ent->think = ReturnToApos1;
+		ent->nextthink = level.time + ent->wait;
+
+		// fire targets
+		if ( !ent->activator )
+		{
+			ent->activator = ent;
+		}
+		G_UseTargets( ent, ent->activator );
+	} else if ( ent->moverState == ROTATOR_2TO1 ) 
+	{
+		// reached pos1
+		SetMoverState( ent, ROTATOR_POS1, level.time );
+
+		// play sound
+		if ( ent->soundPos1 ) 
+		{
+			G_AddEvent( ent, EV_GENERAL_SOUND, ent->soundPos1 );
+		}
+
+		// close areaportals
+		if ( ent->teammaster == ent || !ent->teammaster ) 
+		{
+			trap_AdjustAreaPortalState( ent, qfalse );
+		}
+	} 
 	else
 	{
 		G_Error("Reached_BinaryMover: bad moverState");
 	}
 }
 
-
 /*
 ================
 Use_BinaryMover
 ================
 */
+void Blocked_DoorRotate( gentity_t *ent, gentity_t *other );
 void Use_BinaryMover(gentity_t * ent, gentity_t * other, gentity_t * activator)
 {
 	int             total;
@@ -746,6 +838,17 @@ void Use_BinaryMover(gentity_t * ent, gentity_t * other, gentity_t * activator)
 	{
 		Use_BinaryMover(ent->teammaster, other, activator);
 		return;
+	}
+
+	//teamsallowed = none
+	if(!ent->red_only && !ent->blue_only && activator->client)
+		return;
+
+	//teamsallowed is not 'both' and not the same team as the player
+	if(!(ent->red_only && ent->blue_only) && activator->client)
+	{
+		if((ent->red_only && activator->client->sess.sessionTeam != TEAM_RED) && (ent->blue_only && activator->client->sess.sessionTeam != TEAM_BLUE))
+			return;
 	}
 
 	ent->activator = activator;
@@ -818,6 +921,61 @@ void Use_BinaryMover(gentity_t * ent, gentity_t * other, gentity_t * activator)
 		}
 
 		MatchTeam(ent, MOVER_2TO1, level.time - (total - partial));
+
+		if(ent->sound2to1)
+		{
+			G_AddEvent(ent, EV_GENERAL_SOUND, ent->sound2to1);
+		}
+		return;
+	}
+		
+	// DUTCHMEAT
+	if(ent->moverState == ROTATOR_POS1)
+	{
+		// start moving 50 msec later, becase if this was player
+		// triggered, level.time hasn't been advanced yet
+		MatchTeam(ent, ROTATOR_1TO2, level.time + 50);
+
+		// starting sound
+		if(ent->sound1to2)
+		{
+			G_AddEvent(ent, EV_GENERAL_SOUND, ent->sound1to2);
+		}
+
+		// looping sound
+		ent->s.loopSound = ent->soundLoop;
+
+		// open areaportal
+		if(ent->teammaster == ent || !ent->teammaster)
+		{
+			trap_AdjustAreaPortalState(ent, qtrue);
+		}
+		return;
+	}
+
+	// if all the way up, just delay before coming down
+	if(ent->moverState == ROTATOR_POS2)
+	{
+		ent->nextthink = level.time + ent->wait;
+		return;
+	}
+
+	// only partway down before reversing
+	if(ent->moverState == ROTATOR_2TO1)
+	{
+		Blocked_DoorRotate(ent, NULL);
+
+		if(ent->sound1to2)
+		{
+			G_AddEvent(ent, EV_GENERAL_SOUND, ent->sound1to2);
+		}
+		return;
+	}
+
+	// only partway up before reversing
+	if(ent->moverState == ROTATOR_1TO2)
+	{
+		Blocked_DoorRotate(ent, NULL);
 
 		if(ent->sound2to1)
 		{
@@ -917,6 +1075,88 @@ void InitMover(gentity_t * ent)
 	}
 }
 
+/*
+================
+InitRotator
+
+"pos1", "pos2", and "speed" should be set before calling,
+so the movement delta can be calculated
+================
+*/
+void InitRotator( gentity_t *ent ) {
+	vec3_t		move;
+	float		angle;
+	float		light;
+	vec3_t		color;
+	qboolean	lightSet, colorSet;
+	char		*sound;
+
+	// if the "model2" key is set, use a seperate model
+	// for drawing, but clip against the brushes
+	if(ent->model2)
+	{
+		ent->s.modelindex2 = G_ModelIndex(ent->model2);
+	}
+
+	// if the "loopsound" key is set, use a constant looping sound when moving
+	if(G_SpawnString("noise", "100", &sound))
+	{
+		ent->s.loopSound = G_SoundIndex(sound);
+	}
+
+	// if the "color" or "light" keys are set, setup constantLight
+	lightSet = G_SpawnFloat("light", "100", &light);
+	colorSet = G_SpawnVector("color", "1 1 1", color);
+	if(lightSet || colorSet)
+	{
+		int             r, g, b, i;
+
+		r = color[0] * 255;
+		if(r > 255)
+		{
+			r = 255;
+		}
+		g = color[1] * 255;
+		if(g > 255)
+		{
+			g = 255;
+		}
+		b = color[2] * 255;
+		if(b > 255)
+		{
+			b = 255;
+		}
+		i = light / 4;
+		if(i > 255)
+		{
+			i = 255;
+		}
+		ent->s.constantLight = r | (g << 8) | (b << 16) | (i << 24);
+	}
+
+	ent->use = Use_BinaryMover;
+	ent->moverState = ROTATOR_POS1;
+	ent->r.svFlags = SVF_USE_CURRENT_ORIGIN;
+	ent->s.eType = ET_MOVER;
+	VectorCopy(ent->pos1, ent->r.currentAngles);
+	trap_LinkEntity (ent);
+
+	ent->s.apos.trType = TR_STATIONARY;
+	VectorCopy(ent->pos1, ent->s.apos.trBase);
+
+	// calculate time to reach second position from speed
+	VectorSubtract(ent->pos2, ent->pos1, move);
+	angle = VectorLength(move);
+	if(!ent->speed){
+		ent->speed = 120;
+	}
+	VectorScale(move, ent->speed, ent->s.apos.trDelta);
+	ent->s.apos.trDuration = angle * 1000 / ent->speed;
+	if(ent->s.apos.trDuration <= 0)
+	{
+		ent->s.apos.trDuration = 1;
+	}
+}
 
 /*
 ===============================================================================
@@ -948,7 +1188,8 @@ void Blocked_Door(gentity_t * ent, gentity_t * other)
 		G_TempEntity(other->s.origin, EV_ITEM_POP);
 		G_FreeEntity(other);
 		return;
-	}
+	} else 	if (other->health <= 0) 
+		return;
 
 	if(ent->damage)
 	{
@@ -961,6 +1202,55 @@ void Blocked_Door(gentity_t * ent, gentity_t * other)
 
 	// reverse direction
 	Use_BinaryMover(ent, ent, other);
+}
+
+// DUTCHMEAT
+/*
+================
+Blocked_DoorRotate
+================
+*/
+void Blocked_DoorRotate( gentity_t *ent, gentity_t *other ) 
+{
+	gentity_t		*slave;
+	int time;
+
+	// remove anything other than a client
+	if(other)
+	{
+		if(!other->client)
+		{
+			if(other->s.eType == ET_ITEM && other->item->giType == IT_TEAM)
+			{
+				Team_DroppedFlagThink( other );
+				return;
+			}
+			G_TempEntity( other->s.origin, EV_ITEM_POP );
+			G_FreeEntity( other );
+			return;
+		}
+
+		if(other->health <= 0)
+			G_Damage( other, ent, ent, NULL, NULL, 99999, 0, MOD_CRUSH );
+		
+		if(ent->damage)
+			G_Damage( other, ent, ent, NULL, NULL, ent->damage, 0, MOD_CRUSH );
+	}
+	
+	for(slave = ent ; slave ; slave = slave->teamchain)
+	{
+		time = level.time - (slave->s.apos.trDuration - (level.time - slave->s.apos.trTime));
+			
+		if(slave->moverState == ROTATOR_1TO2)
+		{
+			SetMoverState( slave, ROTATOR_2TO1, time);
+		}
+		else
+		{
+			SetMoverState( slave, ROTATOR_1TO2, time);
+		}
+		trap_LinkEntity(slave);
+	}
 }
 
 /*
@@ -1005,12 +1295,14 @@ void Touch_DoorTrigger(gentity_t * ent, gentity_t * other, trace_t * trace)
 	if(other->client && other->client->sess.sessionTeam == TEAM_SPECTATOR)
 	{
 		// if the door is not open and not opening
-		if(ent->parent->moverState != MOVER_1TO2 && ent->parent->moverState != MOVER_POS2)
+		if(ent->parent->moverState != MOVER_1TO2 && ent->parent->moverState != MOVER_POS2 &&
+			ent->parent->moverState != ROTATOR_1TO2 &&
+			ent->parent->moverState != ROTATOR_POS2)
 		{
 			Touch_DoorTriggerSpectator(ent, other, trace);
 		}
 	}
-	else if(ent->parent->moverState != MOVER_1TO2)
+	else if(ent->parent->moverState != MOVER_1TO2 && ent->parent->moverState != ROTATOR_1TO2)
 	{
 		Use_BinaryMover(ent->parent, ent, other);
 	}
@@ -1066,7 +1358,12 @@ void Think_SpawnNewDoorTrigger(gentity_t * ent)
 	VectorCopy(maxs, other->r.maxs);
 	other->parent = ent;
 	other->r.contents = CONTENTS_TRIGGER;
-	other->touch = Touch_DoorTrigger;
+
+	if(Q_stricmp (ent->classname, "func_door_rotating") == 0)
+		other->use = Use_BinaryMover;
+	else
+		other->touch = Touch_DoorTrigger;
+	
 	// remember the thinnest axis
 	other->count = best;
 	trap_LinkEntity(other);
@@ -1180,6 +1477,168 @@ void SP_func_door(gentity_t * ent)
 		{
 			ent->takedamage = qtrue;
 
+			// non touch/shoot doors
+			ent->think = Think_MatchTeam;
+		}
+		else
+		{
+			ent->think = Think_SpawnNewDoorTrigger;
+		}
+	}
+}
+
+//DUTCHMEAT
+/*QUAKED func_door_rotating (0 .5 .8) START_OPEN CRUSHER REVERSE TOGGLE X_AXIS Y_AXIS
+This is the rotating door... just as the name suggests it's a door that rotates
+START_OPEN	the door to moves to its destination when spawned, and operate in reverse.
+STAY_OPEN	the door remains open
+REVERSE		if you want the door to open in the other direction, use this switch.
+TOGGLE		wait in both the start and end states for a trigger event.
+X_AXIS		open on the X-axis instead of the Z-axis
+Y_AXIS		open on the Y-axis instead of the Z-axis
+  
+You need to have an origin brush as part of this entity.  The center of that brush will be
+the point around which it is rotated. It will rotate around the Z axis by default.  You can
+check either the X_AXIS or Y_AXIS box to change that.
+
+"model2"	.md3 model to also draw
+"distance"	how many degrees the door will open
+"speed"	 	how fast the door will open (degrees/second)
+"color"		constantLight color
+"light"		constantLight radius
+"allowteams" "none|red|blue|both"
+"dmg"		damage to inflict when blocked (2 default)
+*/
+
+void SP_func_door_rotating( gentity_t *ent )
+{
+	qboolean reverse, start_open, x_axis, y_axis, stay_open;
+	char *allowTeams;
+
+	G_SpawnBoolean("x_axis", "0", &x_axis);
+	G_SpawnBoolean("y_axis", "0", &y_axis);
+	G_SpawnBoolean("reverse", "0", &reverse);
+	G_SpawnBoolean("stay_open", "0", &stay_open);
+
+	// default damage of 2 points
+	G_SpawnInt("dmg", "2", &ent->damage);
+
+	if(!G_SpawnString("allowteams", "none", &allowTeams))
+	{
+		G_Printf("%s at %s with no allowteams set, defaulting to none\n", ent->classname, vtos(ent->s.origin));
+	}
+
+	if (Q_stricmp (allowTeams, "red") == 0)
+	{
+		ent->red_only = qtrue;
+	}
+	else if (Q_stricmp (allowTeams, "blue") == 0)
+	{
+		ent->blue_only = qtrue;
+	} 
+	else if (Q_stricmp (allowTeams, "both") == 0)
+	{
+		ent->red_only = qtrue;
+		ent->blue_only = qtrue;
+	} 
+	else if (Q_stricmp (allowTeams, "none") == 0)
+	{
+		ent->red_only = qfalse;
+		ent->blue_only = qfalse;
+	} 
+	
+	ent->sound1to2 = ent->sound2to1 = G_SoundIndex("sound/movers/doors/dr1_strt.ogg");
+	ent->soundPos1 = ent->soundPos2 = G_SoundIndex("sound/movers/doors/dr1_end.ogg");
+
+	ent->blocked = Blocked_DoorRotate;
+	ent->activate = G_ActivateUseFirst;
+
+	// default speed of 120
+	if (!ent->speed)
+		ent->speed = 120;
+
+	// if speed is negative, positize it and add reverse flag
+	if (ent->speed < 0)
+	{
+		ent->speed *= -1;
+		reverse = qtrue;
+	}
+
+	// default of 2 seconds
+	if (!ent->wait)
+		ent->wait = 2;
+	ent->wait *= 1000;
+	
+	// set the axis of rotation
+	VectorClear( ent->movedir );
+	VectorClear( ent->s.angles );
+	
+	if (x_axis)
+	{
+		ent->movedir[2] = 1.0;
+	} 
+	else if (y_axis) 
+	{
+		ent->movedir[0] = 1.0;
+	} 
+	else 
+	{
+		ent->movedir[1] = 1.0; //z axis
+	}
+
+	// reverse direction if necessary
+	if(reverse)
+		VectorNegate ( ent->movedir, ent->movedir );
+
+	// default distance of 90 degrees. This is something the mapper should not
+	// leave out, so we'll tell him if he does.
+	if(!ent->distance)
+	{
+		G_Printf("%s at %s with no distance set.\n",
+		ent->classname, vtos(ent->s.origin));
+		ent->distance = 90.0;
+	}
+	
+	VectorCopy(ent->s.angles, ent->pos1);
+	trap_SetBrushModel(ent, ent->model);
+	VectorMA (ent->pos1, ent->distance, ent->movedir, ent->pos2);
+
+	// if "start_open", reverse position 1 and 2
+	G_SpawnBoolean("start_open", "0", &start_open);
+	if (start_open) 
+	{
+		vec3_t	temp;
+
+		VectorCopy(ent->pos2, temp);
+		VectorCopy(ent->s.angles, ent->pos2);
+		VectorCopy(temp, ent->pos1);
+		VectorNegate(ent->movedir, ent->movedir);
+	}
+	
+	// set origin
+	VectorCopy(ent->s.origin, ent->s.pos.trBase);
+	VectorCopy(ent->s.pos.trBase, ent->r.currentOrigin);
+
+	InitRotator(ent);
+
+	if(!stay_open) // STAYOPEN
+	{
+		ent->reached = Reached_BinaryMover;
+	}
+
+	ent->nextthink = level.time + FRAMETIME;
+
+	if (!(ent->flags & FL_TEAMSLAVE))
+	{
+		int health;
+
+		G_SpawnInt( "health", "0", &health);
+		if(health)
+		{
+			ent->takedamage = qtrue;
+		}
+		if(health)
+		{
 			// non touch/shoot doors
 			ent->think = Think_MatchTeam;
 		}
