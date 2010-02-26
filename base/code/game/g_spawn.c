@@ -198,7 +198,7 @@ void            SP_func_bobbing(gentity_t * ent);
 void            SP_func_pendulum(gentity_t * ent);
 void            SP_func_button(gentity_t * ent);
 void            SP_func_door(gentity_t * ent);
-void            SP_func_door_rotating (gentity_t *ent);
+void            SP_func_door_rotating(gentity_t * ent);
 void            SP_func_train(gentity_t * ent);
 void            SP_func_timer(gentity_t * self);
 void            SP_func_mover(gentity_t * self);

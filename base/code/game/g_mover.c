@@ -697,7 +697,7 @@ void ReturnToPos1(gentity_t * ent)
 ReturnToApos1
 ================
 */
-void ReturnToApos1(gentity_t *ent)
+void ReturnToApos1(gentity_t * ent)
 {
 	MatchTeam(ent, ROTATOR_2TO1, level.time);
 
@@ -717,7 +717,7 @@ void ReturnToApos1(gentity_t *ent)
 Blocked_DoorRotate
 ================
 */
-void Blocked_DoorRotate(gentity_t *ent, gentity_t *other)
+void Blocked_DoorRotate(gentity_t * ent, gentity_t * other)
 {
 	gentity_t      *slave;
 	int             time;
@@ -741,14 +741,14 @@ void Blocked_DoorRotate(gentity_t *ent, gentity_t *other)
 		{
 			G_Damage(other, ent, ent, NULL, NULL, 99999, 0, MOD_CRUSH);
 		}
-		
+
 		if(ent->damage)
 		{
 			G_Damage(other, ent, ent, NULL, NULL, ent->damage, 0, MOD_CRUSH);
 		}
 	}
 
-	for(slave = ent ; slave ; slave = slave->teamchain)
+	for(slave = ent; slave; slave = slave->teamchain)
 	{
 		time = level.time - (slave->s.apos.trDuration - (level.time - slave->s.apos.trTime));
 
@@ -907,7 +907,7 @@ void Use_BinaryMover(gentity_t * ent, gentity_t * other, gentity_t * activator)
 	if(!(ent->red_only && ent->blue_only) && activator->client)
 	{
 		if((ent->red_only && activator->client->sess.sessionTeam != TEAM_RED) ||
-			(ent->blue_only && activator->client->sess.sessionTeam != TEAM_BLUE))
+		   (ent->blue_only && activator->client->sess.sessionTeam != TEAM_BLUE))
 		{
 			return;
 		}
@@ -990,7 +990,7 @@ void Use_BinaryMover(gentity_t * ent, gentity_t * other, gentity_t * activator)
 		}
 		return;
 	}
-		
+
 	if(ent->moverState == ROTATOR_POS1)
 	{
 		// start moving 50 msec later, becase if this was player
@@ -1144,7 +1144,8 @@ InitRotator
 so the movement delta can be calculated
 ================
 */
-void InitRotator( gentity_t *ent ) {
+void InitRotator(gentity_t * ent)
+{
 	vec3_t          move;
 	float           angle;
 	float           light;
@@ -1251,7 +1252,7 @@ void Blocked_Door(gentity_t * ent, gentity_t * other)
 		G_FreeEntity(other);
 		return;
 	}
-	else if (other->health <= 0)
+	else if(other->health <= 0)
 	{
 		return;
 	}
@@ -1313,8 +1314,7 @@ void Touch_DoorTrigger(gentity_t * ent, gentity_t * other, trace_t * trace)
 	{
 		// if the door is not open and not opening
 		if(ent->parent->moverState != MOVER_1TO2 && ent->parent->moverState != MOVER_POS2 &&
-			ent->parent->moverState != ROTATOR_1TO2 &&
-			ent->parent->moverState != ROTATOR_POS2)
+		   ent->parent->moverState != ROTATOR_1TO2 && ent->parent->moverState != ROTATOR_POS2)
 		{
 			Touch_DoorTriggerSpectator(ent, other, trace);
 		}
@@ -1376,7 +1376,7 @@ void Think_SpawnNewDoorTrigger(gentity_t * ent)
 	other->parent = ent;
 	other->r.contents = CONTENTS_TRIGGER;
 
-	if(Q_stricmp (ent->classname, "func_door_rotating") == 0)
+	if(Q_stricmp(ent->classname, "func_door_rotating") == 0)
 	{
 		other->use = Use_BinaryMover;
 	}
@@ -1535,7 +1535,7 @@ check either the X_AXIS or Y_AXIS box to change that.
 "dmg"		damage to inflict when blocked (2 default)
 */
 
-void SP_func_door_rotating( gentity_t *ent )
+void SP_func_door_rotating(gentity_t * ent)
 {
 	qboolean        reverse, start_open, stay_open;
 	qboolean        x_axis, y_axis;
@@ -1554,25 +1554,25 @@ void SP_func_door_rotating( gentity_t *ent )
 		G_Printf("%s at %s with no allowteams set, defaulting to none\n", ent->classname, vtos(ent->s.origin));
 	}
 
-	if(Q_stricmp (allowTeams, "red") == 0)
+	if(Q_stricmp(allowTeams, "red") == 0)
 	{
 		ent->red_only = qtrue;
 	}
-	else if(Q_stricmp (allowTeams, "blue") == 0)
+	else if(Q_stricmp(allowTeams, "blue") == 0)
 	{
 		ent->blue_only = qtrue;
 	}
-	else if(Q_stricmp (allowTeams, "both") == 0)
+	else if(Q_stricmp(allowTeams, "both") == 0)
 	{
 		ent->red_only = qtrue;
 		ent->blue_only = qtrue;
 	}
-	else if(Q_stricmp (allowTeams, "none") == 0)
+	else if(Q_stricmp(allowTeams, "none") == 0)
 	{
 		ent->red_only = qfalse;
 		ent->blue_only = qfalse;
 	}
-	
+
 	ent->sound1to2 = ent->sound2to1 = G_SoundIndex("sound/movers/doors/dr1_strt.ogg");
 	ent->soundPos1 = ent->soundPos2 = G_SoundIndex("sound/movers/doors/dr1_end.ogg");
 
@@ -1613,7 +1613,7 @@ void SP_func_door_rotating( gentity_t *ent )
 	}
 	else
 	{
-		ent->movedir[1] = 1.0; //z axis
+		ent->movedir[1] = 1.0;	//z axis
 	}
 
 	// reverse direction if necessary
@@ -1626,8 +1626,7 @@ void SP_func_door_rotating( gentity_t *ent )
 	// leave out, so we'll tell him if he does.
 	if(!ent->distance)
 	{
-		G_Printf("%s at %s with no distance set.\n",
-		ent->classname, vtos(ent->s.origin));
+		G_Printf("%s at %s with no distance set.\n", ent->classname, vtos(ent->s.origin));
 		ent->distance = 90.0;
 	}
 
@@ -1646,21 +1645,21 @@ void SP_func_door_rotating( gentity_t *ent )
 		VectorCopy(temp, ent->pos1);
 		VectorNegate(ent->movedir, ent->movedir);
 	}
-	
+
 	// set origin
 	VectorCopy(ent->s.origin, ent->s.pos.trBase);
 	VectorCopy(ent->s.pos.trBase, ent->r.currentOrigin);
 
 	InitRotator(ent);
 
-	if(!stay_open) // STAYOPEN
+	if(!stay_open)				// STAYOPEN
 	{
 		ent->reached = Reached_BinaryMover;
 	}
 
 	ent->nextthink = level.time + FRAMETIME;
 
-	if (!(ent->flags & FL_TEAMSLAVE))
+	if(!(ent->flags & FL_TEAMSLAVE))
 	{
 		int             health;
 
