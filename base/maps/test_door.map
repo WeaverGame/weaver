@@ -2,8 +2,8 @@ Version 2
 // entity 0
 {
 "classname" "worldspawn"
-"editor_drLastCameraPos" "-12.8815 -152.235 280.04"
-"editor_drLastCameraAngle" "-19.2 104.1 0"
+"editor_drLastCameraPos" "8.67917 201.714 356.493"
+"editor_drLastCameraAngle" "-32.1 177.9 0"
 // primitive 0
 {
 brushDef3
@@ -147,33 +147,33 @@ brushDef3
 {
 "classname" "light"
 "name" "light_1"
-"origin" "224 -224 64"
 "light_center" "0 0 0"
 "light_radius" "300 300 300"
+"origin" "224 -224 64"
 }
 // entity 3
 {
 "classname" "light"
 "name" "light_3"
-"origin" "-224 -224 64"
 "light_center" "0 0 0"
 "light_radius" "300 300 300"
+"origin" "-224 -224 64"
 }
 // entity 4
 {
 "classname" "light"
 "name" "light_4"
-"origin" "-224 224 64"
 "light_center" "0 0 0"
 "light_radius" "300 300 300"
+"origin" "-224 224 64"
 }
 // entity 5
 {
 "classname" "light"
 "name" "light_5"
-"origin" "224 224 64"
 "light_center" "0 0 0"
 "light_radius" "300 300 300"
+"origin" "224 224 64"
 }
 // entity 6
 {
@@ -198,9 +198,9 @@ brushDef3
 {
 "classname" "func_door_rotating"
 "name" "func_door_rotating_3"
+"allowteams" "red"
 "model" "func_door_rotating_3"
 "origin" "60 192 64"
-"allowteams" "red"
 // primitive 0
 {
 brushDef3
@@ -218,9 +218,9 @@ brushDef3
 {
 "classname" "func_door_rotating"
 "name" "func_door_rotating_4"
+"allowteams" "blue"
 "model" "func_door_rotating_4"
 "origin" "-132 192 64"
-"allowteams" "blue"
 // primitive 0
 {
 brushDef3
@@ -238,9 +238,9 @@ brushDef3
 {
 "classname" "func_door_rotating"
 "name" "func_door_rotating_5"
+"allowteams" "none"
 "model" "func_door_rotating_5"
 "origin" "-324 192 64"
-"allowteams" "none"
 // primitive 0
 {
 brushDef3
@@ -320,8 +320,8 @@ brushDef3
 "name" "func_door_rotating_9"
 "model" "func_door_rotating_9"
 "origin" "2 -384 64"
-"z_axis" "true"
 "x_axis" "true"
+"z_axis" "true"
 // primitive 0
 {
 brushDef3
@@ -361,7 +361,7 @@ brushDef3
 "name" "func_door_rotating_11"
 "model" "func_door_rotating_11"
 "origin" "-318 -192 64"
-"start_open" "true"
+"stay_open" "true"
 // primitive 0
 {
 brushDef3
@@ -379,9 +379,9 @@ brushDef3
 {
 "classname" "func_door_rotating"
 "name" "func_door_rotating_12"
+"health" "50"
 "model" "func_door_rotating_12"
 "origin" "-446 -320 64"
-"health" "50"
 // primitive 0
 {
 brushDef3
@@ -399,10 +399,10 @@ brushDef3
 {
 "classname" "func_door_rotating"
 "name" "func_door_rotating_13"
+"angle" "30"
 "model" "func_door_rotating_13"
 "origin" "-382 -64 64"
 "start_open" "true"
-"angle" "30"
 // primitive 0
 {
 brushDef3
@@ -420,63 +420,124 @@ brushDef3
 {
 "classname" "light"
 "name" "light_9"
-"origin" "224 -224 256"
 "light_center" "0 0 0"
 "light_radius" "300 300 300"
+"origin" "224 -224 256"
 }
 // entity 19
 {
 "classname" "light"
 "name" "light_2"
-"origin" "-224 -224 256"
 "light_center" "0 0 0"
 "light_radius" "300 300 300"
+"origin" "-224 -224 256"
 }
 // entity 20
 {
 "classname" "light"
 "name" "light_6"
-"origin" "-224 224 256"
 "light_center" "0 0 0"
 "light_radius" "300 300 300"
+"origin" "-224 224 256"
 }
 // entity 21
 {
 "classname" "light"
 "name" "light_7"
-"origin" "224 224 256"
 "light_center" "0 0 0"
 "light_radius" "300 300 300"
+"origin" "224 224 256"
 }
 // entity 22
 {
 "classname" "light"
 "name" "light_13"
-"origin" "224 -224 448"
 "light_center" "0 0 0"
 "light_radius" "300 300 300"
+"origin" "224 -224 448"
 }
 // entity 23
 {
 "classname" "light"
 "name" "light_8"
-"origin" "-224 -224 448"
 "light_center" "0 0 0"
 "light_radius" "300 300 300"
+"origin" "-224 -224 448"
 }
 // entity 24
 {
 "classname" "light"
 "name" "light_10"
-"origin" "-224 224 448"
 "light_center" "0 0 0"
 "light_radius" "300 300 300"
+"origin" "-224 224 448"
 }
 // entity 25
 {
 "classname" "light"
 "name" "light_11"
-"origin" "224 224 448"
 "light_center" "0 0 0"
 "light_radius" "300 300 300"
+"origin" "224 224 448"
+}
+// entity 26
+{
+"classname" "func_door_rotating"
+"name" "func_door_rotating_14"
+"model" "func_door_rotating_14"
+"origin" "-382 56 64"
+"distance" "30"
+"start_open" "true"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -64 ) ( ( 0.015625 0 14.8125 ) ( 0 0.00390625 2.75 ) ) "textures/trak/trak8/metaltrim1" 0 0 0
+( 0 1 0 -4 ) ( ( 0.015625 0 245 ) ( 0 0.00390625 0 ) ) "textures/trak/trak8/metaltrim1" 0 0 0
+( 1 0 0 -62 ) ( ( 0.015625 0 14.8125 ) ( 0 0.00390625 0 ) ) "textures/trak/trak8/metaltrim1" 0 0 0
+( 0 0 -1 -64 ) ( ( 0.015625 0 14.8125 ) ( 0 0.00390625 1021.3125 ) ) "textures/trak/trak8/metaltrim1" 0 0 0
+( 0 -1 0 -4 ) ( ( 0.015625 0 11 ) ( 0 0.00390625 0 ) ) "textures/trak/trak8/metaltrim1" 0 0 0
+( -1 0 0 -66 ) ( ( 0.015625 0 1.1875 ) ( 0 0.00390625 0 ) ) "textures/trak/trak8/metaltrim1" 0 0 0
+}
+}
+}
+// entity 27
+{
+"classname" "func_door_rotating"
+"name" "func_door_rotating_15"
+"model" "func_door_rotating_15"
+"origin" "-382 408 64"
+"distance" "-30"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -64 ) ( ( 0.015625 0 9.3125 ) ( 0 0.00390625 2.75 ) ) "textures/trak/trak8/metaltrim1" 0 0 0
+( 0 1 0 -4 ) ( ( 0.015625 0 245 ) ( 0 0.00390625 0 ) ) "textures/trak/trak8/metaltrim1" 0 0 0
+( 1 0 0 -62 ) ( ( 0.015625 0 9.3125 ) ( 0 0.00390625 0 ) ) "textures/trak/trak8/metaltrim1" 0 0 0
+( 0 0 -1 -64 ) ( ( 0.015625 0 9.3125 ) ( 0 0.00390625 1021.3125 ) ) "textures/trak/trak8/metaltrim1" 0 0 0
+( 0 -1 0 -4 ) ( ( 0.015625 0 11 ) ( 0 0.00390625 0 ) ) "textures/trak/trak8/metaltrim1" 0 0 0
+( -1 0 0 -66 ) ( ( 0.015625 0 6.6875 ) ( 0 0.00390625 0 ) ) "textures/trak/trak8/metaltrim1" 0 0 0
+}
+}
+}
+// entity 28
+{
+"classname" "func_door_rotating"
+"name" "func_door_rotating_16"
+"model" "func_door_rotating_16"
+"origin" "-166 408 64"
+"reverse" "true"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -64 ) ( ( 0.015625 0 9.3125 ) ( 0 0.00390625 1.90625 ) ) "textures/trak/trak8/metaltrim1" 0 0 0
+( 0 1 0 -4 ) ( ( 0.015625 0 248.375 ) ( 0 0.00390625 0 ) ) "textures/trak/trak8/metaltrim1" 0 0 0
+( 1 0 0 -62 ) ( ( 0.015625 0 9.3125 ) ( 0 0.00390625 0 ) ) "textures/trak/trak8/metaltrim1" 0 0 0
+( 0 0 -1 -64 ) ( ( 0.015625 0 9.3125 ) ( 0 0.00390625 1022.15625 ) ) "textures/trak/trak8/metaltrim1" 0 0 0
+( 0 -1 0 -4 ) ( ( 0.015625 0 7.625 ) ( 0 0.00390625 0 ) ) "textures/trak/trak8/metaltrim1" 0 0 0
+( -1 0 0 -66 ) ( ( 0.015625 0 6.6875 ) ( 0 0.00390625 0 ) ) "textures/trak/trak8/metaltrim1" 0 0 0
+}
+}
 }
