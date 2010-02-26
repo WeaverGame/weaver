@@ -21,3 +21,4 @@ trak8
 ui
 weave_icons
 weaves
+fire
