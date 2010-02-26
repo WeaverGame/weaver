@@ -71,12 +71,11 @@ typedef enum
 	MOVER_POS2,
 	MOVER_1TO2,
 	MOVER_2TO1,
-	
-	// DUTCHMEAT
+
 	ROTATOR_POS1,
 	ROTATOR_POS2,
 	ROTATOR_1TO2,
-	ROTATOR_2TO1, 
+	ROTATOR_2TO1,
 
 	MOVER_MISC
 } moverState_t;
@@ -171,6 +170,7 @@ struct gentity_s
 	gentity_t      *nextTrain;
 	gentity_t      *prevTrain;
 	vec3_t          pos1, pos2;
+	float           distance;
 
 	char           *message;
 
@@ -288,9 +288,6 @@ struct gentity_s
 
 	float           knockback;
 	void            (*impact) (gentity_t * ent, trace_t * trace);
-
-	// DUTCHMEAT
-	float			distance;
 };
 
 

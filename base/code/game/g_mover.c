@@ -533,11 +533,13 @@ void G_MoverTeam(gentity_t * ent)
 				}
 			}
 		}
-		// DUTCHMEAT
-		if ( part->s.apos.trType == TR_LINEAR_STOP ) {
-			if ( level.time >= part->s.apos.trTime + part->s.apos.trDuration ) {
-				if ( part->reached ) {
-					part->reached( part );
+		if(part->s.apos.trType == TR_LINEAR_STOP)
+		{
+			if(level.time >= part->s.apos.trTime + part->s.apos.trDuration)
+			{
+				if(part->reached)
+				{
+					part->reached(part);
 				}
 			}
 		}
@@ -688,6 +690,8 @@ void ReturnToPos1(gentity_t * ent)
 		G_AddEvent(ent, EV_GENERAL_SOUND, ent->sound2to1);
 	}
 }
+
+
 /*
 ================
 ReturnToApos1
@@ -704,6 +708,59 @@ void ReturnToApos1(gentity_t *ent)
 	if(ent->sound2to1)
 	{
 		G_AddEvent(ent, EV_GENERAL_SOUND, ent->sound2to1);
+	}
+}
+
+
+/*
+================
+Blocked_DoorRotate
+================
+*/
+void Blocked_DoorRotate(gentity_t *ent, gentity_t *other)
+{
+	gentity_t      *slave;
+	int             time;
+
+	// remove anything other than a client
+	if(other)
+	{
+		if(!other->client)
+		{
+			if(other->s.eType == ET_ITEM && other->item->giType == IT_TEAM)
+			{
+				Team_DroppedFlagThink(other);
+				return;
+			}
+			G_TempEntity(other->s.origin, EV_ITEM_POP);
+			G_FreeEntity(other);
+			return;
+		}
+
+		if(other->health <= 0)
+		{
+			G_Damage(other, ent, ent, NULL, NULL, 99999, 0, MOD_CRUSH);
+		}
+		
+		if(ent->damage)
+		{
+			G_Damage(other, ent, ent, NULL, NULL, ent->damage, 0, MOD_CRUSH);
+		}
+	}
+
+	for(slave = ent ; slave ; slave = slave->teamchain)
+	{
+		time = level.time - (slave->s.apos.trDuration - (level.time - slave->s.apos.trTime));
+
+		if(slave->moverState == ROTATOR_1TO2)
+		{
+			SetMoverState(slave, ROTATOR_2TO1, time);
+		}
+		else
+		{
+			SetMoverState(slave, ROTATOR_1TO2, time);
+		}
+		trap_LinkEntity(slave);
 	}
 }
 
@@ -776,17 +833,16 @@ void Reached_BinaryMover(gentity_t * ent)
 	else if(ent->moverState == MOVER_MISC)
 	{
 		//Movement was set by lua, its fine.
-	} 
-	// DUTCHMEAT
-	else if ( ent->moverState == ROTATOR_1TO2 ) 
+	}
+	else if(ent->moverState == ROTATOR_1TO2)
 	{
 		// reached pos2
-		SetMoverState( ent, ROTATOR_POS2, level.time );
+		SetMoverState(ent, ROTATOR_POS2, level.time);
 
 		// play sound
-		if ( ent->soundPos2 ) 
+		if(ent->soundPos2)
 		{
-			G_AddEvent( ent, EV_GENERAL_SOUND, ent->soundPos2 );
+			G_AddEvent(ent, EV_GENERAL_SOUND, ent->soundPos2);
 		}
 
 		// return to apos1 after a delay
@@ -794,40 +850,41 @@ void Reached_BinaryMover(gentity_t * ent)
 		ent->nextthink = level.time + ent->wait;
 
 		// fire targets
-		if ( !ent->activator )
+		if(!ent->activator)
 		{
 			ent->activator = ent;
 		}
-		G_UseTargets( ent, ent->activator );
-	} else if ( ent->moverState == ROTATOR_2TO1 ) 
+		G_UseTargets(ent, ent->activator);
+	}
+	else if(ent->moverState == ROTATOR_2TO1)
 	{
 		// reached pos1
-		SetMoverState( ent, ROTATOR_POS1, level.time );
+		SetMoverState(ent, ROTATOR_POS1, level.time);
 
 		// play sound
-		if ( ent->soundPos1 ) 
+		if(ent->soundPos1)
 		{
-			G_AddEvent( ent, EV_GENERAL_SOUND, ent->soundPos1 );
+			G_AddEvent(ent, EV_GENERAL_SOUND, ent->soundPos1);
 		}
 
 		// close areaportals
-		if ( ent->teammaster == ent || !ent->teammaster ) 
+		if(ent->teammaster == ent || !ent->teammaster)
 		{
-			trap_AdjustAreaPortalState( ent, qfalse );
+			trap_AdjustAreaPortalState(ent, qfalse);
 		}
-	} 
+	}
 	else
 	{
 		G_Error("Reached_BinaryMover: bad moverState");
 	}
 }
 
+
 /*
 ================
 Use_BinaryMover
 ================
 */
-void Blocked_DoorRotate( gentity_t *ent, gentity_t *other );
 void Use_BinaryMover(gentity_t * ent, gentity_t * other, gentity_t * activator)
 {
 	int             total;
@@ -842,13 +899,18 @@ void Use_BinaryMover(gentity_t * ent, gentity_t * other, gentity_t * activator)
 
 	//teamsallowed = none
 	if(!ent->red_only && !ent->blue_only)
+	{
 		return;
+	}
 
 	//teamsallowed is not 'both' and not the same team as the player
 	if(!(ent->red_only && ent->blue_only) && activator->client)
 	{
-		if((ent->red_only && activator->client->sess.sessionTeam != TEAM_RED) || (ent->blue_only && activator->client->sess.sessionTeam != TEAM_BLUE))
+		if((ent->red_only && activator->client->sess.sessionTeam != TEAM_RED) ||
+			(ent->blue_only && activator->client->sess.sessionTeam != TEAM_BLUE))
+		{
 			return;
+		}
 	}
 
 	ent->activator = activator;
@@ -929,7 +991,6 @@ void Use_BinaryMover(gentity_t * ent, gentity_t * other, gentity_t * activator)
 		return;
 	}
 		
-	// DUTCHMEAT
 	if(ent->moverState == ROTATOR_POS1)
 	{
 		// start moving 50 msec later, becase if this was player
@@ -1084,12 +1145,12 @@ so the movement delta can be calculated
 ================
 */
 void InitRotator( gentity_t *ent ) {
-	vec3_t		move;
-	float		angle;
-	float		light;
-	vec3_t		color;
-	qboolean	lightSet, colorSet;
-	char		*sound;
+	vec3_t          move;
+	float           angle;
+	float           light;
+	vec3_t          color;
+	qboolean        lightSet, colorSet;
+	char           *sound;
 
 	// if the "model2" key is set, use a seperate model
 	// for drawing, but clip against the brushes
@@ -1139,7 +1200,7 @@ void InitRotator( gentity_t *ent ) {
 	ent->r.svFlags = SVF_USE_CURRENT_ORIGIN;
 	ent->s.eType = ET_MOVER;
 	VectorCopy(ent->pos1, ent->r.currentAngles);
-	trap_LinkEntity (ent);
+	trap_LinkEntity(ent);
 
 	ent->s.apos.trType = TR_STATIONARY;
 	VectorCopy(ent->pos1, ent->s.apos.trBase);
@@ -1147,7 +1208,8 @@ void InitRotator( gentity_t *ent ) {
 	// calculate time to reach second position from speed
 	VectorSubtract(ent->pos2, ent->pos1, move);
 	angle = VectorLength(move);
-	if(!ent->speed){
+	if(!ent->speed)
+	{
 		ent->speed = 120;
 	}
 	VectorScale(move, ent->speed, ent->s.apos.trDelta);
@@ -1188,8 +1250,11 @@ void Blocked_Door(gentity_t * ent, gentity_t * other)
 		G_TempEntity(other->s.origin, EV_ITEM_POP);
 		G_FreeEntity(other);
 		return;
-	} else 	if (other->health <= 0) 
+	}
+	else if (other->health <= 0)
+	{
 		return;
+	}
 
 	if(ent->damage)
 	{
@@ -1204,54 +1269,6 @@ void Blocked_Door(gentity_t * ent, gentity_t * other)
 	Use_BinaryMover(ent, ent, other);
 }
 
-// DUTCHMEAT
-/*
-================
-Blocked_DoorRotate
-================
-*/
-void Blocked_DoorRotate( gentity_t *ent, gentity_t *other ) 
-{
-	gentity_t		*slave;
-	int time;
-
-	// remove anything other than a client
-	if(other)
-	{
-		if(!other->client)
-		{
-			if(other->s.eType == ET_ITEM && other->item->giType == IT_TEAM)
-			{
-				Team_DroppedFlagThink( other );
-				return;
-			}
-			G_TempEntity( other->s.origin, EV_ITEM_POP );
-			G_FreeEntity( other );
-			return;
-		}
-
-		if(other->health <= 0)
-			G_Damage( other, ent, ent, NULL, NULL, 99999, 0, MOD_CRUSH );
-		
-		if(ent->damage)
-			G_Damage( other, ent, ent, NULL, NULL, ent->damage, 0, MOD_CRUSH );
-	}
-	
-	for(slave = ent ; slave ; slave = slave->teamchain)
-	{
-		time = level.time - (slave->s.apos.trDuration - (level.time - slave->s.apos.trTime));
-			
-		if(slave->moverState == ROTATOR_1TO2)
-		{
-			SetMoverState( slave, ROTATOR_2TO1, time);
-		}
-		else
-		{
-			SetMoverState( slave, ROTATOR_1TO2, time);
-		}
-		trap_LinkEntity(slave);
-	}
-}
 
 /*
 ================
@@ -1360,10 +1377,14 @@ void Think_SpawnNewDoorTrigger(gentity_t * ent)
 	other->r.contents = CONTENTS_TRIGGER;
 
 	if(Q_stricmp (ent->classname, "func_door_rotating") == 0)
+	{
 		other->use = Use_BinaryMover;
+	}
 	else
+	{
 		other->touch = Touch_DoorTrigger;
-	
+	}
+
 	// remember the thinnest axis
 	other->count = best;
 	trap_LinkEntity(other);
@@ -1410,11 +1431,15 @@ void SP_func_door(gentity_t * ent)
 
 	// default speed of 400
 	if(!ent->speed)
+	{
 		ent->speed = 400;
+	}
 
 	// default wait of 2 seconds
 	if(!ent->wait)
+	{
 		ent->wait = 2;
+	}
 	ent->wait *= 1000;
 
 	// default lip of 8 units
@@ -1512,8 +1537,9 @@ check either the X_AXIS or Y_AXIS box to change that.
 
 void SP_func_door_rotating( gentity_t *ent )
 {
-	qboolean reverse, start_open, x_axis, y_axis, stay_open;
-	char *allowTeams;
+	qboolean        reverse, start_open, stay_open;
+	qboolean        x_axis, y_axis;
+	char           *allowTeams;
 
 	G_SpawnBoolean("x_axis", "0", &x_axis);
 	G_SpawnBoolean("y_axis", "0", &y_axis);
@@ -1528,24 +1554,24 @@ void SP_func_door_rotating( gentity_t *ent )
 		G_Printf("%s at %s with no allowteams set, defaulting to none\n", ent->classname, vtos(ent->s.origin));
 	}
 
-	if (Q_stricmp (allowTeams, "red") == 0)
+	if(Q_stricmp (allowTeams, "red") == 0)
 	{
 		ent->red_only = qtrue;
 	}
-	else if (Q_stricmp (allowTeams, "blue") == 0)
+	else if(Q_stricmp (allowTeams, "blue") == 0)
 	{
 		ent->blue_only = qtrue;
-	} 
-	else if (Q_stricmp (allowTeams, "both") == 0)
+	}
+	else if(Q_stricmp (allowTeams, "both") == 0)
 	{
 		ent->red_only = qtrue;
 		ent->blue_only = qtrue;
-	} 
-	else if (Q_stricmp (allowTeams, "none") == 0)
+	}
+	else if(Q_stricmp (allowTeams, "none") == 0)
 	{
 		ent->red_only = qfalse;
 		ent->blue_only = qfalse;
-	} 
+	}
 	
 	ent->sound1to2 = ent->sound2to1 = G_SoundIndex("sound/movers/doors/dr1_strt.ogg");
 	ent->soundPos1 = ent->soundPos2 = G_SoundIndex("sound/movers/doors/dr1_end.ogg");
@@ -1554,41 +1580,47 @@ void SP_func_door_rotating( gentity_t *ent )
 	ent->activate = G_ActivateUseFirst;
 
 	// default speed of 120
-	if (!ent->speed)
+	if(!ent->speed)
+	{
 		ent->speed = 120;
+	}
 
 	// if speed is negative, positize it and add reverse flag
-	if (ent->speed < 0)
+	if(ent->speed < 0)
 	{
 		ent->speed *= -1;
 		reverse = qtrue;
 	}
 
 	// default of 2 seconds
-	if (!ent->wait)
+	if(!ent->wait)
+	{
 		ent->wait = 2;
+	}
 	ent->wait *= 1000;
-	
+
 	// set the axis of rotation
-	VectorClear( ent->movedir );
-	VectorClear( ent->s.angles );
-	
-	if (x_axis)
+	VectorClear(ent->movedir);
+	VectorClear(ent->s.angles);
+
+	if(x_axis)
 	{
 		ent->movedir[2] = 1.0;
-	} 
-	else if (y_axis) 
+	}
+	else if(y_axis)
 	{
 		ent->movedir[0] = 1.0;
-	} 
-	else 
+	}
+	else
 	{
 		ent->movedir[1] = 1.0; //z axis
 	}
 
 	// reverse direction if necessary
 	if(reverse)
-		VectorNegate ( ent->movedir, ent->movedir );
+	{
+		VectorNegate(ent->movedir, ent->movedir);
+	}
 
 	// default distance of 90 degrees. This is something the mapper should not
 	// leave out, so we'll tell him if he does.
@@ -1598,16 +1630,16 @@ void SP_func_door_rotating( gentity_t *ent )
 		ent->classname, vtos(ent->s.origin));
 		ent->distance = 90.0;
 	}
-	
+
 	VectorCopy(ent->s.angles, ent->pos1);
 	trap_SetBrushModel(ent, ent->model);
-	VectorMA (ent->pos1, ent->distance, ent->movedir, ent->pos2);
+	VectorMA(ent->pos1, ent->distance, ent->movedir, ent->pos2);
 
 	// if "start_open", reverse position 1 and 2
 	G_SpawnBoolean("start_open", "0", &start_open);
-	if (start_open) 
+	if(start_open)
 	{
-		vec3_t	temp;
+		vec3_t          temp;
 
 		VectorCopy(ent->pos2, temp);
 		VectorCopy(ent->s.angles, ent->pos2);
@@ -1630,9 +1662,9 @@ void SP_func_door_rotating( gentity_t *ent )
 
 	if (!(ent->flags & FL_TEAMSLAVE))
 	{
-		int health;
+		int             health;
 
-		G_SpawnInt( "health", "0", &health);
+		G_SpawnInt("health", "0", &health);
 		if(health)
 		{
 			ent->takedamage = qtrue;

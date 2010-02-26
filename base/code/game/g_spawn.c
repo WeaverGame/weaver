@@ -154,6 +154,7 @@ field_t         fields[] = {
 	{"rotation", FOFS(s.angles), F_ROTATIONHACK},
 	{"targetShaderName", FOFS(targetShaderName), F_LSTRING},
 	{"targetShaderNewName", FOFS(targetShaderNewName), F_LSTRING},
+	{"distance", FOFS(distance), F_FLOAT},
 
 #ifdef G_LUA
 	{"luaThink", FOFS(luaThink), F_LSTRING},
@@ -170,8 +171,7 @@ field_t         fields[] = {
 	{"luaParam3", FOFS(luaParam3), F_LSTRING},
 	{"luaParam4", FOFS(luaParam4), F_LSTRING},
 #endif
-	// DUTCHMEAT
-	{"distance", FOFS(distance), F_FLOAT},
+
 	{NULL}
 };
 
@@ -198,9 +198,7 @@ void            SP_func_bobbing(gentity_t * ent);
 void            SP_func_pendulum(gentity_t * ent);
 void            SP_func_button(gentity_t * ent);
 void            SP_func_door(gentity_t * ent);
-// DUTCHMEAT 21-02-10
-void			SP_func_door_rotating (gentity_t *ent);
-// END DUTCHMEAT
+void            SP_func_door_rotating (gentity_t *ent);
 void            SP_func_train(gentity_t * ent);
 void            SP_func_timer(gentity_t * self);
 void            SP_func_mover(gentity_t * self);
@@ -277,9 +275,7 @@ spawn_t         spawns[] = {
 	{"func_plat", SP_func_plat},
 	{"func_button", SP_func_button},
 	{"func_door", SP_func_door},
-	// DUTCHMEAT 12-02-10
 	{"func_door_rotating", SP_func_door_rotating},
-	// END DUTCHMEAT
 	{"func_static", SP_func_static},
 	{"func_rotating", SP_func_rotating},
 	{"func_bobbing", SP_func_bobbing},
