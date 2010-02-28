@@ -299,6 +299,7 @@ void WeaveEffect_Earthquake(centity_t * cent)
 	const weaver_weaveInfo *weave;
 	vec3_t          normalaxis[3];
 	int             k;
+	refLight_t      light;
 
 	s1 = &cent->currentState;
 	if(s1->weapon > WVW_NUM_WEAVES)
@@ -312,27 +313,32 @@ void WeaveEffect_Earthquake(centity_t * cent)
 		return;
 	}
 
+	memset(&light, 0, sizeof(light));
+
 	// calculate the axis
 	VectorCopy(s1->angles, cent->lerpAngles);
+	
+	// surface normal axis
+	VectorNormalize2(cent->currentState.angles, normalaxis[2]);
+	PerpendicularVector(normalaxis[1], normalaxis[2]);
+	CrossProduct(normalaxis[1], normalaxis[2], normalaxis[0]);
 
-	// add dynamic light
-	//TODO: use light shader
-	if(weave->instanceLight)
-	{
-		trap_R_AddLightToScene(cent->lerpOrigin, weave->instanceLight,
-							   weave->instanceLightColor[0], weave->instanceLightColor[1], weave->instanceLightColor[2]);
-	}
+	//Setup light
+	QuatClear(light.rotation);
+	VectorCopy(weave->instanceLightColor, light.color);
+	VectorMA(cent->lerpOrigin, 10.0f, cent->currentState.angles,light.origin);
+	light.radius[0] = weave->instanceLight;
+	light.radius[1] = weave->instanceLight;
+	light.radius[2] = weave->instanceLight;
+	light.attenuationShader = weave->instanceLightShader;
+
+	trap_R_AddRefLightToScene(&light);
 
 	// add missile sound
 	if(weave->instanceSound)
 	{
 		trap_S_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, 0, weave->instanceSound);
 	}
-
-	// surface normal axis
-	VectorNormalize2(cent->currentState.angles, normalaxis[2]);
-	PerpendicularVector(normalaxis[1], normalaxis[2]);
-	CrossProduct(normalaxis[1], normalaxis[2], normalaxis[0]);
 
 	//Com_Printf("Normal=%s\n", vtos(normalaxis[2]));
 

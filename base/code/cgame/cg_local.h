@@ -575,6 +575,7 @@ typedef struct weaver_weaveInfo_s
 	qhandle_t       instanceModel[MAX_WEAVE_INSTANCE_MODELS];
 	float           instanceLight;
 	vec3_t          instanceLightColor;
+	qhandle_t       instanceLightShader;
 	int             instanceRenderfx;
 	sfxHandle_t     instanceSound;
 	qhandle_t       instanceShader[1];
