@@ -243,7 +243,6 @@ char           *WeaveGroupName(int index)
 	return output;
 }
 
-#if 1
 /*
 =================
 ThreadsAgressive
@@ -256,176 +255,7 @@ int ThreadsAgressive(int threads[MAX_THREADS])
 	//Com_Printf("ThreadsAgressive (new) Weave=%d\n", ThreadsTree(threads)->weaveA);
 	return ThreadsTree(threads)->weaveA;
 }
-#else
-/*
-=================
-ThreadsAgressive
 
-Agressive weaves tree.
-=================
-*/
-int ThreadsAgressive(int threads[MAX_THREADS])
-{
-	//A_
-	switch (threads[0])
-	{
-		//A_AIR_
-		case WVP_AIR:
-			if(threads[1] == WVP_AIR &&
-				threads[2] == WVP_NONE)
-				return WVW_A_AIR_BLAST;
-			if(threads[1] == WVP_SPIRIT &&
-				threads[2] == WVP_AIR &&
-				threads[3] == WVP_NONE)
-				return WVW_A_AIR_GRABPLAYER;
-			if(threads[1] == WVP_SPIRIT &&
-				threads[2] == WVP_AIRWATER &&
-				threads[3] == WVP_AIRFIRE &&
-				threads[4] == WVP_NONE)
-				return WVW_A_AIR_BINDPLAYER;
-			return -1;
-		//A_AIRFIRE_
-		case WVP_AIRFIRE:
-			if(threads[1] == WVP_FIRE &&
-				threads[2] == WVP_AIR &&
-				threads[3] == WVP_AIRFIRE &&
-				threads[4] == WVP_NONE)
-				return WVW_A_AIRFIRE_LIGHTNING;
-			if(threads[1] == WVP_FIRE &&
-				threads[2] == WVP_NONE)
-				return WVW_A_AIRFIRE_SWORD;
-			return -1;
-		//A_FIRE_
-		case WVP_FIRE:
-			if(threads[1] == WVP_EARTHFIRE &&
-				threads[2] == WVP_AIRFIRE &&
-				threads[3] == WVP_FIRE &&
-				threads[4] == WVP_NONE)
-				return WVW_A_FIRE_MULTIDARTS;
-			if(threads[1] == WVP_EARTHFIRE &&
-				threads[2] == WVP_AIRFIRE &&
-				threads[3] == WVP_NONE)
-				return WVW_A_FIRE_BALL;
-			if(threads[1] == WVP_EARTHFIRE &&
-				threads[2] == WVP_FIRE &&
-				threads[3] == WVP_AIRFIRE &&
-				threads[4] == WVP_FIRE &&
-				threads[5] == WVP_AIR &&
-				threads[6] == WVP_NONE)
-				return WVW_A_FIRE_BLOSSOMS;
-			if(threads[1] == WVP_EARTHFIRE &&
-				threads[2] == WVP_NONE)
-				return WVW_A_FIRE_DARTS;
-			return -1;
-		//A_EARTHFIRE_
-		case WVP_EARTHFIRE:
-			if(threads[1] == WVP_FIRE &&
-				threads[2] == WVP_AIRFIRE &&
-				threads[3] == WVP_NONE)
-				return WVW_A_EARTHFIRE_IGNITE;
-			return -1;
-		//A_EARTH_
-		case WVP_EARTH:
-			if(threads[1] == WVP_FIRE &&
-				threads[2] == WVP_NONE)
-				return WVW_A_EARTH_QUAKE_S;
-			if(threads[1] == WVP_FIRE &&
-				threads[2] == WVP_EARTHFIRE &&
-				threads[3] == WVP_NONE)
-				return WVW_A_EARTH_QUAKE_M;
-			if(threads[1] == WVP_FIRE &&
-				threads[2] == WVP_EARTHFIRE &&
-				threads[3] == WVP_EARTH &&
-				threads[4] == WVP_NONE)
-				return WVW_A_EARTH_QUAKE_L;
-			return -1;
-		//A_EARTHWATER_
-		case WVP_EARTHWATER:
-			if(threads[1] == WVP_SPIRIT &&
-				threads[2] == WVP_NONE)
-				return WVW_A_EARTHWATER_SLOW;
-			if(threads[1] == WVP_SPIRIT &&
-				threads[2] == WVP_WATER &&
-				threads[3] == WVP_NONE)
-				return WVW_A_EARTHWATER_POISON;
-			return -1;
-		//A_WATER_
-		case WVP_WATER:
-			if(threads[1] == WVP_FIRE &&
-				threads[2] == WVP_AIRWATER &&
-				threads[3] == WVP_WATER &&
-				threads[4] == WVP_NONE)
-				return WVW_A_WATER_ICESHARDS_M;
-			if(threads[1] == WVP_FIRE &&
-				threads[2] == WVP_AIRWATER &&
-				threads[3] == WVP_NONE)
-				return WVW_A_WATER_ICESHARDS_S;
-			return -1;
-		//A_AIRWATER_
-		case WVP_AIRWATER:
-			if(threads[1] == WVP_SPIRIT &&
-				threads[2] == WVP_AIRFIRE &&
-				threads[3] == WVP_NONE)
-				return WVW_A_AIRWATER_DARTS_M;
-			if(threads[1] == WVP_SPIRIT &&
-				threads[2] == WVP_NONE)
-				return WVW_A_AIRWATER_DARTS_S;
-			if(threads[1] == WVP_AIR &&
-				threads[2] == WVP_SPIRIT &&
-				threads[3] == WVP_AIRWATER)
-				return WVW_A_AIRWATER_RIP;
-			return -1;
-		//A_SPIRIT_
-		case WVP_SPIRIT:
-			if(threads[1] == WVP_SPIRIT &&
-				threads[2] == WVP_NONE)
-				return WVW_A_SPIRIT_SLICE_S;
-			if(threads[1] == WVP_SPIRIT &&
-				threads[2] == WVP_AIR &&
-				threads[3] == WVP_NONE)
-				return WVW_A_SPIRIT_SLICE_M;
-			if(threads[1] == WVP_SPIRIT &&
-				threads[2] == WVP_AIR &&
-				threads[3] == WVP_SPIRIT &&
-				threads[4] == WVP_AIRFIRE &&
-				threads[5] == WVP_NONE)
-				return WVW_A_SPIRIT_SLICE_L;
-			if(threads[1] == WVP_SPIRIT &&
-				threads[2] == WVP_EARTH &&
-				threads[3] == WVP_NONE)
-				return WVW_A_SPIRIT_SHIELD;
-			if(threads[1] == WVP_FIRE &&
-				threads[2] == WVP_WATER &&
-				threads[3] == WVP_AIR &&
-				threads[4] == WVP_EARTH &&
-				threads[5] == WVP_SPIRIT &&
-				threads[6] == WVP_AIRFIRE &&
-				threads[7] == WVP_NONE)
-				return WVW_A_SPIRIT_BALEFIRE;
-			if(threads[1] == WVP_FIRE &&
-				threads[2] == WVP_EARTHFIRE &&
-				threads[3] == WVP_AIRFIRE &&
-				threads[4] == WVP_SPIRIT &&
-				threads[5] == WVP_FIRE &&
-				threads[6] == WVP_EARTHFIRE &&
-				threads[7] == WVP_NONE)
-				return WVW_A_SPIRIT_DEATHGATE;
-			if(threads[1] == WVP_EARTHFIRE &&
-				threads[2] == WVP_AIRWATER &&
-				threads[3] == WVP_SPIRIT &&
-				threads[4] == WVP_EARTHWATER &&
-				threads[5] == WVP_AIRFIRE &&
-				threads[6] == WVP_SPIRIT &&
-				threads[7] == WVP_NONE)
-				return WVW_A_SPIRIT_STILL;
-			return -1;
-		default:
-			return -1;
-	}
-}
-#endif
-
-#if 1
 /*
 =================
 ThreadsAgressive
@@ -438,117 +268,6 @@ int ThreadsDefensive(int threads[MAX_THREADS])
 	//Com_Printf("ThreadsDefensive (new) Weave=%d\n", ThreadsTree(threads)->weaveD);
 	return ThreadsTree(threads)->weaveA; //D
 }
-#else
-/*
-=================
-ThreadsDefensive
-
-Defensive weaves tree.
-=================
-*/
-int ThreadsDefensive(int threads[MAX_THREADS])
-{
-	//D_
-	switch(threads[0])
-	{
-		//D_AIR_
-		case WVP_AIR:
-			if(threads[1] == WVP_AIR &&
-				threads[2] == WVP_NONE)
-				return WVW_D_AIR_GRAB;
-			if(threads[1] == WVP_SPIRIT &&
-				threads[2] == WVP_NONE)
-				return WVW_D_AIR_PROTECT;
-			return -1;
-		//D_AIRFIRE_
-		case WVP_AIRFIRE:
-			if(threads[1] == WVP_AIRFIRE &&
-				threads[2] == WVP_FIRE &&
-				threads[3] == WVP_NONE)
-				return WVW_D_AIRFIRE_WALL;
-			if(threads[1] == WVP_AIRFIRE &&
-				threads[2] == WVP_SPIRIT &&
-				threads[3] == WVP_AIR &&
-				threads[4] == WVP_NONE)
-				return WVW_D_AIRFIRE_INVIS;
-			if(threads[1] == WVP_SPIRIT &&
-				threads[2] == WVP_NONE)
-				return WVW_D_AIRFIRE_LIGHT;
-			return -1;
-		//D_FIRE_
-		case WVP_FIRE:
-			if(threads[1] == WVP_SPIRIT &&
-				threads[2] == WVP_NONE)
-				return WVW_D_FIRE_PROTECT;
-			return -1;
-		//D_EARTHFIRE_
-		case WVP_EARTHFIRE:
-			if(threads[1] == WVP_FIRE &&
-				threads[2] == WVP_EARTHFIRE &&
-				threads[3] == WVP_NONE)
-				return WVW_D_EARTHFIRE_EXPLOSIVE_M;
-			if(threads[1] == WVP_FIRE &&
-				threads[2] == WVP_NONE)
-				return WVW_D_EARTHFIRE_EXPLOSIVE_S;
-			return -1;
-		//D_EARTH_
-		case WVP_EARTH:
-			if(threads[1] == WVP_AIRFIRE &&
-				threads[2] == WVP_NONE)
-				return WVW_D_EARTH_UNLOCK;
-			if(threads[1] == WVP_SPIRIT &&
-				threads[2] == WVP_NONE)
-				return WVW_D_EARTH_PROTECT;
-			return -1;
-		//D_EARTHWATER_
-		case WVP_EARTHWATER:
-			return -1;
-		//D_WATER_
-		case WVP_WATER:
-			if(threads[1] == WVP_SPIRIT &&
-				threads[2] == WVP_NONE)
-				return WVW_D_WATER_PROTECT;
-			if(threads[1] == WVP_AIRWATER &&
-				threads[2] == WVP_NONE)
-				return WVW_D_WATER_HEAL_S;
-			if(threads[1] == WVP_SPIRIT &&
-				threads[2] == WVP_WATER &&
-				threads[3] == WVP_NONE)
-				return WVW_D_WATER_HEAL_M;
-			if(threads[1] == WVP_SPIRIT &&
-				threads[2] == WVP_EARTHWATER &&
-				threads[3] == WVP_NONE)
-				return WVW_D_WATER_CURE;
-			return -1;
-		//D_AIRWATER_
-		case WVP_AIRWATER:
-			if(threads[1] == WVP_AIRFIRE &&
-				threads[2] == WVP_WATER &&
-				threads[3] == WVP_NONE)
-				return WVW_D_AIRWATER_FOG;
-			return -1;
-		//D_SPIRIT_
-		case WVP_SPIRIT:
-			if(threads[1] == WVP_SPIRIT &&
-				threads[2] == WVP_NONE)
-				return WVW_D_SPIRIT_LINK;
-			if(threads[1] == WVP_WATER &&
-				threads[2] == WVP_NONE)
-				return WVW_D_SPIRIT_STAMINA;
-			if(threads[1] == WVP_AIRFIRE &&
-				threads[2] == WVP_EARTHWATER &&
-				threads[3] == WVP_SPIRIT &&
-				threads[4] == WVP_SPIRIT &&
-				threads[5] == WVP_EARTH &&
-				threads[6] == WVP_AIR &&
-				threads[7] == WVP_NONE)
-				return WVW_D_SPIRIT_TRAVEL;
-			return -1;
-		default:
-			return -1;
-	}
-}
-#endif
 
 /*
 =================
@@ -681,6 +400,13 @@ void WeaveProtectScales(int weavenum, float *airprotect, float *fireprotect, flo
 	}
 }
 
+/*
+=================
+WeaveTier
+
+Returns the tier of a weave.
+=================
+*/
 int WeaveTier(int weaveID)
 {
 	switch (weaveID)
@@ -741,8 +467,6 @@ int WeaveTier(int weaveID)
 			return 0;
 	}
 }
-
-
 
 /*
 =================
