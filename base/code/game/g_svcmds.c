@@ -387,6 +387,30 @@ void Svcmd_EntityList_f(void)
 			case ET_AI_LINK:
 				G_Printf("ET_AI_LINK          ");
 				break;
+			case ET_EXPLOSIVE:
+				G_Printf("ET_EXPLOSIVE        ");
+				break;
+			case ET_SHIELD:
+				G_Printf("ET_SHILED           ");
+				break;
+			case ET_FIRE:
+				G_Printf("ET_FIRE             ");
+				break;
+			case ET_WEAVE_HELD:
+				G_Printf("ET_WEAVE_HELD       ");
+				break;
+			case ET_WEAVE_LINK:
+				G_Printf("ET_WEAVE_LINK       ");
+				break;
+			case ET_WEAVE_EFFECT:
+				G_Printf("ET_WEAVE_EFFET      ");
+				break;
+			case ET_WEAVE_MISSILE:
+				G_Printf("ET_WEAVE_MISSILE    ");
+				break;
+			case ET_WEAVE_THREADS:
+				G_Printf("ET_WEAVE_THREADS    ");
+				break;
 			default:
 				G_Printf("%3i                 ", check->s.eType);
 				break;
@@ -474,6 +498,41 @@ void Svcmd_ForceTeam_f(void)
 char           *ConcatArgs(int start);
 
 /*
+===================
+Svcmd_RoundStart_f
+
+Starts a round (ends warmup, begins actual round)
+===================
+*/
+void Svcmd_RoundStart_f(void)
+{
+	if(level.warmupTime < 0)
+	{
+		level.warmupForcedStart = qtrue;
+		// fudge by -1 to account for extra delays
+		level.warmupTime = level.time + (g_warmup.integer - 1) * 1000;
+		trap_SetConfigstring(CS_WARMUP, va("%i", level.warmupTime));
+		return;
+	}
+}
+
+/*
+===================
+Svcmd_RoundRestart_f
+
+Resets the current round to warmup
+===================
+*/
+void Svcmd_RoundRestart_f(void)
+{
+	level.warmupTime = -1;
+	trap_Cvar_Set("g_restarted", "o");
+	trap_SetConfigstring(CS_WARMUP, va("%i", level.warmupTime));
+	trap_SendConsoleCommand(EXEC_APPEND, "map_restart 0\n");
+	level.restarted = qtrue;
+}
+
+/*
 =================
 Svcmd_LuaRestart_f
 =================
@@ -533,6 +592,18 @@ qboolean ConsoleCommand(void)
 	if(Q_stricmp(cmd, "game_memory") == 0)
 	{
 		Svcmd_GameMem_f();
+		return qtrue;
+	}
+
+	if(Q_stricmp(cmd, "round_start") == 0)
+	{
+		Svcmd_RoundStart_f();
+		return qtrue;
+	}
+
+	if(Q_stricmp(cmd, "round_restart") == 0)
+	{
+		Svcmd_RoundRestart_f();
 		return qtrue;
 	}
 

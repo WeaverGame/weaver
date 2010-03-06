@@ -110,6 +110,16 @@ vmCvar_t        g_teamSpawnWaves;
 vmCvar_t        g_teamSpawnBlue;
 vmCvar_t        g_teamSpawnRed;
 
+vmCvar_t        g_currentRound;
+vmCvar_t        g_nextTimeLimit;
+vmCvar_t        g_swTeamSwitching;
+vmCvar_t        g_swMaps;
+vmCvar_t        g_swMap;
+vmCvar_t        g_teamA;
+vmCvar_t        g_scoreA;
+vmCvar_t        g_teamB;
+vmCvar_t        g_scoreB;
+
 vmCvar_t        g_woundedHealth;
 
 // these cvars are shared accross both games
@@ -229,6 +239,16 @@ static cvarTable_t gameCvarTable[] = {
 	{&g_teamSpawnWaves, "g_teamSpawnWaves", "1", CVAR_SERVERINFO | CVAR_USERINFO, 0, qfalse},
 	{&g_teamSpawnBlue, "g_teamSpawnBlue", "15", CVAR_SERVERINFO | CVAR_USERINFO, 0, qfalse},
 	{&g_teamSpawnRed, "g_teamSpawnRed", "15", CVAR_SERVERINFO | CVAR_USERINFO, 0, qfalse},
+
+	{&g_currentRound, "g_currentRound", "0", CVAR_SERVERINFO | CVAR_USERINFO | CVAR_NORESTART, 0, qfalse},
+	{&g_nextTimeLimit, "g_nextTimeLimit", "0", CVAR_SERVERINFO | CVAR_USERINFO | CVAR_NORESTART, 0, qfalse},
+	{&g_swTeamSwitching, "g_swTeamSwitching", "0", CVAR_SERVERINFO | CVAR_USERINFO | CVAR_NORESTART, 0, qfalse},
+	{&g_swMaps, "g_swMaps", "", CVAR_SERVERINFO | CVAR_USERINFO | CVAR_NORESTART, 0, qfalse},
+	{&g_swMap, "g_swMap", "0", CVAR_SERVERINFO | CVAR_USERINFO | CVAR_NORESTART, 0, qfalse},
+	{&g_teamA, "g_teamA", "", CVAR_SERVERINFO | CVAR_USERINFO | CVAR_NORESTART, 0, qfalse},
+	{&g_scoreA, "g_scoreA", "0", CVAR_SERVERINFO | CVAR_USERINFO | CVAR_NORESTART, 0, qfalse},
+	{&g_teamB, "g_teamB", "", CVAR_SERVERINFO | CVAR_USERINFO | CVAR_NORESTART, 0, qfalse},
+	{&g_scoreB, "g_scoreB", "0", CVAR_SERVERINFO | CVAR_USERINFO | CVAR_NORESTART, 0, qfalse},
 
 	{&g_woundedHealth, "g_woundedHealth", "-50", CVAR_SERVERINFO | CVAR_USERINFO, 0, qfalse},
 
@@ -508,6 +528,24 @@ void G_UpdateCvars(void)
 		}
 	}
 }
+
+
+/*
+============
+G_InitSWRound
+
+============
+*/
+void G_InitSWRound()
+{
+	char            cs[MAX_STRING_CHARS];
+
+	trap_GetConfigstring(CS_SWINFO, cs, sizeof(cs));
+	Info_SetValueForKey(cs, "winner", "0");
+	Info_SetValueForKey(cs, "defender", "1");
+	trap_SetConfigstring(CS_SWINFO, cs);
+}
+
 
 /*
 ============
@@ -1381,6 +1419,8 @@ void LogExit(const char *string)
 {
 	int             i, numSorted;
 	gclient_t      *cl;
+	char            cs[MAX_STRING_CHARS];
+	int             winner, defender;
 
 #if 0
 	qboolean        won;
@@ -1404,6 +1444,37 @@ void LogExit(const char *string)
 	if(g_gametype.integer >= GT_TEAM)
 	{
 		G_LogPrintf("red:%i  blue:%i\n", level.teamScores[TEAM_RED], level.teamScores[TEAM_BLUE]);
+	}
+
+	if(g_gametype.integer == GT_OBJECTIVE_SW)
+	{
+		trap_GetConfigstring(CS_SWINFO, cs, sizeof(cs));
+		defender = atoi(Info_ValueForKey(cs, "defender"));
+		winner = atoi(Info_ValueForKey(cs, "winner"));
+
+		G_LogPrintf("sw-round:%i  defender:%i  winner:%i\n", g_currentRound.integer + 1, defender, winner);
+
+		if(!g_currentRound.integer)
+		{
+			//Stopwatch round 1
+			if(winner == defender)
+			{
+				//Defenders held
+				trap_Cvar_Set("g_nextTimeLimit", va("%f", g_timelimit.value));
+			}
+			else
+			{
+				//Defenders won
+				trap_Cvar_Set("g_nextTimeLimit", va("%f", (level.time - level.startTime) / 60000.f));
+			}
+		}
+		else
+		{
+			//Stopwatch round 2
+			trap_Cvar_Set("g_nextTimeLimit", "0");
+			trap_Cvar_Set("g_swMap", va("%i", g_swMap.integer + 1));
+		}
+		trap_Cvar_Set("g_currentRound", va("%i", !g_currentRound.integer));
 	}
 
 	for(i = 0; i < numSorted; i++)
@@ -1866,7 +1937,7 @@ void CheckTournament(void)
 			}
 		}
 
-		if(notEnough)
+		if(notEnough && !level.warmupForcedStart)
 		{
 			if(level.warmupTime != -1)
 			{
@@ -1905,6 +1976,7 @@ void CheckTournament(void)
 			trap_Cvar_Set("g_restarted", "1");
 			trap_SendConsoleCommand(EXEC_APPEND, "map_restart 0\n");
 			level.restarted = qtrue;
+			level.warmupForcedStart = qfalse;
 			return;
 		}
 	}
@@ -2239,6 +2311,7 @@ void G_RunFrame(int levelTime)
 	gentity_t      *ent;
 	int             msec;
 	int             start, end;
+	int             spawnChange;
 
 	//G_Printf("G_RunFrame()\n");
 
@@ -2263,9 +2336,15 @@ void G_RunFrame(int levelTime)
 	{
 		if(level.time > (level.teamSpawnPreviousTimeRed + level.teamSpawnPeriodRed))
 		{
-			level.teamSpawnPreviousTimeRed += level.teamSpawnPeriodRed;
+			spawnChange = ((level.time - level.teamSpawnPreviousTimeRed) / level.teamSpawnPeriodRed) * level.teamSpawnPeriodRed;
+			Com_Printf("Red Spawn! time=%d period=%d add=%d last=%d next=%d\n", 
+				level.time, 
+				level.teamSpawnPeriodRed, 
+				spawnChange,
+				level.teamSpawnPreviousTimeRed,
+				level.teamSpawnPreviousTimeRed + spawnChange);
+			level.teamSpawnPreviousTimeRed += spawnChange;
 			level.teamSpawningRed = 1;
-			Com_Printf("Red Spawn!\n");
 		}
 		else
 		{
@@ -2273,9 +2352,15 @@ void G_RunFrame(int levelTime)
 		}
 		if(level.time > (level.teamSpawnPreviousTimeBlue + level.teamSpawnPeriodBlue))
 		{
-			level.teamSpawnPreviousTimeBlue += level.teamSpawnPeriodBlue;
+			spawnChange = ((level.time - level.teamSpawnPreviousTimeBlue) / level.teamSpawnPeriodBlue) * level.teamSpawnPeriodBlue;
+			Com_Printf("Blue Spawn! time=%d period=%d add=%d last=%d next=%d\n", 
+				level.time, 
+				level.teamSpawnPeriodBlue, 
+				spawnChange,
+				level.teamSpawnPreviousTimeRed,
+				level.teamSpawnPreviousTimeBlue + spawnChange);
+			level.teamSpawnPreviousTimeBlue += spawnChange;
 			level.teamSpawningBlue = 1;
-			Com_Printf("Blue Spawn!\n");
 		}
 		else
 		{

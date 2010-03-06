@@ -184,7 +184,19 @@ static int game_SpawnGroupBlueEnable(lua_State * L)
 // game.EndRound()
 static int game_EndRound(lua_State * L)
 {
-	//DEBUG_LUA("et_GameEnd: start: round ending");
+	//DEBUG_LUA("et_EndRound: start: round ending");
+	trap_SendServerCommand(-1, "print \"Round Ended.\n\"");
+	LogExit("Round Ended.");
+	return 0;
+}
+
+// game.SetDefender()
+static int game_SetDefender(lua_State * L)
+{
+	int             vmnumber;
+	
+	vmnumber = luaL_checkint(L, 1);
+	//DEBUG_LUA("et_SetDefender: start: defender");
 	trap_SendServerCommand(-1, "print \"Round Ended.\n\"");
 	LogExit("Round Ended.");
 	return 0;
@@ -215,6 +227,18 @@ int luaopen_game(lua_State * L)
 
 	lua_pushliteral(L, "_GAMEVERSION");
 	lua_pushliteral(L, GAMEVERSION);
+
+	lua_pushnumber(L, TEAM_FREE);
+	lua_setfield(L, -2, "TEAM_FREE");
+
+	lua_pushnumber(L, TEAM_RED);
+	lua_setfield(L, -2, "TEAM_RED");
+
+	lua_pushnumber(L, TEAM_BLUE);
+	lua_setfield(L, -2, "TEAM_BLUE");
+
+	lua_pushnumber(L, TEAM_SPECTATOR);
+	lua_setfield(L, -2, "TEAM_SPECTATOR");
 
 	return 1;
 }
