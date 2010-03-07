@@ -1846,6 +1846,27 @@ static float CG_DrawFPS(float y)
 
 /*
 =================
+CG_DrawSpawnTimer
+=================
+*/
+static float CG_DrawSpawnTimer(float y)
+{
+	char           *time;
+
+	if(cg.teamSpawnPrevious == 0)
+	{
+		return y;
+	}
+
+	time = va("%d", ((cg.teamSpawnPeriod / 1000) - (((cg.time - cg.teamSpawnPrevious) % cg.teamSpawnPeriod) / 1000)));
+	//CG_DrawStringExt(320, 12, time, colorWhite, qtrue, qfalse, 6, 8, 3);
+	CG_Text_PaintAligned(635, y, time, 0.25f, UI_RIGHT | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
+
+	return y + 16;
+}
+
+/*
+=================
 CG_DrawTimer
 =================
 */
@@ -1855,15 +1876,22 @@ static float CG_DrawTimer(float y)
 	int             mins, seconds, tens;
 	int             msec;
 
-	msec = cg.time - cgs.levelStartTime;
+	if(cg.warmup == 0)
+	{
+		msec = (cgs.timelimit * 60.0f * 1000.0f) - (cg.time - cgs.levelStartTime);
 
-	seconds = msec / 1000;
-	mins = seconds / 60;
-	seconds -= mins * 60;
-	tens = seconds / 10;
-	seconds -= tens * 10;
+		seconds = msec / 1000;
+		mins = seconds / 60;
+		seconds -= mins * 60;
+		tens = seconds / 10;
+		seconds -= tens * 10;
 
-	s = va("%i:%i%i", mins, tens, seconds);
+		s = va("%i:%i%i", mins, tens, seconds);
+	}
+	else
+	{
+		s = va("WARMUP");
+	}
 	//w = CG_DrawStrlen(s) * BIGCHAR_WIDTH;
 
 	//CG_DrawBigString(635 - w, y + 2, s, 1.0F);
@@ -2095,6 +2123,7 @@ static void CG_DrawUpperRight(void)
 	{
 		y = CG_DrawTimer(y);
 	}
+	y = CG_DrawSpawnTimer(y);
 	if(cg_drawAttacker.integer)
 	{
 		y = CG_DrawAttacker(y);
@@ -3842,19 +3871,6 @@ void CG_DrawWoundedInfo()
 	CG_DrawStringExt(300, 396, info, colorWhite, qtrue, qfalse, 6, 8, 0);
 }
 
-void CG_DrawSpawnTimer()
-{
-	char           *time;
-
-	if(cg.teamSpawnPrevious == 0)
-	{
-		return;
-	}
-
-	time = va("%d", ((cg.teamSpawnPeriod / 1000) - (((cg.time - cg.teamSpawnPrevious) % cg.teamSpawnPeriod) / 1000)));
-	CG_DrawStringExt(320, 12, time, colorWhite, qtrue, qfalse, 6, 8, 3);
-}
-
 /*
 =================
 CG_Draw2D
@@ -3945,8 +3961,6 @@ static void CG_Draw2D(void)
 		{
 			CG_DrawWoundedInfo();
 		}
-
-		CG_DrawSpawnTimer();
 
 		if(cgs.gametype >= GT_TEAM)
 		{

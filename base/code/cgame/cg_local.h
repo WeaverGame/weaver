@@ -1455,11 +1455,14 @@ typedef struct
 	int             teamflags;
 	int             fraglimit;
 	int             capturelimit;
-	int             timelimit;
+	float           timelimit;
 	int             maxclients;
 	char            mapname[MAX_QPATH];
 	char            redTeam[MAX_QPATH];
 	char            blueTeam[MAX_QPATH];
+	int             currentRound;
+	int             defender;
+	int             winner;
 
 	int             voteTime;
 	int             voteYes;

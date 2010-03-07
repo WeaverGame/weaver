@@ -165,7 +165,8 @@ void CG_ParseServerinfo(void)
 	cgs.teamflags = atoi(Info_ValueForKey(info, "teamflags"));
 	cgs.fraglimit = atoi(Info_ValueForKey(info, "fraglimit"));
 	cgs.capturelimit = atoi(Info_ValueForKey(info, "capturelimit"));
-	cgs.timelimit = atoi(Info_ValueForKey(info, "timelimit"));
+	cgs.timelimit = atof(Info_ValueForKey(info, "timelimit"));
+	cgs.currentRound = atoi(Info_ValueForKey(info, "g_currentRound"));
 	cgs.maxclients = atoi(Info_ValueForKey(info, "sv_maxclients"));
 	mapname = Info_ValueForKey(info, "mapname");
 	Com_sprintf(cgs.mapname, sizeof(cgs.mapname), "maps/%s.bsp", mapname);
@@ -200,6 +201,22 @@ static void CG_ParseWarmup(void)
 	}
 
 	cg.warmup = warmup;
+}
+
+/*
+==================
+CG_ParseSWInfo
+==================
+*/
+static void CG_ParseSWInfo(void)
+{
+	const char     *info;
+	int             warmup;
+
+	info = CG_ConfigString(CS_SWINFO);
+
+	cgs.winner = atoi(Info_ValueForKey(info, "winner"));
+	cgs.defender = atoi(Info_ValueForKey(info, "defender"));
 }
 
 /*
@@ -312,6 +329,10 @@ static void CG_ConfigStringModified(void)
 	else if(num == CS_WARMUP)
 	{
 		CG_ParseWarmup();
+	}
+	else if(num == CS_SWINFO)
+	{
+		CG_ParseSWInfo();
 	}
 	else if(num == CS_SCORES1)
 	{
