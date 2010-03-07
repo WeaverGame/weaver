@@ -136,6 +136,12 @@ qboolean LoadLuaFile(char *path, int num_vm, vmType_t type)
 		*/
 		// Init lua_vm_t struct
 		vm = (lua_vm_t *) malloc(sizeof(lua_vm_t));
+		if(vm == NULL)
+		{
+			LOG("Lua API: failed to allocate memory for lua VM\n", path);
+			return qfalse;
+		}
+		memset(vm, 0, sizeof(lua_vm_t));
 		vm->id = -1;
 		Q_strncpyz(vm->file_name, path, sizeof(vm->file_name));
 		Q_strncpyz(vm->mod_name, "", sizeof(vm->mod_name));

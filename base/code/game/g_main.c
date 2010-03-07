@@ -704,6 +704,11 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 	ACESP_InitBots(restart);
 #endif
 
+	if(g_gametype.integer == GT_OBJECTIVE_SW)
+	{
+		G_InitSWRound();
+	}
+
 #ifdef G_LUA
 	// Lua API callbacks
 	G_LuaHook_InitGame(levelTime, randomSeed, restart);
@@ -1475,6 +1480,7 @@ void LogExit(const char *string)
 			trap_Cvar_Set("g_swMap", va("%i", g_swMap.integer + 1));
 		}
 		trap_Cvar_Set("g_currentRound", va("%i", !g_currentRound.integer));
+		
 	}
 
 	for(i = 0; i < numSorted; i++)
@@ -1659,6 +1665,11 @@ qboolean ScoreIsTied(void)
 		return qfalse;
 	}
 
+	if(g_gametype.integer == GT_OBJECTIVE || g_gametype.integer == GT_OBJECTIVE_SW)
+	{
+		return qfalse;
+	}
+
 	if(g_gametype.integer >= GT_TEAM)
 	{
 		return level.teamScores[TEAM_RED] == level.teamScores[TEAM_BLUE];
@@ -1711,9 +1722,9 @@ void CheckExitRules(void)
 		return;
 	}
 
-	if(g_timelimit.integer && !level.warmupTime)
+	if(g_timelimit.value && !level.warmupTime)
 	{
-		if(level.time - level.startTime >= g_timelimit.integer * 60000)
+		if((level.time - level.startTime) >= (g_timelimit.value * 60000.0f))
 		{
 			trap_SendServerCommand(-1, "print \"Timelimit hit.\n\"");
 			LogExit("Timelimit hit.");

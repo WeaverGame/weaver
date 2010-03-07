@@ -592,6 +592,9 @@ void CG_InitConsoleCommands(void)
 	trap_AddCommand("lua_restart");
 #endif
 
+	trap_AddCommand("round_start");
+	trap_AddCommand("round_restart");
+
 	// useful for development
 	trap_AddCommand("entitylist");
 

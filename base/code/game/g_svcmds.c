@@ -526,7 +526,7 @@ Resets the current round to warmup
 void Svcmd_RoundRestart_f(void)
 {
 	level.warmupTime = -1;
-	trap_Cvar_Set("g_restarted", "o");
+	trap_Cvar_Set("g_restarted", "0");
 	trap_SetConfigstring(CS_WARMUP, va("%i", level.warmupTime));
 	trap_SendConsoleCommand(EXEC_APPEND, "map_restart 0\n");
 	level.restarted = qtrue;
