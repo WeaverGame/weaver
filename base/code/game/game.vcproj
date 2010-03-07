@@ -146,7 +146,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="2"
-				AdditionalIncludeDirectories="..\..\..\code\lua-5.1\src"
+				AdditionalIncludeDirectories="..\..\..\code\lua\src"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;GLOBALRANK;LUA;SIMD_SSE"
 				StringPooling="true"
 				RuntimeLibrary="0"
