@@ -2859,14 +2859,6 @@ void CG_FireWeapon(centity_t * cent)
 
 	ent = &cent->currentState;
 
-	//WEAVER
-	if(ent->weapon > (MAX_WEAPONS - HELD_MAX - 1))
-	{
-		//this is a weave.
-		//Com_Printf("CG_FireWeapon: Weave used\n");
-		return;
-	}
-
 	if(ent->weapon == WP_NONE)
 	{
 		return;

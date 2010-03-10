@@ -1690,7 +1690,7 @@ void RunWeave_IceShard_Impact(gentity_t * ent, trace_t * trace)
 		VectorCopy(ent->r.currentOrigin, ent->s.pos.trBase);
 		ent->s.pos.trTime = level.time;
 
-		G_AddEvent(ent, EV_GRENADE_BOUNCE, 0);
+		G_AddEvent(ent, EV_WEAVEMISSILE_MISS, 0);
 
 		return;
 	}

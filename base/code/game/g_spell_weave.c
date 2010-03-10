@@ -670,6 +670,7 @@ qboolean ExecuteWeave(gentity_t * heldWeave)
 	int             heldWeaveNum;
 	vec3_t          surfNormal;
 	vec3_t          forward, right, up;
+	qboolean        result = qfalse;
 
 	if(!heldWeave)
 	{
@@ -700,86 +701,117 @@ qboolean ExecuteWeave(gentity_t * heldWeave)
 	{
 			//Held special
 		case WVW_A_AIRFIRE_LIGHTNING:	//target like arty
-			return FireWeave_Lightning(player, start, direction, heldWeaveNum);
+			result = FireWeave_Lightning(player, start, direction, heldWeaveNum);
+			break;
 		case WVW_A_AIRFIRE_SWORD:
 			break;
 		case WVW_D_AIR_PROTECT:
-			return FireWeave_ProtectAir(player, start, direction, heldWeaveNum);
+			result = FireWeave_ProtectAir(player, start, direction, heldWeaveNum);
+			break;
 		case WVW_D_FIRE_PROTECT:
-			return FireWeave_ProtectFire(player, start, direction, heldWeaveNum);
+			result = FireWeave_ProtectFire(player, start, direction, heldWeaveNum);
+			break;
 		case WVW_D_EARTH_PROTECT:
-			return FireWeave_ProtectEarth(player, start, direction, heldWeaveNum);
+			result = FireWeave_ProtectEarth(player, start, direction, heldWeaveNum);
+			break;
 		case WVW_D_WATER_PROTECT:
-			return FireWeave_ProtectWater(player, start, direction, heldWeaveNum);
+			result = FireWeave_ProtectWater(player, start, direction, heldWeaveNum);
+			break;
 		case WVW_D_AIRFIRE_LIGHT:
-			return FireWeave_LightSource(player, start, direction, heldWeaveNum);
+			result = FireWeave_LightSource(player, start, direction, heldWeaveNum);
+			break;
 		case WVW_D_AIRWATER_FOG:
 		case WVW_D_SPIRIT_TRAVEL:
 			//Spawn Ent
 		case WVW_D_AIRFIRE_WALL:
 			break;
 		case WVW_D_EARTHFIRE_EXPLOSIVE_S:
-			return FireWeave_ExplosiveSmall(player, start, direction, heldWeaveNum);
+			result = FireWeave_ExplosiveSmall(player, start, direction, heldWeaveNum);
+			break;
 		case WVW_D_EARTHFIRE_EXPLOSIVE_M:
-			return FireWeave_ExplosiveMed(player, start, direction, heldWeaveNum);
+			result = FireWeave_ExplosiveMed(player, start, direction, heldWeaveNum);
+			break;
 			//Target
 		case WVW_D_SPIRIT_LINK:
-			return FireWeave_Link(player, start, direction, heldWeaveNum);
+			result = FireWeave_Link(player, start, direction, heldWeaveNum);
+			break;
 		case WVW_A_FIRE_BLOSSOMS:
 		case WVW_A_SPIRIT_DEATHGATE:
 		case WVW_D_EARTH_UNLOCK:
 		case WVW_A_EARTHFIRE_IGNITE:
+			break;
 		case WVW_D_WATER_HEAL_S:
-			return FireWeave_HealS(player, start, direction, heldWeaveNum);
+			result = FireWeave_HealS(player, start, direction, heldWeaveNum);
+			break;
 		case WVW_D_WATER_HEAL_M:
-			return FireWeave_HealM(player, start, direction, heldWeaveNum);
+			result = FireWeave_HealM(player, start, direction, heldWeaveNum);
+			break;
 		case WVW_D_WATER_CURE:
-			return FireWeave_Cure(player, start, direction, heldWeaveNum);
+			result = FireWeave_Cure(player, start, direction, heldWeaveNum);
+			break;
 		case WVW_D_SPIRIT_STAMINA:
-			return FireWeave_Stamina(player, start, direction, heldWeaveNum);
+			result = FireWeave_Stamina(player, start, direction, heldWeaveNum);
+			break;
 		case WVW_D_AIRFIRE_INVIS:
 		case WVW_A_SPIRIT_STILL:
 		case WVW_D_AIR_GRAB:
 			break;
 		case WVW_A_AIR_GRABPLAYER:
-			return FireWeave_GrabPlayer(player, start, direction, heldWeaveNum);
+			result = FireWeave_GrabPlayer(player, start, direction, heldWeaveNum);
+			break;
 		case WVW_A_AIR_BINDPLAYER:
 			break;
 		case WVW_A_SPIRIT_SHIELD:
-			return FireWeave_Shield(player, start, direction, heldWeaveNum);
+			result = FireWeave_Shield(player, start, direction, heldWeaveNum);
+			break;
 		case WVW_A_AIRWATER_RIP:
-			return FireWeave_Rip(player, start, direction, heldWeaveNum);
+			result = FireWeave_Rip(player, start, direction, heldWeaveNum);
+			break;
 			//Missiles
 		case WVW_A_SPIRIT_SLICE_S:
-			return FireWeave_SliceS(player, start, direction, heldWeaveNum);
+			result = FireWeave_SliceS(player, start, direction, heldWeaveNum);
+			break;
 		case WVW_A_SPIRIT_SLICE_M:
-			return FireWeave_SliceM(player, start, direction, heldWeaveNum);
+			result = FireWeave_SliceM(player, start, direction, heldWeaveNum);
+			break;
 		case WVW_A_SPIRIT_SLICE_L:
-			return FireWeave_SliceL(player, start, direction, heldWeaveNum);
+			result = FireWeave_SliceL(player, start, direction, heldWeaveNum);
+			break;
 		case WVW_A_SPIRIT_BALEFIRE:
 			break;
 		case WVW_A_AIR_BLAST:
-			return FireWeave_AirBlast(player, start, direction, heldWeaveNum);
+			result = FireWeave_AirBlast(player, start, direction, heldWeaveNum);
+			break;
 		case WVW_A_EARTH_QUAKE_S:
-			return FireWeave_EarthQuakeS(player, start, direction, heldWeaveNum);
+			result = FireWeave_EarthQuakeS(player, start, direction, heldWeaveNum);
+			break;
 		case WVW_A_EARTH_QUAKE_M:
-			return FireWeave_EarthQuakeM(player, start, direction, heldWeaveNum);
+			result = FireWeave_EarthQuakeM(player, start, direction, heldWeaveNum);
+			break;
 		case WVW_A_EARTH_QUAKE_L:
-			return FireWeave_EarthQuakeL(player, start, direction, heldWeaveNum);
+			result = FireWeave_EarthQuakeL(player, start, direction, heldWeaveNum);
+			break;
 		case WVW_A_FIRE_DARTS:
-			return FireWeave_FireDarts(player, start, direction, heldWeaveNum);
+			result = FireWeave_FireDarts(player, start, direction, heldWeaveNum);
+			break;
 		case WVW_A_FIRE_BALL:
-			return FireWeave_Fireball(player, start, direction, heldWeaveNum);
+			result = FireWeave_Fireball(player, start, direction, heldWeaveNum);
+			break;
 		case WVW_A_FIRE_MULTIDARTS:
-			return FireWeave_FireMultiDarts(player, start, direction, heldWeaveNum);
+			result = FireWeave_FireMultiDarts(player, start, direction, heldWeaveNum);
+			break;
 		case WVW_A_WATER_ICESHARDS_S:
-			return FireWeave_IceShards(player, start, direction, heldWeaveNum);
+			result = FireWeave_IceShards(player, start, direction, heldWeaveNum);
+			break;
 		case WVW_A_WATER_ICESHARDS_M:
-			return FireWeave_IceMultiShards(player, start, direction, heldWeaveNum);
+			result = FireWeave_IceMultiShards(player, start, direction, heldWeaveNum);
+			break;
 		case WVW_A_EARTHWATER_SLOW:
-			return FireWeave_Slow(player, start, direction, heldWeaveNum);
+			result = FireWeave_Slow(player, start, direction, heldWeaveNum);
+			break;
 		case WVW_A_EARTHWATER_POISON:
-			return FireWeave_Poison(player, start, direction, heldWeaveNum);
+			result = FireWeave_Poison(player, start, direction, heldWeaveNum);
+			break;
 		case WVW_A_AIRWATER_DARTS_S:
 		case WVW_A_AIRWATER_DARTS_M:
 			break;
@@ -788,6 +820,11 @@ qboolean ExecuteWeave(gentity_t * heldWeave)
 		case -1:
 		default:
 			break;
+	}
+
+	if(result)
+	{
+		G_AddEvent(player, EV_WEAVE_CAST_EFFECT, heldWeave->s.weapon);
 	}
 
 	DEBUGWEAVEING("ExecuteWeave: end");

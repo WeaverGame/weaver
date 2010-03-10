@@ -1348,6 +1348,22 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 			CG_Beam(cent);
 			break;
 
+		case EV_WEAVE_CAST:
+			DEBUGNAME("EV_WEAVE_CAST");
+			//Weave ID unknown becaue event from bg_
+			break;
+
+		case EV_WEAVE_CAST_EFFECT:
+			DEBUGNAME("EV_WEAVE_CAST_EFFECT");
+			CG_WeaveCast(cent);
+			break;
+
+		case EV_WEAVE_SHOT:
+			//Shot is a effect which only lasts momentarily when it is shot.
+			DEBUGNAME("EV_WEAVE_SHOT");
+			CG_WeaveEffect(cent);
+			break;
+
 		case EV_WEAVEMISSILE_HIT:
 			DEBUGNAME("EV_WEAVEMISSILE_HIT");
 			ByteToDir(es->eventParm, dir);
@@ -1357,13 +1373,7 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 		case EV_WEAVEMISSILE_MISS:
 			DEBUGNAME("EV_WEAVEMISSILE_MISS");
 			ByteToDir(es->eventParm, dir);
-			CG_WeaveMissileHitWall(es->weapon, 0, position, dir);
-			break;
-
-		case EV_WEAVE_SHOT:
-			//Shot is a effect which only lasts momentarily when it is shot.
-			DEBUGNAME("EV_WEAVE_SHOT");
-			CG_WeaveEffect(cent);
+			CG_WeaveMissileHitWall(es->weapon, 0, position, dir, cent->currentState.number);
 			break;
 
 		case EV_SHIELD_POP:

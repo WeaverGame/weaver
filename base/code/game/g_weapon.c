@@ -962,12 +962,6 @@ FireWeapon
 */
 void FireWeapon(gentity_t * ent)
 {
-	if(ent->s.weapon > (MAX_WEAPONS - HELD_MAX - 1))
-	{
-		UseHeldWeave(&g_entities[ent->client->ps.ammo[ent->client->ps.weapon]]);
-		return;
-	}
-
 	if(ent->client->ps.powerups[PW_QUAD])
 	{
 		s_quadFactor = g_quadfactor.value;

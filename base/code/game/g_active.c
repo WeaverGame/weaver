@@ -827,6 +827,14 @@ void ClientEvents(gentity_t * ent, int oldEventSequence)
 				FireWeapon2(ent);
 				break;
 
+			case EV_WEAVE_CAST:
+				UseHeldWeave(&g_entities[ent->client->ps.ammo[ent->client->ps.weapon]]);
+				break;
+
+			case EV_WEAVE_CAST_EFFECT:
+				//For client
+				break;
+
 			case EV_USE_ITEM1:	// teleporter
 				// drop flags in CTF
 				item = NULL;

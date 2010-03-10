@@ -122,7 +122,7 @@ void WeaveEffect_Shot(centity_t * cent)
 	VectorNormalize2(le->pos.trDelta, re->axis[0]);
 	RotateAroundDirection(re->axis, le->startTime);
 
-	CG_WeaveMissileHitWall(cent->currentState.weapon, cent->currentState.otherEntityNum, cent->currentState.apos.trBase, dir);
+	CG_WeaveMissileHitWall(cent->currentState.weapon, cent->currentState.otherEntityNum, cent->currentState.apos.trBase, dir, cent->currentState.number);
 }
 
 /*
@@ -618,7 +618,7 @@ Based on CG_MissileHitWall
 Caused by an EV_MISSILE_MISS event, or directly by local bullet tracing
 =================
 */
-void CG_WeaveMissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir)
+void CG_WeaveMissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, int entityNum)
 {
 	localEntity_t  *le;
 	vec3_t          partOrigin;
@@ -649,7 +649,7 @@ void CG_WeaveMissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir
 	// Sound
 	if(weave->exploSfx)
 	{
-		trap_S_StartSound(origin, ENTITYNUM_WORLD, CHAN_AUTO, weave->exploSfx);
+		trap_S_StartSound(origin, entityNum, CHAN_WEAPON, weave->exploSfx);
 	}
 
 	// create the explosion
@@ -683,5 +683,5 @@ void CG_WeaveMissileHitPlayer(int weapon, vec3_t origin, vec3_t dir, int entityN
 
 	// some weapons will make an explosion with the blood, while
 	// others will just make the blood
-	CG_WeaveMissileHitWall(weapon, 0, origin, dir);
+	CG_WeaveMissileHitWall(weapon, 0, origin, dir, entityNum);
 }

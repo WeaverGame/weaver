@@ -415,14 +415,14 @@ void CG_RegisterWeave(int weaveNum)
 
 			//misc resources
 			weaveInfo->icon = trap_R_RegisterShader("rocketExplosion");
-			weaveInfo->firingSound = trap_S_RegisterSound("sound/weapons/rocket/rocklf1a.ogg");
+			weaveInfo->firingSound = trap_S_RegisterSound("sound/weaves/airblast/cast.ogg");
 
 			//missiles
 			weaveInfo->missileModel[0] = trap_R_RegisterModel("models/weaves/airblast/airblast.md5mesh", qtrue);
 			weaveInfo->missileLight = 20;
 			MAKERGB(weaveInfo->missileLightColor, 0.3f, 0.3f, 1);
 			//weaveInfo->missileRenderfx;
-			weaveInfo->missileSound = trap_S_RegisterSound("sound/weapons/plasma/lasfly.wav");
+			weaveInfo->missileSound = trap_S_RegisterSound("sound/weaves/airblast/fly.ogg");
 
 			weaveInfo->missileTrailRadius = 80.0f;
 			weaveInfo->missileTrailAlpha = 0.05f;
@@ -432,7 +432,7 @@ void CG_RegisterWeave(int weaveNum)
 			//weaveInfo->exploModel;
 			//weaveInfo->exploMark;
 			//weaveInfo->exploSprite = trap_R_RegisterShader("rocketExplosion");
-			//weaveInfo->exploSfx = trap_S_RegisterSound("sound/weapons/rocket/rocklx1a.ogg", qfalse);
+			weaveInfo->exploSfx = trap_S_RegisterSound("sound/weaves/airblast/impact.ogg", qfalse);
 			//weaveInfo->exploMark = cgs.media.burnMarkShader;
 			//weaveInfo->exploMarkRadius = 64;
 			//weaveInfo->exploLight = 0;
@@ -459,7 +459,7 @@ void CG_RegisterWeave(int weaveNum)
 
 			//misc resources
 			weaveInfo->icon = trap_R_RegisterShader("rocketExplosion");
-			weaveInfo->firingSound = trap_S_RegisterSound("sound/weapons/rocket/rocklf1a.ogg");
+			weaveInfo->firingSound = trap_S_RegisterSound("sound/weaves/firedart/cast.ogg");
 
 			//missiles
 			weaveInfo->missileModel[0] = trap_R_RegisterModel("models/weaves/firedart/firedart.md5mesh", qtrue);
@@ -471,7 +471,7 @@ void CG_RegisterWeave(int weaveNum)
 			//weaveInfo->exploModel;
 			//weaveInfo->exploMark;
 			//weaveInfo->exploSprite = trap_R_RegisterShader("rocketExplosion");
-			//weaveInfo->exploSfx = trap_S_RegisterSound("sound/weapons/rocket/rocklx1a.ogg", qfalse);
+			weaveInfo->exploSfx = trap_S_RegisterSound("sound/weaves/firedart/impact.ogg", qfalse);
 			weaveInfo->exploMark = cgs.media.bulletMarkShader;
 			weaveInfo->exploMarkRadius = 8;
 			//weaveInfo->exploLight = 100;
@@ -501,7 +501,7 @@ void CG_RegisterWeave(int weaveNum)
 
 			//misc resources
 			weaveInfo->icon = trap_R_RegisterShader("rocketExplosion");
-			weaveInfo->firingSound = trap_S_RegisterSound("sound/weapons/rocket/rocklf1a.ogg");
+			weaveInfo->firingSound = trap_S_RegisterSound("sound/weaves/firedart/cast.ogg");
 
 			//missiles
 			weaveInfo->missileModel[0] = trap_R_RegisterModel("models/weaves/firedart/firedart.md5mesh", qtrue);
@@ -513,7 +513,7 @@ void CG_RegisterWeave(int weaveNum)
 			//weaveInfo->exploModel;
 			//weaveInfo->exploMark;
 			//weaveInfo->exploSprite = trap_R_RegisterShader("rocketExplosion");
-			//weaveInfo->exploSfx = trap_S_RegisterSound("sound/weapons/rocket/rocklx1a.ogg");
+			weaveInfo->exploSfx = trap_S_RegisterSound("sound/weaves/firedart/impact.ogg");
 			weaveInfo->exploMark = cgs.media.bulletMarkShader;
 			weaveInfo->exploMarkRadius = 8;
 			//weaveInfo->exploLight = 100;
@@ -989,7 +989,7 @@ void CG_RegisterWeave(int weaveNum)
 
 			//misc resources
 			weaveInfo->icon = trap_R_RegisterShader("rocketExplosion");
-			weaveInfo->firingSound = trap_S_RegisterSound("sound/weapons/rocket/rocklf1a.ogg");
+			weaveInfo->firingSound = trap_S_RegisterSound("sound/weaves/iceshards/cast.ogg");
 
 			//missiles
 			weaveInfo->missileModel[0] = trap_R_RegisterModel("models/weaves/iceshards/iceshard01.md5mesh", qtrue);
@@ -999,13 +999,13 @@ void CG_RegisterWeave(int weaveNum)
 			weaveInfo->missileLight = 50;
 			MAKERGB(weaveInfo->missileLightColor, 0.1f, 0.1f, 0.3f);
 			//weaveInfo->missileRenderfx;
-			weaveInfo->missileSound = trap_S_RegisterSound("sound/weapons/plasma/lasfly.wav");
+			weaveInfo->missileSound = trap_S_RegisterSound("sound/weaves/iceshards/fly.ogg");
 			//weaveInfo->missileTrailFunc;
 
 			//weaveInfo->exploModel;
 			//weaveInfo->exploMark;
 			//weaveInfo->exploSprite = trap_R_RegisterShader("rocketExplosion");
-			//weaveInfo->exploSfx = trap_S_RegisterSound("sound/weapons/rocket/rocklx1a.ogg", qfalse);
+			weaveInfo->exploSfx = trap_S_RegisterSound("sound/weaves/iceshards/impact.ogg", qfalse);
 			weaveInfo->exploMark = cgs.media.bulletMarkShader;
 			weaveInfo->exploMarkRadius = 8;
 			weaveInfo->exploLight = 100;
@@ -1032,7 +1032,7 @@ void CG_RegisterWeave(int weaveNum)
 
 			//misc resources
 			weaveInfo->icon = trap_R_RegisterShader("rocketExplosion");
-			weaveInfo->firingSound = trap_S_RegisterSound("sound/weapons/rocket/rocklf1a.ogg");
+			weaveInfo->firingSound = trap_S_RegisterSound("sound/weaves/iceshards/cast.ogg");
 
 			//missiles
 			weaveInfo->missileModel[0] = trap_R_RegisterModel("models/weaves/iceshards/iceshard01.md5mesh", qtrue);
@@ -1042,13 +1042,13 @@ void CG_RegisterWeave(int weaveNum)
 			weaveInfo->missileLight = 50;
 			MAKERGB(weaveInfo->missileLightColor, 0.1f, 0.1f, 0.3f);
 			//weaveInfo->missileRenderfx;
-			weaveInfo->missileSound = trap_S_RegisterSound("sound/weapons/plasma/lasfly.wav");
+			weaveInfo->missileSound = trap_S_RegisterSound("sound/weaves/iceshards/fly.ogg");
 			//weaveInfo->missileTrailFunc;
 
 			//weaveInfo->exploModel;
 			//weaveInfo->exploMark;
 			//weaveInfo->exploSprite = trap_R_RegisterShader("rocketExplosion");
-			//weaveInfo->exploSfx = trap_S_RegisterSound("sound/weapons/rocket/rocklx1a.ogg", qfalse);
+			weaveInfo->exploSfx = trap_S_RegisterSound("sound/weaves/iceshards/impact.ogg", qfalse);
 			weaveInfo->exploMark = cgs.media.bulletMarkShader;
 			weaveInfo->exploMarkRadius = 8;
 			weaveInfo->exploLight = 100;

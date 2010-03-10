@@ -32,6 +32,7 @@ cgame_src = [
 #'base/code/cgame/cg_unlagged.c',
 'base/code/cgame/cg_weapons.c',
 'base/code/cgame/cg_spell_effects.c',
+'base/code/cgame/cg_spell_casts.c',
 'base/code/cgame/cg_spell_hud.c',
 'base/code/cgame/cg_spell_sense.c',
 'base/code/cgame/cg_spell_weaves.c',

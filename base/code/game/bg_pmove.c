@@ -2728,25 +2728,25 @@ static void PM_Weapon(void)
 		}
 	}
 
-	// fire weapon
-	//if(pm->cmd.buttons & BUTTON_ATTACK2)
-	//Weaver
-	//TODO: Weapalt should be used for sword or something.
-	//PM_AddEvent(EV_FIRE_WEAPON2);
-	//else
-	PM_AddEvent(EV_FIRE_WEAPON);
-
 	//WEAVER
 	if(pm->ps->weapon > (MAX_WEAPONS - HELD_MAX - 1))
 	{
 		//this is a weave.
+		PM_AddEvent(EV_WEAVE_CAST);
 		//Add delay between shots specific to weave
+		//We don't know what weave is being shot here in bg_
+		//So just add a second, and we can reduce it as
+		//appropriate in the game code.
 		addTime = 1000;
-		//addTime = WeaveTime(pm->ps->ammo[pm->ps->weapon]);
-		//Com_Printf("Weave Add Time %d\n", addTime);
 	}
 	else
 	{
+		// fire weapon
+		//if(pm->cmd.buttons & BUTTON_ATTACK2)
+		//	PM_AddEvent(EV_FIRE_WEAPON2);
+		//else
+			PM_AddEvent(EV_FIRE_WEAPON);
+
 		//not a weave
 		switch (pm->ps->weapon)
 		{

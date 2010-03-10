@@ -713,6 +713,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\cg_spell_casts.c"
+				>
+			</File>
+			<File
 				RelativePath=".\cg_spell_effects.c"
 				>
 			</File>
