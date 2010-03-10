@@ -541,7 +541,7 @@ void CG_RegisterWeave(int weaveNum)
 
 			//misc resources
 			weaveInfo->icon = trap_R_RegisterShader("rocketExplosion");
-			//weaveInfo->firingSound = trap_S_RegisterSound("sound/weapons/rocket/rocklf1a.ogg");
+			//weaveInfo->firingSound = trap_S_RegisterSound("sound/weapons/machinegun/par_shot_1.ogg");
 
 			//missiles
 			//weaveInfo->missileModel;
@@ -571,7 +571,7 @@ void CG_RegisterWeave(int weaveNum)
 
 			//misc resources
 			weaveInfo->icon = trap_R_RegisterShader("rocketExplosion");
-			//weaveInfo->firingSound = trap_S_RegisterSound("sound/weapons/rocket/rocklf1a.ogg");
+			//weaveInfo->firingSound = trap_S_RegisterSound("sound/weapons/machinegun/par_shot_1.ogg");
 
 			//missiles
 			//weaveInfo->missileModel;
@@ -602,7 +602,7 @@ void CG_RegisterWeave(int weaveNum)
 
 			//misc resources
 			weaveInfo->icon = trap_R_RegisterShader("rocketExplosion");
-			//weaveInfo->firingSound = trap_S_RegisterSound("sound/weapons/rocket/rocklf1a.ogg");
+			//weaveInfo->firingSound = trap_S_RegisterSound("sound/weapons/machinegun/par_shot_1.ogg");
 
 			//missiles
 			//weaveInfo->missileModel;
@@ -633,7 +633,7 @@ void CG_RegisterWeave(int weaveNum)
 
 			//misc resources
 			weaveInfo->icon = trap_R_RegisterShader("rocketExplosion");
-			//weaveInfo->firingSound = trap_S_RegisterSound("sound/weapons/rocket/rocklf1a.ogg");
+			//weaveInfo->firingSound = trap_S_RegisterSound("sound/weapons/machinegun/par_shot_1.ogg");
 
 			//missiles
 			//weaveInfo->missileModel;
@@ -664,7 +664,7 @@ void CG_RegisterWeave(int weaveNum)
 
 			//misc resources
 			weaveInfo->icon = trap_R_RegisterShader("rocketExplosion");
-			weaveInfo->firingSound = trap_S_RegisterSound("sound/weapons/rocket/rocklf1a.ogg");
+			weaveInfo->firingSound = trap_S_RegisterSound("sound/weapons/machinegun/par_shot_1.ogg");
 
 			//missiles
 			weaveInfo->missileModel[0] = trap_R_RegisterModel("models/weaves/fireball/fireball.md5mesh", qtrue);
@@ -711,7 +711,7 @@ void CG_RegisterWeave(int weaveNum)
 
 			//misc resources
 			weaveInfo->icon = trap_R_RegisterShader("rocketExplosion");
-			weaveInfo->firingSound = trap_S_RegisterSound("sound/weapons/rocket/rocklf1a.ogg");
+			weaveInfo->firingSound = trap_S_RegisterSound("sound/weapons/machinegun/par_shot_1.ogg");
 
 			//missiles
 			weaveInfo->missileModel[0] = trap_R_RegisterModel("models/projectiles/missile/missile.md3", qtrue);
@@ -755,7 +755,7 @@ void CG_RegisterWeave(int weaveNum)
 
 			//misc resources
 			weaveInfo->icon = trap_R_RegisterShader("rocketExplosion");
-			weaveInfo->firingSound = trap_S_RegisterSound("sound/weapons/rocket/rocklf1a.ogg");
+			weaveInfo->firingSound = trap_S_RegisterSound("sound/weapons/machinegun/par_shot_1.ogg");
 
 			//missiles
 			weaveInfo->missileModel[0] = trap_R_RegisterModel("models/projectiles/missile/missile.md3", qtrue);
@@ -799,7 +799,7 @@ void CG_RegisterWeave(int weaveNum)
 
 			//misc resources
 			weaveInfo->icon = trap_R_RegisterShader("rocketExplosion");
-			weaveInfo->firingSound = trap_S_RegisterSound("sound/weapons/rocket/rocklf1a.ogg");
+			weaveInfo->firingSound = trap_S_RegisterSound("sound/weapons/machinegun/par_shot_1.ogg");
 
 			//missiles
 			weaveInfo->missileModel[0] = trap_R_RegisterModel("models/projectiles/missile/missile.md3", qtrue);
@@ -842,7 +842,7 @@ void CG_RegisterWeave(int weaveNum)
 
 			//misc resources
 			weaveInfo->icon = trap_R_RegisterShader("models/weaves/slice/icon_slice1");
-			weaveInfo->firingSound = trap_S_RegisterSound("sound/weapons/rocket/rocklf1a.ogg");
+			weaveInfo->firingSound = trap_S_RegisterSound("sound/weapons/machinegun/par_shot_1.ogg");
 
 			//missiles
 			weaveInfo->missileModel[0] = trap_R_RegisterModel("models/weaves/slice/slice1.md3", qtrue);
@@ -871,7 +871,7 @@ void CG_RegisterWeave(int weaveNum)
 
 			//misc resources
 			weaveInfo->icon = trap_R_RegisterShader("models/weaves/slice/icon_slice1");
-			weaveInfo->firingSound = trap_S_RegisterSound("sound/weapons/rocket/rocklf1a.ogg");
+			weaveInfo->firingSound = trap_S_RegisterSound("sound/weapons/machinegun/par_shot_1.ogg");
 
 			//missiles
 			weaveInfo->missileModel[0] = trap_R_RegisterModel("models/weaves/slice/slice1.md3", qtrue);
@@ -900,7 +900,7 @@ void CG_RegisterWeave(int weaveNum)
 
 			//misc resources
 			weaveInfo->icon = trap_R_RegisterShader("models/weaves/slice/icon_slice1");
-			weaveInfo->firingSound = trap_S_RegisterSound("sound/weapons/rocket/rocklf1a.ogg");
+			weaveInfo->firingSound = trap_S_RegisterSound("sound/weapons/machinegun/par_shot_1.ogg");
 
 			//missiles
 			weaveInfo->missileModel[0] = trap_R_RegisterModel("models/weaves/slice/slice1.md3", qtrue);
@@ -929,7 +929,7 @@ void CG_RegisterWeave(int weaveNum)
 
 			//misc resources
 			weaveInfo->icon = trap_R_RegisterShader("rocketExplosion");
-			weaveInfo->firingSound = trap_S_RegisterSound("sound/weapons/rocket/rocklf1a.ogg");
+			weaveInfo->firingSound = trap_S_RegisterSound("sound/weapons/machinegun/par_shot_1.ogg");
 
 			//missiles
 			//weaveInfo->missileModel[0] = trap_R_RegisterModel("models/weaves/slice/slice1.md3", qtrue);
@@ -958,7 +958,7 @@ void CG_RegisterWeave(int weaveNum)
 
 			//misc resources
 			weaveInfo->icon = trap_R_RegisterShader("rocketExplosion");
-			weaveInfo->firingSound = trap_S_RegisterSound("sound/weapons/rocket/rocklf1a.ogg");
+			weaveInfo->firingSound = trap_S_RegisterSound("sound/weapons/machinegun/par_shot_1.ogg");
 
 			//missiles
 			//weaveInfo->missileModel[0] = trap_R_RegisterModel("models/weaves/slice/slice1.md3", qtrue);
@@ -1075,7 +1075,7 @@ void CG_RegisterWeave(int weaveNum)
 
 			//misc resources
 			weaveInfo->icon = trap_R_RegisterShader("rocketExplosion");
-			weaveInfo->firingSound = trap_S_RegisterSound("sound/weapons/rocket/rocklf1a.ogg");
+			weaveInfo->firingSound = trap_S_RegisterSound("sound/weapons/machinegun/par_shot_1.ogg");
 
 			weaveInfo->instanceShader[0] = trap_R_RegisterShader("lightningBolt");;
 			//weaveInfo->instanceModel = trap_R_RegisterModel("models/projectiles/spike/spike.md3", qtrue);
@@ -1096,7 +1096,7 @@ void CG_RegisterWeave(int weaveNum)
 
 			//misc resources
 			weaveInfo->icon = trap_R_RegisterShader("rocketExplosion");
-			weaveInfo->firingSound = trap_S_RegisterSound("sound/weapons/rocket/rocklf1a.ogg");
+			weaveInfo->firingSound = trap_S_RegisterSound("sound/weapons/machinegun/par_shot_1.ogg");
 
 			//missiles
 			weaveInfo->missileModel[0] = trap_R_RegisterModel("models/projectiles/spike/spike.md3", qtrue);
@@ -1137,7 +1137,7 @@ void CG_RegisterWeave(int weaveNum)
 
 			//misc resources
 			weaveInfo->icon = trap_R_RegisterShader("rocketExplosion");
-			weaveInfo->firingSound = trap_S_RegisterSound("sound/weapons/rocket/rocklf1a.ogg");
+			weaveInfo->firingSound = trap_S_RegisterSound("sound/weapons/machinegun/par_shot_1.ogg");
 
 			//missiles
 			weaveInfo->missileModel[0] = trap_R_RegisterModel("models/projectiles/spike/spike.md3", qtrue);
