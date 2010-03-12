@@ -731,7 +731,8 @@ typedef enum
 #endif
 	MOD_GRAPPLE,
 	MOD_BURN,
-	//Until here, except a couple of world ones
+
+	//Spells
 	MOD_A_AIRFIRE_SWORD,
 	MOD_A_AIR_BLAST,
 	MOD_A_AIR_GRABPLAYER,
@@ -969,3 +970,4 @@ typedef enum
 	ENTMAT_FIRE,				//many polys on random angles
 	ENTMAT_NUMBER
 } entityMaterial_t;
+

@@ -1324,30 +1324,6 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 			}
 			break;
 
-		case EV_EFFECT:
-			DEBUGNAME("EV_EFFECT");
-#ifdef CG_LUA
-			// Tr3B: run scriptable effects like "TestParticleSpawn" in "effects/particleTests.lua"
-			AngleVectors(cent->lerpAngles, dir, NULL, NULL);
-
-			s = CG_ConfigString(CS_EFFECTS + es->eventParm);
-			if(s[0])
-			{
-				CG_RunLuaFunction(s, "vv", position, dir);
-			}
-#endif
-			break;
-
-		case EV_EXPLODE:
-			DEBUGNAME("EV_EXPLODE");
-			CG_ExplosiveExplode(cent);
-			break;
-
-		case EV_DEBUG_LINE:
-			DEBUGNAME("EV_DEBUG_LINE");
-			CG_Beam(cent);
-			break;
-
 		case EV_WEAVE_CAST:
 			DEBUGNAME("EV_WEAVE_CAST");
 			//Weave ID unknown becaue event from bg_
@@ -1380,6 +1356,30 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 			//Shield destroyed
 			DEBUGNAME("EV_SHIELD_POP");
 			//TODO:
+			break;
+
+		case EV_EFFECT:
+			DEBUGNAME("EV_EFFECT");
+#ifdef CG_LUA
+			// Tr3B: run scriptable effects like "TestParticleSpawn" in "effects/particleTests.lua"
+			AngleVectors(cent->lerpAngles, dir, NULL, NULL);
+
+			s = CG_ConfigString(CS_EFFECTS + es->eventParm);
+			if(s[0])
+			{
+				CG_RunLuaFunction(s, "vv", position, dir);
+			}
+#endif
+			break;
+
+		case EV_EXPLODE:
+			DEBUGNAME("EV_EXPLODE");
+			CG_ExplosiveExplode(cent);
+			break;
+
+		case EV_DEBUG_LINE:
+			DEBUGNAME("EV_DEBUG_LINE");
+			CG_Beam(cent);
 			break;
 
 		default:

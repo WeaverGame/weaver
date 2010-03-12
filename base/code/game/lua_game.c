@@ -230,7 +230,7 @@ static int game_SetDefender(lua_State * L)
 {
 	int             team;
 	char            cs[MAX_STRING_CHARS];
-	
+
 	team = luaL_checkint(L, 1);
 
 	DEBUG_LUA("game_SetDefender: start: defender=%d", team);
@@ -255,7 +255,7 @@ static int game_SetWinner(lua_State * L)
 {
 	int             team;
 	char            cs[MAX_STRING_CHARS];
-	
+
 	team = luaL_checkint(L, 1);
 
 	DEBUG_LUA("game_SetWinner: start: winner=%d", team);
@@ -276,7 +276,7 @@ static int game_SetWinner(lua_State * L)
 }
 
 // game.SetTimeLimit(timelimit)
-static int game_SetTimeLimit(lua_State *L)
+static int game_SetTimeLimit(lua_State * L)
 {
 	int             timelimit;
 

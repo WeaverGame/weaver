@@ -373,7 +373,7 @@ typedef struct
 	int             voteCount;	// to prevent people from constantly calling votes
 	int             teamVoteCount;	// to prevent people from constantly calling votes
 	qboolean        teamInfo;	// send team overlay updates?
-	qboolean        ready;	// true if player is ready
+	qboolean        ready;		// true if player is ready
 } clientPersistant_t;
 
 
@@ -497,7 +497,6 @@ typedef struct
 
 	struct gentity_s *gentities;
 
-	//WEAVER
 	struct weaver_weaveGInfo_s *weaveGInfo;
 
 	int             gentitySize;
@@ -555,7 +554,7 @@ typedef struct
 	char           *spawnVars[MAX_SPAWN_VARS][2];	// key / value pairs
 	int             numSpawnVarChars;
 	char            spawnVarChars[MAX_SPAWN_VARS_CHARS];
-	
+
 	// player spawn state
 	int             teamSpawnPreviousTimeRed;	// time of last spawn, per team. next spawn = this + spawn period.
 	int             teamSpawnPreviousTimeBlue;	// time of last spawn, per team. next spawn = this + spawn period.
@@ -677,8 +676,8 @@ const char     *BuildShaderStateConfig();
 // g_combat.c
 //
 qboolean        CanDamage(gentity_t * targ, vec3_t origin);
-qboolean        G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker, const vec3_t dir, const vec3_t point,
-						 int damage, int dflags, int mod);
+qboolean        G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker, const vec3_t dir, const vec3_t point, int damage,
+						 int dflags, int mod);
 qboolean        G_RadiusDamage(vec3_t origin, gentity_t * attacker, float damage, float radius, gentity_t * ignore, int mod);
 int             G_InvulnerabilityEffect(gentity_t * targ, vec3_t dir, vec3_t point, vec3_t impactpoint, vec3_t bouncedir);
 void            body_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, int damage, int meansOfDeath);
@@ -788,8 +787,7 @@ void            DropPortalDestination(gentity_t * ent);
 // g_weapon.c
 //
 qboolean        LogAccuracyHit(gentity_t * target, gentity_t * attacker);
-void            CalcMuzzlePoint(gentity_t * ent, vec3_t forward, vec3_t right, vec3_t up, vec3_t muzzlePoint, int weapon,
-								qboolean secondary);
+void            CalcMuzzlePoint(gentity_t * ent, vec3_t forward, vec3_t right, vec3_t up, vec3_t muzzlePoint, int weapon, qboolean secondary);
 qboolean        CheckGauntletAttack(gentity_t * ent);
 void            Weapon_HookFree(gentity_t * ent);
 void            Weapon_HookThink(gentity_t * ent);
@@ -884,7 +882,7 @@ qboolean        OnSameTeam(gentity_t * ent1, gentity_t * ent2);
 void            Team_CheckDroppedItem(gentity_t * dropped);
 qboolean        CheckObeliskAttack(gentity_t * obelisk, gentity_t * attacker);
 void            Team_ReadyPlayers(int team, qboolean readyness);
-int             Team_CaptureFlag(gentity_t *ent, gentity_t *other, int team);
+int             Team_CaptureFlag(gentity_t * ent, gentity_t * other, int team);
 
 //
 // g_mem.c

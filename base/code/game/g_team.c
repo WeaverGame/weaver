@@ -810,7 +810,7 @@ int Team_TouchOurFlag(gentity_t * ent, gentity_t * other, int team)
 	return Team_CaptureFlag(ent, other, team);
 }
 
-int Team_CaptureFlag(gentity_t *ent, gentity_t *other, int team)
+int Team_CaptureFlag(gentity_t * ent, gentity_t * other, int team)
 {
 	int             i;
 	gentity_t      *player;
@@ -1145,26 +1145,19 @@ gentity_t      *SelectRandomTeamSpawnPoint(int teamstate, team_t team)
 	gentity_t      *spots[MAX_TEAM_SPAWN_POINTS];
 	char           *classname;
 
-	/*
-	if(teamstate == TEAM_BEGIN)
+	if(team == TEAM_RED)
 	{
-		if(team == TEAM_RED)
-			classname = "team_CTF_redplayer";
-		else if(team == TEAM_BLUE)
-			classname = "team_CTF_blueplayer";
-		else
-			return NULL;
+		classname = "team_CTF_redspawn";
+	}
+	else if(team == TEAM_BLUE)
+	{
+		classname = "team_CTF_bluespawn";
 	}
 	else
-	*/
 	{
-		if(team == TEAM_RED)
-			classname = "team_CTF_redspawn";
-		else if(team == TEAM_BLUE)
-			classname = "team_CTF_bluespawn";
-		else
-			return NULL;
+		return NULL;
 	}
+
 	count = 0;
 
 	spot = NULL;

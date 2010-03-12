@@ -37,7 +37,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define BUTTON9 512				//WEAVER sprint
 
 #if 0
-
 const vec3_t    playerMins = { -15, -15, -24 };
 const vec3_t    playerMaxs = { 15, 15, 32 };
 #elif 0
@@ -1858,7 +1857,6 @@ PM_GroundTrace
 static void PM_GroundTrace(void)
 {
 	vec3_t          point;
-
 	//vec3_t          movedir;
 	vec3_t          refNormal = { 0.0f, 0.0f, 1.0f };
 	trace_t         trace;
@@ -2644,23 +2642,21 @@ static void PM_Weapon(void)
 				return;
 		}
 	}
-	*/
 
-	/*
 	// start the animation even if out of ammo
 	if(pm->ps->weapon == WP_GAUNTLET)
 	{
 		if(!(pm->cmd.buttons & BUTTON_ATTACK2))
 		{
-		// the guantlet only "fires" when it actually hits something
-		if(!pm->gauntletHit)
-		{
-			pm->ps->weaponTime = 0;
-			pm->ps->weaponstate = WEAPON_READY;
-			return;
+			// the guantlet only "fires" when it actually hits something
+			if(!pm->gauntletHit)
+			{
+				pm->ps->weaponTime = 0;
+				pm->ps->weaponstate = WEAPON_READY;
+				return;
+			}
+			PM_StartTorsoAnim(TORSO_ATTACK2);
 		}
-		PM_StartTorsoAnim(TORSO_ATTACK2);
-	}
 	}
 	else
 	{
@@ -2669,40 +2665,6 @@ static void PM_Weapon(void)
 	*/
 
 	pm->ps->weaponstate = WEAPON_FIRING;
-
-	//WEAVER
-	//if selected weave has no associated entity
-	//this should never happen, why is this code here?
-	/*								lets see
-	//I guess it stops it reaching the next test with the EV_NOAMMO thing.
-	//Dont want "no ammo" for a weave.
-	if((pm->ps->weapon > (MAX_WEAPONS - HELD_MAX - 1)) && (!pm->ps->ammo[pm->ps->weapon]))
-	{
-		//look for available weave before this weave
-		for(i = pm->ps->weapon; i > (MAX_WEAPONS - HELD_MAX - 1); i--)
-		{
-			//check if weave has heldweave associated
-			if(pm->ps->ammo[i])
-			{
-				pm->ps->weapon = i;
-				return;
-			}
-		}
-		//look for available weave after this weave
-		for(i = pm->ps->weapon; i < MAX_WEAPONS; i++)
-		{
-			//check if weave has heldweave associated
-			if(pm->ps->ammo[i])
-			{
-				pm->ps->weapon = i;
-				return;
-			}
-		}
-		//no other weaves available
-		pm->ps->weapon = WP_NONE;
-		return;
-	}
-	*/
 
 	// check for out of ammo
 	if(!pm->ps->ammo[pm->ps->weapon])
@@ -2743,9 +2705,9 @@ static void PM_Weapon(void)
 	{
 		// fire weapon
 		//if(pm->cmd.buttons & BUTTON_ATTACK2)
-		//	PM_AddEvent(EV_FIRE_WEAPON2);
+		//  PM_AddEvent(EV_FIRE_WEAPON2);
 		//else
-			PM_AddEvent(EV_FIRE_WEAPON);
+		PM_AddEvent(EV_FIRE_WEAPON);
 
 		//not a weave
 		switch (pm->ps->weapon)
@@ -3143,7 +3105,8 @@ void PmoveSingle(pmove_t * pmove)
 			pm->ps->eFlags &= ~EF_WEAVEA;
 		}
 
-		/* // removed separate A/D buttons
+		/*
+		// removed separate A/D buttons
 		// WEAVER
 		// set weave d flag
 		if(pm->cmd.buttons & BUTTON9)

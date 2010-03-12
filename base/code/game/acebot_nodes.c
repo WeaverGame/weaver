@@ -120,7 +120,6 @@ int ACEND_FindClosestReachableNode(gentity_t * self, float range, int type)
 	int             node = INVALID;
 	vec3_t          v;
 	trace_t         tr;
-
 	//float           rng;
 	vec3_t          maxs, mins;
 
@@ -272,7 +271,6 @@ void ACEND_PathMap(gentity_t * self)
 	int             closestNode;
 	static float    lastUpdate = 0;	// start off low
 	vec3_t          v;
-
 	//qboolean        isJumping;
 	//int             i;
 

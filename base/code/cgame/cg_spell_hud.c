@@ -14,12 +14,13 @@ vec4_t          colorFire = { 0.94f, 0.16f, 0.16f, 1.0f };
 vec4_t          colorEarth = { 0.514f, 0.239f, 0.1f, 1.0f };
 vec4_t          colorWater = { 0.0f, 0.322f, 0.906f, 1.0f };
 
-vec2_t          tutTextOffset[WVP_NUMBER] = {{0.0f, 0.0f},
-	{0.0f, 1.1f}, {0.778f, 0.778f},
-	{1.1f, 0.0f}, {0.778f, -0.778f},
-	{0.0f, -1.1f}, {-0.778f, -0.778f},
-	{-1.1f, 0.0f}, {-0.778f, 0.778f},
-	{0.0f, 0.0f}};
+vec2_t          tutTextOffset[WVP_NUMBER] = { {0.0f, 0.0f},
+{0.0f, 1.1f}, {0.778f, 0.778f},
+{1.1f, 0.0f}, {0.778f, -0.778f},
+{0.0f, -1.1f}, {-0.778f, -0.778f},
+{-1.1f, 0.0f}, {-0.778f, 0.778f},
+{0.0f, 0.0f}
+};
 
 int             powerCount[WVP_NUMBER];
 
@@ -87,23 +88,31 @@ static void CG_DrawWeaverStatusBar(void)
 
 	/*
 	if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE)
+	{
 		colorItem = &colorTeamBlue;
+	}
 	else if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED)
+	{
 		colorItem = &colorTeamRed;
-	*/
+	}
 
 	//cent = &cg_entities[cg.snap->ps.clientNum];
 	//ps = &cg.snap->ps;
 
-	/*
 	VectorClear(angles);
 
 	if(cg.predictedPlayerState.powerups[PW_REDFLAG])
+	{
 		CG_DrawStatusBarFlag(185 + CHAR_WIDTH * 3 + TEXT_ICON_SPACE + ICON_SIZE, TEAM_RED);
+	}
 	else if(cg.predictedPlayerState.powerups[PW_BLUEFLAG])
+	{
 		CG_DrawStatusBarFlag(185 + CHAR_WIDTH * 3 + TEXT_ICON_SPACE + ICON_SIZE, TEAM_BLUE);
+	}
 	else if(cg.predictedPlayerState.powerups[PW_NEUTRALFLAG])
+	{
 		CG_DrawStatusBarFlag(185 + CHAR_WIDTH * 3 + TEXT_ICON_SPACE + ICON_SIZE, TEAM_FREE);
+	}
 	*/
 
 	//Health
@@ -237,8 +246,7 @@ static void CG_DrawWeaverStroke(float x, float y)
 
 	weaverThread = cgs.media.weaverSenseDot3;
 
-	trap_R_DrawStretchPic(x + xo - (0.5 * w),
-						  y - yo - (0.5 * w), w, w, 0, 0, 1, 1, weaverThread);
+	trap_R_DrawStretchPic(x + xo - (0.5 * w), y - yo - (0.5 * w), w, w, 0, 0, 1, 1, weaverThread);
 
 }
 
@@ -291,7 +299,7 @@ CG_DrawWeaverTutorialWeave
 Adds tutorial infromation to the weaver disk.
 =================
 */
-static void CG_DrawWeaverTutorialChildren(weaver_threadsMap_t *current, float x, float y, float size, int element, int depth)
+static void CG_DrawWeaverTutorialChildren(weaver_threadsMap_t * current, float x, float y, float size, int element, int depth)
 {
 	int             i;
 	int             elementUsed;
@@ -473,7 +481,8 @@ static void CG_DrawWeaverHeld(void)
 			xi += 40;
 
 			/*
-			if(cg.heldWeaves[i] != NULL) {
+			if(cg.heldWeaves[i] != NULL)
+			{
 				thread = va("%i power, %i weaveid", cg.heldWeaves[i]->currentState.generic1, cg.heldWeaves[i]->currentState.weapon);
 				CG_DrawStringExt(x + 10, y + 27 + (7 * i), thread, colorWhite, qtrue, qfalse, 6, 8, 0);
 			}
@@ -513,7 +522,7 @@ static void CG_DrawWeaverPowerups(void)
 		{
 			continue;
 		}
-		if(!cgs.media.weaverStatus[i]) 
+		if(!cgs.media.weaverStatus[i])
 		{
 			continue;
 		}
@@ -524,7 +533,7 @@ static void CG_DrawWeaverPowerups(void)
 		}
 		if(t < 999000)
 		{
-			timeRemaining = va("%d", t/1000+1);
+			timeRemaining = va("%d", t / 1000 + 1);
 			CG_DrawStringExt(x + HUD_STATUS_WIDTH, y + 11, timeRemaining, colorWhite, qtrue, qfalse, 8, 10, 0);
 		}
 		CG_DrawPic(x, y, HUD_STATUS_WIDTH, HUD_STATUS_HEIGHT, cgs.media.weaverStatus[i]);

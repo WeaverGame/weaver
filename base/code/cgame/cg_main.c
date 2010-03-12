@@ -478,8 +478,7 @@ void CG_UpdateCvars(void)
 	}
 
 	// if force model changed
-	if(forceModelModificationCount != cg_forceModel.modificationCount ||
-	   forceBrightSkinsModificationCount != cg_forceBrightSkins.modificationCount)
+	if(forceModelModificationCount != cg_forceModel.modificationCount || forceBrightSkinsModificationCount != cg_forceBrightSkins.modificationCount)
 	{
 		forceModelModificationCount = cg_forceModel.modificationCount;
 		forceBrightSkinsModificationCount = cg_forceBrightSkins.modificationCount;
@@ -1381,7 +1380,7 @@ static void CG_RegisterGraphics(void)
 	cgs.media.weaverThreads[WVP_WATER] = trap_R_RegisterShaderNoMip("models/threads/water1");
 	cgs.media.weaverThreads[WVP_AIRWATER] = trap_R_RegisterShaderNoMip("models/threads/airwater1");
 	cgs.media.weaverThreads[WVP_SPIRIT] = trap_R_RegisterShaderNoMip("models/threads/spirit1");
-	
+
 	cgs.media.weaverStatus[PW_REGEN] = trap_R_RegisterShaderNoMip("gfx/hud/powerups/healing");
 	cgs.media.weaverStatus[PW_SHIELDED] = trap_R_RegisterShaderNoMip("gfx/hud/powerups/shielded");
 	cgs.media.weaverStatus[PW_POISONED] = trap_R_RegisterShaderNoMip("gfx/hud/powerups/poisoned1");
@@ -1603,10 +1602,6 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 
 	cgs.redflag = cgs.blueflag = -1;	// For compatibily, default to unset for old servers
 	cgs.flagStatus = -1;
-	cgs.flagStatus = -1;
-
-	cgs.redflag = cgs.blueflag = -1;	// For compatibily, default to unset for
-	cgs.flagStatus = -1;		// old servers
 
 	// get the rendering configuration from the client system
 	trap_GetGlconfig(&cgs.glconfig);
@@ -1668,6 +1663,7 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 	CG_LoadingString("weaves", qtrue);
 
 	CG_RegisterWeaves();
+
 	CG_LoadingString("clients", qtrue);
 
 	CG_RegisterClients();		// if low on memory, some clients will be deferred

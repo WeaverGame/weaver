@@ -788,8 +788,7 @@ void CG_Fire(centity_t * cent)
 	VectorSubtract(cent->currentState.origin2, cent->lerpOrigin, maxs);
 	VectorSubtract(cent->lerpOrigin, cent->currentState.origin2, mins);
 
-	CG_FireEffect(cent->lerpOrigin, mins, maxs, (float)cent->currentState.generic1, cent->currentState.weapon,
-				  (float)cent->currentState.constantLight);
+	CG_FireEffect(cent->lerpOrigin, mins, maxs, (float)cent->currentState.generic1, cent->currentState.weapon, (float)cent->currentState.constantLight);
 }
 
 void CG_AddFire(localEntity_t * le)
@@ -858,7 +857,7 @@ void CG_ExplosiveRubble(vec3_t origin, vec3_t mins, vec3_t maxs, qhandle_t model
 	VectorRandom(&le->pos.trBase, mins, maxs);
 
 	//Debug
-	//Com_Printf("...pos.trBase %s \n", vtos(le->pos.trBase));
+	//Com_Printf("...pos.trBase %f %f %f \n", le->pos.trBase[0], le->pos.trBase[1], le->pos.trBase[2]);
 
 	//Initialize velocity
 	le->pos.trType = TR_GRAVITY;
@@ -1196,7 +1195,7 @@ void CG_ExplosiveExplode(centity_t * cent)
 	trap_R_ModelBounds(centmodel, mins, maxs);
 
 	//Debug
-	//Com_Printf("Mat: %d Mass(123): (%d, %d, %d) org: %s min: %s max: %s\n", cent->currentState.generic1, cent->currentState.weapon, cent->currentState.legsAnim, cent->currentState.torsoAnim, vtos(cent->lerpOrigin), vtos(mins), vtos(maxs));
+	//Com_Printf("Mat: %d Mass(123): (%d, %d, %d) org: {%f %f %f} min: {%f %f %f} max: {%f %f %f}\n", cent->currentState.generic1, cent->currentState.weapon, cent->currentState.legsAnim, cent->currentState.torsoAnim, cent->lerpOrigin[0], cent->lerpOrigin[1], cent->lerpOrigin[2], mins[0], mins[1], mins[2], maxs[0], maxs[1], maxs[2]);
 
 
 	switch (cent->currentState.generic1)	//Type

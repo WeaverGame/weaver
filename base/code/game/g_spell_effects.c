@@ -2500,16 +2500,19 @@ gentity_t      *EndWeave_Explosive(gentity_t * self, vec3_t start, vec3_t dir, i
 	heldWeave = &g_entities[heldWeaveNum];
 
 	ent = heldWeave->target_ent;
-	if(heldWeave->s.frame == WST_INPROCESS) {
+	if(heldWeave->s.frame == WST_INPROCESS)
+	{
 		G_RadiusDamage(ent->r.currentOrigin, ent->parent, ent->splashDamage, ent->splashRadius, ent, ent->splashMethodOfDeath);
 		G_AddEvent(ent, EV_WEAVEMISSILE_MISS, ent->s.generic1);
 
 		ent->freeAfterEvent = qtrue;
-	} else {
+	}
+	else
+	{
 		G_FreeEntity(ent);
 	}
 	heldWeave->target_ent = NULL;
-	
+
 	return heldWeave;
 }
 
@@ -2528,12 +2531,13 @@ qboolean FireWeave_ExplosiveBase(gentity_t * self, vec3_t start, vec3_t dir, int
 	vec3_t          wallhit;
 
 	heldWeave = &g_entities[heldWeaveNum];
-	
+
 	VectorMA(start, WEAVE_EXPLOSIVE_CAST_RANGE, dir, wallhit);
 	trap_Trace(&trace, start, NULL, NULL, wallhit, self->s.number, MASK_SHOT);
 	VectorMA(trace.endpos, WEAVE_EXPLOSIVE_OFFSET, trace.plane.normal, wallhit);
-	
-	if(!(trace.contents & CONTENTS_SOLID)) {
+
+	if(!(trace.contents & CONTENTS_SOLID))
+	{
 		// no target surface
 		return qfalse;
 	}

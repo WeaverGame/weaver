@@ -75,7 +75,9 @@ void CG_WeaveMissile_Trail(centity_t * ent)
 	{
 		BG_EvaluateTrajectory(&es->pos, t, lastPos);
 
-		smoke = CG_SmokePuff(lastPos, up, weave->missileTrailRadius, 1, 1, 1, weave->missileTrailAlpha, weave->missileTrailDuration, t, 0, 0, weave->missileTrailShader[0]);
+		smoke =
+			CG_SmokePuff(lastPos, up, weave->missileTrailRadius, 1, 1, 1, weave->missileTrailAlpha, weave->missileTrailDuration,
+						 t, 0, 0, weave->missileTrailShader[0]);
 
 		// use the optimized local entity add
 		smoke->leType = LE_SCALE_FADE;
@@ -122,7 +124,8 @@ void WeaveEffect_Shot(centity_t * cent)
 	VectorNormalize2(le->pos.trDelta, re->axis[0]);
 	RotateAroundDirection(re->axis, le->startTime);
 
-	CG_WeaveMissileHitWall(cent->currentState.weapon, cent->currentState.otherEntityNum, cent->currentState.apos.trBase, dir, cent->currentState.number);
+	CG_WeaveMissileHitWall(cent->currentState.weapon, cent->currentState.otherEntityNum, cent->currentState.apos.trBase, dir,
+						   cent->currentState.number);
 }
 
 /*
@@ -164,8 +167,8 @@ void WeaveEffect_Missile(centity_t * cent)
 	// add dynamic light
 	if(weave->missileLight)
 	{
-		trap_R_AddLightToScene(cent->lerpOrigin, weave->missileLight,
-							   weave->missileLightColor[0], weave->missileLightColor[1], weave->missileLightColor[2]);
+		trap_R_AddLightToScene(cent->lerpOrigin, weave->missileLight, weave->missileLightColor[0], weave->missileLightColor[1],
+							   weave->missileLightColor[2]);
 	}
 
 	// add missile sound
@@ -244,8 +247,8 @@ void WeaveEffect_Instance(centity_t * cent)
 	// add dynamic light
 	if(weave->instanceLight)
 	{
-		trap_R_AddLightToScene(cent->lerpOrigin, weave->instanceLight,
-							   weave->instanceLightColor[0], weave->instanceLightColor[1], weave->instanceLightColor[2]);
+		trap_R_AddLightToScene(cent->lerpOrigin, weave->instanceLight, weave->instanceLightColor[0], weave->instanceLightColor[1],
+							   weave->instanceLightColor[2]);
 	}
 
 	// add missile sound
@@ -317,7 +320,7 @@ void WeaveEffect_Earthquake(centity_t * cent)
 
 	// calculate the axis
 	VectorCopy(s1->angles, cent->lerpAngles);
-	
+
 	// surface normal axis
 	VectorNormalize2(cent->currentState.angles, normalaxis[2]);
 	PerpendicularVector(normalaxis[1], normalaxis[2]);
@@ -326,7 +329,7 @@ void WeaveEffect_Earthquake(centity_t * cent)
 	//Setup light
 	QuatClear(light.rotation);
 	VectorCopy(weave->instanceLightColor, light.color);
-	VectorMA(cent->lerpOrigin, 10.0f, cent->currentState.angles,light.origin);
+	VectorMA(cent->lerpOrigin, 10.0f, cent->currentState.angles, light.origin);
 	light.radius[0] = weave->instanceLight;
 	light.radius[1] = weave->instanceLight;
 	light.radius[2] = weave->instanceLight;
@@ -477,9 +480,8 @@ void WeaveEffect_Light(centity_t * cent)
 	ent.reType = RT_SPRITE;
 	ent.radius = 16;
 
-	trap_R_AddLightToScene(ent.origin,
-						   weave->instanceLight,
-						   weave->instanceLightColor[0], weave->instanceLightColor[1], weave->instanceLightColor[2]);
+	trap_R_AddLightToScene(ent.origin, weave->instanceLight, weave->instanceLightColor[0], weave->instanceLightColor[1],
+						   weave->instanceLightColor[2]);
 
 	trap_R_AddRefEntityToScene(&ent);
 }
@@ -643,7 +645,8 @@ void CG_WeaveMissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir
 	// Sparks
 	if(weave->exploSparksDuration > 0)
 	{
-		CG_ParticleSparks(partOrigin, partVel, weave->exploSparksDuration, weave->exploSparksX, weave->exploSparksY, weave->exploSparksSpeed);
+		CG_ParticleSparks(partOrigin, partVel, weave->exploSparksDuration, weave->exploSparksX, weave->exploSparksY,
+						  weave->exploSparksSpeed);
 	}
 
 	// Sound
@@ -667,7 +670,8 @@ void CG_WeaveMissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir
 	// impact mark
 	if(weave->exploMark)
 	{
-		CG_ImpactMark(weave->exploMark, origin, dir, random() * 360, 1, 1, 1, 1, weave->exploMarkAlphaFade, weave->exploMarkRadius, qfalse);
+		CG_ImpactMark(weave->exploMark, origin, dir, random() * 360, 1, 1, 1, 1, weave->exploMarkAlphaFade,
+					  weave->exploMarkRadius, qfalse);
 	}
 }
 

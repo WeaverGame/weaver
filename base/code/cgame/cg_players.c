@@ -832,7 +832,7 @@ void CG_NewClientInfo(int clientNum)
 		return;					// player just left
 	}
 
-//  CG_Printf("CG_NewClientInfo: '%s'\n", configstring);
+//	CG_Printf("CG_NewClientInfo: '%s'\n", configstring);
 
 	// build into a temp buffer so the defer checks can use
 	// the old value
@@ -1986,8 +1986,7 @@ static void CG_PlayerFlag(centity_t * cent, qhandle_t hSkin, refEntity_t * body)
 		{
 			matrix_t        bodyToBone, inverse;
 
-			MatrixSetupTransformFromQuat(bodyToBone, body->skeleton.bones[boneIndex].rotation,
-										 body->skeleton.bones[boneIndex].origin);
+			MatrixSetupTransformFromQuat(bodyToBone, body->skeleton.bones[boneIndex].rotation, body->skeleton.bones[boneIndex].origin);
 			MatrixAffineInverse(bodyToBone, inverse);
 
 			MatrixMultiplyRotation(inverse, angles[PITCH], angles[YAW], angles[ROLL]);

@@ -832,8 +832,7 @@ static void CG_AddRailExplosion(localEntity_t * le)
 
 		if(t > RAILGUN_SHOCKWAVEFADE_STARTTIME)
 		{
-			c = (float)(t - RAILGUN_SHOCKWAVEFADE_STARTTIME) / (float)(RAILGUN_SHOCKWAVE_ENDTIME -
-																	   RAILGUN_SHOCKWAVEFADE_STARTTIME);
+			c = (float)(t - RAILGUN_SHOCKWAVEFADE_STARTTIME) / (float)(RAILGUN_SHOCKWAVE_ENDTIME - RAILGUN_SHOCKWAVEFADE_STARTTIME);
 		}
 		else
 		{
@@ -914,8 +913,7 @@ static void CG_AddRailExplosion(localEntity_t * le)
 
 		if(t > RAILGUN_SHOCKWAVE2FADE_STARTTIME)
 		{
-			c = (float)(t - RAILGUN_SHOCKWAVE2FADE_STARTTIME) / (float)(RAILGUN_SHOCKWAVE2_ENDTIME -
-																		RAILGUN_SHOCKWAVE2FADE_STARTTIME);
+			c = (float)(t - RAILGUN_SHOCKWAVE2FADE_STARTTIME) / (float)(RAILGUN_SHOCKWAVE2_ENDTIME - RAILGUN_SHOCKWAVE2FADE_STARTTIME);
 		}
 		else
 		{
@@ -1104,6 +1102,7 @@ void CG_AddMoveRefent(localEntity_t * le)
 
 	trap_R_AddRefEntityToScene(re);
 }
+
 
 //==============================================================================
 

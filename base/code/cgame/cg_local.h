@@ -971,8 +971,6 @@ typedef struct
 	vec4_t          crosshairColor;
 	vec4_t          crosshairColorAlt;
 
-	// weaver stuff
-
 	// hud variables
 
 	float           bar_offset;	// offset calculation for middle bar
@@ -1825,10 +1823,7 @@ qboolean        CG_YourTeamHasFlag();
 qboolean        CG_OtherTeamHasFlag();
 qhandle_t       CG_StatusHandle(int task);
 
-//
-// cg_spell_hud.c
-//
-void            CG_DrawWeaverHUD();
+
 
 //
 // cg_players.c
@@ -1873,6 +1868,9 @@ void            CG_RegisterWeave(int weaveNum);
 // cg_spell_sense.c
 void            CG_UpdateWeaveSense(int clientnum, vec3_t origin, int power);
 void            CG_DrawWeaveSense(void);
+
+// cg_spell_hud.c
+void            CG_DrawWeaverHUD();
 
 //
 // cg_events.c

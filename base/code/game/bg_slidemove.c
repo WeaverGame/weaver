@@ -470,3 +470,5 @@ qboolean PM_PredictStepMove(void)
 
 	return stepped;
 }
+
+

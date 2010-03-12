@@ -147,13 +147,13 @@ SHIELD
 
 void func_shield_ActivateUse(gentity_t * ent, gentity_t * other, qboolean firstActivate)
 {
-	if (ent->s.generic1 > 0)
+	if(ent->s.generic1 > 0)
 	{
 		//expend shield
 		ent->s.generic1--;
 	}
 	Com_Printf("ShieldUsed: %d\n", ent->s.generic1);
-	if (ent->s.generic1 <= 0)
+	if(ent->s.generic1 <= 0)
 	{
 		ent->die(ent, NULL, other, 0, 0);
 	}

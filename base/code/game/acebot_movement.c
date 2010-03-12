@@ -698,7 +698,7 @@ void ACEMV_Attack(gentity_t * self)
 	float           distance;
 	vec3_t          oldAimVec;
 	float           aimTremble[2] = { 0.11f, 0.11f };
-	//float           slowness = 0.35;  //lower is slower
+	//float           slowness = 0.35;	//lower is slower
 
 	// randomly choose a movement direction
 	c = random();

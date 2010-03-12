@@ -519,8 +519,7 @@ qboolean ClientInactivityTimer(gclient_t * client)
 	}
 	// Tr3B: added BUTTON_ATTACK2
 	else if(client->pers.cmd.forwardmove ||
-			client->pers.cmd.rightmove || client->pers.cmd.upmove ||
-			(client->pers.cmd.buttons & (BUTTON_ATTACK | BUTTON_ATTACK2)))
+			client->pers.cmd.rightmove || client->pers.cmd.upmove || (client->pers.cmd.buttons & (BUTTON_ATTACK | BUTTON_ATTACK2)))
 	{
 		client->inactivityTime = level.time + g_inactivity.integer * 1000;
 		client->inactivityWarning = qfalse;
@@ -562,181 +561,7 @@ void ClientTimerActions(gentity_t * ent, int msec)
 	while(client->timeResidual >= 1000)
 	{
 		client->timeResidual -= 1000;
-
-#if 1
 	}
-#else
-		//WEAVER forget all this regen code
-
-		// regenerate
-#ifdef MISSIONPACK
-		if(bg_itemlist[client->ps.stats[STAT_PERSISTANT_POWERUP]].giTag == PW_GUARD)
-		{
-			maxHealth = client->ps.stats[STAT_MAX_HEALTH] / 2;
-		}
-		else if(client->ps.powerups[PW_REGEN])
-		{
-			maxHealth = client->ps.stats[STAT_MAX_HEALTH];
-		}
-		else
-		{
-			maxHealth = 0;
-		}
-		if(maxHealth)
-		{
-			if(ent->health < maxHealth)
-			{
-				ent->health += 15;
-				if(ent->health > maxHealth * 1.1)
-				{
-					ent->health = maxHealth * 1.1;
-				}
-				G_AddEvent(ent, EV_POWERUP_REGEN, 0);
-			}
-			else if(ent->health < maxHealth * 2)
-			{
-				ent->health += 5;
-				if(ent->health > maxHealth * 2)
-				{
-					ent->health = maxHealth * 2;
-				}
-				G_AddEvent(ent, EV_POWERUP_REGEN, 0);
-			}
-#else
-		if(client->ps.powerups[PW_REGEN])
-		{
-			if(ent->health < client->ps.stats[STAT_MAX_HEALTH])
-			{
-				ent->health += 15;
-				if(ent->health > client->ps.stats[STAT_MAX_HEALTH] * 1.1)
-				{
-					ent->health = client->ps.stats[STAT_MAX_HEALTH] * 1.1;
-				}
-				G_AddEvent(ent, EV_POWERUP_REGEN, 0);
-			}
-			else if(ent->health < client->ps.stats[STAT_MAX_HEALTH] * 2)
-			{
-				ent->health += 5;
-				if(ent->health > client->ps.stats[STAT_MAX_HEALTH] * 2)
-				{
-					ent->health = client->ps.stats[STAT_MAX_HEALTH] * 2;
-				}
-				G_AddEvent(ent, EV_POWERUP_REGEN, 0);
-			}
-#endif
-		}
-		else
-		{
-			// count down health when over max
-			if(ent->health > client->ps.stats[STAT_MAX_HEALTH])
-			{
-				ent->health--;
-			}
-		}
-
-		// count down armor when over max
-		if(client->ps.stats[STAT_ARMOR] > client->ps.stats[STAT_MAX_HEALTH])
-		{
-			client->ps.stats[STAT_ARMOR]--;
-		}
-	}
-#ifdef MISSIONPACK
-	if(bg_itemlist[client->ps.stats[STAT_PERSISTANT_POWERUP]].giTag == PW_AMMOREGEN)
-	{
-		int             w, max, inc, t, i;
-		int             weapList[] =
-			{ WP_MACHINEGUN, WP_SHOTGUN, WP_GRENADE_LAUNCHER, WP_ROCKET_LAUNCHER, WP_LIGHTNING, WP_RAILGUN, WP_PLASMAGUN, WP_BFG,
-			WP_NAILGUN, WP_PROX_LAUNCHER, WP_CHAINGUN
-		};
-		int             weapCount = sizeof(weapList) / sizeof(int);
-
-		//
-		for(i = 0; i < weapCount; i++)
-		{
-			w = weapList[i];
-
-			switch (w)
-			{
-				case WP_MACHINEGUN:
-					max = 50;
-					inc = 4;
-					t = 1000;
-					break;
-				case WP_SHOTGUN:
-					max = 10;
-					inc = 1;
-					t = 1500;
-					break;
-				case WP_GRENADE_LAUNCHER:
-					max = 10;
-					inc = 1;
-					t = 2000;
-					break;
-				case WP_ROCKET_LAUNCHER:
-					max = 10;
-					inc = 1;
-					t = 1750;
-					break;
-				case WP_LIGHTNING:
-					max = 50;
-					inc = 5;
-					t = 1500;
-					break;
-				case WP_RAILGUN:
-					max = 10;
-					inc = 1;
-					t = 1750;
-					break;
-				case WP_PLASMAGUN:
-					max = 50;
-					inc = 5;
-					t = 1500;
-					break;
-				case WP_BFG:
-					max = 10;
-					inc = 1;
-					t = 4000;
-					break;
-				case WP_NAILGUN:
-					max = 10;
-					inc = 1;
-					t = 1250;
-					break;
-				case WP_PROX_LAUNCHER:
-					max = 5;
-					inc = 1;
-					t = 2000;
-					break;
-				case WP_CHAINGUN:
-					max = 100;
-					inc = 5;
-					t = 1000;
-					break;
-				default:
-					max = 0;
-					inc = 0;
-					t = 1000;
-					break;
-			}
-			client->ammoTimes[w] += msec;
-			if(client->ps.ammo[w] >= max)
-			{
-				client->ammoTimes[w] = 0;
-			}
-			if(client->ammoTimes[w] >= t)
-			{
-				while(client->ammoTimes[w] >= t)
-					client->ammoTimes[w] -= t;
-				client->ps.ammo[w] += inc;
-				if(client->ps.ammo[w] > max)
-				{
-					client->ps.ammo[w] = max;
-				}
-			}
-		}
-	}
-#endif
-#endif
 }
 
 /*
@@ -1243,7 +1068,7 @@ Does some of the initialization in ClientSpawn, but without recreating the clien
 Keeps position, etc.
 ============
 */
-void ClientRevived(gentity_t *ent)
+void ClientRevived(gentity_t * ent)
 {
 	int             i;
 	gclient_t      *client;
@@ -1473,6 +1298,14 @@ void ClientThink_real(gentity_t * ent)
 	// set speed
 	client->ps.speed = g_speed.value;
 
+#ifdef MISSIONPACK
+	if(bg_itemlist[client->ps.stats[STAT_PERSISTANT_POWERUP]].giTag == PW_SCOUT)
+	{
+		client->ps.speed *= 1.5;
+	}
+	else
+#endif
+
 	//WEAVER
 	if(client->ps.powerups[PW_SLOWPOISONED])
 	{
@@ -1487,14 +1320,6 @@ void ClientThink_real(gentity_t * ent)
 		client->ps.speed *= SPRINT_SCALE;
 	}
 
-#ifdef MISSIONPACK
-	if(bg_itemlist[client->ps.stats[STAT_PERSISTANT_POWERUP]].giTag == PW_SCOUT)
-	{
-		client->ps.speed *= 1.5;
-	}
-	else
-#endif
-
 	/*
 	// Let go of the hook if we aren't firing
 	if(client->ps.weapon == WP_GAUNTLET && client->hook && !(ucmd->buttons & BUTTON_ATTACK2))
@@ -1503,8 +1328,7 @@ void ClientThink_real(gentity_t * ent)
 	}
 	*/
 
-	//WEAVER
-	// weaving stuff
+	// weaving stats
 	client->ps.stats[STAT_POWER] = ClientPowerAvailable(client);
 	client->ps.stats[STAT_MAX_POWER] = ClientPowerMax(client);
 	if(client->ps.eFlags & EF_WEAVEA || client->ps.eFlags & EF_WEAVED)
@@ -1720,7 +1544,8 @@ void ClientThink_real(gentity_t * ent)
 	client->latched_buttons |= client->buttons & ~client->oldbuttons;
 
 	// check for respawning
-	if((client->ps.stats[STAT_HEALTH] < g_woundedHealth.integer) || (client->ps.pm_type == PM_DEAD) || (client->ps.pm_type == PM_WOUNDED && (client->ps.eFlags & EF_TAPOUT)))
+	if((client->ps.stats[STAT_HEALTH] < g_woundedHealth.integer) || (client->ps.pm_type == PM_DEAD) ||
+	   (client->ps.pm_type == PM_WOUNDED && (client->ps.eFlags & EF_TAPOUT)))
 	{
 		// client is below wounded HP (should be in PM_DEAD) OR is dead OR
 		// is wounded and wants to tap out OR
@@ -1733,7 +1558,8 @@ void ClientThink_real(gentity_t * ent)
 		{
 			// spawning is to be done in waves.
 			// do not spawn individually.
-			if((client->sess.sessionTeam == TEAM_RED && level.teamSpawningRed == 1) || (client->sess.sessionTeam == TEAM_BLUE && level.teamSpawningBlue == 1))
+			if((client->sess.sessionTeam == TEAM_RED && level.teamSpawningRed == 1) ||
+			   (client->sess.sessionTeam == TEAM_BLUE && level.teamSpawningBlue == 1))
 			{
 				respawn(ent);
 			}
@@ -1848,7 +1674,7 @@ void SpectatorClientEndFrame(gentity_t * ent)
 		{
 			clientNum = level.follow2;
 		}
-		else if(clientNum < -2)	//weaver /follow invalid number
+		else if(clientNum < -2)	//follow invalid number
 		{
 			clientNum = level.follow1;
 		}

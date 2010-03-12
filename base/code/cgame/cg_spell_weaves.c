@@ -54,7 +54,7 @@ int             threadColorB[WVP_NUMBER] = {
 	42
 };								//spirit
 
-void PowerDecode(playerEntity_t *pe, int n, int offset, int count)
+void PowerDecode(playerEntity_t * pe, int n, int offset, int count)
 {
 	int             i = 0;
 
@@ -1275,7 +1275,7 @@ void CG_RegisterWeave(int weaveNum)
 			weaveInfo->instanceModel[0] = trap_R_RegisterModel("models/projectiles/rocket/rocket.md3", qtrue);
 			weaveInfo->instanceLight = 70;
 			MAKERGB(weaveInfo->instanceLightColor, 0.5f, 0.1f, 0.2f);
-			
+
 			weaveInfo->exploRadius = 65.0f;
 			weaveInfo->exploSprite = trap_R_RegisterShader("rocketExplosion");
 			weaveInfo->exploSfx = trap_S_RegisterSound("sound/weapons/rocket/rocklx1a.ogg");
@@ -1301,7 +1301,7 @@ void CG_RegisterWeave(int weaveNum)
 			weaveInfo->instanceModel[0] = trap_R_RegisterModel("models/projectiles/rocket/rocket.md3", qtrue);
 			weaveInfo->instanceLight = 100;
 			MAKERGB(weaveInfo->instanceLightColor, 0.8f, 0.1f, 0.2f);
-			
+
 			weaveInfo->exploRadius = 70.0f;
 			weaveInfo->exploSprite = trap_R_RegisterShader("rocketExplosion");
 			weaveInfo->exploSfx = trap_S_RegisterSound("sound/weapons/rocket/rocklx1a.ogg");

@@ -120,4 +120,3 @@ gentity_t      *EndWeave_Explosive(gentity_t * self, vec3_t start, vec3_t dir, i
 qboolean        FireWeave_ExplosiveBase(gentity_t * self, vec3_t start, vec3_t dir, int heldWeaveNum, int weaveID);
 qboolean        FireWeave_ExplosiveSmall(gentity_t * self, vec3_t start, vec3_t dir, int heldWeaveNum);
 qboolean        FireWeave_ExplosiveMed(gentity_t * self, vec3_t start, vec3_t dir, int heldWeaveNum);
-

@@ -115,7 +115,7 @@ static void UI_DisplayDownloadInfo(const char *downloadName)
 	width = UI_ProportionalStringWidth(xferText) * UI_ProportionalSizeScale(style);
 	if(width > leftWidth)
 		leftWidth = width;
-
+		
 	leftWidth -= 64;
 
 	UI_Text_Paint_AutoWrapped(14, DIX1, 0.3f, 600, dlText, style, color_white, &uis.freeSansFont);

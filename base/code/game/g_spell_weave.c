@@ -485,8 +485,8 @@ void UseHeldWeave(gentity_t * heldWeave)
 	}
 
 	//if no shots remaining or expired
-	if(heldWeave->s.torsoAnim <= 0 ||
-	   heldWeave->s.frame == WST_EXPIRED || heldWeave->s.frame == WST_RELEASED || heldWeave->s.frame == WST_INPROCESSRELEASED)
+	if(heldWeave->s.torsoAnim <= 0 || heldWeave->s.frame == WST_EXPIRED || heldWeave->s.frame == WST_RELEASED ||
+	   heldWeave->s.frame == WST_INPROCESSRELEASED)
 	{
 		//then the weave should be removed
 		ClearHeldWeave(heldWeave);
@@ -828,7 +828,7 @@ qboolean ExecuteWeave(gentity_t * heldWeave)
 	}
 
 	DEBUGWEAVEING("ExecuteWeave: end");
-	return qtrue;
+	return result;
 }
 
 

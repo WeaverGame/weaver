@@ -581,7 +581,6 @@ void ACESP_SetupBotState(gentity_t * self)
 {
 	int             clientNum;
 	char            userinfo[MAX_INFO_STRING];
-
 	//char           *team;
 
 	//G_Printf("ACESP_SetupBotState()\n");

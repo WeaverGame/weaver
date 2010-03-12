@@ -3945,17 +3945,20 @@ static void CG_Draw2D(void)
 			CG_DrawAmmoWarning();
 
 			CG_DrawProxWarning();
-			*/
 
-			//CG_DrawCrosshair();
+			CG_DrawCrosshair();
+			 */
 			CG_DrawCrosshairNew();
 
 			CG_DrawCrosshairNames();
-			//CG_DrawWeaponSelect();
 
-			//CG_DrawHoldableItem();
+			/*
+			CG_DrawWeaponSelect();
 
-			//CG_DrawReward();
+			CG_DrawHoldableItem();
+
+			CG_DrawReward();
+			 */
 		}
 		else if(cg.snap->ps.pm_type == PM_WOUNDED)
 		{
@@ -3964,16 +3967,6 @@ static void CG_Draw2D(void)
 
 		if(cgs.gametype >= GT_TEAM)
 		{
-			/*
-			if(cg_drawTeamOverlay.integer == 2)
-			{
-				CG_DrawTeamOverlay(480 - 88, qtrue, qfalse);
-			}
-			if(cg_drawTeamOverlay.integer == 3)
-			{
-				CG_DrawTeamOverlay(480 - ICON_SIZE, qfalse, qfalse);
-			}
-			*/
 			CG_DrawTeamInfo();
 		}
 	}
@@ -3985,8 +3978,10 @@ static void CG_Draw2D(void)
 
 	CG_DrawUpperRight();
 
-	//CG_DrawLowerRight();
-	//CG_DrawLowerLeft();
+	/*
+	CG_DrawLowerRight();
+	CG_DrawLowerLeft();
+	 */
 
 	if(!CG_DrawFollow())
 	{

@@ -1270,7 +1270,6 @@ void Blocked_Door(gentity_t * ent, gentity_t * other)
 	Use_BinaryMover(ent, ent, other);
 }
 
-
 /*
 ================
 Touch_DoorTriggerSpectator

@@ -661,7 +661,7 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 			trap_SendServerCommand(-1, va("cpm \"%s\n\"", customObit));
 		}
 		*/
-	}	
+	}
 #endif
 
 	// broadcast the death event to everyone
@@ -1249,11 +1249,6 @@ qboolean G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 		}
 	}
 
-	if(g_debugDamage.integer)
-	{
-		G_Printf("G_Damage:2\n");
-	}
-
 	// battlesuit protects from all radius damage (but takes knockback)
 	// and protects 50% against all damage
 	if(client && client->ps.powerups[PW_BATTLESUIT])
@@ -1264,11 +1259,6 @@ qboolean G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 			return qfalse;
 		}
 		damage *= 0.5;
-	}
-
-	if(g_debugDamage.integer)
-	{
-		G_Printf("G_Damage:2.5\n");
 	}
 
 	// add to the attacker's hit counter (if the target isn't a general entity like a prox mine)
@@ -1284,11 +1274,6 @@ qboolean G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 		}
 
 		attacker->client->ps.persistant[PERS_ATTACKEE_ARMOR] = (targ->health << 8) | (targ->client->ps.stats[STAT_ARMOR]);
-	}
-
-	if(g_debugDamage.integer)
-	{
-		G_Printf("G_Damage:3\n");
 	}
 
 	// always give half damage if hurting self

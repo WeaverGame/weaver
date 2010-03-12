@@ -673,14 +673,14 @@ Forces a client's skin (for teamplay)
 */
 /*
 static void ForceClientSkin( gclient_t *client, char *model, const char *skin ) {
-    char *p;
+	char *p;
 
-    if ((p = Q_strrchr(model, '/')) != 0) {
-        *p = 0;
-    }
+	if ((p = Q_strrchr(model, '/')) != 0) {
+		*p = 0;
+	}
 
-    Q_strcat(model, MAX_QPATH, "/");
-    Q_strcat(model, MAX_QPATH, skin);
+	Q_strcat(model, MAX_QPATH, "/");
+	Q_strcat(model, MAX_QPATH, skin);
 }
 */
 
@@ -1371,11 +1371,7 @@ void ClientSpawn(gentity_t * ent)
 
 	trap_GetUserinfo(index, userinfo, sizeof(userinfo));
 	// set max health
-	//client->pers.maxHealth = atoi(Info_ValueForKey(userinfo, "handicap"));
-	//if(client->pers.maxHealth < 1 || client->pers.maxHealth > 100)
-	//{
 	client->pers.maxHealth = 100;
-	//}
 	// clear entity values
 	client->ps.stats[STAT_MAX_HEALTH] = client->pers.maxHealth;
 	client->ps.eFlags = flags;
@@ -1455,8 +1451,6 @@ void ClientSpawn(gentity_t * ent)
 		G_KillBox(ent);
 		trap_LinkEntity(ent);
 
-		// force the base weapon up
-		//client->ps.weapon = WP_MACHINEGUN;
 		//Default to a empty weave
 		client->ps.weapon = MAX_WEAPONS - 1;
 		client->ps.weaponstate = WEAPON_READY;

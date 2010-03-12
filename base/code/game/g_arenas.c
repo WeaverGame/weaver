@@ -136,7 +136,12 @@ void UpdateTournamentInfo(void)
 					player->client->ps.persistant[PERS_GAUNTLET_FRAG_COUNT],
 					player->client->ps.persistant[PERS_TELEFRAG_FRAG_COUNT],
 					player->client->ps.persistant[PERS_SCORE],
-					perfect, won, score1, score2, level.time, player->client->ps.persistant[PERS_CAPTURES]);
+					perfect,
+					won,
+					score1,
+					score2,
+					level.time,
+					player->client->ps.persistant[PERS_CAPTURES]);
 	}
 
 	msglen = strlen(msg);

@@ -2025,7 +2025,8 @@ void CG_AddPlayerWeapon(refEntity_t * parent, playerState_t * ps, centity_t * ce
 	}
 
 	// add the flash
-	if((weaponNum == WP_LIGHTNING || weaponNum == WP_GAUNTLET) && (nonPredictedCent->currentState.eFlags & EF_FIRING))
+	if((weaponNum == WP_LIGHTNING || weaponNum == WP_GAUNTLET)
+	   && (nonPredictedCent->currentState.eFlags & EF_FIRING))
 	{
 		// continuous flash
 	}
@@ -2245,7 +2246,8 @@ void CG_AddViewWeapon(playerState_t * ps)
 		addFlash = qfalse;
 
 		// add the flash
-		if((weaponNum == WP_LIGHTNING || weaponNum == WP_GAUNTLET) && (nonPredictedCent->currentState.eFlags & EF_FIRING))
+		if((weaponNum == WP_LIGHTNING || weaponNum == WP_GAUNTLET)
+		   && (nonPredictedCent->currentState.eFlags & EF_FIRING))
 		{
 			// continuous flash
 			addFlash = qtrue;
@@ -2858,7 +2860,6 @@ void CG_FireWeapon(centity_t * cent)
 	weaponInfo_t   *weap;
 
 	ent = &cent->currentState;
-
 	if(ent->weapon == WP_NONE)
 	{
 		return;

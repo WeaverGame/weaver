@@ -1480,7 +1480,6 @@ void LogExit(const char *string)
 			trap_Cvar_Set("g_swMap", va("%i", g_swMap.integer + 1));
 		}
 		trap_Cvar_Set("g_currentRound", va("%i", !g_currentRound.integer));
-		
 	}
 
 	for(i = 0; i < numSorted; i++)
@@ -1799,7 +1798,7 @@ qboolean GameIsInWarmup(void)
 
 	trap_GetConfigstring(CS_WARMUP, buff, sizeof(buff));
 
-	if (Q_stricmp(buff, "")==0)
+	if(Q_stricmp(buff, "") == 0)
 	{
 		return qfalse;
 	}
@@ -1913,7 +1912,7 @@ void CheckTournament(void)
 				countRed++;
 				readyCountRed += (level.clients[i].pers.ready == qtrue);
 			}
-			else if (level.clients[i].sess.sessionTeam == TEAM_BLUE)
+			else if(level.clients[i].sess.sessionTeam == TEAM_BLUE)
 			{
 				countBlue++;
 				readyCountBlue += (level.clients[i].pers.ready == qtrue);
@@ -2348,12 +2347,9 @@ void G_RunFrame(int levelTime)
 		if(level.time > (level.teamSpawnPreviousTimeRed + level.teamSpawnPeriodRed))
 		{
 			spawnChange = ((level.time - level.teamSpawnPreviousTimeRed) / level.teamSpawnPeriodRed) * level.teamSpawnPeriodRed;
-			Com_Printf("Red Spawn! time=%d period=%d add=%d last=%d next=%d\n", 
-				level.time, 
-				level.teamSpawnPeriodRed, 
-				spawnChange,
-				level.teamSpawnPreviousTimeRed,
-				level.teamSpawnPreviousTimeRed + spawnChange);
+			Com_Printf("Red Spawn! time=%d period=%d add=%d last=%d next=%d\n",
+					   level.time, level.teamSpawnPeriodRed, spawnChange, level.teamSpawnPreviousTimeRed,
+					   level.teamSpawnPreviousTimeRed + spawnChange);
 			level.teamSpawnPreviousTimeRed += spawnChange;
 			level.teamSpawningRed = 1;
 		}
@@ -2365,11 +2361,8 @@ void G_RunFrame(int levelTime)
 		{
 			spawnChange = ((level.time - level.teamSpawnPreviousTimeBlue) / level.teamSpawnPeriodBlue) * level.teamSpawnPeriodBlue;
 			Com_Printf("Blue Spawn! time=%d period=%d add=%d last=%d next=%d\n", 
-				level.time, 
-				level.teamSpawnPeriodBlue, 
-				spawnChange,
-				level.teamSpawnPreviousTimeRed,
-				level.teamSpawnPreviousTimeBlue + spawnChange);
+					   level.time, level.teamSpawnPeriodBlue, spawnChange, level.teamSpawnPreviousTimeRed,
+					   level.teamSpawnPreviousTimeBlue + spawnChange);
 			level.teamSpawnPreviousTimeBlue += spawnChange;
 			level.teamSpawningBlue = 1;
 		}

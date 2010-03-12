@@ -1638,12 +1638,6 @@ void BG_PlayerStateToEntityState(playerState_t * ps, entityState_t * s, qboolean
 	{
 		s->eType = ET_INVISIBLE;
 	}
-	/*
-	else if(ps->pm_type == PM_WOUNDED)
-	{
-		s->eType = ET_WOUNDED;
-	}
-	*/
 	else
 	{
 		s->eType = ET_PLAYER;
@@ -1883,3 +1877,4 @@ qboolean BG_RotateAxis(vec3_t surfNormal, vec3_t inAxis[3], vec3_t outAxis[3], q
 
 	return qtrue;
 }
+
