@@ -870,8 +870,6 @@ void ClientWeaveStart(gclient_t * client)
 
 	client->weaving = qtrue;
 
-	//client->threadEnt->s.event =
-
 	client->threading = qfalse;
 	client->thread = 0;
 
@@ -895,7 +893,9 @@ void ClientWeaveStart(gclient_t * client)
 void ClientThreadStart(gclient_t * client)
 {
 	if(!client)
+	{
 		return;
+	}
 	// but only if player has enough available power
 	if(ClientPowerAvailable(client) >= POWER_PER_THREAD)
 	{
@@ -979,7 +979,6 @@ void ClientThreadEnd(gclient_t * client)
 
 	client->currentWeaveThreads[client->thread] = threadPower;
 
-	//client->ps.stats[STAT_POWER] = client->ps.stats[STAT_POWER] - POWER_PER_THREAD;
 	ClientPowerConsume(client, POWER_PER_THREAD);
 
 	client->thread++;

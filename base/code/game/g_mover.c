@@ -1511,7 +1511,6 @@ void SP_func_door(gentity_t * ent)
 	}
 }
 
-//DUTCHMEAT
 /*QUAKED func_door_rotating (0 .5 .8) START_OPEN CRUSHER REVERSE TOGGLE X_AXIS Y_AXIS
 This is the rotating door... just as the name suggests it's a door that rotates
 START_OPEN	the door to moves to its destination when spawned, and operate in reverse.
@@ -1520,17 +1519,13 @@ REVERSE		if you want the door to open in the other direction, use this switch.
 TOGGLE		wait in both the start and end states for a trigger event.
 X_AXIS		open on the X-axis instead of the Z-axis
 Y_AXIS		open on the Y-axis instead of the Z-axis
-  
-You need to have an origin brush as part of this entity.  The center of that brush will be
-the point around which it is rotated. It will rotate around the Z axis by default.  You can
-check either the X_AXIS or Y_AXIS box to change that.
 
 "model2"	.md3 model to also draw
 "distance"	how many degrees the door will open
 "speed"	 	how fast the door will open (degrees/second)
 "color"		constantLight color
 "light"		constantLight radius
-"allowteams" "none|red|blue|both"
+"allowteams"	"none|red|blue|both"
 "dmg"		damage to inflict when blocked (2 default)
 */
 
