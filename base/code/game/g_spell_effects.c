@@ -1273,8 +1273,7 @@ gentity_t      *EndWeave_Heal(gentity_t * self, vec3_t start, vec3_t dir, int he
 
 	heldWeave = &g_entities[heldWeaveNum];
 
-	if(heldWeave && heldWeave->target_ent && 
-		heldWeave->target_ent->target_ent && heldWeave->target_ent->target_ent->client)
+	if(heldWeave && heldWeave->target_ent && heldWeave->target_ent->target_ent && heldWeave->target_ent->target_ent->client)
 	{
 		heldWeave->target_ent->target_ent->client->ps.powerups[PW_REGEN] = 0;
 	}
