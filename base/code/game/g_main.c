@@ -1459,6 +1459,10 @@ void LogExit(const char *string)
 
 		G_LogPrintf("sw-round:%i  defender:%i  winner:%i\n", g_currentRound.integer + 1, defender, winner);
 
+		trap_SendServerCommand(-1,
+							   va("print \"sw-round:%i  defender:%i  winner:%i  time:%f\n\"", g_currentRound.integer + 1,
+								  defender, winner, (level.time - level.startTime) / 60000.f));
+
 		if(!g_currentRound.integer)
 		{
 			//Stopwatch round 1
