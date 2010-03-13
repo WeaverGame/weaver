@@ -1059,11 +1059,10 @@ extern vmCvar_t g_teamSpawnRed;
 extern vmCvar_t g_currentRound;
 extern vmCvar_t g_nextTimeLimit;
 extern vmCvar_t g_swTeamSwitching;
+extern vmCvar_t g_swTeamToClan;
 extern vmCvar_t g_swMaps;
 extern vmCvar_t g_swMap;
-extern vmCvar_t g_teamA;
 extern vmCvar_t g_scoreA;
-extern vmCvar_t g_teamB;
 extern vmCvar_t g_scoreB;
 
 extern vmCvar_t g_woundedHealth;

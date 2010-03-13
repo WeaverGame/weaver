@@ -113,11 +113,10 @@ vmCvar_t        g_teamSpawnRed;
 vmCvar_t        g_currentRound;
 vmCvar_t        g_nextTimeLimit;
 vmCvar_t        g_swTeamSwitching;
+vmCvar_t        g_swTeamToClan;
 vmCvar_t        g_swMaps;
 vmCvar_t        g_swMap;
-vmCvar_t        g_teamA;
 vmCvar_t        g_scoreA;
-vmCvar_t        g_teamB;
 vmCvar_t        g_scoreB;
 
 vmCvar_t        g_woundedHealth;
@@ -243,11 +242,10 @@ static cvarTable_t gameCvarTable[] = {
 	{&g_currentRound, "g_currentRound", "0", CVAR_SERVERINFO | CVAR_USERINFO | CVAR_NORESTART, 0, qfalse},
 	{&g_nextTimeLimit, "g_nextTimeLimit", "0", CVAR_SERVERINFO | CVAR_USERINFO | CVAR_NORESTART, 0, qfalse},
 	{&g_swTeamSwitching, "g_swTeamSwitching", "0", CVAR_SERVERINFO | CVAR_USERINFO | CVAR_NORESTART, 0, qfalse},
+	{&g_swTeamToClan, "g_swTeamToClan", "0", CVAR_SERVERINFO | CVAR_USERINFO | CVAR_NORESTART, 0, qfalse},
 	{&g_swMaps, "g_swMaps", "", CVAR_SERVERINFO | CVAR_USERINFO | CVAR_NORESTART, 0, qfalse},
 	{&g_swMap, "g_swMap", "0", CVAR_SERVERINFO | CVAR_USERINFO | CVAR_NORESTART, 0, qfalse},
-	{&g_teamA, "g_teamA", "", CVAR_SERVERINFO | CVAR_USERINFO | CVAR_NORESTART, 0, qfalse},
 	{&g_scoreA, "g_scoreA", "0", CVAR_SERVERINFO | CVAR_USERINFO | CVAR_NORESTART, 0, qfalse},
-	{&g_teamB, "g_teamB", "", CVAR_SERVERINFO | CVAR_USERINFO | CVAR_NORESTART, 0, qfalse},
 	{&g_scoreB, "g_scoreB", "0", CVAR_SERVERINFO | CVAR_USERINFO | CVAR_NORESTART, 0, qfalse},
 
 	{&g_woundedHealth, "g_woundedHealth", "-50", CVAR_SERVERINFO | CVAR_USERINFO, 0, qfalse},
@@ -1457,6 +1455,16 @@ void LogExit(const char *string)
 		defender = atoi(Info_ValueForKey(cs, "defender"));
 		winner = atoi(Info_ValueForKey(cs, "winner"));
 
+		if((winner == TEAM_FREE) && g_currentRound.integer && (g_nextTimeLimit.value > 0))
+		{
+			//Round 2
+			//Time was set last round (g_nextTimeLimit > 0)
+			//Time was not beaten this round (winner == TEAM_FREE)
+			winner = defender;
+			Info_SetValueForKey(cs, "winner", va("%i", defender));
+			trap_SetConfigstring(CS_SWINFO, cs);
+		}
+
 		G_LogPrintf("sw-round:%i  defender:%i  winner:%i\n", g_currentRound.integer + 1, defender, winner);
 
 		trap_SendServerCommand(-1,
@@ -1466,14 +1474,14 @@ void LogExit(const char *string)
 		if(!g_currentRound.integer)
 		{
 			//Stopwatch round 1
-			if(winner == defender)
+			if(winner == defender || winner == TEAM_FREE)
 			{
 				//Defenders held
-				trap_Cvar_Set("g_nextTimeLimit", va("%f", g_timelimit.value));
+				trap_Cvar_Set("g_nextTimeLimit", va("%f", 0));
 			}
 			else
 			{
-				//Defenders won
+				//Attackers won
 				trap_Cvar_Set("g_nextTimeLimit", va("%f", (level.time - level.startTime) / 60000.f));
 			}
 
@@ -1482,9 +1490,28 @@ void LogExit(const char *string)
 		else
 		{
 			//Stopwatch round 2
+
+			//Adjust scores
+			if(winner == TEAM_FREE)
+			{
+				trap_SendServerCommand(-1, va("print \"sw-round:%i  Round was a draw!\n\""));
+			}
+			else
+			{
+				if((winner == TEAM_RED) ^ (g_swTeamToClan.integer))
+				{
+					trap_Cvar_Set("g_scoreA", va("%i", g_scoreA.integer + 1));
+				}
+				if((winner == TEAM_BLUE) ^ (g_swTeamToClan.integer))
+				{
+					trap_Cvar_Set("g_scoreB", va("%i", g_scoreB.integer + 1));
+				}
+			}
+
 			trap_Cvar_Set("g_nextTimeLimit", "0");
 			trap_Cvar_Set("g_swMap", va("%i", g_swMap.integer + 1));
 
+			// Optionally swap teams for ABAB instead of ABBA
 			if(g_swTeamSwitching.integer == 1)
 			{
 				Team_SwapTeams();
