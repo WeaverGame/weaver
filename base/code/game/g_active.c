@@ -1552,8 +1552,11 @@ void ClientThink_real(gentity_t * ent)
 
 		// in any case, this client wants to spawn
 
-		// wait for the attack button to be pressed
-		if((g_gametype.integer >= GT_TEAM) && (g_teamSpawnWaves.integer >= 1))
+		if(GameIsInWarmup())
+		{
+			respawn(ent);
+		}
+		else if((g_gametype.integer >= GT_TEAM) && (g_teamSpawnWaves.integer >= 1))
 		{
 			// spawning is to be done in waves.
 			// do not spawn individually.
