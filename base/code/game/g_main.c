@@ -1472,12 +1472,19 @@ void LogExit(const char *string)
 				//Defenders won
 				trap_Cvar_Set("g_nextTimeLimit", va("%f", (level.time - level.startTime) / 60000.f));
 			}
+
+			Team_SwapTeams();
 		}
 		else
 		{
 			//Stopwatch round 2
 			trap_Cvar_Set("g_nextTimeLimit", "0");
 			trap_Cvar_Set("g_swMap", va("%i", g_swMap.integer + 1));
+
+			if(g_swTeamSwitching.integer == 1)
+			{
+				Team_SwapTeams();
+			}
 		}
 		trap_Cvar_Set("g_currentRound", va("%i", !g_currentRound.integer));
 	}
@@ -1907,6 +1914,10 @@ void CheckTournament(void)
 
 		for(i = 0; i < level.maxclients; i++)
 		{
+			if(level.clients[i].pers.connected == CON_DISCONNECTED)
+			{
+				continue;
+			}
 			if(level.clients[i].sess.sessionTeam == TEAM_RED)
 			{
 				countRed++;

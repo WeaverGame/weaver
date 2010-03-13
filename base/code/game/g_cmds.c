@@ -1460,6 +1460,9 @@ void Cmd_CallVote_f(gentity_t * ent)
 	else if(!Q_stricmp(arg1, "fraglimit"))
 	{
 	}
+	else if(!Q_stricmp(arg1, "swapteams"))
+	{
+	}
 	else
 	{
 		trap_SendServerCommand(ent - g_entities, "print \"Invalid vote string.\n\"");
@@ -1516,6 +1519,11 @@ void Cmd_CallVote_f(gentity_t * ent)
 			return;
 		}
 		Com_sprintf(level.voteString, sizeof(level.voteString), "vstr nextmap");
+		Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "%s", level.voteString);
+	}
+	else if(!Q_stricmp(arg1, "swapteams"))
+	{
+		Com_sprintf(level.voteString, sizeof(level.voteString), "swapteams");
 		Com_sprintf(level.voteDisplayString, sizeof(level.voteDisplayString), "%s", level.voteString);
 	}
 	else

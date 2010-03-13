@@ -1120,9 +1120,56 @@ void Team_ReadyPlayers(int team, qboolean readyness)
 
 	for(i = 0; i < level.maxclients; i++)
 	{
+		if(level.clients[i].pers.connected == CON_DISCONNECTED)
+		{
+			continue;
+		}
 		if(level.clients[i].sess.sessionTeam == team)
 		{
 			level.clients[i].pers.ready = readyness;
+		}
+	}
+}
+
+void Team_SwapTeams()
+{
+	int             i;
+	gentity_t      *ent;
+
+	// Set next team for each player
+	for(i = 0; i < level.maxclients; i++)
+	{
+		if(level.clients[i].pers.connected == CON_DISCONNECTED)
+		{
+			continue;
+		}
+		if(level.clients[i].sess.sessionTeam == TEAM_RED)
+		{
+			level.clients[i].sess.sessionTeamNext = TEAM_BLUE;
+		}
+		else if(level.clients[i].sess.sessionTeam == TEAM_BLUE)
+		{
+			level.clients[i].sess.sessionTeamNext = TEAM_RED;
+		}
+	}
+	// Effect changes for each player
+	for(i = 0; i < level.maxclients; i++)
+	{
+		if(level.clients[i].pers.connected == CON_DISCONNECTED)
+		{
+			continue;
+		}
+		if(level.clients[i].sess.sessionTeam == TEAM_RED || level.clients[i].sess.sessionTeam == TEAM_BLUE)
+		{
+			level.clients[i].sess.sessionTeam = level.clients[i].sess.sessionTeamNext;
+			if(level.clients[i].ps.stats[STAT_HEALTH] > g_woundedHealth.integer)
+			{
+				// Player is alive, kill them so they spawn on the other team
+				ent = &g_entities[level.clients[i].ps.clientNum];
+				ent->flags &= ~FL_GODMODE;
+				ent->client->ps.stats[STAT_HEALTH] = ent->health = -999;
+				player_die(ent, ent, ent, 100000, MOD_SUICIDE);
+			}
 		}
 	}
 }

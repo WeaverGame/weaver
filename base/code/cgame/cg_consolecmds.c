@@ -595,6 +595,8 @@ void CG_InitConsoleCommands(void)
 	trap_AddCommand("round_start");
 	trap_AddCommand("round_restart");
 
+	trap_AddCommand("swapteams");
+
 	// useful for development
 	trap_AddCommand("entitylist");
 

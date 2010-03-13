@@ -607,6 +607,12 @@ qboolean ConsoleCommand(void)
 		return qtrue;
 	}
 
+	if(Q_stricmp(cmd, "swapteams") == 0)
+	{
+		Team_SwapTeams();
+		return qtrue;
+	}
+
 #if defined(BRAINWORKS)
 	if(Q_stricmp(cmd, "addbot") == 0)
 	{

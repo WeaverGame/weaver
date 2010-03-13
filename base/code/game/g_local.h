@@ -345,6 +345,7 @@ typedef struct
 typedef struct
 {
 	team_t          sessionTeam;
+	team_t          sessionTeamNext;
 	int             spectatorTime;	// for determining next-in-line to play
 	spectatorState_t spectatorState;
 	int             spectatorClient;	// for chasecam and follow mode
@@ -883,6 +884,7 @@ void            Team_CheckDroppedItem(gentity_t * dropped);
 qboolean        CheckObeliskAttack(gentity_t * obelisk, gentity_t * attacker);
 void            Team_ReadyPlayers(int team, qboolean readyness);
 int             Team_CaptureFlag(gentity_t * ent, gentity_t * other, int team);
+void            Team_SwapTeams();
 
 //
 // g_mem.c
