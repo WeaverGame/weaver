@@ -197,16 +197,6 @@ xreal_env.Append(CCFLAGS='-Icode/theora/include')
 
 if env['optimize'] != '0':
 	env.Append(CCFLAGS = '-fno-strict-aliasing -funroll-loops')
-	
-if env['java'] == 1:
-	xreal_env.Append(CCFLAGS='-DUSE_JAVA')
-	xreal_env.Append(CCFLAGS='-Ijdk/include')
-	xreal_src += ['code/qcommon/vm_java.c']
-	xreal_src += ['code/server/sv_game_java.c']
-	xreal_src += ['code/client/cl_ui_java.c']
-
-if env['compatq3a'] == 1:
-	xreal_env.Append(CCFLAGS='-DCOMPAT_Q3A')
 
 if env['curl'] == 'compile':
 	xreal_env.Append(CCFLAGS='-DUSE_CURL')
