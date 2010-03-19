@@ -1853,6 +1853,7 @@ void            CG_LoadDeferredPlayers(void);
 // cg_spell_effects.c
 //
 void            CG_WeaveEffect(centity_t * cent);
+void            CG_WeaveCast(centity_t * cent);
 void            CG_WeaveMissile_Trail(centity_t * ent);
 void            CG_WeaveEffect_Link(centity_t * cent);
 void            CG_WeaveMissileHitPlayer(int weapon, vec3_t origin, vec3_t dir, int entityNum);

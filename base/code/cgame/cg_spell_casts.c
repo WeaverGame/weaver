@@ -17,10 +17,7 @@ generic sound (if available)
 */
 void WeaveCast(centity_t * cent)
 {
-	localEntity_t  *le;
-	refEntity_t    *re;
 	const weaver_weaveInfo *weave;
-	vec3_t          dir;
 
 	weave = &cg_weaves[cent->currentState.eventParm];
 

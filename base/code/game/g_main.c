@@ -1477,7 +1477,7 @@ void LogExit(const char *string)
 			if(winner == defender || winner == TEAM_FREE)
 			{
 				//Defenders held
-				trap_Cvar_Set("g_nextTimeLimit", va("%f", 0));
+				trap_Cvar_Set("g_nextTimeLimit", va("%f", 0.0f));
 			}
 			else
 			{

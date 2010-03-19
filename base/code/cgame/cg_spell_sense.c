@@ -26,6 +26,7 @@ void CG_UpdateWeaveSense(int clientnum, vec3_t origin, int power)
 	VectorToAngles(relOrigin, relAngle);
 	dotAngles[clientnum] = AngleNormalize180(relAngle[1] - cg.refdefViewAngles[1] + 90.0f);
 	dotPowers[clientnum] = power;
+	lastUpdate = cg.time;
 }
 
 void CG_DrawWeaveSense(void)

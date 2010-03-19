@@ -432,7 +432,7 @@ void CG_RegisterWeave(int weaveNum)
 			//weaveInfo->exploModel;
 			//weaveInfo->exploMark;
 			//weaveInfo->exploSprite = trap_R_RegisterShader("rocketExplosion");
-			weaveInfo->exploSfx = trap_S_RegisterSound("sound/weaves/airblast/impact.ogg", qfalse);
+			weaveInfo->exploSfx = trap_S_RegisterSound("sound/weaves/airblast/impact.ogg");
 			//weaveInfo->exploMark = cgs.media.burnMarkShader;
 			//weaveInfo->exploMarkRadius = 64;
 			//weaveInfo->exploLight = 0;
@@ -471,7 +471,7 @@ void CG_RegisterWeave(int weaveNum)
 			//weaveInfo->exploModel;
 			//weaveInfo->exploMark;
 			//weaveInfo->exploSprite = trap_R_RegisterShader("rocketExplosion");
-			weaveInfo->exploSfx = trap_S_RegisterSound("sound/weaves/firedart/impact.ogg", qfalse);
+			weaveInfo->exploSfx = trap_S_RegisterSound("sound/weaves/firedart/impact.ogg");
 			weaveInfo->exploMark = cgs.media.bulletMarkShader;
 			weaveInfo->exploMarkRadius = 8;
 			//weaveInfo->exploLight = 100;
@@ -1005,7 +1005,7 @@ void CG_RegisterWeave(int weaveNum)
 			//weaveInfo->exploModel;
 			//weaveInfo->exploMark;
 			//weaveInfo->exploSprite = trap_R_RegisterShader("rocketExplosion");
-			weaveInfo->exploSfx = trap_S_RegisterSound("sound/weaves/iceshards/impact.ogg", qfalse);
+			weaveInfo->exploSfx = trap_S_RegisterSound("sound/weaves/iceshards/impact.ogg");
 			weaveInfo->exploMark = cgs.media.bulletMarkShader;
 			weaveInfo->exploMarkRadius = 8;
 			weaveInfo->exploLight = 100;
@@ -1048,7 +1048,7 @@ void CG_RegisterWeave(int weaveNum)
 			//weaveInfo->exploModel;
 			//weaveInfo->exploMark;
 			//weaveInfo->exploSprite = trap_R_RegisterShader("rocketExplosion");
-			weaveInfo->exploSfx = trap_S_RegisterSound("sound/weaves/iceshards/impact.ogg", qfalse);
+			weaveInfo->exploSfx = trap_S_RegisterSound("sound/weaves/iceshards/impact.ogg");
 			weaveInfo->exploMark = cgs.media.bulletMarkShader;
 			weaveInfo->exploMarkRadius = 8;
 			weaveInfo->exploLight = 100;

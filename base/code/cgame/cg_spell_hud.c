@@ -516,7 +516,7 @@ static void CG_DrawWeaverPowerups(void)
 	// draw the icons and timers
 	x = 48;
 	y = 480 - 28 - HUD_STATUS_HEIGHT;
-	for(i = 0; i < MAX_POWERUPS; i++)
+	for(i = 0; i < PW_NUM_POWERUPS; i++)
 	{
 		if(!ps->powerups[i])
 		{
