@@ -211,7 +211,6 @@ CG_ParseSWInfo
 static void CG_ParseSWInfo(void)
 {
 	const char     *info;
-	int             warmup;
 
 	info = CG_ConfigString(CS_SWINFO);
 

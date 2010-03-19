@@ -1494,7 +1494,7 @@ void LogExit(const char *string)
 			//Adjust scores
 			if(winner == TEAM_FREE)
 			{
-				trap_SendServerCommand(-1, va("print \"sw-round:%i  Round was a draw!\n\""));
+				trap_SendServerCommand(-1, va("print \"sw-round:%i  Round was a draw!\n\""), g_currentRound.integer + 1);
 			}
 			else
 			{
