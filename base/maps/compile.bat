@@ -7,7 +7,7 @@ SET backuppath=G:\Code\W Maps
 
 SET starttime=%time%
 
-"%xmap2%" -fs_basepath "%basepath%" -fs_game "weaver" -game "xreal" -meta -v "%1.map"
+"%xmap2%" -fs_basepath "%basepath%" -fs_game "weaver" -game "xreal" -meta -v -leaktest "%1.map"
 "%xmap2%" -fs_basepath "%basepath%" -fs_game "weaver" -game "xreal" -vis "%1.bsp"
 "%xmap2%" -fs_basepath "%basepath%" -fs_game "weaver" -game "xreal" -light "%1.map"
 
