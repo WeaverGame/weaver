@@ -16,6 +16,7 @@ opts.Add(EnumVariable('simd', 'Choose special CPU register optimizations', 'none
 opts.Add(BoolVariable('smp', 'Set to 1 to compile engine with symmetric multiprocessor support', 0))
 #opts.Add(BoolVariable('purevm', 'Set to 1 to compile the engine with strict checking for vm/*.qvm modules in paks', 0))
 opts.Add(BoolVariable('xmap', 'Set to 1 to compile the XMap(2) map compilers', 0))
+opts.Add(BoolVariable('xmap2', 'Set to 1 to compile the XMap2 map compiler (not XMap)', 0))
 #opts.Add(BoolVariable('vectorize', 'Set to 1 to compile the engine with auto-vectorization support', 0))
 opts.Add(EnumVariable('curl', 'Choose http-download redirection support for the engine', 'compile', allowed_values=('none', 'compile', 'dlopen')))
 #opts.Add(BoolVariable('openal', 'Set to 1 to compile the engine with OpenAL support', 0))
@@ -102,6 +103,9 @@ else:
 
 if env['xmap'] == 1:
 	SConscript('SConscript_xmap', build_dir='build/xmap', duplicate=0)
+	SConscript('SConscript_xmap2', build_dir='build/xmap2', duplicate=0)
+
+if env['xmap2'] == 1:
 	SConscript('SConscript_xmap2', build_dir='build/xmap2', duplicate=0)
 
 if env['master'] == 1:
