@@ -1641,7 +1641,7 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 	s = CG_ConfigString(CS_LEVEL_START_TIME);
 	cgs.levelStartTime = atoi(s);
 
-
+	CG_ParseSWInfo();
 
 	CG_ParseServerinfo();
 

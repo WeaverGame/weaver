@@ -2016,6 +2016,7 @@ void            CG_InitConsoleCommands(void);
 //
 void            CG_ExecuteNewServerCommands(int latestSequence);
 void            CG_ParseServerinfo(void);
+void            CG_ParseSWInfo(void);
 void            CG_SetConfigValues(void);
 void            CG_LoadVoiceChats(void);
 void            CG_ShaderStateChanged(void);

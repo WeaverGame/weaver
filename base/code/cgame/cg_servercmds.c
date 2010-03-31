@@ -208,7 +208,7 @@ static void CG_ParseWarmup(void)
 CG_ParseSWInfo
 ==================
 */
-static void CG_ParseSWInfo(void)
+void CG_ParseSWInfo(void)
 {
 	const char     *info;
 

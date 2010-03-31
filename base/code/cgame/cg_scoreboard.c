@@ -213,25 +213,62 @@ Draw the normal in-game scoreboard
 void CG_DrawScoreboardTitlebarNew(vec4_t color, qboolean team)
 {
 	const char     *s;
+	int             msec;
+	int             mins, seconds, tens;
 
 	trap_R_SetColor(color);
 	CG_DrawPic(150, 73, 340, 40, cgs.media.hud_scoreboard_title);
 	trap_R_SetColor(NULL);
 
-
 	if(team)
 	{
-		if(cg.teamScores[0] == cg.teamScores[1])
+		if(cgs.gametype == GT_OBJECTIVE_SW)
 		{
-			s = va("Teams are tied at %i", cg.teamScores[0]);
-		}
-		else if(cg.teamScores[0] >= cg.teamScores[1])
-		{
-			s = va("Red leads %i to %i", cg.teamScores[0], cg.teamScores[1]);
+			if(cgs.winner == TEAM_RED)
+			{
+				s = va("Red has won the round!");
+			}
+			else if(cgs.winner == TEAM_BLUE)
+			{
+				s = va("Blue has won the round!");
+			}
+			else
+			{
+				msec = (cgs.timelimit * 60.0f * 1000.0f);
+				seconds = msec / 1000;
+				mins = seconds / 60;
+				seconds -= mins * 60;
+				tens = seconds / 10;
+				seconds -= tens * 10;
+
+				if(cgs.defender == TEAM_RED)
+				{
+					s = va("Blue attacking %i:%i%i", mins, tens, seconds);
+				}
+				else if(cgs.defender == TEAM_BLUE)
+				{
+					s = va("Red attacking %i:%i%i", mins, tens, seconds);
+				}
+				else
+				{
+					s = va("Team attacking %i:%i%i", mins, tens, seconds);
+				}
+			}
 		}
 		else
 		{
-			s = va("Blue leads %i to %i", cg.teamScores[1], cg.teamScores[0]);
+			if(cg.teamScores[0] == cg.teamScores[1])
+			{
+				s = va("Teams are tied at %i", cg.teamScores[0]);
+			}
+			else if(cg.teamScores[0] >= cg.teamScores[1])
+			{
+				s = va("Red leads %i to %i", cg.teamScores[0], cg.teamScores[1]);
+			}
+			else
+			{
+				s = va("Blue leads %i to %i", cg.teamScores[1], cg.teamScores[0]);
+			}
 		}
 
 		CG_Text_PaintAligned(320, 93, s, 0.4f, UI_CENTER | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
