@@ -213,6 +213,7 @@ Draw the normal in-game scoreboard
 void CG_DrawScoreboardTitlebarNew(vec4_t color, qboolean team)
 {
 	const char     *s;
+	const char     *status;
 	int             msec;
 	int             mins, seconds, tens;
 
@@ -224,36 +225,63 @@ void CG_DrawScoreboardTitlebarNew(vec4_t color, qboolean team)
 	{
 		if(cgs.gametype == GT_OBJECTIVE_SW)
 		{
-			if(cgs.winner == TEAM_RED)
-			{
-				s = va("Red has won the round!");
-			}
-			else if(cgs.winner == TEAM_BLUE)
-			{
-				s = va("Blue has won the round!");
-			}
-			else
-			{
-				msec = (cgs.timelimit * 60.0f * 1000.0f);
-				seconds = msec / 1000;
-				mins = seconds / 60;
-				seconds -= mins * 60;
-				tens = seconds / 10;
-				seconds -= tens * 10;
+			msec = (cgs.timelimit * 60.0f * 1000.0f);
+			seconds = msec / 1000;
+			mins = seconds / 60;
+			seconds -= mins * 60;
+			tens = seconds / 10;
+			seconds -= tens * 10;
 
+			msec = (cgs.timelimit * 60.0f * 1000.0f) - (cg.time - cgs.levelStartTime);
+
+			if(!cgs.currentRound)
+			{
+				//Stopwatch round 1
 				if(cgs.defender == TEAM_RED)
 				{
-					s = va("Blue attacking %i:%i%i", mins, tens, seconds);
+					status = va("Blue attacking %i:%i%i", mins, tens, seconds);
 				}
 				else if(cgs.defender == TEAM_BLUE)
 				{
-					s = va("Red attacking %i:%i%i", mins, tens, seconds);
+					status = va("Red attacking %i:%i%i", mins, tens, seconds);
 				}
 				else
 				{
-					s = va("Team attacking %i:%i%i", mins, tens, seconds);
+					status = va("Team attacking %i:%i%i", mins, tens, seconds);
 				}
 			}
+			else
+			{
+				//Stopwatch round 2
+				if(cgs.winner == TEAM_FREE)
+				{
+					if(msec < 0)
+					{
+						status = va("Game drawn!");
+					}
+					else if(cgs.defender == TEAM_RED)
+					{
+						status = va("Blue attacking %i:%i%i", mins, tens, seconds);
+					}
+					else if(cgs.defender == TEAM_BLUE)
+					{
+						status = va("Red attacking %i:%i%i", mins, tens, seconds);
+					}
+					else
+					{
+						status = va("Team attacking %i:%i%i", mins, tens, seconds);
+					}
+				}
+				else if(cgs.winner == TEAM_RED)
+				{
+					status = va("Red wins the game!");
+				}
+				else if(cgs.winner == TEAM_BLUE)
+				{
+					status = va("Blue wins the game!");
+				}
+			}
+			s = va("Round %i: %s", cgs.currentRound + 1, status);
 		}
 		else
 		{
@@ -338,6 +366,7 @@ void CG_DrawScoreboardUnderlineNew(void)
 	const char     *ts = "";
 	int             mins, seconds, tens;
 	int             msec;
+	int             w;
 
 	const char     *info;
 	char           *mapname;
@@ -347,11 +376,14 @@ void CG_DrawScoreboardUnderlineNew(void)
 
 	if(cgs.timelimit > 0)
 	{
-
-		msec = ((cgs.timelimit * 60 * 1000) - cg.time - cgs.levelStartTime);
-
-		if(msec > 0)
+		if(cg.warmup == 0)
 		{
+			msec = (cgs.timelimit * 60.0f * 1000.0f) - (cg.time - cgs.levelStartTime);
+			if(msec < 0)
+			{
+				msec = 0;
+			}
+
 			seconds = msec / 1000;
 			mins = seconds / 60;
 			seconds -= mins * 60;
@@ -359,7 +391,10 @@ void CG_DrawScoreboardUnderlineNew(void)
 			seconds -= tens * 10;
 
 			ts = va("Time left: %i:%i%i", mins, tens, seconds);
-
+		}
+		else
+		{
+			ts = va("WARMUP");
 		}
 	}
 
@@ -377,7 +412,23 @@ void CG_DrawScoreboardUnderlineNew(void)
 			CG_Text_PaintAligned(344, 408, ts, 0.2f, UI_LEFT | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
 		}
 
-		if(cgs.gametype >= GT_CTF)
+		if(cgs.gametype == GT_OBJECTIVE || cgs.gametype == GT_OBJECTIVE_SW)
+		{
+			if(cgs.gametype == GT_OBJECTIVE_SW)
+			{
+				s = va("Stop Watch Objective on %s", mapname);
+			}
+			else
+			{
+				s = va("Objective on %s", mapname);
+			}
+
+			w = CG_Text_Width(s, 0.2f, 0, &cgs.media.freeSansBoldFont);
+			w = 320 - w / 2;
+			CG_Text_PaintAligned(w, 438, s, 0.2f, UI_LEFT | UI_DROPSHADOW, colorWhite,
+								 &cgs.media.freeSansBoldFont);
+		}
+		else if(cgs.gametype >= GT_CTF)
 		{
 			if(cgs.gametype == GT_1FCTF)
 			{

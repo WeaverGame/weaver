@@ -571,6 +571,7 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 	memset(&level, 0, sizeof(level));
 	level.time = levelTime;
 	level.startTime = levelTime;
+	level.teamSwapped = qfalse;
 
 	if(g_gametype.integer != GT_SINGLE_PLAYER && g_logFile.string[0])
 	{
@@ -1328,6 +1329,11 @@ void ExitLevel(void)
 		return;
 	}
 
+	if(g_gametype.integer == GT_OBJECTIVE_SW)
+	{
+		trap_Cvar_Set("g_currentRound", va("%i", !g_currentRound.integer));
+	}
+
 	trap_Cvar_VariableStringBuffer("nextmap", nextmap, sizeof(nextmap));
 	trap_Cvar_VariableStringBuffer("d1", d1, sizeof(d1));
 
@@ -1411,6 +1417,51 @@ void QDECL G_LogPrintf(const char *fmt, ...)
 	trap_FS_Write(string, strlen(string), level.logFile);
 }
 
+void G_SWMapChange(int index)
+{
+	char            mapName[MAX_CVAR_VALUE_STRING];
+	int             mapCount, mapNameLength;
+	int             i;
+
+	// Change map if g_swMaps has another map
+	if(strlen(g_swMaps.string) > 0)
+	{
+		//G_Printf("SW Nextmap: START map: %d\n", index);
+		mapCount = 0;
+		mapNameLength = 0;
+		for(i = 0; i < sizeof(g_swMaps.string); i++)
+		{
+			//G_Printf("SW Nextmap: %d %c\n", i, g_swMaps.string[i]);
+			if(g_swMaps.string[i] == ',')
+			{
+				mapName[mapNameLength] = '\0';
+				mapCount++;
+				continue;
+			}
+			if(mapCount == index)
+			{
+				mapName[mapNameLength] = g_swMaps.string[i];
+				mapNameLength++;
+			}
+			if(g_swMaps.string[i] == '\0')
+			{
+				mapName[mapNameLength] = '\0';
+				break;
+			}
+			if(mapCount > g_swMap.integer + 1)
+			{
+				mapName[mapNameLength] = '\0';
+				break;
+			}
+		}
+		G_Printf("SW Nextmap: '%s'\n", mapName);
+		if(strlen(mapName) > 0)
+		{
+			trap_Cvar_Set("nextmap", va("map %s", mapName));
+		}
+	}
+}
+
 /*
 ================
 LogExit
@@ -1485,7 +1536,7 @@ void LogExit(const char *string)
 				trap_Cvar_Set("g_nextTimeLimit", va("%f", (level.time - level.startTime) / 60000.f));
 			}
 
-			Team_SwapTeams();
+			trap_Cvar_Set("nextmap", "map_restart 0");
 		}
 		else
 		{
@@ -1508,16 +1559,11 @@ void LogExit(const char *string)
 				}
 			}
 
+			G_SWMapChange(g_swMap.integer + 1);
+
 			trap_Cvar_Set("g_nextTimeLimit", "0");
 			trap_Cvar_Set("g_swMap", va("%i", g_swMap.integer + 1));
-
-			// Optionally swap teams for ABAB instead of ABBA
-			if(g_swTeamSwitching.integer == 1)
-			{
-				Team_SwapTeams();
-			}
 		}
-		trap_Cvar_Set("g_currentRound", va("%i", !g_currentRound.integer));
 	}
 
 	for(i = 0; i < numSorted; i++)

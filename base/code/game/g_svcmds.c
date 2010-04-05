@@ -533,6 +533,27 @@ void Svcmd_RoundRestart_f(void)
 }
 
 /*
+===================
+Svcmd_MatchRestart_f
+
+Resets the current round to warmup
+===================
+*/
+void Svcmd_MatchRestart_f(void)
+{
+	level.warmupTime = -1;
+	trap_Cvar_Set("g_restarted", "0");
+	trap_SetConfigstring(CS_WARMUP, va("%i", level.warmupTime));
+	G_SWMapChange(0);
+	trap_Cvar_Set("g_currentRound", "0");
+	trap_Cvar_Set("g_swMap", "0");
+	trap_Cvar_Set("g_scoreA", "0");
+	trap_Cvar_Set("g_scoreB", "0");
+	trap_SendConsoleCommand(EXEC_APPEND, "vstr nextmap\n");
+	level.restarted = qtrue;
+}
+
+/*
 =================
 Svcmd_LuaRestart_f
 =================
@@ -604,6 +625,12 @@ qboolean ConsoleCommand(void)
 	if(Q_stricmp(cmd, "round_restart") == 0)
 	{
 		Svcmd_RoundRestart_f();
+		return qtrue;
+	}
+
+	if(Q_stricmp(cmd, "match_restart") == 0)
+	{
+		Svcmd_MatchRestart_f();
 		return qtrue;
 	}
 

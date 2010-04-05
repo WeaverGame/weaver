@@ -532,6 +532,7 @@ typedef struct
 	int             follow1, follow2;	// clientNums for auto-follow spectators
 
 	int             warmupModificationCount;	// for detecting if g_warmup is changed
+	qboolean        teamSwapped;
 
 	// voting state
 	char            voteString[MAX_STRING_CHARS];
@@ -859,6 +860,7 @@ void QDECL      G_Error(const char *fmt, ...);
 void QDECL      G_PrintfClient(gentity_t * ent, const char *fmt, ...);
 void            LogExit(const char *string);
 qboolean        GameIsInWarmup(void);
+void            G_SWMapChange(int index);
 
 //
 // g_client.c
@@ -885,6 +887,7 @@ qboolean        CheckObeliskAttack(gentity_t * obelisk, gentity_t * attacker);
 void            Team_ReadyPlayers(int team, qboolean readyness);
 int             Team_CaptureFlag(gentity_t * ent, gentity_t * other, int team);
 void            Team_SwapTeams();
+void            Team_SwapTeamsMapping();
 
 //
 // g_mem.c

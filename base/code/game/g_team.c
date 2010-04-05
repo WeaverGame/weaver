@@ -1172,6 +1172,11 @@ void Team_SwapTeams()
 			}
 		}
 	}
+	Team_SwapTeamsMapping();
+}
+
+void Team_SwapTeamsMapping()
+{
 	// Swap team to A/B mapping
 	trap_Cvar_Set("g_swTeamToClan", va("%i", !g_swTeamToClan.integer));
 }

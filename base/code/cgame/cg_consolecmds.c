@@ -594,6 +594,7 @@ void CG_InitConsoleCommands(void)
 
 	trap_AddCommand("round_start");
 	trap_AddCommand("round_restart");
+	trap_AddCommand("match_restart");
 
 	trap_AddCommand("swapteams");
 
