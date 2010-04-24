@@ -15,9 +15,6 @@ void CG_ShieldInfo(centity_t * cent)
 	vec3_t          normalaxis[3];
 	int             k;
 
-	// create the render entity
-	memset(&ent, 0, sizeof(ent));
-
 	s1 = &cent->currentState;
 
 	// calculate the axis
@@ -29,12 +26,18 @@ void CG_ShieldInfo(centity_t * cent)
 	CrossProduct(normalaxis[1], normalaxis[2], normalaxis[0]);
 
 	//Com_Printf("ShieldInfo Normal=%f %f %f\n", normalaxis[2][0], normalaxis[2][1], normalaxis[2][2]);
-	AxisCopy(normalaxis, ent.axis);
+	
+	// create the render entity
+	memset(&ent, 0, sizeof(ent));
+
+	VectorCopy(cent->lerpOrigin, ent.origin);
 
 	// flicker between two skins
 	ent.skinNum = cg.clientFrame;
 	ent.hModel = cgs.media.weaverShieldInfo;
 	ent.renderfx = RF_NOSHADOW;
+
+	AxisCopy(normalaxis, ent.axis);
 
 	// add to refresh list
 	trap_R_AddRefEntityToScene(&ent);

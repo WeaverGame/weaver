@@ -32,6 +32,12 @@ void func_shield_ActivateUse(gentity_t * ent, gentity_t * other, qboolean firstA
 
 void func_shield_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, int damage, int mod)
 {
+	//Free any Shield infos
+	if(self->shield_ent && self->shield_ent->die)
+	{
+		self->shield_ent->die(self->shield_ent, inflictor, attacker, damage, mod);
+	}
+
 	if(self->target_ent)
 	{
 		self->target_ent->shield_ent = NULL;
@@ -150,17 +156,27 @@ void Think_SetupShieldInfoTargets(gentity_t * ent)
 		if((shieldInfoChain->s.eType != ET_SHIELD_INFO) && (shieldInfoChain->s.eType != ET_SHIELD))
 		{
 			G_Printf("func_shield_info at %s found unexpected entity type (MAPPER: GO FIX THIS ENTITY)\n", vtos(ent->r.absmin));
-			break;
+			return;
 		}
 		i++; // Protect against entities which target in a loop
 		if(i > 8)
 		{
 			G_Printf("func_shield_info at %s has a long chain, may be looped (MAPPER: GO FIX THIS ENTITY)\n", vtos(ent->r.absmin));
-			break;
+			return;
 		}
 	}
 	// Last shield or shield_info in chain, link to shield info.
 	shieldInfoChain->shield_ent = ent;
+}
+
+void func_shield_info_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, int damage, int mod)
+{
+	//Free Shield info
+	if(self->shield_ent && self->shield_ent->die)
+	{
+		self->shield_ent->die(self->shield_ent, inflictor, attacker, damage, mod);
+	}
+	G_FreeEntity(self);
 }
 
 /*QUAKED func_shield_info (0 .5 .8) ?
@@ -182,6 +198,8 @@ void SP_func_shield_info(gentity_t * ent)
 	ent->think = Think_SetupShieldInfoTargets;
 
 	ent->takedamage = qfalse;
+
+	ent->die = func_shield_info_die;
 
 	trap_LinkEntity(ent);
 }
