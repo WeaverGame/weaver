@@ -12,6 +12,7 @@ player_shina
 props
 raedwulf_water
 sfx
+shields
 skies
 tables
 terrain
