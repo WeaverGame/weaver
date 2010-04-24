@@ -36,6 +36,7 @@ game_src = [
 'weaver/code/game/g_utils.c',
 'weaver/code/game/g_weapon.c',
 'weaver/code/game/g_spell_effects.c',
+'weaver/code/game/g_spell_ents.c',
 'weaver/code/game/g_spell_weave.c',
 'weaver/code/game/g_spell_misc.c',
 'weaver/code/game/spell_shared.c',

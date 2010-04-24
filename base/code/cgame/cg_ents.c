@@ -1701,7 +1701,7 @@ static void CG_AddCEntity(centity_t * cent)
 			break;
 		case ET_WEAVE_LINK:
 			//link between players
-			Com_Printf("RECIEVED A LINK\n");
+			//Com_Printf("RECIEVED A LINK\n");
 			CG_WeaveEffect_Link(cent);
 			break;
 		case ET_WEAVE_EFFECT:
@@ -1721,6 +1721,10 @@ static void CG_AddCEntity(centity_t * cent)
 		case ET_SHIELD:
 			//shielding a func_exlosive or something
 			CG_Mover(cent);
+			break;
+		case ET_SHIELD_INFO:
+			//info for shield
+			CG_ShieldInfo(cent);
 			break;
 	}
 }

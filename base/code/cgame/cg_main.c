@@ -1386,6 +1386,8 @@ static void CG_RegisterGraphics(void)
 	cgs.media.weaverStatus[PW_POISONED] = trap_R_RegisterShaderNoMip("gfx/hud/powerups/poisoned1");
 	cgs.media.weaverStatus[PW_SLOWPOISONED] = trap_R_RegisterShaderNoMip("gfx/hud/powerups/poisoned2");
 
+	cgs.media.weaverShieldInfo = trap_R_RegisterModel("models/entities/shield_info.md5mesh", qtrue);
+
 	CG_LoadingString("particles", qfalse);
 
 	CG_InitParticles();

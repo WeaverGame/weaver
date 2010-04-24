@@ -1,4 +1,5 @@
 
+
 /*
 ===========================================================================================================
 -----------------------------------------------------------------------------------------------------------
@@ -2822,7 +2823,49 @@ entityDef trigger_teleport
     "notsingle"					"0"
 }
 
+/*
+____________________________________________________________________________________________________________
 
+Weaver Entity Definitions
+____________________________________________________________________________________________________________
+*/
+
+entityDef func_shield 
+{   
+	"editor_color"				"0 .5 .8"
+	
+	"editor_usage"				"Weaver func_shield protects another entity until it is removed. Typically targets a func_explosive entity."
+	
+	"editor_var power"			"Starting power. Shield with more power require more time to break."
+	"editor_bool notfree"		"when set to 1, entity will not spawn in 'Free for all' and 'Tournament' modes."
+	"editor_bool notteam"		"when set to 1, entity will not spawn in 'Teamplay' and 'CTF' modes."
+	"editor_bool notsingle"		"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
+	
+	
+	"spawnclass"				"idSpawnableEntity"
+	"power"						"0"
+	"notfree"					"0"
+	"notteam"					"0"
+	"notsingle"					"0"
+}
+
+entityDef func_shield_info  
+{  
+	"editor_color"				"1 .5 .25" 	
+	"editor_mins"				"-8 -8 -8"
+	"editor_maxs"				"8 8 8"
+	"editor_rotatable"			"1"
+	
+	"editor_usage"				"Weaver func_shield_info defines a location for shield information. Typically, there would be one of these on either side of a door being shielded."
+	"editor_usage1"				"Multiple func_shield_infos can target one func_shield (which then typically targets a func_explosive)."
+	"editor_var angles"			"Angles of normal to face. If this is not set, or has 0 length, normal will be coliniear with shield origin and shield_ent origin."
+		
+	"spawnclass"				"idStaticEntity"
+	"angles"					"0 0 0"
+    "notfree" 					"0"
+    "notteam" 					"0"
+    "notsingle" 				"0"
+}
 
 /*
 ____________________________________________________________________________________________________________

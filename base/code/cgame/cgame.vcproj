@@ -721,6 +721,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\cg_spell_ents.c"
+				>
+			</File>
+			<File
 				RelativePath=".\cg_spell_hud.c"
 				>
 			</File>

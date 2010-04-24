@@ -205,6 +205,7 @@ void            SP_func_mover(gentity_t * self);
 void            SP_func_teleporter(gentity_t * self);
 void            SP_func_explosive(gentity_t * self);
 void            SP_func_shield(gentity_t * self);
+void            SP_func_shield_info(gentity_t * self);
 
 void            SP_trigger_always(gentity_t * ent);
 void            SP_trigger_multiple(gentity_t * ent);
@@ -287,6 +288,7 @@ spawn_t         spawns[] = {
 	{"func_teleporter", SP_func_teleporter},
 	{"func_explosive", SP_func_explosive},
 	{"func_shield", SP_func_shield},
+	{"func_shield_info", SP_func_shield_info},
 
 	// Triggers are brush objects that cause an effect when contacted
 	// by a living player, usually involving firing targets.

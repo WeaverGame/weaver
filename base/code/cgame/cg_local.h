@@ -1420,6 +1420,8 @@ typedef struct
 	qhandle_t       weaverSenseDot2;
 	qhandle_t       weaverSenseDot3;
 
+	qhandle_t       weaverShieldInfo;
+
 	qhandle_t       weaverThreads[WVP_NUMBER];
 
 	qhandle_t       weaverIconHP;
@@ -1858,6 +1860,9 @@ void            CG_WeaveMissile_Trail(centity_t * ent);
 void            CG_WeaveEffect_Link(centity_t * cent);
 void            CG_WeaveMissileHitPlayer(int weapon, vec3_t origin, vec3_t dir, int entityNum);
 void            CG_WeaveMissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, int entityNum);
+
+// cg_spell_ents.c
+void            CG_ShieldInfo(centity_t * cent);
 
 // cg_spell_weaves.c
 void            CG_ShowThreads(centity_t * cent);

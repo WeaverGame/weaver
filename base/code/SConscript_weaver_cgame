@@ -32,6 +32,7 @@ cgame_src = [
 #'weaver/code/cgame/cg_unlagged.c',
 'weaver/code/cgame/cg_weapons.c',
 'weaver/code/cgame/cg_spell_effects.c',
+'weaver/code/cgame/cg_spell_ents.c',
 'weaver/code/cgame/cg_spell_hud.c',
 'weaver/code/cgame/cg_spell_sense.c',
 'weaver/code/cgame/cg_spell_weaves.c',

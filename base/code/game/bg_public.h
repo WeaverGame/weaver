@@ -854,6 +854,7 @@ typedef enum
 	ET_AI_LINK,
 	ET_EXPLOSIVE,
 	ET_SHIELD,
+	ET_SHIELD_INFO,
 	ET_FIRE,
 	ET_PHYSICS_BOX,				// JBullet visualization tool
 

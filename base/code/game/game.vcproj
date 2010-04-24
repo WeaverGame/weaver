@@ -644,6 +644,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\g_spell_ents.c"
+				>
+			</File>
+			<File
 				RelativePath=".\g_spell_misc.c"
 				>
 			</File>
