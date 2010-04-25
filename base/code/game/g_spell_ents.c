@@ -18,13 +18,18 @@ SHIELD
 
 void func_shield_ActivateUse(gentity_t * ent, gentity_t * other, qboolean firstActivate)
 {
-	if(ent->s.generic1 > 0)
+	if(ent->count > 0)
 	{
 		//expend shield
-		ent->s.generic1--;
+		ent->count--;
 	}
-	Com_Printf("ShieldUsed: %d\n", ent->s.generic1);
-	if(ent->s.generic1 <= 0)
+	//Update shield infos
+	if(ent->shield_ent && ent->shield_ent->activate)
+	{
+		ent->shield_ent->activate(ent->shield_ent, other, firstActivate);
+	}
+	Com_Printf("ShieldUsed: %d\n", ent->count);
+	if(ent->count <= 0)
 	{
 		ent->die(ent, NULL, other, 0, 0);
 	}
@@ -98,10 +103,10 @@ void SP_func_shield(gentity_t * ent)
 	VectorCopy(ent->s.angles, ent->s.apos.trBase);
 	VectorCopy(ent->s.angles, ent->r.currentAngles);
 
-	G_SpawnInt("power", "1000", &ent->s.generic1);
+	G_SpawnInt("power", "1000", &ent->count);
 
 	//Full shield
-	ent->s.torsoAnim = ent->s.generic1;
+	ent->s.torsoAnim = ent->count;
 
 	ent->s.eType = ET_SHIELD;
 
@@ -117,6 +122,23 @@ void SP_func_shield(gentity_t * ent)
 	ent->die = func_shield_die;
 
 	trap_LinkEntity(ent);
+}
+
+void func_shieldInfo_ActivateUse(gentity_t * ent, gentity_t * other, qboolean firstActivate)
+{
+	if(!ent->target_ent)
+	{
+		return;
+	}
+	ent->s.frame = ent->target_ent->count;
+	if(!ent->shield_ent)
+	{
+		return;
+	}
+	if(ent->shield_ent && ent->shield_ent->activate)
+	{
+		ent->shield_ent->activate(ent->shield_ent, other, firstActivate);
+	}
 }
 
 
@@ -139,12 +161,13 @@ void Think_SetupShieldInfoTargets(gentity_t * ent)
 	G_Printf("func_shield_info at %s targeting %s\n", vtos(ent->r.absmin), ent->target);
 
 	ent->s.otherEntityNum2 = ent->target_ent->s.number;
+	ent->s.frame = ent->target_ent->count;
 
 	if(VectorLength(ent->s.angles) == 0)
 	{
 		VectorSubtract(ent->s.origin, ent->target_ent->s.origin, ent->s.angles);
-		VectorNormalize(ent->s.angles);
 	}
+	VectorNormalize(ent->s.angles);
 
 	// Start at shield
 	shieldInfoChain = ent->target_ent;
@@ -194,8 +217,10 @@ void SP_func_shield_info(gentity_t * ent)
 
 	// start trains on the second frame, to make sure their targets have had
 	// a chance to spawn
-	ent->nextthink = level.time + FRAMETIME;
+	ent->nextthink = level.time + 2*FRAMETIME;
 	ent->think = Think_SetupShieldInfoTargets;
+
+	ent->activate = func_shieldInfo_ActivateUse;
 
 	ent->takedamage = qfalse;
 

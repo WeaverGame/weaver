@@ -14,11 +14,14 @@ void CG_ShieldInfo(centity_t * cent)
 	entityState_t  *s1;
 	vec3_t          normalaxis[3];
 	int             k;
+	float           scale;
 
 	s1 = &cent->currentState;
 
 	// calculate the axis
 	VectorCopy(s1->angles, cent->lerpAngles);
+
+	scale = s1->frame/1000.0f;
 
 	// surface normal axis
 	VectorNormalize2(cent->currentState.angles, normalaxis[2]);
@@ -32,12 +35,17 @@ void CG_ShieldInfo(centity_t * cent)
 
 	VectorCopy(cent->lerpOrigin, ent.origin);
 
+	VectorScale(normalaxis[0], scale, ent.axis[0]);
+	VectorScale(normalaxis[1], scale, ent.axis[1]);
+	VectorScale(normalaxis[2], scale, ent.axis[2]);
+
 	// flicker between two skins
 	ent.skinNum = cg.clientFrame;
 	ent.hModel = cgs.media.weaverShieldInfo;
 	ent.renderfx = RF_NOSHADOW;
 
-	AxisCopy(normalaxis, ent.axis);
+	ent.nonNormalizedAxes = qtrue;
+	//AxisCopy(normalaxis, ent.axis);
 
 	// add to refresh list
 	trap_R_AddRefEntityToScene(&ent);
