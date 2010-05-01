@@ -318,7 +318,7 @@ static void CG_DrawWeaverTutorialChildren(weaver_threadsMap_t * current, float x
 		}
 		if(current->next[i] != NULL)
 		{
-			if(current->next[i]->weaveA >= 0)
+			if(current->next[i]->weaveA > 0)
 			{
 				CG_DrawWeaverTutorialWeave(x, y, size, current->next[i]->weaveA, elementUsed, powerCount[elementUsed], depth + 1);
 				powerCount[elementUsed]++;
@@ -363,7 +363,7 @@ static void CG_DrawWeaverTutorial(float x, float y, float size)
 		}
 	}
 
-	memset(&powerCount, 0, sizeof(powerCount));
+	memset(&powerCount, 0, sizeof(int) * WVP_NUMBER);
 
 	//TODO: only calculate this on change of pe.threads.
 	CG_DrawWeaverTutorialChildren(current, x, y, size, -1, 0);

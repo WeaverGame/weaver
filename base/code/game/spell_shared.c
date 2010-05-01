@@ -24,107 +24,107 @@ Node
 //WVP_NONE, WVP_AIR, WVP_AIRFIRE, WVP_FIRE, WVP_EARTHFIRE, WVP_EARTH, WVP_EARTHWATER, WVP_WATER, WVP_AIRWATER, WVP_SPIRIT
 
 //Air 4
-weaver_threadsMap_t wm_Air_Spirit_Airwater_Airfire = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_A_AIR_BINDPLAYER, -1};
+weaver_threadsMap_t wm_Air_Spirit_Airwater_Airfire = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_A_AIR_BINDPLAYER, WVW_NONE};
 //Air 3
-weaver_threadsMap_t wm_Air_Spirit_Air = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_A_AIR_GRABPLAYER, -1};
-weaver_threadsMap_t wm_Air_Spirit_Airwater = {{NULL, NULL, &wm_Air_Spirit_Airwater_Airfire, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, -1, -1};
+weaver_threadsMap_t wm_Air_Spirit_Air = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_A_AIR_GRABPLAYER, WVW_NONE};
+weaver_threadsMap_t wm_Air_Spirit_Airwater = {{NULL, NULL, &wm_Air_Spirit_Airwater_Airfire, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_NONE, WVW_NONE};
 //Air 2
 //Collision WVW_D_AIR_GRAB, temporarily removed
-weaver_threadsMap_t wm_Air_Air = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_A_AIR_BLAST, -1};
-weaver_threadsMap_t wm_Air_Spirit = {{NULL, &wm_Air_Spirit_Air, NULL, NULL, NULL, NULL, NULL, NULL, &wm_Air_Spirit_Airwater, NULL}, WVW_D_AIR_PROTECT, -1}; //D
+weaver_threadsMap_t wm_Air_Air = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_A_AIR_BLAST, WVW_NONE};
+weaver_threadsMap_t wm_Air_Spirit = {{NULL, &wm_Air_Spirit_Air, NULL, NULL, NULL, NULL, NULL, NULL, &wm_Air_Spirit_Airwater, NULL}, WVW_D_AIR_PROTECT, WVW_NONE}; //D
 //Air 1
-weaver_threadsMap_t wm_Air = {{NULL, &wm_Air_Air, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &wm_Air_Spirit}, -1, -1};
+weaver_threadsMap_t wm_Air = {{NULL, &wm_Air_Air, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &wm_Air_Spirit}, WVW_NONE, WVW_NONE};
 
 //Airfire 4
-weaver_threadsMap_t wm_Airfire_Fire_Air_Airfire = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_A_AIRFIRE_LIGHTNING, -1};
+weaver_threadsMap_t wm_Airfire_Fire_Air_Airfire = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_A_AIRFIRE_LIGHTNING, WVW_NONE};
 //Airfire 3
-weaver_threadsMap_t wm_Airfire_Fire_Air = {{NULL, NULL, &wm_Airfire_Fire_Air_Airfire, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, -1, -1};
+weaver_threadsMap_t wm_Airfire_Fire_Air = {{NULL, NULL, &wm_Airfire_Fire_Air_Airfire, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_NONE, WVW_NONE};
 //Airfire 2
-weaver_threadsMap_t wm_Airfire_Fire = {{NULL, &wm_Airfire_Fire_Air, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_A_AIRFIRE_SWORD, -1};
-weaver_threadsMap_t wm_Airfire_Spirit = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_D_AIRFIRE_LIGHT, -1}; //D
+weaver_threadsMap_t wm_Airfire_Fire = {{NULL, &wm_Airfire_Fire_Air, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_A_AIRFIRE_SWORD, WVW_NONE};
+weaver_threadsMap_t wm_Airfire_Spirit = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_D_AIRFIRE_LIGHT, WVW_NONE}; //D
 //Airfire 1
-weaver_threadsMap_t wm_Airfire = {{NULL, NULL, NULL, &wm_Airfire_Fire, NULL, NULL, NULL, NULL, NULL, &wm_Airfire_Spirit}, -1, -1};
+weaver_threadsMap_t wm_Airfire = {{NULL, NULL, NULL, &wm_Airfire_Fire, NULL, NULL, NULL, NULL, NULL, &wm_Airfire_Spirit}, WVW_NONE, WVW_NONE};
 
 //Fire 4
-weaver_threadsMap_t wm_Fire_Earthfire_Airfire_Fire = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_A_FIRE_MULTIDARTS, -1};
+weaver_threadsMap_t wm_Fire_Earthfire_Airfire_Fire = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_A_FIRE_MULTIDARTS, WVW_NONE};
 //Fire 3
-weaver_threadsMap_t wm_Fire_Earthfire_Airfire = {{NULL, NULL, NULL, &wm_Fire_Earthfire_Airfire_Fire, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_A_FIRE_BALL, -1};
+weaver_threadsMap_t wm_Fire_Earthfire_Airfire = {{NULL, NULL, NULL, &wm_Fire_Earthfire_Airfire_Fire, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_A_FIRE_BALL, WVW_NONE};
 //Fire 2
-weaver_threadsMap_t wm_Fire_Earthfire = {{NULL, NULL, &wm_Fire_Earthfire_Airfire, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_A_FIRE_DARTS, -1};
-weaver_threadsMap_t wm_Fire_Spirit = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_D_FIRE_PROTECT, -1}; //D
+weaver_threadsMap_t wm_Fire_Earthfire = {{NULL, NULL, &wm_Fire_Earthfire_Airfire, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_A_FIRE_DARTS, WVW_NONE};
+weaver_threadsMap_t wm_Fire_Spirit = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_D_FIRE_PROTECT, WVW_NONE}; //D
 //Fire 1
-weaver_threadsMap_t wm_Fire = {{NULL, NULL, NULL, NULL, &wm_Fire_Earthfire, NULL, NULL, NULL, NULL, &wm_Fire_Spirit}, -1, -1};
+weaver_threadsMap_t wm_Fire = {{NULL, NULL, NULL, NULL, &wm_Fire_Earthfire, NULL, NULL, NULL, NULL, &wm_Fire_Spirit}, WVW_NONE, WVW_NONE};
 
 //Earthfire 3
-weaver_threadsMap_t wm_Earthfire_Fire_Earthfire = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_D_EARTHFIRE_EXPLOSIVE_M, -1}; //D
+weaver_threadsMap_t wm_Earthfire_Fire_Earthfire = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_D_EARTHFIRE_EXPLOSIVE_M, WVW_NONE}; //D
 //Earthfire 2
-weaver_threadsMap_t wm_Earthfire_Airfire = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_A_EARTHFIRE_IGNITE, -1};
-weaver_threadsMap_t wm_Earthfire_Fire = {{NULL, NULL, NULL, NULL, &wm_Earthfire_Fire_Earthfire, NULL, NULL, NULL, NULL, NULL}, WVW_D_EARTHFIRE_EXPLOSIVE_S, -1}; //D
+weaver_threadsMap_t wm_Earthfire_Airfire = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_A_EARTHFIRE_IGNITE, WVW_NONE};
+weaver_threadsMap_t wm_Earthfire_Fire = {{NULL, NULL, NULL, NULL, &wm_Earthfire_Fire_Earthfire, NULL, NULL, NULL, NULL, NULL}, WVW_D_EARTHFIRE_EXPLOSIVE_S, WVW_NONE}; //D
 //Earthfire 1
-weaver_threadsMap_t wm_Earthfire = {{NULL, NULL, &wm_Earthfire_Airfire, &wm_Earthfire_Fire, NULL, NULL, NULL, NULL, NULL, NULL}, -1, -1};
+weaver_threadsMap_t wm_Earthfire = {{NULL, NULL, &wm_Earthfire_Airfire, &wm_Earthfire_Fire, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_NONE, WVW_NONE};
 
 //Earth 4
-weaver_threadsMap_t wm_Earth_Fire_Earthfire_Earth = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_A_EARTH_QUAKE_L, -1};
+weaver_threadsMap_t wm_Earth_Fire_Earthfire_Earth = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_A_EARTH_QUAKE_L, WVW_NONE};
 //Earth 3
-weaver_threadsMap_t wm_Earth_Fire_Earthfire = {{NULL, NULL, NULL, NULL, NULL, &wm_Earth_Fire_Earthfire_Earth, NULL, NULL, NULL, NULL}, WVW_A_EARTH_QUAKE_M, -1};
+weaver_threadsMap_t wm_Earth_Fire_Earthfire = {{NULL, NULL, NULL, NULL, NULL, &wm_Earth_Fire_Earthfire_Earth, NULL, NULL, NULL, NULL}, WVW_A_EARTH_QUAKE_M, WVW_NONE};
 //Earth 2
-weaver_threadsMap_t wm_Earth_Airfire = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_D_EARTH_UNLOCK, -1}; //D
-weaver_threadsMap_t wm_Earth_Fire = {{NULL, NULL, NULL, NULL, &wm_Earth_Fire_Earthfire, NULL, NULL, NULL, NULL, NULL}, WVW_A_EARTH_QUAKE_S, -1};
-weaver_threadsMap_t wm_Earth_Spirit = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_D_EARTH_PROTECT, -1}; //D
+weaver_threadsMap_t wm_Earth_Airfire = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_D_EARTH_UNLOCK, WVW_NONE}; //D
+weaver_threadsMap_t wm_Earth_Fire = {{NULL, NULL, NULL, NULL, &wm_Earth_Fire_Earthfire, NULL, NULL, NULL, NULL, NULL}, WVW_A_EARTH_QUAKE_S, WVW_NONE};
+weaver_threadsMap_t wm_Earth_Spirit = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_D_EARTH_PROTECT, WVW_NONE}; //D
 //Earth 1
-weaver_threadsMap_t wm_Earth = {{NULL, NULL, &wm_Earth_Airfire, &wm_Earth_Fire, NULL, NULL, NULL, NULL, NULL, &wm_Earth_Spirit}, -1, -1};
+weaver_threadsMap_t wm_Earth = {{NULL, NULL, &wm_Earth_Airfire, &wm_Earth_Fire, NULL, NULL, NULL, NULL, NULL, &wm_Earth_Spirit}, WVW_NONE, WVW_NONE};
 
 //Earthwater 3
-weaver_threadsMap_t wm_Earthwater_Spirit_Water = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_A_EARTHWATER_POISON, -1};
+weaver_threadsMap_t wm_Earthwater_Spirit_Water = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_A_EARTHWATER_POISON, WVW_NONE};
 //Earthwater 2
-weaver_threadsMap_t wm_Earthwater_Spirit = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, &wm_Earthwater_Spirit_Water, NULL, NULL}, WVW_A_EARTHWATER_SLOW, -1};
+weaver_threadsMap_t wm_Earthwater_Spirit = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, &wm_Earthwater_Spirit_Water, NULL, NULL}, WVW_A_EARTHWATER_SLOW, WVW_NONE};
 //Earthwater 1
-weaver_threadsMap_t wm_Earthwater = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &wm_Earthwater_Spirit}, -1, -1};
+weaver_threadsMap_t wm_Earthwater = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &wm_Earthwater_Spirit}, WVW_NONE, WVW_NONE};
 
 //Water 4
-weaver_threadsMap_t wm_Water_Fire_Airwater_Water = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_A_WATER_ICESHARDS_M, -1};
+weaver_threadsMap_t wm_Water_Fire_Airwater_Water = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_A_WATER_ICESHARDS_M, WVW_NONE};
 //Water 3
-weaver_threadsMap_t wm_Water_Fire_Airwater = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, &wm_Water_Fire_Airwater_Water, NULL, NULL}, WVW_A_WATER_ICESHARDS_S, -1};
-weaver_threadsMap_t wm_Water_Spirit_Water = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_D_WATER_HEAL_M, -1}; //D
+weaver_threadsMap_t wm_Water_Fire_Airwater = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, &wm_Water_Fire_Airwater_Water, NULL, NULL}, WVW_A_WATER_ICESHARDS_S, WVW_NONE};
+weaver_threadsMap_t wm_Water_Spirit_Water = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_D_WATER_HEAL_M, WVW_NONE}; //D
 //Water 2
-weaver_threadsMap_t wm_Water_Fire = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &wm_Water_Fire_Airwater, NULL}, -1, -1};
-weaver_threadsMap_t wm_Water_Airwater = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_D_WATER_HEAL_S, -1}; //D
-weaver_threadsMap_t wm_Water_Spirit = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, &wm_Water_Spirit_Water, NULL, NULL}, WVW_D_WATER_PROTECT, -1}; //D
+weaver_threadsMap_t wm_Water_Fire = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &wm_Water_Fire_Airwater, NULL}, WVW_NONE, WVW_NONE};
+weaver_threadsMap_t wm_Water_Airwater = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_D_WATER_HEAL_S, WVW_NONE}; //D
+weaver_threadsMap_t wm_Water_Spirit = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, &wm_Water_Spirit_Water, NULL, NULL}, WVW_D_WATER_PROTECT, WVW_NONE}; //D
 //Water 1
-weaver_threadsMap_t wm_Water = {{NULL, NULL, NULL, &wm_Water_Fire, NULL, NULL, NULL, NULL, &wm_Water_Airwater, &wm_Water_Spirit}, -1, -1};
+weaver_threadsMap_t wm_Water = {{NULL, NULL, NULL, &wm_Water_Fire, NULL, NULL, NULL, NULL, &wm_Water_Airwater, &wm_Water_Spirit}, WVW_NONE, WVW_NONE};
 
 //Airwater 4
-weaver_threadsMap_t wm_Airwater_Air_Spirit_Airwater = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_A_AIRWATER_RIP, -1};
+weaver_threadsMap_t wm_Airwater_Air_Spirit_Airwater = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_A_AIRWATER_RIP, WVW_NONE};
 //Airwater 3
-weaver_threadsMap_t wm_Airwater_Air_Spirit = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &wm_Airwater_Air_Spirit_Airwater, NULL}, -1, -1};
-weaver_threadsMap_t wm_Airwater_Airfire_Water = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_D_AIRWATER_FOG, -1}; //D
-weaver_threadsMap_t wm_Airwater_Spirit_Airfire = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_A_AIRWATER_DARTS_M, -1};
+weaver_threadsMap_t wm_Airwater_Air_Spirit = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &wm_Airwater_Air_Spirit_Airwater, NULL}, WVW_NONE, WVW_NONE};
+weaver_threadsMap_t wm_Airwater_Airfire_Water = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_D_AIRWATER_FOG, WVW_NONE}; //D
+weaver_threadsMap_t wm_Airwater_Spirit_Airfire = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_A_AIRWATER_DARTS_M, WVW_NONE};
 //Airwater 2
-weaver_threadsMap_t wm_Airwater_Air = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &wm_Airwater_Air_Spirit}, -1, -1};
-weaver_threadsMap_t wm_Airwater_Airfire = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, &wm_Airwater_Airfire_Water, NULL, NULL}, -1, -1};
-weaver_threadsMap_t wm_Airwater_Spirit = {{NULL, NULL, &wm_Airwater_Spirit_Airfire, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_A_AIRWATER_DARTS_S, -1};
+weaver_threadsMap_t wm_Airwater_Air = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &wm_Airwater_Air_Spirit}, WVW_NONE, WVW_NONE};
+weaver_threadsMap_t wm_Airwater_Airfire = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, &wm_Airwater_Airfire_Water, NULL, NULL}, WVW_NONE, WVW_NONE};
+weaver_threadsMap_t wm_Airwater_Spirit = {{NULL, NULL, &wm_Airwater_Spirit_Airfire, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_A_AIRWATER_DARTS_S, WVW_NONE};
 //Airwater 1
-weaver_threadsMap_t wm_Airwater = {{NULL, &wm_Airwater_Air, &wm_Airwater_Airfire, NULL, NULL, NULL, NULL, NULL, NULL, &wm_Airwater_Spirit}, -1, -1};
+weaver_threadsMap_t wm_Airwater = {{NULL, &wm_Airwater_Air, &wm_Airwater_Airfire, NULL, NULL, NULL, NULL, NULL, NULL, &wm_Airwater_Spirit}, WVW_NONE, WVW_NONE};
 
 //Spirit 5
-weaver_threadsMap_t wm_Spirit_Spirit_Air_Spirit_Airfire = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, -1, -1};
+weaver_threadsMap_t wm_Spirit_Spirit_Air_Spirit_Airfire = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_NONE, WVW_NONE};
 //Spirit 4
-weaver_threadsMap_t wm_Spirit_Spirit_Air_Spirit = {{NULL, NULL, &wm_Spirit_Spirit_Air_Spirit_Airfire, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, -1, -1};
+weaver_threadsMap_t wm_Spirit_Spirit_Air_Spirit = {{NULL, NULL, &wm_Spirit_Spirit_Air_Spirit_Airfire, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_NONE, WVW_NONE};
 //Spirit 3
-weaver_threadsMap_t wm_Spirit_Airfire_Earthwater = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, -1, -1};
-weaver_threadsMap_t wm_Spirit_Spirit_Air = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &wm_Spirit_Spirit_Air_Spirit}, WVW_A_SPIRIT_SLICE_M, -1};
-weaver_threadsMap_t wm_Spirit_Spirit_Earth = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_A_SPIRIT_SHIELD, -1};
+weaver_threadsMap_t wm_Spirit_Airfire_Earthwater = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_NONE, WVW_NONE};
+weaver_threadsMap_t wm_Spirit_Spirit_Air = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &wm_Spirit_Spirit_Air_Spirit}, WVW_A_SPIRIT_SLICE_M, WVW_NONE};
+weaver_threadsMap_t wm_Spirit_Spirit_Earth = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_A_SPIRIT_SHIELD, WVW_NONE};
 //Spirit 2
-weaver_threadsMap_t wm_Spirit_Air = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_A_SPIRIT_SLICE_S, -1};
-weaver_threadsMap_t wm_Spirit_Airfire = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, -1, -1};
-weaver_threadsMap_t wm_Spirit_Water = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_D_SPIRIT_STAMINA, -1}; //D
-weaver_threadsMap_t wm_Spirit_Spirit = {{NULL, &wm_Spirit_Spirit_Air, NULL, NULL, NULL, &wm_Spirit_Spirit_Earth, NULL, NULL, NULL, NULL}, WVW_D_SPIRIT_LINK, -1}; //D
+weaver_threadsMap_t wm_Spirit_Air = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_A_SPIRIT_SLICE_S, WVW_NONE};
+weaver_threadsMap_t wm_Spirit_Airfire = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_NONE, WVW_NONE};
+weaver_threadsMap_t wm_Spirit_Water = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_D_SPIRIT_STAMINA, WVW_NONE}; //D
+weaver_threadsMap_t wm_Spirit_Spirit = {{NULL, &wm_Spirit_Spirit_Air, NULL, NULL, NULL, &wm_Spirit_Spirit_Earth, NULL, NULL, NULL, NULL}, WVW_D_SPIRIT_LINK, WVW_NONE}; //D
 //Spirit 1
-weaver_threadsMap_t wm_Spirit = {{NULL, &wm_Spirit_Air, &wm_Spirit_Airfire, NULL, NULL, NULL, NULL, &wm_Spirit_Water, NULL, &wm_Spirit_Spirit}, -1, -1};
+weaver_threadsMap_t wm_Spirit = {{NULL, &wm_Spirit_Air, &wm_Spirit_Airfire, NULL, NULL, NULL, NULL, &wm_Spirit_Water, NULL, &wm_Spirit_Spirit}, WVW_NONE, WVW_NONE};
 
 //Base 0
-weaver_threadsMap_t wm = {{NULL, &wm_Air, &wm_Airfire, &wm_Fire, &wm_Earthfire, &wm_Earth, &wm_Earthwater, &wm_Water, &wm_Airwater, &wm_Spirit}, -1, -1};
-weaver_threadsMap_t wm_NULL = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, -1, -1};
+weaver_threadsMap_t wm = {{NULL, &wm_Air, &wm_Airfire, &wm_Fire, &wm_Earthfire, &wm_Earth, &wm_Earthwater, &wm_Water, &wm_Airwater, &wm_Spirit}, WVW_NONE, WVW_NONE};
+weaver_threadsMap_t wm_NULL = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_NONE, WVW_NONE};
 
 /*
 =================

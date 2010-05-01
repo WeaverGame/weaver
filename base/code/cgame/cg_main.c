@@ -1402,6 +1402,8 @@ static void CG_RegisterWeaves(void)
 {
 	CG_Printf("^3Loading Weaves...\n");
 
+	CG_RegisterWeave(WVW_NONE);
+
 	CG_RegisterWeave(WVW_D_AIR_PROTECT);
 	CG_RegisterWeave(WVW_A_AIR_GRABPLAYER);
 	CG_RegisterWeave(WVW_A_AIR_BLAST);

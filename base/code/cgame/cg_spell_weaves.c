@@ -402,6 +402,10 @@ void CG_RegisterWeave(int weaveNum)
 
 	switch (weaveNum)
 	{
+		case WVW_NONE:
+			weaveInfo->name = "";
+			break;
+
 		case WVW_A_AIR_BLAST:
 			//weave info
 			weaveInfo->holdable = qtrue;
