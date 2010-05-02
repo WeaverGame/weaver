@@ -146,9 +146,15 @@ void SP_trigger_multiple(gentity_t * ent)
 	trap_LinkEntity(ent);
 }
 
+/*
+==============================================================================
+
+trigger_flagonly_multiple
+
+==============================================================================
+*/
+
 // the trigger was just activated
-// ent->activator should be set to the activator so it can be held through a delay
-// so wait for the delay time before firing
 void multi_flagonly_trigger(gentity_t * ent, gentity_t * activator)
 {
 	ent->activator = activator;
@@ -180,12 +186,8 @@ void Touch_Flagonly_Multi(gentity_t * self, gentity_t * other, trace_t * trace)
 }
 
 /*QUAKED trigger_flagonly_multiple (.5 .5 .5) ?
-"wait" : Seconds between triggerings, 0.5 default, -1 = one time only.
-"random"	wait variance, default is 0
 Player must be carrying the appropriate flag for it to trigger.
-Must be targeted at one or more entities.
-so, the basic time between firing is a random time between
-(wait - random) and (wait + random)
+Either red_only or blue_only must be set.
 */
 void SP_trigger_flagonly_multiple(gentity_t * ent)
 {
