@@ -24,3 +24,5 @@ ui
 weave_icons
 weaves
 fire
+fx
+k_dev
