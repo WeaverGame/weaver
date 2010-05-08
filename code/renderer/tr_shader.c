@@ -3046,6 +3046,21 @@ static void ParseGlowMap(shaderStage_t * stage, char **text)
 	}
 }
 
+static void ParseReflectionMap(shaderStage_t * stage, char **text)
+{
+	char            buffer[1024] = "";
+
+	stage->active = qtrue;
+	stage->type = ST_REFLECTIONMAP;
+	stage->rgbGen = CGEN_IDENTITY;
+	stage->stateBits = GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ONE;
+
+	if(ParseMap(stage, text, buffer, sizeof(buffer)))
+	{
+		LoadMap(stage, buffer);
+	}
+}
+
 
 static void ParseLightFalloffImage(shaderStage_t * stage, char **text)
 {
@@ -3872,6 +3887,12 @@ static qboolean ParseShader(char *_text)
 		else if(!Q_stricmp(token, "glowMap"))
 		{
 			ParseGlowMap(&stages[s], text);
+			s++;
+			continue;
+		}
+		else if(!Q_stricmp(token, "reflectionMap"))
+		{
+			ParseReflectionMap(&stages[s], text);
 			s++;
 			continue;
 		}
