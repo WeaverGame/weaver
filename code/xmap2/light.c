@@ -1537,11 +1537,11 @@ calculates the size of the lightgrid and allocates memory
 
 void SetupGrid(void)
 {
-	int             i, j;
+	size_t          i, j;
 	vec3_t          maxs, oldGridSize;
 	const char     *value;
 	char            temp[64];
-
+	size_t          rawGridSize, bspGridSize;
 
 	/* don't do this if not grid lighting */
 	if(noGridLighting)
@@ -1580,6 +1580,7 @@ void SetupGrid(void)
 
 	/* print it */
 	Sys_Printf("Grid size = { %1.0f, %1.0f, %1.0f }\n", gridSize[0], gridSize[1], gridSize[2]);
+	Sys_Printf("Grid bounds = { %d, %d, %d }\n", gridBounds[0], gridBounds[1], gridBounds[2]);
 
 	/* different? */
 	if(!VectorCompare(gridSize, oldGridSize))
@@ -1591,15 +1592,19 @@ void SetupGrid(void)
 
 	/* 2nd variable. fixme: is this silly? */
 	numBSPGridPoints = numRawGridPoints;
+	rawGridSize = numRawGridPoints * sizeof(*rawGridPoints);
+	bspGridSize = numBSPGridPoints * sizeof(*bspGridPoints);
+	Sys_Printf("%9u x %u B = rawGridSize = (%.2fMB)\n", numRawGridPoints, sizeof(*rawGridPoints), (float)rawGridSize / (1024.0f * 1024.0f));
+	Sys_Printf("%9u x %u B = bspGridSize = (%.2fMB)\n", numBSPGridPoints, sizeof(*bspGridPoints), (float)bspGridSize / (1024.0f * 1024.0f));
 
 	/* allocate lightgrid */
-	rawGridPoints = safe_malloc(numRawGridPoints * sizeof(*rawGridPoints));
-	memset(rawGridPoints, 0, numRawGridPoints * sizeof(*rawGridPoints));
+	rawGridPoints = safe_malloc(rawGridSize);
+	memset(rawGridPoints, 0, rawGridSize);
 
 	if(bspGridPoints != NULL)
 		free(bspGridPoints);
-	bspGridPoints = safe_malloc(numBSPGridPoints * sizeof(*bspGridPoints));
-	memset(bspGridPoints, 0, numBSPGridPoints * sizeof(*bspGridPoints));
+	bspGridPoints = safe_malloc(bspGridSize);
+	memset(bspGridPoints, 0, bspGridSize);
 
 	/* clear lightgrid */
 	for(i = 0; i < numRawGridPoints; i++)
@@ -1615,7 +1620,7 @@ void SetupGrid(void)
 	}
 
 	/* note it */
-	Sys_Printf("%9d grid points\n", numRawGridPoints);
+	Sys_Printf("%9u grid points\n", numRawGridPoints);
 }
 
 

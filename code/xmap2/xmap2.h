@@ -2338,7 +2338,7 @@ Q_EXTERN outLightmap_t		*outLightmaps Q_ASSIGN( NULL );
 Q_EXTERN int				numSurfacesFloodlighten Q_ASSIGN( 0 );
 
 /* grid points */
-Q_EXTERN int				numRawGridPoints Q_ASSIGN( 0 );
+Q_EXTERN size_t				numRawGridPoints Q_ASSIGN( 0 );
 Q_EXTERN rawGridPoint_t		*rawGridPoints Q_ASSIGN( NULL );
 
 Q_EXTERN int				numSurfsVertexLit Q_ASSIGN( 0 );
@@ -2423,7 +2423,7 @@ Q_EXTERN byte				*bspLightBytes Q_ASSIGN( NULL );
 //%	Q_EXTERN int				numBSPGridPoints Q_ASSIGN( 0 );
 //%	Q_EXTERN byte				*bspGridPoints Q_ASSIGN( NULL );
 
-Q_EXTERN int				numBSPGridPoints Q_ASSIGN( 0 );
+Q_EXTERN size_t				numBSPGridPoints Q_ASSIGN( 0 );
 Q_EXTERN bspGridPoint_t		*bspGridPoints Q_ASSIGN( NULL );
 
 Q_EXTERN int				numBSPVisBytes Q_ASSIGN( 0 );
