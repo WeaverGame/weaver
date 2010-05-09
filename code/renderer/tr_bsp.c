@@ -726,7 +726,7 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 			R_SyncRenderThread();
 
 			// load HDR lightmaps
-			lightmapFiles = ri.FS_ListFiles(mapName, ".hdr", &numLightmaps);
+			lightmapFiles = ri.FS_ListFilteredFiles(mapName, ".hdr", "/lm_*.hdr", &numLightmaps);
 
 			qsort(lightmapFiles, numLightmaps, sizeof(char *), LightmapNameCompare);
 
@@ -831,11 +831,11 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 			if(tr.worldDeluxeMapping)
 			{
 				// load deluxemaps
-				lightmapFiles = ri.FS_ListFilteredFiles(mapName, ".png", "*lm_*", &numLightmaps);
+				lightmapFiles = ri.FS_ListFilteredFiles(mapName, ".png", "/lm_*.png", &numLightmaps);
 
 				if(!lightmapFiles || !numLightmaps)
 				{
-					lightmapFiles = ri.FS_ListFilteredFiles(mapName, ".tga", "*lm_*", &numLightmaps);
+					lightmapFiles = ri.FS_ListFilteredFiles(mapName, ".tga", "/lm_*.png", &numLightmaps);
 
 					if(!lightmapFiles || !numLightmaps)
 					{
@@ -860,11 +860,11 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 		else
 #endif
 		{
-			lightmapFiles = ri.FS_ListFilteredFiles(mapName, ".png", "*lm_*", &numLightmaps);
+			lightmapFiles = ri.FS_ListFilteredFiles(mapName, ".png", "/lm_*.png", &numLightmaps);
 
 			if(!lightmapFiles || !numLightmaps)
 			{
-				lightmapFiles = ri.FS_ListFilteredFiles(mapName, ".tga", "*lm_*", &numLightmaps);
+				lightmapFiles = ri.FS_ListFilteredFiles(mapName, ".tga", "/lm_*.png", &numLightmaps);
 
 				if(!lightmapFiles || !numLightmaps)
 				{
