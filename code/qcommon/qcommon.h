@@ -637,6 +637,8 @@ void            FS_AddGameDirectory(const char *path, const char *dir);
 
 char          **FS_ListFiles(const char *directory, const char *extension, int *numfiles);
 
+char          **FS_ListFilteredFiles(const char *directory, const char *extension, char *filter, int *numfiles);
+
 // directory should not have either a leading or trailing /
 // if extension is "/", only subdirectories will be returned
 // the returned files will not include any directories or /

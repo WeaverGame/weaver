@@ -169,6 +169,7 @@ typedef struct
 	int             (*FS_ReadFile) (const char *name, void **buf);
 	void            (*FS_FreeFile) (void *buf);
 	char          **(*FS_ListFiles) (const char *name, const char *extension, int *numfilesfound);
+	char          **(*FS_ListFilteredFiles) (const char *name, const char *extension, char *filter, int *numfilesfound);
 	void            (*FS_FreeFileList) (char **filelist);
 	void            (*FS_WriteFile) (const char *qpath, const void *buffer, int size);
 	                qboolean(*FS_FileExists) (const char *file);
