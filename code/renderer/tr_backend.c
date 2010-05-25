@@ -1432,19 +1432,20 @@ static void Render_lightVolume(interaction_t * ia)
  */
 static int MergeInteractionBounds(const matrix_t lightViewProjectionMatrix, interaction_t * ia, int iaCount, vec3_t bounds[2], qboolean shadowCasters)
 {
-	int				i, j;
+	//int				i;
+	int				j;
 	surfaceType_t  *surface;
 	vec4_t			point;
 	vec4_t			transf;
 	vec3_t			worldBounds[2];
-	vec3_t			viewBounds[2];
-	vec3_t			center;
-	float			radius;
+	//vec3_t		viewBounds[2];
+	//vec3_t		center;
+	//float			radius;
 	int				numCasters;
 
 	frustum_t       frustum;
-	cplane_t       *clipPlane;
-	int             r;
+	//cplane_t       *clipPlane;
+	//int             r;
 
 	numCasters = 0;
 	ClearBounds(bounds[0], bounds[1]);
@@ -2426,12 +2427,12 @@ static void RB_RenderInteractionsShadowMapped()
 					{
 						case RL_OMNI:
 						{
-							float           xMin, xMax, yMin, yMax;
-							float           width, height, depth;
+							//float           xMin, xMax, yMin, yMax;
+							//float           width, height, depth;
 							float           zNear, zFar;
 							float           fovX, fovY;
 							qboolean        flipX, flipY;
-							float          *proj;
+							//float          *proj;
 							vec3_t          angles;
 							matrix_t        rotationMatrix, transformMatrix, viewMatrix;
 
@@ -2584,9 +2585,9 @@ static void RB_RenderInteractionsShadowMapped()
 							vec4_t			splitFrustum[6];
 							vec3_t			splitFrustumCorners[8];
 							vec3_t			splitFrustumBounds[2];
-							vec3_t			splitFrustumViewBounds[2];
+							//vec3_t		splitFrustumViewBounds[2];
 							vec3_t			splitFrustumClipBounds[2];
-							float			splitFrustumRadius;
+							//float			splitFrustumRadius;
 							int				numCasters;
 							vec3_t			casterBounds[2];
 							vec3_t			receiverBounds[2];
@@ -3669,7 +3670,8 @@ void RB_RenderInteractionsDeferred()
 	shader_t       *lightShader;
 	shaderStage_t  *attenuationXYStage;
 	shaderStage_t  *attenuationZStage;
-	int             i, j;
+//	int             i;
+	int		j;
 	vec3_t          viewOrigin;
 	vec3_t          lightOrigin;
 	vec4_t          lightColor;
@@ -4516,7 +4518,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 							float           zNear, zFar;
 							float           fovX, fovY;
 							qboolean        flipX, flipY;
-							float          *proj;
+							//float        *proj;
 							vec3_t          angles;
 							matrix_t        rotationMatrix, transformMatrix, viewMatrix;
 
@@ -4667,9 +4669,9 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 							vec4_t			splitFrustum[6];
 							vec3_t			splitFrustumCorners[8];
 							vec3_t			splitFrustumBounds[2];
-							vec3_t			splitFrustumViewBounds[2];
+							//vec3_t		splitFrustumViewBounds[2];
 							vec3_t			splitFrustumClipBounds[2];
-							float			splitFrustumRadius;
+							//float			splitFrustumRadius;
 							int				numCasters;
 							vec3_t			casterBounds[2];
 							vec3_t			receiverBounds[2];
@@ -6646,7 +6648,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 	}
 }
 
-
+#if 0
 static void RB_RenderInteractionsDeferredInverseShadows()
 {
 	interaction_t  *ia;
@@ -7442,7 +7444,9 @@ static void RB_RenderInteractionsDeferredInverseShadows()
 		backEnd.pc.c_deferredLightingTime = endTime - startTime;
 	}
 }
+#endif
 
+#ifdef EXPERIMENTAL
 void RB_RenderScreenSpaceAmbientOcclusion(qboolean deferred)
 {
 #if 0
@@ -7540,7 +7544,8 @@ void RB_RenderScreenSpaceAmbientOcclusion(qboolean deferred)
 	GL_CheckErrors();
 #endif
 }
-
+#endif
+#ifdef EXPERIMENTAL
 void RB_RenderDepthOfField()
 {
 	matrix_t        ortho;
@@ -7617,6 +7622,7 @@ void RB_RenderDepthOfField()
 
 	GL_CheckErrors();
 }
+#endif
 
 void RB_RenderUniformFog()
 {
@@ -11052,10 +11058,10 @@ static void RB_RenderView(void)
 		}
 
 		GL_CheckErrors();
-
+#ifdef EXPERIMENTAL
 		// render depth of field post process effect
 		RB_RenderDepthOfField(qfalse);
-
+#endif
 		// render bloom post process effect
 		RB_RenderBloom();
 

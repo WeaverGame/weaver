@@ -410,7 +410,7 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 		{
 			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef r_showDeluxeMaps\n#define r_showDeluxeMaps 1\n#endif\n");
 		}
-
+#ifdef EXPERIMENTAL
 		if(r_screenSpaceAmbientOcclusion->integer)
 		{
 			int             i;
@@ -437,6 +437,7 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, GLenum sha
 
 			// TODO
 		}
+#endif
 
 		if(glConfig.vboVertexSkinningAvailable)
 		{
@@ -2012,6 +2013,7 @@ void GLSL_InitGPUShaders(void)
 	GLSL_ShowProgramUniforms(tr.volumetricFogShader.program);
 	GL_CheckErrors();
 
+#ifdef EXPERIMENTAL
 	// screen space ambien occlusion post process effect
 	GLSL_InitGPUShader(&tr.screenSpaceAmbientOcclusionShader, "screenSpaceAmbientOcclusion", ATTR_POSITION, qtrue);
 
@@ -2035,7 +2037,8 @@ void GLSL_InitGPUShaders(void)
 	GLSL_ValidateProgram(tr.screenSpaceAmbientOcclusionShader.program);
 	GLSL_ShowProgramUniforms(tr.screenSpaceAmbientOcclusionShader.program);
 	GL_CheckErrors();
-
+#endif
+#ifdef EXPERIMENTAL
 	// depth of field post process effect
 	GLSL_InitGPUShader(&tr.depthOfFieldShader, "depthOfField", ATTR_POSITION, qtrue);
 
@@ -2052,6 +2055,7 @@ void GLSL_InitGPUShaders(void)
 	GLSL_ValidateProgram(tr.depthOfFieldShader.program);
 	GLSL_ShowProgramUniforms(tr.depthOfFieldShader.program);
 	GL_CheckErrors();
+#endif
 
 	// HDR tone mapping post process effect
 	GLSL_InitGPUShader(&tr.toneMappingShader, "toneMapping", ATTR_POSITION, qtrue);
@@ -2318,19 +2322,20 @@ void GLSL_ShutdownGPUShaders(void)
 		qglDeleteObjectARB(tr.volumetricFogShader.program);
 		Com_Memset(&tr.volumetricFogShader, 0, sizeof(shaderProgram_t));
 	}
-
+#ifdef EXPERIMENTAL
 	if(tr.screenSpaceAmbientOcclusionShader.program)
 	{
 		qglDeleteObjectARB(tr.screenSpaceAmbientOcclusionShader.program);
 		Com_Memset(&tr.screenSpaceAmbientOcclusionShader, 0, sizeof(shaderProgram_t));
 	}
-
+#endif
+#ifdef EXPERIMENTAL
 	if(tr.depthOfFieldShader.program)
 	{
 		qglDeleteObjectARB(tr.depthOfFieldShader.program);
 		Com_Memset(&tr.depthOfFieldShader, 0, sizeof(shaderProgram_t));
 	}
-
+#endif
 	if(tr.toneMappingShader.program)
 	{
 		qglDeleteObjectARB(tr.toneMappingShader.program);

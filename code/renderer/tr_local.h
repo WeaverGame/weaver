@@ -3619,8 +3619,12 @@ typedef struct
 	shaderProgram_t liquidShader;
 	shaderProgram_t uniformFogShader;
 	shaderProgram_t volumetricFogShader;
+#ifdef EXPERIMENTAL
 	shaderProgram_t screenSpaceAmbientOcclusionShader;
+#endif
+#ifdef EXPERIMENTAL
 	shaderProgram_t depthOfFieldShader;
+#endif
 	shaderProgram_t toneMappingShader;
 	shaderProgram_t debugShadowMapShader;
 
@@ -3947,8 +3951,12 @@ extern cvar_t  *r_hdrLightmapCompensate;
 extern cvar_t  *r_hdrToneMappingOperator;
 extern cvar_t  *r_hdrGamma;
 
+#ifdef EXPERIMENTAL
 extern cvar_t  *r_screenSpaceAmbientOcclusion;
+#endif
+#ifdef EXPERIMENTAL
 extern cvar_t  *r_depthOfField;
+#endif
 extern cvar_t  *r_bloom;
 extern cvar_t  *r_bloomBlur;
 extern cvar_t  *r_bloomPasses;

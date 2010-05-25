@@ -1280,11 +1280,13 @@ void R_Register(void)
 	r_forceFog = ri.Cvar_Get("r_forceFog", "0", CVAR_ARCHIVE /* | CVAR_LATCH */ );
 	ri.Cvar_CheckRange(r_forceFog, 0.0f, 1.0f, qfalse);
 	r_noFog = ri.Cvar_Get("r_noFog", "0", CVAR_ARCHIVE);
-
+#ifdef EXPERIMENTAL
 	r_screenSpaceAmbientOcclusion = ri.Cvar_Get("r_screenSpaceAmbientOcclusion", "0", CVAR_ARCHIVE);
 	//ri.Cvar_CheckRange(r_screenSpaceAmbientOcclusion, 0, 2, qtrue);
-
+#endif
+#ifdef EXPERIMENTAL
 	r_depthOfField = ri.Cvar_Get("r_depthOfField", "0", CVAR_ARCHIVE);
+#endif
 
 	r_forceAmbient = ri.Cvar_Get("r_forceAmbient", "0.125", CVAR_ARCHIVE | CVAR_LATCH);
 	ri.Cvar_CheckRange(r_forceAmbient, 0.0f, 0.3f, qfalse);

@@ -140,6 +140,9 @@ rendererGL_src = [
 
 rendererGL_env = env.Clone()
 
+if env['experimental'] == 1:
+	rendererGL_env.Append(CCFLAGS='-DEXPERIMENTAL')
+
 if env['arch'] == 'linux-i386':
 	rendererGL_env.ParseConfig('sdl-config --cflags --libs')
 	rendererGL_env.Append(LIBS=['dl', 'm', 'GL'])

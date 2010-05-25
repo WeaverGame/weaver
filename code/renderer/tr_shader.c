@@ -3054,6 +3054,8 @@ static void ParseReflectionMap(shaderStage_t * stage, char **text)
 	stage->type = ST_REFLECTIONMAP;
 	stage->rgbGen = CGEN_IDENTITY;
 	stage->stateBits = GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ONE;
+	stage->overrideWrapType = qtrue;
+	stage->wrapType = WT_EDGE_CLAMP;
 
 	if(ParseMap(stage, text, buffer, sizeof(buffer)))
 	{
