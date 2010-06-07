@@ -172,36 +172,26 @@ void SP_target_score(gentity_t * ent)
 
 //==========================================================
 
-/*QUAKED target_print (1 0 0) (-8 -8 -8) (8 8 8) redteam blueteam private
+/*QUAKED target_print (1 0 0) (-8 -8 -8) (8 8 8) red_only blue_only private
 "message"	text to print
 If "private", only the activator gets the message.  If no checks, all clients get the message.
 */
 void Use_Target_Print(gentity_t * ent, gentity_t * other, gentity_t * activator)
 {
-	qboolean        redteam;
-	qboolean        blueteam;
-	qboolean        private;
-
-	G_SpawnBoolean("redteam", "0", &redteam);
-	G_SpawnBoolean("blueteam", "0", &blueteam);
-	G_SpawnBoolean("private", "0", &private);
-
-	if(activator->client && private)
+	if(activator->client && ent->priv)
 	{
 		trap_SendServerCommand(activator - g_entities, va("cp \"%s\"", ent->message));
 		return;
 	}
 
-	if(redteam || blueteam)
+	if(ent->red_only)
 	{
-		if(redteam)
-		{
-			G_TeamCommand(TEAM_RED, va("cp \"%s\"", ent->message));
-		}
-		if(blueteam)
-		{
-			G_TeamCommand(TEAM_BLUE, va("cp \"%s\"", ent->message));
-		}
+		G_TeamCommand(TEAM_RED, va("cp \"%s\"", ent->message));
+		return;
+	}
+	if(ent->blue_only)
+	{
+		G_TeamCommand(TEAM_BLUE, va("cp \"%s\"", ent->message));
 		return;
 	}
 
@@ -210,6 +200,10 @@ void Use_Target_Print(gentity_t * ent, gentity_t * other, gentity_t * activator)
 
 void SP_target_print(gentity_t * ent)
 {
+	G_SpawnBoolean("red_only", "0", &ent->red_only);
+	G_SpawnBoolean("blue_only", "0", &ent->blue_only);
+	G_SpawnBoolean("private", "0", &ent->priv);
+
 	ent->use = Use_Target_Print;
 }
 
@@ -399,7 +393,6 @@ void target_laser_use(gentity_t * self, gentity_t * other, gentity_t * activator
 void target_laser_start(gentity_t * self)
 {
 	gentity_t      *ent;
-	qboolean        start_on;
 
 	self->s.eType = ET_BEAM;
 
@@ -425,8 +418,7 @@ void target_laser_start(gentity_t * self)
 		self->damage = 9999;
 	}
 
-	G_SpawnBoolean("start_on", "0", &start_on);
-	if(start_on)
+	if(self->start_on)
 		target_laser_on(self);
 	else
 		target_laser_off(self);
@@ -434,6 +426,8 @@ void target_laser_start(gentity_t * self)
 
 void SP_target_laser(gentity_t * self)
 {
+	G_SpawnBoolean("start_on", "0", &self->start_on);
+
 	// let everything else get spawned before we start firing
 	self->think = target_laser_start;
 	self->nextthink = level.time + FRAMETIME;

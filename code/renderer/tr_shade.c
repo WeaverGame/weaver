@@ -5506,12 +5506,14 @@ void Tess_StageIteratorGeneric()
 
 			case ST_COLLAPSE_reflection_CB:
 			{
+				if(r_reflectionMapping->integer)
 				Render_reflection_CB(stage);
 				break;
 			}
 
 			case ST_REFLECTIONMAP:
 			{
+				if(r_reflectionMapping->integer)
 				Render_reflection_C(stage);
 				break;
 			}

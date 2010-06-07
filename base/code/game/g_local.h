@@ -225,6 +225,7 @@ struct gentity_s
 	qboolean        slow;
 	qboolean        red_only;
 	qboolean        blue_only;
+	qboolean        priv;
 
 	// portal cameras
 	qboolean        slowrotate;
@@ -394,8 +395,8 @@ struct gclient_s
 	qboolean        noclip;
 
 	int             lastCmdTime;	// level.time of last usercmd_t, for EF_CONNECTION
-									// we can't just use pers.lastCommand.time, because
-									// of the g_sycronousclients case
+	// we can't just use pers.lastCommand.time, because
+	// of the g_sycronousclients case
 	int             buttons;
 	int             oldbuttons;
 	int             latched_buttons;

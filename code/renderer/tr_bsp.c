@@ -8355,6 +8355,8 @@ void GL_BindNearestCubeMap(const vec3_t xyz)
 	vertexHash_t	*vertexHash;
 
 	tr.autoCubeImage = tr.blackCubeImage;
+	if(!r_reflectionMapping->integer)
+		return;
 
 	if(tr.cubeHashTable == NULL || xyz == NULL)
 		return;

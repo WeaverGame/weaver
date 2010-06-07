@@ -30,8 +30,7 @@ qboolean G_SpawnString(const char *key, const char *defaultString, char **out)
 
 	if(!level.spawning)
 	{
-		*out = (char *)defaultString;
-//      G_Error( "G_SpawnString() called while not spawning" );
+		G_Error( "G_SpawnString() called while not spawning" );
 	}
 
 	for(i = 0; i < level.numSpawnVars; i++)

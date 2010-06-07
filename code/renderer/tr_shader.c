@@ -5180,7 +5180,7 @@ void R_ShaderList_f(void)
 		}
 		else if(shader->collapseType == COLLAPSE_lighting_DBS)
 		{
-			ri.Printf(PRINT_ALL, "lightnig_DBS   ");
+			ri.Printf(PRINT_ALL, "lighting_DBS   ");
 		}
 		else if(shader->collapseType == COLLAPSE_reflection_CB)
 		{

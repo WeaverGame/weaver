@@ -269,8 +269,13 @@ cvar_t         *r_hdrLightmapCompensate;
 cvar_t         *r_hdrToneMappingOperator;
 cvar_t         *r_hdrGamma;
 
+#ifdef EXPERIMENTAL
 cvar_t         *r_screenSpaceAmbientOcclusion;
+#endif
+#ifdef EXPERIMENTAL
 cvar_t         *r_depthOfField;
+#endif
+cvar_t         *r_reflectionMapping;
 cvar_t         *r_bloom;
 cvar_t         *r_bloomBlur;
 cvar_t         *r_bloomPasses;
@@ -1287,6 +1292,8 @@ void R_Register(void)
 #ifdef EXPERIMENTAL
 	r_depthOfField = ri.Cvar_Get("r_depthOfField", "0", CVAR_ARCHIVE);
 #endif
+
+	r_reflectionMapping = ri.Cvar_Get("r_reflectionMapping", "1", CVAR_ARCHIVE | CVAR_LATCH);
 
 	r_forceAmbient = ri.Cvar_Get("r_forceAmbient", "0.125", CVAR_ARCHIVE | CVAR_LATCH);
 	ri.Cvar_CheckRange(r_forceAmbient, 0.0f, 0.3f, qfalse);
