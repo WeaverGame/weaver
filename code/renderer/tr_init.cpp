@@ -88,6 +88,9 @@ cvar_t         *r_noStaticLighting;
 cvar_t         *r_dynamicLightsCastShadows;
 cvar_t         *r_precomputedLighting;
 cvar_t         *r_vertexLighting;
+cvar_t         *r_compressDiffuseMaps;
+cvar_t         *r_compressSpecularMaps;
+cvar_t         *r_compressNormalMaps;
 cvar_t         *r_heatHazeFix;
 cvar_t         *r_noMarksOnTrisurfs;
 
@@ -1279,6 +1282,9 @@ void R_Register(void)
 	r_dynamicLightsCastShadows = ri.Cvar_Get("r_dynamicLightsCastShadows", "1", CVAR_ARCHIVE);
 	r_precomputedLighting = ri.Cvar_Get("r_precomputedLighting", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_vertexLighting = ri.Cvar_Get("r_vertexLighting", "0", CVAR_ARCHIVE | CVAR_LATCH);
+	r_compressDiffuseMaps = ri.Cvar_Get("r_compressDiffuseMaps", "1", CVAR_ARCHIVE | CVAR_LATCH);
+	r_compressSpecularMaps = ri.Cvar_Get("r_compressSpecularMaps", "1", CVAR_ARCHIVE | CVAR_LATCH);
+	r_compressNormalMaps = ri.Cvar_Get("r_compressNormalMaps", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	r_heatHazeFix = ri.Cvar_Get("r_heatHazeFix", "1", CVAR_CHEAT);
 	r_noMarksOnTrisurfs = ri.Cvar_Get("r_noMarksOnTrisurfs", "1", CVAR_CHEAT);
 

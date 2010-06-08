@@ -2994,6 +2994,10 @@ static void ParseDiffuseMap(shaderStage_t * stage, char **text)
 	stage->type = ST_DIFFUSEMAP;
 	stage->rgbGen = CGEN_IDENTITY;
 	stage->stateBits = GLS_DEFAULT;
+	if(!r_compressDiffuseMaps->integer)
+	{
+		stage->forceHighQuality = qtrue;
+	}
 
 	if(ParseMap(stage, text, buffer, sizeof(buffer)))
 	{
@@ -3009,6 +3013,10 @@ static void ParseNormalMap(shaderStage_t * stage, char **text)
 	stage->type = ST_NORMALMAP;
 	stage->rgbGen = CGEN_IDENTITY;
 	stage->stateBits = GLS_DEFAULT;
+	if(!r_compressNormalMaps->integer)
+	{
+		stage->forceHighQuality = qtrue;
+	}
 
 	if(ParseMap(stage, text, buffer, sizeof(buffer)))
 	{
@@ -3024,6 +3032,10 @@ static void ParseSpecularMap(shaderStage_t * stage, char **text)
 	stage->type = ST_SPECULARMAP;
 	stage->rgbGen = CGEN_IDENTITY;
 	stage->stateBits = GLS_DEFAULT;
+	if(!r_compressSpecularMaps->integer)
+	{
+		stage->forceHighQuality = qtrue;
+	}
 
 	if(ParseMap(stage, text, buffer, sizeof(buffer)))
 	{
