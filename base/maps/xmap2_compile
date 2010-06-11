@@ -17,7 +17,7 @@
 # fs_basepath is generally '../..' since xmap2_compile is in the base/maps/ dir.
 FS_BASEPATH='../..'
 # fs_game should be 'weaver'
-FS_GAME='weaver'
+FS_GAME='base'
 # game should be 'xreal'
 GAME='xreal'
 
