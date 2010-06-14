@@ -9,7 +9,7 @@ import SCons.Errors
 opts = Variables('xreal.conf')
 opts.Add(EnumVariable('arch', 'Choose architecture to build for', 'linux-i386', allowed_values=('freebsd-i386', 'linux-i386', 'linux-x86_64', 'netbsd-i386', 'win32-mingw', 'darwin-ppc', 'darwin-i386')))
 opts.Add(EnumVariable('warnings', 'Choose warnings level', '1', allowed_values=('0', '1', '2')))
-opts.Add(EnumVariable('debug', 'Set to >= 1 to build for debug', '0', allowed_values=('0', '1', '2', '3')))
+opts.Add(EnumVariable('debug', 'Set to >= 1 to build for debug', '2', allowed_values=('0', '1', '2', '3')))
 opts.Add(EnumVariable('optimize', 'Set to >= 1 to build with general optimizations', '2', allowed_values=('0', '1', '2', '3', '4', '5', '6')))
 opts.Add(EnumVariable('simd', 'Choose special CPU register optimizations', 'none', allowed_values=('none', 'sse', '3dnow')))
 #opts.Add(EnumVariable('cpu', 'Set to 1 to build with special CPU register optimizations', 'i386', allowed_values=('i386', 'athlon-xp', 'core2duo')))

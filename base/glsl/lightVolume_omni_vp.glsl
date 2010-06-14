@@ -20,6 +20,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
+/* lightVolume_omni_vp.glsl */
+
 attribute vec4		attr_Position;
 
 uniform mat4		u_ModelViewProjectionMatrix;

@@ -21,6 +21,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
+/* heatHaze_vp.glsl */
+
 attribute vec4		attr_Position;
 attribute vec4		attr_TexCoord0;
 #if defined(r_VertexSkinning)

@@ -20,6 +20,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
+/* volumetricFog_fp.glsl */
+
 uniform sampler2D	u_DepthMap;			// raw depth in red channel
 uniform sampler2D	u_DepthMapBack;		// color encoded depth
 uniform sampler2D	u_DepthMapFront;	// color encoded depth

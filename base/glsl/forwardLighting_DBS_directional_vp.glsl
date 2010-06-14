@@ -20,6 +20,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
+/* forwardLighting_DBS_directional_vp.glsl */
+
 attribute vec4		attr_Position;
 attribute vec4		attr_TexCoord0;
 attribute vec3		attr_Tangent;
@@ -209,90 +211,6 @@ void	main()
 		// calc light attenuation in light space
 		var_TexAtten = u_LightAttenuationMatrix * position;
 	}
-	
-	
-#if 0 //defined(VSM) || defined(ESM)
-	if(bool(u_ShadowCompare))
-	{
-		vec4 shadowVert;
-		
-		// transform to camera space
-		vec4 positionC = u_ModelViewMatrix * vec4(position.xyz, 1.0);
-		float vertexDistanceToCamera = -positionC.z;
-		
-#if defined(r_ParallelShadowSplits_1)
-		if(vertexDistanceToCamera < u_ShadowParallelSplitDistances.x)
-		{
-			shadowVert = u_ShadowMatrix[0] * vec4(position.xyz, 1.0);
-		}
-		else
-		{
-			shadowVert = u_ShadowMatrix[1] * vec4(position.xyz, 1.0);
-		}
-#elif defined(r_ParallelShadowSplits_2)
-		if(vertexDistanceToCamera < u_ShadowParallelSplitDistances.x)
-		{
-			shadowVert = u_ShadowMatrix[0] * vec4(position.xyz, 1.0);
-		}
-		else if(vertexDistanceToCamera < u_ShadowParallelSplitDistances.y)
-		{
-			shadowVert = u_ShadowMatrix[1] * vec4(position.xyz, 1.0);
-		}
-		else
-		{
-			shadowVert = u_ShadowMatrix[2] * vec4(position.xyz, 1.0);
-		}
-#elif defined(r_ParallelShadowSplits_3)
-		if(vertexDistanceToCamera < u_ShadowParallelSplitDistances.x)
-		{
-			shadowVert = u_ShadowMatrix[0] * vec4(position.xyz, 1.0);
-		}
-		else if(vertexDistanceToCamera < u_ShadowParallelSplitDistances.y)
-		{
-			shadowVert = u_ShadowMatrix[1] * vec4(position.xyz, 1.0);
-		}
-		else if(vertexDistanceToCamera < u_ShadowParallelSplitDistances.z)
-		{
-			shadowVert = u_ShadowMatrix[2] * vec4(position.xyz, 1.0);
-		}
-		else
-		{
-			shadowVert = u_ShadowMatrix[3] * vec4(position.xyz, 1.0);
-		}
-#elif defined(r_ParallelShadowSplits_4)
-		if(vertexDistanceToCamera < u_ShadowParallelSplitDistances.x)
-		{
-			shadowVert = u_ShadowMatrix[0] * vec4(position.xyz, 1.0);
-		}
-		else if(vertexDistanceToCamera < u_ShadowParallelSplitDistances.y)
-		{
-			shadowVert = u_ShadowMatrix[1] * vec4(P.xyz, 1.0);
-		}
-		else if(vertexDistanceToCamera < u_ShadowParallelSplitDistances.z)
-		{
-			shadowVert = u_ShadowMatrix[2] * vec4(position.xyz, 1.0);
-		}
-		else if(vertexDistanceToCamera < u_ShadowParallelSplitDistances.w)
-		{
-			shadowVert = u_ShadowMatrix[3] * vec4(position.xyz, 1.0);
-		}
-		else
-		{
-			shadowVert = u_ShadowMatrix[4] * vec4(position.xyz, 1.0);
-		}
-#else
-		shadowVert = u_ShadowMatrix[0] * vec4(position.xyz, 1.0);
-#endif
-
-		//shadowVert.xyz /= shadowVert.w;
-	
-		// Tr3B: put it into other varyings because we reached the maximum on a Geforce 6600
-		var_Position.w = shadowVert.s;
-		var_Tangent.w = shadowVert.t;
-		var_Binormal.w = shadowVert.p;
-		var_Normal.w = shadowVert.q;
-	}
-#endif
 	
 	// transform diffusemap texcoords
 	var_TexDiffuse.st = (u_DiffuseTextureMatrix * attr_TexCoord0).st;

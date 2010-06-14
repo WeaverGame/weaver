@@ -10323,6 +10323,10 @@ static void RB_RenderView(void)
 
 	if(DS_PREPASS_LIGHTING_ENABLED())
 	{
+		//
+		// Deferred lighting path described by Wolfgang Engels
+		//
+
 		int             clearBits = 0;
 		int             startTime = 0, endTime = 0;
 
@@ -10668,6 +10672,10 @@ static void RB_RenderView(void)
 	}
 	else if(DS_STANDARD_ENABLED())
 	{
+		//
+		// Deferred shading path
+		//
+
 		int             clearBits = 0;
 
 		// sync with gl if needed
@@ -10874,6 +10882,10 @@ static void RB_RenderView(void)
 	}
 	else
 	{
+		//
+		// Forward shading path
+		//
+
 		int             clearBits = 0;
 		int             startTime = 0, endTime = 0;
 

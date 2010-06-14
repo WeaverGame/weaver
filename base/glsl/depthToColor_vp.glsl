@@ -20,6 +20,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
+/* depthToColor_vp.glsl */
+
 attribute vec4		attr_Position;
 #if defined(r_VertexSkinning)
 attribute vec4		attr_BoneIndexes;

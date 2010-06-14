@@ -20,6 +20,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
+/* refraction_C_fp.glsl */
+
 uniform samplerCube	u_ColorMap;
 uniform vec3		u_ViewOrigin;
 uniform float		u_RefractionIndex;

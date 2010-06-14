@@ -20,6 +20,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
+/* portal_fp.glsl */
+
 uniform sampler2D	u_CurrentMap;
 uniform float		u_PortalRange;
 

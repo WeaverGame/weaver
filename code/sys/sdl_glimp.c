@@ -1073,8 +1073,18 @@ static void GLimp_InitExtensions(void)
 		qglGetIntegerv(GL_MAX_VERTEX_ATTRIBS_ARB, &glConfig.maxVertexAttribs);
 
 		reservedComponents = 16 * 10; // approximation how many uniforms we have besides the bone matrices
+
+		if(glConfig.driverType == GLDRV_MESA)
+		{
+			// HACK
+			// restrict to number of vertex uniforms to 512 because of:
+			// xreal.x86_64: nv50_program.c:4181: nv50_program_validate_data: Assertion `p->param_nr <= 512' failed
+
+			glConfig.maxVertexUniforms = Q_bound(0, glConfig.maxVertexUniforms, 512);
+		}
+
 		glConfig.maxVertexSkinningBones = (int) Q_bound(0.0, (Q_max(glConfig.maxVertexUniforms - reservedComponents, 0) / 16), MAX_BONES);
-		glConfig.vboVertexSkinningAvailable = (glConfig.maxVertexSkinningBones >= 12 && glConfig.driverType != GLDRV_MESA) ? qtrue : qfalse;
+		glConfig.vboVertexSkinningAvailable = r_vboVertexSkinning->integer && ((glConfig.maxVertexSkinningBones >= 12) ? qtrue : qfalse);
 
 		qglBindAttribLocationARB = (PFNGLBINDATTRIBLOCATIONARBPROC) SDL_GL_GetProcAddress("glBindAttribLocationARB");
 		qglGetActiveAttribARB = (PFNGLGETACTIVEATTRIBARBPROC) SDL_GL_GetProcAddress("glGetActiveAttribARB");
@@ -1429,7 +1439,7 @@ static void GLimp_InitExtensions(void)
 
 	// GL_EXT_packed_depth_stencil
 	glConfig.framebufferPackedDepthStencilAvailable = qfalse;
-	if(Q_stristr(glConfig.extensions_string, "GL_EXT_packed_depth_stencil"))
+	if(Q_stristr(glConfig.extensions_string, "GL_EXT_packed_depth_stencil") && glConfig.driverType != GLDRV_MESA)
 	{
 		if(r_ext_packed_depth_stencil->integer)
 		{
@@ -1594,7 +1604,10 @@ void GLimp_Init(void)
 	Q_strncpyz(glConfig.extensions_string, (char *)qglGetString(GL_EXTENSIONS), sizeof(glConfig.extensions_string));
 
 
-	if(Q_stristr(glConfig.renderer_string, "mesa") || Q_stristr(glConfig.vendor_string, "mesa"))
+	if(	Q_stristr(glConfig.renderer_string, "mesa") ||
+		Q_stristr(glConfig.renderer_string, "gallium") ||
+		Q_stristr(glConfig.vendor_string, "nouveau") ||
+		Q_stristr(glConfig.vendor_string, "mesa"))
 	{
 		// suckage
 		glConfig.driverType = GLDRV_MESA;

@@ -20,6 +20,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
+/* forwardLighting_DBS_directional_fp.glsl */
+
 uniform sampler2D	u_DiffuseMap;
 uniform sampler2D	u_NormalMap;
 uniform sampler2D	u_SpecularMap;
@@ -105,6 +107,7 @@ float EstimatePenumbra(float vertexDistance, float blocker)
 }
 #endif
 
+/*
 #if 0 //defined(VSM) || defined(ESM)
 vec4 PCF(vec4 shadowVert, float filterWidth, float samples)
 {
@@ -126,6 +129,7 @@ vec4 PCF(vec4 shadowVert, float filterWidth, float samples)
 	return moments;
 }
 #endif
+*/
 
 void	main()
 {

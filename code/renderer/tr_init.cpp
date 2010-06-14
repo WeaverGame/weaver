@@ -279,6 +279,7 @@ cvar_t         *r_screenSpaceAmbientOcclusion;
 cvar_t         *r_depthOfField;
 #endif
 cvar_t         *r_reflectionMapping;
+cvar_t         *r_highQualityNormalMapping;
 cvar_t         *r_bloom;
 cvar_t         *r_bloomBlur;
 cvar_t         *r_bloomPasses;
@@ -1300,6 +1301,7 @@ void R_Register(void)
 #endif
 
 	r_reflectionMapping = ri.Cvar_Get("r_reflectionMapping", "1", CVAR_ARCHIVE | CVAR_LATCH);
+	r_highQualityNormalMapping = ri.Cvar_Get("r_highQualityNormalMapping", "0", CVAR_ARCHIVE | CVAR_LATCH);
 
 	r_forceAmbient = ri.Cvar_Get("r_forceAmbient", "0.125", CVAR_ARCHIVE | CVAR_LATCH);
 	ri.Cvar_CheckRange(r_forceAmbient, 0.0f, 0.3f, qfalse);
@@ -1925,6 +1927,7 @@ void RE_Shutdown(qboolean destroyWindow)
 	ri.Cmd_RemoveCommand("fbolist");
 	ri.Cmd_RemoveCommand("vbolist");
 	ri.Cmd_RemoveCommand("generatemtr");
+	ri.Cmd_RemoveCommand("buildcubemaps");
 
 	ri.Cmd_RemoveCommand("glsl_restart");
 

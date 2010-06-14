@@ -102,15 +102,15 @@ typedef enum
 	DS_PREPASS_LIGHTING			// light pre pass rendering like in Cry Engine 3
 } deferredShading_t;
 
-#define DS_STANDARD_ENABLED() ((r_deferredShading->integer == DS_STANDARD && glConfig.maxColorAttachments >= 4 && glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4 && glConfig.framebufferPackedDepthStencilAvailable))
+#define DS_STANDARD_ENABLED() ((r_deferredShading->integer == DS_STANDARD && glConfig.maxColorAttachments >= 4 && glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4 && glConfig.framebufferPackedDepthStencilAvailable && glConfig.driverType != GLDRV_MESA))
 
 #if defined(OFFSCREEN_PREPASS_LIGHTING)
-#define DS_PREPASS_LIGHTING_ENABLED() ((r_deferredShading->integer == DS_PREPASS_LIGHTING && glConfig.maxColorAttachments >= 2 && glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 2 && glConfig.framebufferPackedDepthStencilAvailable))
+#define DS_PREPASS_LIGHTING_ENABLED() ((r_deferredShading->integer == DS_PREPASS_LIGHTING && glConfig.maxColorAttachments >= 2 && glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 2 && glConfig.framebufferPackedDepthStencilAvailable && glConfig.driverType != GLDRV_MESA))
 #else
 #define DS_PREPASS_LIGHTING_ENABLED() ((r_deferredShading->integer == DS_PREPASS_LIGHTING))
 #endif
 
-#define HDR_ENABLED() ((r_hdrRendering->integer && glConfig.textureFloatAvailable && glConfig.framebufferObjectAvailable && glConfig.framebufferBlitAvailable))
+#define HDR_ENABLED() ((r_hdrRendering->integer && glConfig.textureFloatAvailable && glConfig.framebufferObjectAvailable && glConfig.framebufferBlitAvailable && glConfig.driverType != GLDRV_MESA))
 
 #define REF_CUBEMAP_SIZE	128
 #define REF_CUBEMAP_STORE_SIZE	1024
@@ -3962,6 +3962,7 @@ extern cvar_t  *r_depthOfField;
 #endif
 
 extern cvar_t  *r_reflectionMapping;
+extern cvar_t  *r_highQualityNormalMapping;
 
 extern cvar_t  *r_bloom;
 extern cvar_t  *r_bloomBlur;

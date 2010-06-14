@@ -3017,6 +3017,10 @@ static void ParseNormalMap(shaderStage_t * stage, char **text)
 	{
 		stage->forceHighQuality = qtrue;
 	}
+	if(r_highQualityNormalMapping->integer)
+	{
+		stage->overrideNoPicMip = qtrue;
+	}
 
 	if(ParseMap(stage, text, buffer, sizeof(buffer)))
 	{
@@ -3065,7 +3069,6 @@ static void ParseReflectionMap(shaderStage_t * stage, char **text)
 	stage->active = qtrue;
 	stage->type = ST_REFLECTIONMAP;
 	stage->rgbGen = CGEN_IDENTITY;
-	stage->stateBits = GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ONE;
 	stage->overrideWrapType = qtrue;
 	stage->wrapType = WT_EDGE_CLAMP;
 
@@ -3075,6 +3078,22 @@ static void ParseReflectionMap(shaderStage_t * stage, char **text)
 	}
 }
 
+static void ParseReflectionMapBlended(shaderStage_t * stage, char **text)
+{
+	char            buffer[1024] = "";
+
+	stage->active = qtrue;
+	stage->type = ST_REFLECTIONMAP;
+	stage->rgbGen = CGEN_IDENTITY;
+	stage->stateBits = GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ONE;
+	stage->overrideWrapType = qtrue;
+	stage->wrapType = WT_EDGE_CLAMP;
+
+	if(ParseMap(stage, text, buffer, sizeof(buffer)))
+	{
+		LoadMap(stage, buffer);
+	}
+}
 
 static void ParseLightFalloffImage(shaderStage_t * stage, char **text)
 {
@@ -3904,9 +3923,17 @@ static qboolean ParseShader(char *_text)
 			s++;
 			continue;
 		}
+		// reflectionMap <image>
 		else if(!Q_stricmp(token, "reflectionMap"))
 		{
 			ParseReflectionMap(&stages[s], text);
+			s++;
+			continue;
+		}
+		// reflectionMapBlended <image>
+		else if(!Q_stricmp(token, "reflectionMapBlended"))
+		{
+			ParseReflectionMapBlended(&stages[s], text);
 			s++;
 			continue;
 		}
