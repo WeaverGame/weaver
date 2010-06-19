@@ -111,7 +111,7 @@ SV_CreateworldSector
 Builds a uniformly subdivided tree for the given world size
 ===============
 */
-worldSector_t  *SV_CreateworldSector(int depth, vec3_t mins, vec3_t maxs)
+static worldSector_t *SV_CreateworldSector(int depth, vec3_t mins, vec3_t maxs)
 {
 	worldSector_t  *anode;
 	vec3_t          size;
@@ -424,7 +424,7 @@ SV_AreaEntities_r
 
 ====================
 */
-void SV_AreaEntities_r(worldSector_t * node, areaParms_t * ap)
+static void SV_AreaEntities_r(worldSector_t * node, areaParms_t * ap)
 {
 	svEntity_t     *check, *next;
 	sharedEntity_t *gcheck;
@@ -563,7 +563,7 @@ SV_ClipMoveToEntities
 
 ====================
 */
-void SV_ClipMoveToEntities(moveclip_t * clip)
+static void SV_ClipMoveToEntities(moveclip_t * clip)
 {
 	int             i, num;
 	int             touchlist[MAX_GENTITIES];

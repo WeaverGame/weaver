@@ -1136,19 +1136,25 @@ void R_RotateForViewer(void)
 #if 0
 	// convert from our right handed coordinate system (looking down X)
 	// to D3D's left handed coordinate system (looking down Z)
-	MatrixMultiply(quakeToD3DMatrix, tr.orientation.viewMatrix2, tr.orientation.viewMatrix);
-#elif 0
+	MatrixMultiply(quakeToD3DMatrix, tr.orientation.viewMatrix2, viewMatrix);
+#elif 1
 	// convert from our right handed coordinate system (looking down X)
 	// to OpenGL's right handed coordinate system (looking down -Z)
-	MatrixMultiply(quakeToOpenGLMatrix, tr.orientation.viewMatrix2, tr.orientation.viewMatrix);
+	MatrixMultiply(quakeToOpenGLMatrix, tr.orientation.viewMatrix2, viewMatrix);
 #else
+
+	// Tr3B:  !!! THIS BREAKS MIRRORS !!!
+
+	// http://redmine.xreal-project.net/issues/41
+	// Bug #41 - Mirrors(and possibly portal cameras) are broken
+
 	// convert from our right handed coordinate system (looking down X)
 	// to OpenGL's right handed coordinate system (looking down -Z)
-	MatrixLookAtRH(tr.orientation.viewMatrix, tr.viewParms.orientation.origin, tr.viewParms.orientation.axis[0], tr.viewParms.orientation.axis[2]);
+	MatrixLookAtRH(viewMatrix, tr.viewParms.orientation.origin, tr.viewParms.orientation.axis[0], tr.viewParms.orientation.axis[2]);
 #endif
 
 #if 0
-	MatrixToVectorsFLU(tr.orientation.viewMatrix, viewAxis[0], viewAxis[1], viewAxis[2]);
+	MatrixToVectorsFLU(viewMatrix, viewAxis[0], viewAxis[1], viewAxis[2]);
 
 	ri.Printf(PRINT_ALL, "view forward = (%5.3f, %5.3f, %5.3f), left = (%5.3f, %5.3f, %5.3f), up = (%5.3f, %5.3f, %5.3f)\n",
 				viewAxis[0][0], viewAxis[0][1], viewAxis[0][2],
@@ -1159,15 +1165,60 @@ void R_RotateForViewer(void)
 	VectorSet(right, 0, 1, 0);
 	VectorSet(up, 0, 0, 1);
 
-	MatrixTransformNormal2(tr.orientation.viewMatrix, forward);
-	MatrixTransformNormal2(tr.orientation.viewMatrix, right);
-	MatrixTransformNormal2(tr.orientation.viewMatrix, up);
+	MatrixTransformNormal2(viewMatrix, forward);
+	MatrixTransformNormal2(viewMatrix, right);
+	MatrixTransformNormal2(viewMatrix, up);
 
 	ri.Printf(PRINT_ALL, "transformed forward = (%5.3f, %5.3f, %5.3f), right = (%5.3f, %5.3f, %5.3f), up = (%5.3f, %5.3f, %5.3f)\n",
 					forward[0], forward[1], forward[2],
 					right[0], right[1], right[2],
 					up[0], up[1], up[2]);
 #endif
+
+#if 0
+	// Tr3B: support mirrors
+	if(tr.viewParms.isMirror)
+	{
+		vec4_t          plane;
+		vec4_t          plane2;
+		matrix_t		mirrorMatrix, mirrorMatrix2;
+
+		// clipping plane in world space
+		plane[0] = tr.viewParms.portalPlane.normal[0];
+		plane[1] = tr.viewParms.portalPlane.normal[1];
+		plane[2] = tr.viewParms.portalPlane.normal[2];
+		plane[3] = tr.viewParms.portalPlane.dist;
+
+#if 1
+		MatrixPlaneReflection(mirrorMatrix, plane);
+		//MatrixInverse(mirrorMatrix);
+		MatrixMultiply(mirrorMatrix, viewMatrix, tr.orientation.viewMatrix);
+		//MatrixMultiply(viewMatrix, mirrorMatrix, tr.orientation.viewMatrix);
+#else
+
+		// clipping plane in view space
+		plane2[0] = DotProduct(tr.viewParms.orientation.axis[0], plane);
+		plane2[1] = DotProduct(tr.viewParms.orientation.axis[1], plane);
+		plane2[2] = DotProduct(tr.viewParms.orientation.axis[2], plane);
+		plane2[3] = (DotProduct(plane, tr.viewParms.orientation.origin) - plane[3]);
+
+		//MatrixTransformPlane(viewMatrix, plane, plane2);
+		//plane2[3] = -plane2[3];
+
+		MatrixPlaneReflection(mirrorMatrix, plane2);
+
+		//MatrixMultiply(mirrorMatrix, quakeToOpenGLMatrix, mirrorMatrix2);
+		//MatrixMultiply(quakeToOpenGLMatrix, mirrorMatrix, mirrorMatrix2);
+
+		MatrixMultiply(mirrorMatrix, viewMatrix, tr.orientation.viewMatrix);
+		//MatrixMultiply(viewMatrix, mirrorMatrix, tr.orientation.viewMatrix);
+#endif
+	}
+	else
+#endif
+	{
+		MatrixCopy(viewMatrix, tr.orientation.viewMatrix);
+	}
 
 	MatrixCopy(tr.orientation.viewMatrix, tr.orientation.modelViewMatrix);
 
@@ -1497,6 +1548,11 @@ static void R_SetupUnprojection(void)
 	MatrixMultiply2(unprojectMatrix, quakeToOpenGLMatrix);
 	MatrixMultiply2(unprojectMatrix, tr.viewParms.world.viewMatrix2);
 	MatrixInverse(unprojectMatrix);
+
+	// FIXME ?
+	// MatrixMultiplyTranslation(unprojectMatrix, -(float)glConfig.vidWidth / (float)tr.viewParms.viewportWidth,
+	// -(float)glConfig.vidHeight / (float)tr.viewParms.viewportHeight, -1.0);
+
 	MatrixMultiplyTranslation(unprojectMatrix, -1.0, -1.0, -1.0);
 	MatrixMultiplyScale(unprojectMatrix, 2.0 * Q_recip((float)glConfig.vidWidth), 2.0 * Q_recip((float)glConfig.vidHeight), 2.0);
 }
@@ -1796,6 +1852,8 @@ static qboolean R_GetPortalOrientations(drawSurf_t * drawSurf, orientation_t * s
 	// create plane axis for the portal we are seeing
 	R_PlaneForSurface(drawSurf->surface, &originalPlane);
 
+	//ri.Printf(PRINT_ALL, "R_GetPortalOrientations: original plane = (%5.3f, %5.3f, %5.3f)\n", originalPlane.normal[0], originalPlane.normal[1], originalPlane.normal[2]);
+
 	// rotate the plane if necessary
 	if(drawSurf->entity != &tr.worldEntity)
 	{
@@ -1927,7 +1985,7 @@ static qboolean R_GetPortalOrientations(drawSurf_t * drawSurf, orientation_t * s
 	// to see a surface before the server has communicated the matching
 	// portal surface entity, so we don't want to print anything here...
 
-	//ri.Printf( PRINT_ALL, "Portal surface without a portal entity\n" );
+	//ri.Printf( PRINT_ALL, "Portal surface without a portal entity\n");
 
 	return qfalse;
 }
@@ -2153,7 +2211,11 @@ static qboolean R_MirrorViewBySurface(drawSurf_t * drawSurf)
 
 	R_MirrorPoint(oldParms.orientation.origin, &surface, &camera, newParms.orientation.origin);
 
+#if 1
 	VectorSubtract(vec3_origin, camera.axis[0], newParms.portalPlane.normal);
+#else
+	VectorCopy(camera.axis[0], newParms.portalPlane.normal);
+#endif
 	newParms.portalPlane.dist = DotProduct(camera.origin, newParms.portalPlane.normal);
 
 	R_MirrorVector(oldParms.orientation.axis[0], &surface, &camera, newParms.orientation.axis[0]);
@@ -2291,17 +2353,17 @@ static void R_SortDrawSurfs()
 	{
 		shader = tr.sortedShaders[drawSurf->shaderNum];
 
-		/*
-		   if(shader->sort > SS_PORTAL && !shader->isMirror)
-		   {
-		   break;
-		   }
-		 */
-
+#if 1
+		if(shader->sort > SS_PORTAL)
+		{
+			break;
+		}
+#else
 		if(!shader->isPortal)
 		{
 			continue;
 		}
+#endif
 
 		//ri.Printf(PRINT_ALL, "portal or mirror surface\n");
 

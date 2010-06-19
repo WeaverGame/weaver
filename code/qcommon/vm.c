@@ -116,84 +116,13 @@ vm_t           *VM_Restart(vm_t * vm)
 	return vm;
 }
 
-/*
-================
-VM_Create
-================
-*/
-vm_t           *VM_Create(const char *module, intptr_t(*systemCalls) (intptr_t *), vmInterpret_t interpret)
+
+void VM_Forced_Unload_Start(void)
 {
-	vm_t           *vm;
-	int             i, remaining;
+}
 
-	if(!module || !module[0] || !systemCalls)
-	{
-		Com_Error(ERR_FATAL, "VM_Create: bad parms");
-	}
-
-	remaining = Hunk_MemoryRemaining();
-
-	// see if we already have the VM
-	for(i = 0; i < MAX_VM; i++)
-	{
-		if(!Q_stricmp(vmTable[i].name, module))
-		{
-			vm = &vmTable[i];
-			return vm;
-		}
-	}
-
-	// find a free vm
-	for(i = 0; i < MAX_VM; i++)
-	{
-		if(!vmTable[i].name[0])
-		{
-			break;
-		}
-	}
-
-	if(i == MAX_VM)
-	{
-		Com_Error(ERR_FATAL, "VM_Create: no free vm_t");
-	}
-
-	vm = &vmTable[i];
-
-	Q_strncpyz(vm->name, module, sizeof(vm->name));
-	vm->systemCall = systemCalls;
-
-#ifdef USE_LLVM
-	if(interpret == VMI_NATIVE)
-#endif
-	{
-		// try to load as a system dll
-		Com_Printf("Loading dll file '%s'.\n", vm->name);
-		vm->dllHandle = Sys_LoadDll(module, vm->fqpath, &vm->entryPoint, VM_DllSyscall);
-		if(vm->dllHandle)
-		{
-			vm->interpret = VMI_NATIVE;
-			return vm;
-		}
-
-#if USE_LLVM
-		Com_Printf("Failed to load dll, looking for llvm.\n");
-#endif
-	}
-
-#if USE_LLVM
-	// try to load the llvm
-	Com_Printf("Loading llvm file '%s'.\n", vm->name);
-	vm->llvmModuleProvider = VM_LoadLLVM(vm, VM_DllSyscall);
-	if(vm->llvmModuleProvider)
-	{
-		vm->interpret = VMI_BYTECODE;
-		return vm;
-	}
-
-	Com_Printf("Failed to load llvm.\n");
-#endif
-
-	return NULL;
+void VM_Forced_Unload_Done(void)
+{
 }
 
 /*
@@ -360,4 +289,84 @@ intptr_t QDECL VM_Call(vm_t * vm, int callnum, ...)
 	return r;
 }
 
-//=================================================================
+/*
+================
+VM_Create
+================
+*/
+vm_t           *VM_Create(const char *module, intptr_t(*systemCalls) (intptr_t *), vmInterpret_t interpret)
+{
+	vm_t           *vm;
+	int             i, remaining;
+
+	if(!module || !module[0] || !systemCalls)
+	{
+		Com_Error(ERR_FATAL, "VM_Create: bad parms");
+	}
+
+	remaining = Hunk_MemoryRemaining();
+
+	// see if we already have the VM
+	for(i = 0; i < MAX_VM; i++)
+	{
+		if(!Q_stricmp(vmTable[i].name, module))
+		{
+			vm = &vmTable[i];
+			return vm;
+		}
+	}
+
+	// find a free vm
+	for(i = 0; i < MAX_VM; i++)
+	{
+		if(!vmTable[i].name[0])
+		{
+			break;
+		}
+	}
+
+	if(i == MAX_VM)
+	{
+		Com_Error(ERR_FATAL, "VM_Create: no free vm_t");
+	}
+
+	vm = &vmTable[i];
+
+	Q_strncpyz(vm->name, module, sizeof(vm->name));
+	vm->systemCall = systemCalls;
+
+#ifdef USE_LLVM
+	if(interpret == VMI_NATIVE)
+#endif
+	{
+		// try to load as a system dll
+		Com_Printf("Loading dll file '%s'.\n", vm->name);
+		vm->dllHandle = Sys_LoadDll(module, vm->fqpath, &vm->entryPoint, VM_DllSyscall);
+		if(vm->dllHandle)
+		{
+			vm->interpret = VMI_NATIVE;
+			return vm;
+		}
+
+#if USE_LLVM
+		Com_Printf("Failed to load dll, looking for llvm.\n");
+#endif
+	}
+
+#if USE_LLVM
+	// try to load the llvm
+	Com_Printf("Loading llvm file '%s'.\n", vm->name);
+	vm->llvmModuleProvider = VM_LoadLLVM(vm, VM_DllSyscall);
+	if(vm->llvmModuleProvider)
+	{
+		vm->interpret = VMI_BYTECODE;
+		return vm;
+	}
+
+	Com_Printf("Failed to load llvm.\n");
+#endif
+
+	return NULL;
+}
+
+

@@ -214,6 +214,10 @@ typedef int     clipHandle_t;
 #define NULL ((void *)0)
 #endif
 
+#define STRING(s)			#s
+// expand constants before stringifying them
+#define XSTRING(s)			STRING(s)
+
 #ifndef BIT
 #define BIT(x)				(1 << x)
 #endif
@@ -1194,6 +1198,8 @@ void            MatrixOrthogonalProjection(matrix_t m, vec_t left, vec_t right, 
 void			MatrixOrthogonalProjectionLH(matrix_t m, vec_t left, vec_t right, vec_t bottom, vec_t top, vec_t near, vec_t far);
 void			MatrixOrthogonalProjectionRH(matrix_t m, vec_t left, vec_t right, vec_t bottom, vec_t top, vec_t near, vec_t far);
 
+void			MatrixPlaneReflection(matrix_t m, const vec4_t plane);
+
 void            MatrixLookAtLH(matrix_t output, const vec3_t pos, const vec3_t dir, const vec3_t up);
 void            MatrixLookAtRH(matrix_t m, const vec3_t eye, const vec3_t dir, const vec3_t up);
 void            MatrixScaleTranslateToUnitCube(matrix_t m, const vec3_t mins, const vec3_t maxs);
@@ -1539,6 +1545,7 @@ default values.
 #define CVAR_CHEAT			512	// can not be changed if cheats are disabled
 #define CVAR_NORESTART		1024	// do not clear when a cvar_restart is issued
 #define CVAR_SERVER_CREATED 2048	// cvar was created by a server the client connected to
+#define CVAR_VM_CREATED		0x1000	// cvar was created exclusively in one of the VMs.
 #define CVAR_NONEXISTENT	0xFFFFFFFF	// cvar doesn't exist
 
 // nothing outside the Cvar_*() functions should modify these fields!
@@ -1557,8 +1564,12 @@ typedef struct cvar_s
 	qboolean        integral;
 	float           min;
 	float           max;
+
 	struct cvar_s  *next;
+	struct cvar_s  *prev;
 	struct cvar_s  *hashNext;
+	struct cvar_s  *hashPrev;
+	int             hashIndex;
 } cvar_t;
 
 #define	MAX_CVAR_VALUE_STRING	256

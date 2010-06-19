@@ -206,7 +206,6 @@ GLimp_SetMode
 */
 static int GLimp_SetMode(int mode, qboolean fullscreen)
 {
-	const char     *glstring;
 	int             sdlcolorbits;
 	int             colorbits, depthbits, stencilbits;
 	int             tcolorbits, tdepthbits, tstencilbits;
@@ -222,8 +221,6 @@ static int GLimp_SetMode(int mode, qboolean fullscreen)
 #if !SDL_VERSION_ATLEAST(1, 2, 10)
 		// 1.2.10 is needed to get the desktop resolution
 		displayAspect = 4.0f / 3.0f;
-#elif MINSDL_PATCH >= 10
-#	error Ifdeffery no longer necessary, please remove
 #else
 		// Guess the display aspect ratio through the desktop resolution
 		// by assuming (relatively safely) that it is set at or close to

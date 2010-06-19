@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "tr_types.h"
 
-#define	REF_API_VERSION		15
+#define	REF_API_VERSION		16
 
 // *INDENT-OFF*
 
@@ -146,6 +146,7 @@ typedef struct
 
 	cvar_t         *(*Cvar_Get) (const char *name, const char *value, int flags);
 	void            (*Cvar_Set) (const char *name, const char *value);
+	void            (*Cvar_SetValue) (const char *name, float value);
 	void            (*Cvar_CheckRange) (cvar_t * cv, float minVal, float maxVal, qboolean shouldBeIntegral);
 
 	int             (*Cvar_VariableIntegerValue) (const char *var_name);

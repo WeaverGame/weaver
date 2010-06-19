@@ -417,7 +417,10 @@ typedef enum
 } rserr_t;
 
 static SDL_Surface *screen = NULL;
+static const SDL_VideoInfo *videoInfo = NULL;
 
+cvar_t         *r_allowResize;	// make window resizable
+cvar_t         *r_centerWindow;
 cvar_t         *r_sdlDriver;
 
 /*
@@ -456,8 +459,12 @@ static int GLimp_CompareModes(const void *a, const void *b)
 	const float     ASPECT_EPSILON = 0.001f;
 	SDL_Rect       *modeA = *(SDL_Rect **) a;
 	SDL_Rect       *modeB = *(SDL_Rect **) b;
-	float           aspectDiffA = fabs(((float)modeA->w / (float)modeA->h) - displayAspect);
-	float           aspectDiffB = fabs(((float)modeB->w / (float)modeB->h) - displayAspect);
+	float           aspectA = (float)modeA->w / (float)modeA->h;
+	float           aspectB = (float)modeB->w / (float)modeB->h;
+	int             areaA = modeA->w * modeA->h;
+	int             areaB = modeB->w * modeB->h;
+	float           aspectDiffA = fabs(aspectA - displayAspect);
+	float           aspectDiffB = fabs(aspectB - displayAspect);
 	float           aspectDiffsDiff = aspectDiffA - aspectDiffB;
 
 	if(aspectDiffsDiff > ASPECT_EPSILON)
@@ -465,13 +472,9 @@ static int GLimp_CompareModes(const void *a, const void *b)
 	else if(aspectDiffsDiff < -ASPECT_EPSILON)
 		return -1;
 	else
-	{
-		if(modeA->w == modeB->w)
-			return modeA->h - modeB->h;
-		else
-			return modeA->w - modeB->w;
-	}
+		return areaA - areaB;
 }
+
 
 /*
 ===============
@@ -485,7 +488,7 @@ static void GLimp_DetectAvailableModes(void)
 	int             numModes;
 	int             i;
 
-	modes = SDL_ListModes(NULL, SDL_OPENGL | SDL_FULLSCREEN);
+	modes = SDL_ListModes(videoInfo->vfmt, SDL_OPENGL | SDL_FULLSCREEN);
 
 	if(!modes)
 	{
@@ -502,7 +505,7 @@ static void GLimp_DetectAvailableModes(void)
 	for(numModes = 0; modes[numModes]; numModes++);
 
 	if(numModes > 1)
-		qsort(modes + 1, numModes - 1, sizeof(SDL_Rect *), GLimp_CompareModes);
+		qsort(modes, numModes, sizeof(SDL_Rect *), GLimp_CompareModes);
 
 	for(i = 0; i < numModes; i++)
 	{
@@ -527,35 +530,49 @@ static void GLimp_DetectAvailableModes(void)
 GLimp_SetMode
 ===============
 */
-static int GLimp_SetMode(int mode, qboolean fullscreen)
+static int GLimp_SetMode(int mode, qboolean fullscreen, qboolean noborder)
 {
 	const char     *glstring;
 	int             sdlcolorbits;
 	int             colorbits, depthbits, stencilbits;
 	int             tcolorbits, tdepthbits, tstencilbits;
+	int             samples;
 	int             i = 0;
 	SDL_Surface    *vidscreen = NULL;
 	Uint32          flags = SDL_OPENGL;
-	const SDL_VideoInfo *videoInfo;
 
 	ri.Printf(PRINT_ALL, "Initializing OpenGL display\n");
 
-	if(displayAspect == 0.0f)
-	{
-#if !SDL_VERSION_ATLEAST(1, 2, 10)
-		// 1.2.10 is needed to get the desktop resolution
-		displayAspect = 4.0f / 3.0f;
-#elif MINSDL_PATCH >= 10
-#	error Ifdeffery no longer necessary, please remove
-#else
-		// Guess the display aspect ratio through the desktop resolution
-		// by assuming (relatively safely) that it is set at or close to
-		// the display's native aspect ratio
-		videoInfo = SDL_GetVideoInfo();
-		displayAspect = (float)videoInfo->current_w / (float)videoInfo->current_h;
-#endif
+	if(r_allowResize->integer)
+		flags |= SDL_RESIZABLE;
 
-		ri.Printf(PRINT_ALL, "Estimated display aspect: %.3f\n", displayAspect);
+	if(videoInfo == NULL)
+	{
+		static SDL_VideoInfo sVideoInfo;
+		static SDL_PixelFormat sPixelFormat;
+
+		videoInfo = SDL_GetVideoInfo();
+
+		// Take a copy of the videoInfo
+		Com_Memcpy(&sPixelFormat, videoInfo->vfmt, sizeof(SDL_PixelFormat));
+		sPixelFormat.palette = NULL;	// Should already be the case
+		Com_Memcpy(&sVideoInfo, videoInfo, sizeof(SDL_VideoInfo));
+		sVideoInfo.vfmt = &sPixelFormat;
+		videoInfo = &sVideoInfo;
+
+		if(videoInfo->current_h > 0)
+		{
+			// Guess the display aspect ratio through the desktop resolution
+			// by assuming (relatively safely) that it is set at or close to
+			// the display's native aspect ratio
+			displayAspect = (float)videoInfo->current_w / (float)videoInfo->current_h;
+
+			ri.Printf(PRINT_ALL, "Estimated display aspect: %.3f\n", displayAspect);
+		}
+		else
+		{
+			ri.Printf(PRINT_ALL, "Cannot estimate display aspect, assuming 1.333\n");
+		}
 	}
 
 	ri.Printf(PRINT_ALL, "...setting mode %d:", mode);
@@ -573,12 +590,16 @@ static int GLimp_SetMode(int mode, qboolean fullscreen)
 		glConfig.isFullscreen = qtrue;
 	}
 	else
-		glConfig.isFullscreen = qfalse;
+	{
+		if(noborder)
+			flags |= SDL_NOFRAME;
 
-	if(!r_colorbits->value)
+		glConfig.isFullscreen = qfalse;
+	}
+
+	colorbits = r_colorbits->value;
+	if((!colorbits) || (colorbits >= 32))
 		colorbits = 24;
-	else
-		colorbits = r_colorbits->value;
 
 	if(!r_depthbits->value)
 		depthbits = 24;
@@ -787,7 +808,7 @@ extern GLXContext	(APIENTRY * qglXCreateContextAttribsARB) (Display *dpy, GLXFBC
 GLimp_StartDriverAndSetMode
 ===============
 */
-static qboolean GLimp_StartDriverAndSetMode(int mode, qboolean fullscreen)
+static qboolean GLimp_StartDriverAndSetMode(int mode, qboolean fullscreen, qboolean noborder)
 {
 	rserr_t         err;
 
@@ -815,7 +836,7 @@ static qboolean GLimp_StartDriverAndSetMode(int mode, qboolean fullscreen)
 		fullscreen = qfalse;
 	}
 
-	err = GLimp_SetMode(mode, fullscreen);
+	err = GLimp_SetMode(mode, fullscreen, noborder);
 
 	switch (err)
 	{
@@ -1552,8 +1573,20 @@ void GLimp_Init(void)
 	qboolean        success = qtrue;
 
 	r_sdlDriver = ri.Cvar_Get("r_sdlDriver", "", CVAR_ROM);
+	r_allowResize = ri.Cvar_Get("r_allowResize", "0", CVAR_ARCHIVE);
+	r_centerWindow = ri.Cvar_Get("r_centerWindow", "0", CVAR_ARCHIVE);
 
-	// the horror, FIXME !!!
+	if(ri.Cvar_VariableIntegerValue("com_abnormalExit"))
+	{
+		ri.Cvar_Set("r_mode", va("%d", R_MODE_FALLBACK));
+		ri.Cvar_Set("r_fullscreen", "0");
+		ri.Cvar_Set("r_centerWindow", "0");
+		ri.Cvar_Set("com_abnormalExit", "0");
+	}
+
+	//Sys_SetEnv("SDL_VIDEO_CENTERED", r_centerWindow->integer ? "1" : "");
+
+	//Sys_GLimpInit();
 #if 0 //defined(WIN32)
 	if(!SDL_VIDEODRIVER_externallySet)
 	{
@@ -1574,26 +1607,47 @@ void GLimp_Init(void)
 	}
 #endif
 
-	// create the window and set up the context
-	if(!GLimp_StartDriverAndSetMode(r_mode->integer, r_fullscreen->integer))
+	// Create the window and set up the context
+	if(GLimp_StartDriverAndSetMode(r_mode->integer, r_fullscreen->integer, qfalse))
+		goto success;
+
+	// Try again, this time in a platform specific "safe mode"
+	//Sys_GLimpSafeInit();
+#if 0 //defined(WIN32)
+	if(!SDL_VIDEODRIVER_externallySet)
 	{
-		if(r_mode->integer != R_MODE_FALLBACK)
-		{
-			ri.Printf(PRINT_ALL, "Setting r_mode %d failed, falling back on r_mode %d\n", r_mode->integer, R_MODE_FALLBACK);
-			if(!GLimp_StartDriverAndSetMode(R_MODE_FALLBACK, r_fullscreen->integer))
-				success = qfalse;
-		}
-		else
-			success = qfalse;
+		// Here, we want to let SDL decide what do to unless
+		// explicitly requested otherwise
+		_putenv("SDL_VIDEODRIVER=");
+	}
+#endif
+
+	if(GLimp_StartDriverAndSetMode(r_mode->integer, r_fullscreen->integer, qfalse))
+		goto success;
+
+	// Finally, try the default screen resolution
+	if(r_mode->integer != R_MODE_FALLBACK)
+	{
+		ri.Printf(PRINT_ALL, "Setting r_mode %d failed, falling back on r_mode %d\n", r_mode->integer, R_MODE_FALLBACK);
+
+		if(GLimp_StartDriverAndSetMode(R_MODE_FALLBACK, qfalse, qfalse))
+			goto success;
 	}
 
-	if(!success)
-		ri.Error(ERR_FATAL, "GLimp_Init() - could not load OpenGL subsystem\n");
+	// Nothing worked, give up
+	ri.Error(ERR_FATAL, "GLimp_Init() - could not load OpenGL subsystem\n");
 
+  success:
 	// This values force the UI to disable driver selection
 	glConfig.driverType = GLDRV_DEFAULT;
 	glConfig.hardwareType = GLHW_GENERIC;
-	glConfig.deviceSupportsGamma = !!(SDL_SetGamma(1.0f, 1.0f, 1.0f) >= 0);
+	glConfig.deviceSupportsGamma = SDL_SetGamma(1.0f, 1.0f, 1.0f) >= 0;
+
+	// Mysteriously, if you use an NVidia graphics card and multiple monitors,
+	// SDL_SetGamma will incorrectly return false... the first time; ask
+	// again and you get the correct answer. This is a suspected driver bug, see
+	// http://bugzilla.icculus.org/show_bug.cgi?id=4316
+	glConfig.deviceSupportsGamma = SDL_SetGamma(1.0f, 1.0f, 1.0f) >= 0;
 
 	// get our config strings
 	Q_strncpyz(glConfig.vendor_string, (char *)qglGetString(GL_VENDOR), sizeof(glConfig.vendor_string));

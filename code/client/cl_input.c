@@ -678,26 +678,10 @@ void CL_JoystickMove(usercmd_t * cmd)
 CL_MouseMove
 =================
 */
-#define FLOATSIGNBITSET(f)		((*(const unsigned int *)&(f)) >> 31)
-// strict aliasing... better?
-//#define FLOATSIGNBITSET(x)		({floatint_t __f; __f.f = x; __f.i >> 31;})
 
 void CL_MouseMove(usercmd_t * cmd)
 {
 	float           mx, my;
-	qboolean        verbose = (cl_mouseAccelDebug->integer != 0);
-	static FILE    *flog = NULL;
-
-	if(verbose && flog == NULL)
-	{
-		flog = fopen("mouse.csv", "w");
-		fprintf(flog, "mx,my,frame_msec,ratex,ratey,powerx,powery\n");
-	}
-	else if(!verbose && flog != NULL)
-	{
-		fclose(flog);
-		flog = NULL;
-	}
 
 	// allow mouse smoothing
 	if(m_filter->integer)
@@ -710,19 +694,13 @@ void CL_MouseMove(usercmd_t * cmd)
 		mx = cl.mouseDx[cl.mouseIndex];
 		my = cl.mouseDy[cl.mouseIndex];
 	}
+
 	cl.mouseIndex ^= 1;
 	cl.mouseDx[cl.mouseIndex] = 0;
 	cl.mouseDy[cl.mouseIndex] = 0;
 
 	if(mx == 0.0f && my == 0.0f)
-	{
 		return;
-	}
-
-	if(verbose)
-	{
-		fprintf(flog, "%g,%g,%d,", mx, my, frame_msec);
-	}
 
 	if(cl_mouseAccel->value != 0.0f)
 	{
@@ -736,42 +714,36 @@ void CL_MouseMove(usercmd_t * cmd)
 			accelSensitivity = cl_sensitivity->value + rate * cl_mouseAccel->value;
 			mx *= accelSensitivity;
 			my *= accelSensitivity;
+
+			if(cl_showMouseRate->integer)
+				Com_Printf("rate: %f, accelSensitivity: %f\n", rate, accelSensitivity);
 		}
 		else
 		{
+			float           rate[2];
+			float           power[2];
+
 			// sensitivity remains pretty much unchanged at low speeds
 			// cl_mouseAccel is a power value to how the acceleration is shaped
 			// cl_mouseAccelOffset is the rate for which the acceleration will have doubled the non accelerated amplification
 			// NOTE: decouple the config cvars for independent acceleration setup along X and Y?
-
-			float           rate[2];
-			float           power[2];
 
 			rate[0] = fabs(mx) / (float)frame_msec;
 			rate[1] = fabs(my) / (float)frame_msec;
 			power[0] = powf(rate[0] / cl_mouseAccelOffset->value, cl_mouseAccel->value);
 			power[1] = powf(rate[1] / cl_mouseAccelOffset->value, cl_mouseAccel->value);
 
-			mx = cl_sensitivity->value * (mx + (1.0f - 2.0f * FLOATSIGNBITSET(mx)) * power[0] * cl_mouseAccelOffset->value);
-			my = cl_sensitivity->value * (my + (1.0f - 2.0f * FLOATSIGNBITSET(my)) * power[1] * cl_mouseAccelOffset->value);
+			mx = cl_sensitivity->value * (mx + ((mx < 0) ? -power[0] : power[0]) * cl_mouseAccelOffset->value);
+			my = cl_sensitivity->value * (my + ((my < 0) ? -power[1] : power[1]) * cl_mouseAccelOffset->value);
 
-			if(verbose)
-			{
-				fprintf(flog, "%g,%g,%g,%g,", rate[0], rate[1], power[0], power[1]);
-			}
-
+			if(cl_showMouseRate->integer)
+				Com_Printf("ratex: %f, ratey: %f, powx: %f, powy: %f\n", rate[0], rate[1], power[0], power[1]);
 		}
-
 	}
 	else
 	{
 		mx *= cl_sensitivity->value;
 		my *= cl_sensitivity->value;
-	}
-
-	if(verbose)
-	{
-		fprintf(flog, "\n");
 	}
 
 	// ingame FOV
@@ -812,7 +784,7 @@ void CL_CmdButtons(usercmd_t * cmd)
 	// figure button bits
 	// send a button bit even if the key was pressed and released in
 	// less than a frame
-	//
+	//  
 	for(i = 0; i < 15; i++)
 	{
 		if(in_buttons[i].active || in_buttons[i].wasPressed)
@@ -1237,7 +1209,7 @@ void CL_WritePacket(void)
 		// also use the message acknowledge
 		key ^= clc.serverMessageSequence;
 		// also use the last acknowledged server command in the key
-		key ^= Com_HashKey(clc.serverCommands[clc.serverCommandSequence & (MAX_RELIABLE_COMMANDS - 1)], 32);
+		key ^= MSG_HashKey(clc.serverCommands[clc.serverCommandSequence & (MAX_RELIABLE_COMMANDS - 1)], 32);
 
 		// write all the commands, including the predicted command
 		for(i = 0; i < count; i++)

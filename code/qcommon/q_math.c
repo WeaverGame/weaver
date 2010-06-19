@@ -1694,52 +1694,33 @@ assumes "src" is normalized
 void PerpendicularVector(vec3_t dst, const vec3_t src)
 {
 	int             pos;
-	float           minelem;
+	int             i;
+	float           minelem = 1.0F;
+	vec3_t          tempvec;
 
-	if(src[0])
+	/*
+	 ** find the smallest magnitude axially aligned vector
+	 */
+	for(pos = 0, i = 0; i < 3; i++)
 	{
-		dst[0] = 0;
-		if(src[1])
+		if(fabs(src[i]) < minelem)
 		{
-			dst[1] = 0;
-			if(src[2])
-			{
-				dst[2] = 0;
-				pos = 0;
-				minelem = fabs(src[0]);
-				if(Q_fabs(src[1]) < minelem)
-				{
-					pos = 1;
-					minelem = fabs(src[1]);
-				}
-
-				if(Q_fabs(src[2]) < minelem)
-					pos = 2;
-
-				dst[pos] = 1;
-				dst[0] -= src[pos] * src[0];
-				dst[1] -= src[pos] * src[1];
-				dst[2] -= src[pos] * src[2];
-
-				VectorNormalize(dst);
-			}
-			else
-			{
-				dst[2] = 1;
-			}
-		}
-		else
-		{
-			dst[1] = 1;
-			dst[2] = 0;
+			pos = i;
+			minelem = fabs(src[i]);
 		}
 	}
-	else
-	{
-		dst[0] = 1;
-		dst[1] = 0;
-		dst[2] = 0;
-	}
+	tempvec[0] = tempvec[1] = tempvec[2] = 0.0F;
+	tempvec[pos] = 1.0F;
+
+	/*
+	 ** project the point onto the plane defined by src
+	 */
+	ProjectPointOnPlane(dst, tempvec, src);
+
+	/*
+	 ** normalize the result
+	 */
+	VectorNormalize(dst);
 }
 
 /*
@@ -2948,6 +2929,38 @@ void MatrixOrthogonalProjectionRH(matrix_t m, vec_t left, vec_t right, vec_t bot
 	m[1] = 0;					m[5] = 2 / (top - bottom);	m[9] = 0;					m[13] = (top + bottom) / (bottom - top);
 	m[2] = 0;					m[6] = 0;					m[10] = 1 / (near - far);	m[14] = near / (near - far);
 	m[3] = 0;					m[7] = 0;					m[11] = 0;					m[15] = 1;
+}
+
+/*
+same as D3DXMatrixReflect
+
+http://msdn.microsoft.com/en-us/library/bb205356%28v=VS.85%29.aspx
+*/
+void MatrixPlaneReflection(matrix_t m, const vec4_t plane)
+{
+	vec4_t P;
+	VectorCopy4(plane, P);
+
+	PlaneNormalize(P);
+
+	/*
+	-2 * P.a * P.a + 1  -2 * P.b * P.a      -2 * P.c * P.a        0
+	-2 * P.a * P.b      -2 * P.b * P.b + 1  -2 * P.c * P.b        0
+	-2 * P.a * P.c      -2 * P.b * P.c      -2 * P.c * P.c + 1    0
+	-2 * P.a * P.d      -2 * P.b * P.d      -2 * P.c * P.d        1
+	 */
+
+	// Quake uses a different plane equation
+	m[0] = -2 * P[0] * P[0] + 1;	m[4] = -2 * P[0] * P[1];			m[8]  = -2 * P[0] * P[2];		m[12] = 2 * P[0] * P[3];
+	m[1] = -2 * P[1] * P[0];		m[5] = -2 * P[1] * P[1] + 1;		m[9]  = -2 * P[1] * P[2];		m[13] = 2 * P[1] * P[3];
+	m[2] = -2 * P[2] * P[0];		m[6] = -2 * P[2] * P[1];			m[10] = -2 * P[2] * P[2] + 1;	m[14] = 2 * P[2] * P[3];
+	m[3] = 0;						m[7] = 0;							m[11] = 0;						m[15] = 1;
+
+#if 0
+	matrix_t m2;
+	MatrixCopy(m, m2);
+	MatrixTranspose(m2, m);
+#endif
 }
 
 void MatrixLookAtLH(matrix_t m, const vec3_t eye, const vec3_t dir, const vec3_t up)

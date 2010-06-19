@@ -55,6 +55,8 @@ void Cmd_Wait_f(void)
 	if(Cmd_Argc() == 2)
 	{
 		cmd_wait = atoi(Cmd_Argv(1));
+		if(cmd_wait < 0)
+			cmd_wait = 1;		// ignore the argument
 	}
 	else
 	{
@@ -188,7 +190,7 @@ void Cbuf_Execute(void)
 
 	while(cmd_text.cursize)
 	{
-		if(cmd_wait)
+		if(cmd_wait > 0)
 		{
 			// skip out while text still remains in buffer, leaving it
 			// for next frame
@@ -315,11 +317,7 @@ Just prints the rest of the line to the console
 */
 void Cmd_Echo_f(void)
 {
-	int             i;
-
-	for(i = 1; i < Cmd_Argc(); i++)
-		Com_Printf("%s ", Cmd_Argv(i));
-	Com_Printf("\n");
+	Com_Printf("%s\n", Cmd_Args());
 }
 
 
@@ -775,7 +773,7 @@ void Cmd_ExecuteString(const char *text)
 		return;					// no tokens
 	}
 
-	// check registered command functions
+	// check registered command functions   
 	for(prev = &cmd_functions; *prev; prev = &cmd->next)
 	{
 		cmd = *prev;

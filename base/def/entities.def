@@ -2546,8 +2546,8 @@ entityDef target_print
 	"editor_usage"				"This will print a message on the center of the screen when triggered. By default, all the clients will see the message."
 	
 	"editor_var message"		"text string to print on screen."
-	"editor_bool redteam"		"only the red team players will see the message."
-	"editor_bool blueteam"		"only the blue team players will see the message."
+	"editor_bool red_only"		"only red team players will see the message."
+	"editor_bool blue_only"		"only blue team players will see the message."
 	"editor_bool private"		"only the player that activates the target will see the message."
 	"editor_bool notfree"		"Hidden For FFA: when set to 1, entity will not spawn in 'Free for all' and 'Tournament' modes."
 	"editor_bool notteam"		"Hidden For Teamplay: when set to 1, entity will not spawn in 'Teamplay' and 'CTF' modes."
@@ -2556,8 +2556,8 @@ entityDef target_print
 	"spawnclass"				"idTarget"
 	
     "message" 					""
-    "redteam"					"0"
-    "blueteam"					"0"
+    "red_only"					"0"
+    "blue_only"					"0"
     "private"					"0"
     "notfree" 					"0"
     "notteam" 					"0"

@@ -21,7 +21,7 @@ opts.Add(BoolVariable('xmap2', 'Set to 1 to compile the XMap2 map compiler (not 
 #opts.Add(BoolVariable('vectorize', 'Set to 1 to compile the engine with auto-vectorization support', 0))
 opts.Add(EnumVariable('curl', 'Choose http-download redirection support for the engine', 'compile', allowed_values=('none', 'compile', 'dlopen')))
 #opts.Add(BoolVariable('openal', 'Set to 1 to compile the engine with OpenAL support', 0))
-opts.Add(BoolVariable('dedicated', 'Set to 1 to only compile the dedicated server', 0))
+opts.Add(BoolVariable('noclient', 'Set to 1 to only compile the dedicated server', 0))
 opts.Add(BoolVariable('master', 'Set to 1 to compile the master server', 0))
 
 #
@@ -91,16 +91,18 @@ opts.Save('xreal.conf', env)
 #
 Export('env')
 
-if env['dedicated'] == 1:
-	SConscript('SConscript_xrealded', build_dir='build/xrealded', duplicate=0)
-	SConscript('SConscript_base_game', build_dir='build/base/game', duplicate=0)
 
-else:
+
+if env['noclient'] == 0:
 	SConscript('SConscript_xreal', build_dir='build/xreal', duplicate=0)
 	SConscript('SConscript_rendererGL', build_dir='build/rendererGL', duplicate=0)
 	SConscript('SConscript_base_cgame', build_dir='build/base/cgame', duplicate=0)
-	SConscript('SConscript_base_game', build_dir='build/base/game', duplicate=0)
 	SConscript('SConscript_base_ui', build_dir='build/base/ui', duplicate=0)
+	
+SConscript('SConscript_xrealded', build_dir='build/xrealded', duplicate=0)
+SConscript('SConscript_base_game', build_dir='build/base/game', duplicate=0)
+
+
 
 if env['xmap'] == 1:
 	SConscript('SConscript_xmap', build_dir='build/xmap', duplicate=0)

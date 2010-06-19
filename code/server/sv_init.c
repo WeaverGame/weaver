@@ -537,7 +537,6 @@ void SV_SpawnServer(char *server, qboolean killBots)
 	Cvar_Set("cl_paused", "0");
 
 	// get a new checksum feed and restart the file system
-	srand(Com_Milliseconds());
 	sv.checksumFeed = (((int)rand() << 16) ^ rand()) ^ Com_Milliseconds();
 	FS_Restart(sv.checksumFeed);
 
@@ -785,6 +784,7 @@ void SV_Init(void)
 	sv_mapChecksum = Cvar_Get("sv_mapChecksum", "", CVAR_ROM);
 	sv_lanForceRate = Cvar_Get("sv_lanForceRate", "1", CVAR_ARCHIVE);
 	sv_strictAuth = Cvar_Get("sv_strictAuth", "1", CVAR_ARCHIVE);
+	sv_banFile = Cvar_Get("sv_banFile", "serverbans.dat", CVAR_ARCHIVE);
 
 	// Load saved bans
 	Cbuf_AddText("rehashbans\n");

@@ -79,6 +79,62 @@ JNIEXPORT jint JNICALL Java_xreal_client_renderer_Renderer_registerAnimation
 JNIEXPORT jint JNICALL Java_xreal_client_renderer_Renderer_registerSkin
   (JNIEnv *, jclass, jstring);
 
+/*
+ * Class:     xreal_client_renderer_Renderer
+ * Method:    loadWorldBsp
+ * Signature: (Ljava/lang/String;)V
+ */
+JNIEXPORT void JNICALL Java_xreal_client_renderer_Renderer_loadWorldBsp
+  (JNIEnv *, jclass, jstring);
+
+/*
+ * Class:     xreal_client_renderer_Renderer
+ * Method:    clearScene
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_xreal_client_renderer_Renderer_clearScene
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     xreal_client_renderer_Renderer
+ * Method:    addRefEntityToScene
+ * Signature: (IIIFFFFFFFFFFFFFFIFFFIFIIIFFFFFFFFFI)V
+ */
+JNIEXPORT void JNICALL Java_xreal_client_renderer_Renderer_addRefEntityToScene
+  (JNIEnv *, jclass, jint, jint, jint, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jint, jfloat, jfloat, jfloat, jint, jfloat, jint, jint, jint, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jint);
+
+/*
+ * Class:     xreal_client_renderer_Renderer
+ * Method:    setRefEntityBone
+ * Signature: (ILjava/lang/String;IFFFFFFF)V
+ */
+JNIEXPORT void JNICALL Java_xreal_client_renderer_Renderer_setRefEntityBone
+  (JNIEnv *, jclass, jint, jstring, jint, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat);
+
+/*
+ * Class:     xreal_client_renderer_Renderer
+ * Method:    setRefSkeleton
+ * Signature: (IFFFFFFFFF)V
+ */
+JNIEXPORT void JNICALL Java_xreal_client_renderer_Renderer_setRefSkeleton
+  (JNIEnv *, jclass, jint, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat);
+
+/*
+ * Class:     xreal_client_renderer_Renderer
+ * Method:    buildSkeleton
+ * Signature: (IIIFZ)Lxreal/client/renderer/RefSkeleton;
+ */
+JNIEXPORT jobject JNICALL Java_xreal_client_renderer_Renderer_buildSkeleton
+  (JNIEnv *, jclass, jint, jint, jint, jfloat, jboolean);
+
+/*
+ * Class:     xreal_client_renderer_Renderer
+ * Method:    renderScene
+ * Signature: (IIIIFFFFFFFFFII)V
+ */
+JNIEXPORT void JNICALL Java_xreal_client_renderer_Renderer_renderScene
+  (JNIEnv *, jclass, jint, jint, jint, jint, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jint, jint);
+
 #ifdef __cplusplus
 }
 #endif

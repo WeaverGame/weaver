@@ -127,6 +127,60 @@ char           *Sys_ConsoleInput(void)
 	return CON_Input();
 }
 
+#ifdef DEDICATED
+#	define PID_FILENAME PRODUCT_NAME "_server.pid"
+#else
+#	define PID_FILENAME PRODUCT_NAME ".pid"
+#endif
+
+/*
+=================
+Sys_PIDFileName
+=================
+*/
+static char    *Sys_PIDFileName(void)
+{
+	return va("%s/%s", Sys_TempPath(), PID_FILENAME);
+}
+
+/*
+=================
+Sys_WritePIDFile
+
+Return qtrue if there is an existing stale PID file
+=================
+*/
+qboolean Sys_WritePIDFile(void)
+{
+	char           *pidFile = Sys_PIDFileName();
+	FILE           *f;
+	qboolean        stale = qfalse;
+
+	// First, check if the pid file is already there
+	if((f = fopen(pidFile, "r")) != NULL)
+	{
+		char            pidBuffer[64] = { 0 };
+		int             pid;
+
+		fread(pidBuffer, sizeof(char), sizeof(pidBuffer) - 1, f);
+		fclose(f);
+
+		pid = atoi(pidBuffer);
+		if(!Sys_PIDIsRunning(pid))
+			stale = qtrue;
+	}
+
+	if((f = fopen(pidFile, "w")) != NULL)
+	{
+		fprintf(f, "%d", Sys_PID());
+		fclose(f);
+	}
+	else
+		Com_Printf(S_COLOR_YELLOW "Couldn't write %s.\n", pidFile);
+
+	return stale;
+}
+
 /*
 =================
 Sys_Exit
@@ -134,7 +188,7 @@ Sys_Exit
 Single exit point (regular exit or in case of error)
 =================
 */
-void Sys_Exit(int ex)
+static void Sys_Exit(int exitCode)
 {
 	CON_Shutdown();
 
@@ -142,12 +196,18 @@ void Sys_Exit(int ex)
 	SDL_Quit();
 #endif
 
+	if(exitCode < 2)
+	{
+		// Normal exit
+		remove(Sys_PIDFileName());
+	}
+
 #ifdef NDEBUG
-	exit(ex);
+	exit(exitCode);
 #else
 	// Cause a backtrace on error exits
-	assert(ex == 0);
-	exit(ex);
+	assert(exitCode == 0);
+	exit(exitCode);
 #endif
 }
 
@@ -158,7 +218,6 @@ Sys_Quit
 */
 void Sys_Quit(void)
 {
-	CL_Shutdown();
 	Sys_Exit(0);
 }
 
@@ -293,15 +352,14 @@ void Sys_Error(const char *error, ...)
 	va_list         argptr;
 	char            string[1024];
 
-	CL_Shutdown();
-
 	va_start(argptr, error);
 	Q_vsnprintf(string, sizeof(string), error, argptr);
 	va_end(argptr);
 
+	CL_Shutdown(string);
 	Sys_ErrorDialog(string);
 
-	Sys_Exit(1);
+	Sys_Exit(3);
 }
 
 /*
@@ -492,14 +550,16 @@ void Sys_SigHandler(int signal)
 	else
 	{
 		signalcaught = qtrue;
-		fprintf(stderr, "Received signal %d, exiting...\n", signal);
 #ifndef DEDICATED
-		CL_Shutdown();
+		CL_Shutdown(va("Received signal %d", signal));
 #endif
-		SV_Shutdown("Signal caught");
+		SV_Shutdown(va("Received signal %d", signal));
 	}
 
-	Sys_Exit(0);				// Exit with 0 to avoid recursive signals
+	if(signal == SIGTERM || signal == SIGINT)
+		Sys_Exit(1);
+	else
+		Sys_Exit(2);
 }
 
 /*
@@ -523,8 +583,6 @@ int main(int argc, char **argv)
 	// Run time
 	const SDL_version *ver = SDL_Linked_Version();
 
-#define STRING(s) #s
-#define XSTRING(s) STRING(s)
 #define MINSDL_VERSION \
 	XSTRING(MINSDL_MAJOR) "." \
 	XSTRING(MINSDL_MINOR) "." \
@@ -532,12 +590,25 @@ int main(int argc, char **argv)
 
 	if(SDL_VERSIONNUM(ver->major, ver->minor, ver->patch) < SDL_VERSIONNUM(MINSDL_MAJOR, MINSDL_MINOR, MINSDL_PATCH))
 	{
-		Sys_Print("SDL version " MINSDL_VERSION " or greater required\n");
+		Sys_Dialog(DT_ERROR, va("SDL version " MINSDL_VERSION " or greater is required, "
+								"but only version %d.%d.%d was found. You may be able to obtain a more recent copy "
+								"from http://www.libsdl.org/.", ver->major, ver->minor, ver->patch), "SDL Library Too Old");
+
 		Sys_Exit(1);
 	}
 #endif
 
 	Sys_PlatformInit();
+
+#if defined(USE_JAVA)
+	// Tr3B: Java likes to change the printf formatting, e.g. decimal numbers use ',' instead of '.'
+	// with a de_DE locale setting. This can break the GLSL compilers in the drivers.
+	// As a side note: It only happens with Java remote debugging enabled "+set jvm_remoteDebugging 1".
+	Sys_SetEnv("LC_NUMERIC", "en_US");
+#endif
+
+	// Set the initial time base
+	Sys_Milliseconds();
 
 	Sys_ParseArgs(argc, argv);
 	Sys_SetBinaryPath(Sys_Dirname(argv[0]));
@@ -546,7 +617,16 @@ int main(int argc, char **argv)
 	// Concatenate the command line for passing to Com_Init
 	for(i = 1; i < argc; i++)
 	{
+		const qboolean  containsSpaces = strchr(argv[i], ' ') != NULL;
+
+		if(containsSpaces)
+			Q_strcat(commandLine, sizeof(commandLine), "\"");
+
 		Q_strcat(commandLine, sizeof(commandLine), argv[i]);
+
+		if(containsSpaces)
+			Q_strcat(commandLine, sizeof(commandLine), "\"");
+
 		Q_strcat(commandLine, sizeof(commandLine), " ");
 	}
 
@@ -562,11 +642,12 @@ int main(int argc, char **argv)
 	signal(SIGFPE, Sys_SigHandler);
 	signal(SIGSEGV, Sys_SigHandler);
 	signal(SIGTERM, Sys_SigHandler);
+	signal(SIGINT, Sys_SigHandler);
 #endif
 
 	while(1)
 	{
-#ifndef DEDICATED
+#if 0//ndef DEDICATED
 		int             appState = SDL_GetAppState();
 
 		Cvar_SetValue("com_unfocused", !(appState & SDL_APPINPUTFOCUS));

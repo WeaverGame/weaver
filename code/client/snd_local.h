@@ -212,6 +212,7 @@ extern int      s_rawend[MAX_RAW_STREAMS];
 
 extern cvar_t  *s_volume;
 extern cvar_t  *s_musicVolume;
+extern cvar_t  *s_muted;
 extern cvar_t  *s_doppler;
 
 extern cvar_t  *s_testsound;
@@ -223,7 +224,7 @@ sndBuffer      *SND_malloc(void);
 void            SND_setup(void);
 
 void            S_PaintChannels(int endtime);
-void            S_FreeOldestSound(void);
+
 void            S_memoryLoad(sfx_t * sfx);
 
 // spatializes a channel

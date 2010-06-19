@@ -8747,7 +8747,7 @@ void R_BuildCubeMaps(void)
 			}
 
 			// collate cubemaps into one large image and write it out
-			if(qtrue)
+			if(qfalse)
 			{
 				// Initialize output buffer
 				if(fileBufX == 0 && fileBufY == 0)

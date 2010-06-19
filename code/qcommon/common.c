@@ -89,6 +89,7 @@ cvar_t         *com_unfocused;
 cvar_t         *com_maxfpsUnfocused;
 cvar_t         *com_minimized;
 cvar_t         *com_maxfpsMinimized;
+cvar_t         *com_abnormalExit;
 cvar_t         *com_standalone;
 
 // com_speeds times
@@ -100,8 +101,9 @@ int             com_frameTime;
 int             com_frameMsec;
 int             com_frameNumber;
 
-qboolean        com_errorEntered;
-qboolean        com_fullyInitialized;
+qboolean        com_errorEntered = qfalse;
+qboolean        com_fullyInitialized = qfalse;
+qboolean        com_gameRestarting = qfalse;
 
 char            com_errorMessage[MAXPRINTMSG];
 
@@ -252,7 +254,7 @@ void QDECL Com_DPrintf(const char *fmt, ...)
 Com_Error
 
 Both client and server can use this, and it will
-do the apropriate things.
+do the appropriate thing.
 =============
 */
 void QDECL Com_Error(int code, const char *fmt, ...)
@@ -260,7 +262,21 @@ void QDECL Com_Error(int code, const char *fmt, ...)
 	va_list         argptr;
 	static int      lastErrorTime;
 	static int      errorCount;
+	static qboolean calledSysError = qfalse;
 	int             currentTime;
+
+	if(com_errorEntered)
+	{
+		if(!calledSysError)
+		{
+			calledSysError = qtrue;
+			Sys_Error("recursive error after: %s", com_errorMessage);
+		}
+
+		return;
+	}
+
+	com_errorEntered = qtrue;
 
 	Cvar_Set("com_errorCode", va("%i", code));
 
@@ -286,12 +302,6 @@ void QDECL Com_Error(int code, const char *fmt, ...)
 	}
 	lastErrorTime = currentTime;
 
-	if(com_errorEntered)
-	{
-		Sys_Error("recursive error after: %s", com_errorMessage);
-	}
-	com_errorEntered = qtrue;
-
 	va_start(argptr, fmt);
 	Q_vsnprintf(com_errorMessage, sizeof(com_errorMessage), fmt, argptr);
 	va_end(argptr);
@@ -303,7 +313,9 @@ void QDECL Com_Error(int code, const char *fmt, ...)
 	{
 		SV_Shutdown("Server disconnected");
 		CL_Disconnect(qtrue);
+		VM_Forced_Unload_Start();
 		CL_FlushMemory();
+		VM_Forced_Unload_Done();
 		// make sure we can get at our local stuff
 		FS_PureServerSetLoadedPaks("", "");
 		com_errorEntered = qfalse;
@@ -314,14 +326,16 @@ void QDECL Com_Error(int code, const char *fmt, ...)
 		Com_Printf("********************\nERROR: %s\n********************\n", com_errorMessage);
 		SV_Shutdown(va("Server crashed: %s", com_errorMessage));
 		CL_Disconnect(qtrue);
+		VM_Forced_Unload_Start();
 		CL_FlushMemory();
+		VM_Forced_Unload_Done();
 		FS_PureServerSetLoadedPaks("", "");
 		com_errorEntered = qfalse;
 		longjmp(abortframe, -1);
 	}
 	else
 	{
-		CL_Shutdown();
+		CL_Shutdown(va("Client fatal crashed: %s", com_errorMessage));
 		SV_Shutdown(va("Server fatal crashed: %s", com_errorMessage));
 
 #if defined(USE_JAVA)
@@ -331,6 +345,7 @@ void QDECL Com_Error(int code, const char *fmt, ...)
 
 	Com_Shutdown();
 
+	calledSysError = qtrue;
 	Sys_Error("%s", com_errorMessage);
 }
 
@@ -351,7 +366,7 @@ void Com_Quit_f(void)
 	if(!com_errorEntered)
 	{
 		SV_Shutdown(p[0] ? p : "Server quit");
-		CL_Shutdown();
+		CL_Shutdown(p[0] ? p : "Client quit");
 		Com_Shutdown();
 		FS_Shutdown(qtrue);
 	}
@@ -746,24 +761,6 @@ int Com_FilterPath(char *filter, char *name, int casesensitive)
 	}
 	new_name[i] = '\0';
 	return Com_Filter(new_filter, new_name, casesensitive);
-}
-
-/*
-============
-Com_HashKey
-============
-*/
-int Com_HashKey(char *string, int maxlen)
-{
-	int register    hash, i;
-
-	hash = 0;
-	for(i = 0; i < maxlen && string[i] != '\0'; i++)
-	{
-		hash += string[i] * (119 + i);
-	}
-	hash = (hash ^ (hash >> 10) ^ (hash >> 20));
-	return hash;
 }
 
 /*
@@ -1445,7 +1442,7 @@ void Com_Meminfo_f(void)
 
 		if(block->next == &mainzone->blocklist)
 		{
-			break;				// all blocks have been hit
+			break;				// all blocks have been hit 
 		}
 		if((byte *) block + block->size != (byte *) block->next)
 		{
@@ -1473,7 +1470,7 @@ void Com_Meminfo_f(void)
 
 		if(block->next == &smallzone->blocklist)
 		{
-			break;				// all blocks have been hit
+			break;				// all blocks have been hit 
 		}
 	}
 
@@ -1560,7 +1557,7 @@ void Com_TouchMemory(void)
 		}
 		if(block->next == &mainzone->blocklist)
 		{
-			break;				// all blocks have been hit
+			break;				// all blocks have been hit 
 		}
 	}
 
@@ -1593,9 +1590,11 @@ void Com_InitZoneMemory(void)
 {
 	cvar_t         *cv;
 
-	//FIXME: 05/01/06 com_zoneMegs is useless right now as neither q3config.cfg nor
-	// Com_StartupVariable have been executed by this point. The net result is that
-	// s_zoneTotal will always be set to the default value.
+	// Please note: com_zoneMegs can only be set on the command line, and
+	// not in q3config.cfg or Com_StartupVariable, as they haven't been
+	// executed by this point. It's a chicken and egg problem. We need the
+	// memory manager configured to handle those places where you would
+	// configure the memory manager.
 
 	// allocate the random block zone
 	cv = Cvar_Get("com_zoneMegs", DEF_COMZONEMEGS_S, CVAR_LATCH | CVAR_ARCHIVE);
@@ -1718,7 +1717,7 @@ void Com_InitHunkMemory(void)
 
 	// make sure the file system has allocated and "not" freed any temp blocks
 	// this allows the config and product id files ( journal files too ) to be loaded
-	// by the file system without redunant routines in the file system utilizing different
+	// by the file system without redunant routines in the file system utilizing different 
 	// memory systems
 	if(FS_LoadStack() != 0)
 	{
@@ -1988,7 +1987,7 @@ void           *Hunk_AllocateTempMemory(int size)
 
 	// return a Z_Malloc'd block if the hunk has not been initialized
 	// this allows the config and product id files ( journal files too ) to be loaded
-	// by the file system without redunant routines in the file system utilizing different
+	// by the file system without redunant routines in the file system utilizing different 
 	// memory systems
 	if(s_hunkData == NULL)
 	{
@@ -2042,7 +2041,7 @@ void Hunk_FreeTempMemory(void *buf)
 
 	// free with Z_Free if the hunk has not been initialized
 	// this allows the config and product id files ( journal files too ) to be loaded
-	// by the file system without redunant routines in the file system utilizing different
+	// by the file system without redunant routines in the file system utilizing different 
 	// memory systems
 	if(s_hunkData == NULL)
 	{
@@ -2675,12 +2674,115 @@ A way to force a bus error for development reasons
 */
 static void Com_Crash_f(void)
 {
-	int             time;
-	sysEvent_t     *ev = NULL;
+	*(int *)0 = 0x12345678;
+}
 
-	time = ev->evTime;
+/*
+==================
+Com_Setenv_f
 
-	//*(int *)0 = 0x12345678;
+For controlling environment variables
+==================
+*/
+void Com_Setenv_f(void)
+{
+	int             argc = Cmd_Argc();
+	char           *arg1 = Cmd_Argv(1);
+
+	if(argc > 2)
+	{
+		char           *arg2 = Cmd_ArgsFrom(2);
+
+		Sys_SetEnv(arg1, arg2);
+	}
+	else if(argc == 2)
+	{
+		char           *env = getenv(arg1);
+
+		if(env)
+			Com_Printf("%s=%s\n", arg1, env);
+		else
+			Com_Printf("%s undefined\n", arg1);
+	}
+}
+
+/*
+==================
+Com_ExecuteCfg
+
+For controlling environment variables
+==================
+*/
+
+void Com_ExecuteCfg(void)
+{
+	Cbuf_ExecuteText(EXEC_NOW, "exec default.cfg\n");
+	Cbuf_Execute();				// Always execute after exec to prevent text buffer overflowing
+
+	if(!Com_SafeMode())
+	{
+		// skip the q3config.cfg and autoexec.cfg if "safe" is on the command line
+		Cbuf_ExecuteText(EXEC_NOW, "exec " Q3CONFIG_CFG "\n");
+		Cbuf_Execute();
+		Cbuf_ExecuteText(EXEC_NOW, "exec autoexec.cfg\n");
+		Cbuf_Execute();
+	}
+}
+
+/*
+==================
+Com_GameRestart
+
+Change to a new mod properly with cleaning up cvars before switching.
+==================
+*/
+
+void Com_GameRestart(int checksumFeed, qboolean clientRestart)
+{
+	// make sure no recursion can be triggered
+	if(!com_gameRestarting && com_fullyInitialized)
+	{
+		com_gameRestarting = qtrue;
+
+		if(clientRestart)
+		{
+			CL_Disconnect(qfalse);
+			CL_ShutdownAll();
+		}
+
+		// Kill server if we have one
+		if(com_sv_running->integer)
+			SV_Shutdown("Game directory changed");
+
+		FS_Restart(checksumFeed);
+
+		// Clean out any user and VM created cvars
+		Cvar_Restart(qtrue);
+		Com_ExecuteCfg();
+
+		// Restart sound subsystem so old handles are flushed
+		CL_Snd_Restart();
+
+		if(clientRestart)
+			CL_StartHunkUsers(qfalse);
+
+		com_gameRestarting = qfalse;
+	}
+}
+
+/*
+==================
+Com_GameRestart_f
+
+Expose possibility to change current running mod to the user
+==================
+*/
+
+void Com_GameRestart_f(void)
+{
+	Cvar_Set("fs_game", Cmd_Argv(1));
+
+	Com_GameRestart(0, qtrue);
 }
 
 #ifndef STANDALONE
@@ -2706,7 +2808,7 @@ void Com_ReadCDKey(const char *filename)
 	char            buffer[33];
 	char            fbuffer[MAX_OSPATH];
 
-	sprintf(fbuffer, "%s/q3key", filename);
+	Com_sprintf(fbuffer, sizeof(fbuffer), "%s/q3key", filename);
 
 	FS_SV_FOpenFileRead(fbuffer, &f);
 	if(!f)
@@ -2741,7 +2843,7 @@ void Com_AppendCDKey(const char *filename)
 	char            buffer[33];
 	char            fbuffer[MAX_OSPATH];
 
-	sprintf(fbuffer, "%s/q3key", filename);
+	Com_sprintf(fbuffer, sizeof(fbuffer), "%s/q3key", filename);
 
 	FS_SV_FOpenFileRead(fbuffer, &f);
 	if(!f)
@@ -2782,7 +2884,7 @@ static void Com_WriteCDKey(const char *filename, const char *ikey)
 #endif
 
 
-	sprintf(fbuffer, "%s/q3key", filename);
+	Com_sprintf(fbuffer, sizeof(fbuffer), "%s/q3key", filename);
 
 
 	Q_strncpyz(key, ikey, 17);
@@ -3574,18 +3676,21 @@ static void Com_DetectAltivec(void)
 	}
 }
 
-#if id386
-static void Com_DetectSSE(void)
+/*
+=================
+Com_InitRand
+Seed the random number generator, if possible with an OS supplied random seed.
+=================
+*/
+static void Com_InitRand(void)
 {
-#if id386_sse && !defined(DEDICATED)
-	if(!(Sys_GetProcessorFeatures() & CF_SSE))
-	{
-		Com_Error(ERR_FATAL, "Binaries were compiled with SSE optimizations but your CPU doesn't support SSE");
-	}
-#endif
-}
-#endif
+	unsigned int    seed;
 
+	if(Sys_RandomBytes((byte *) & seed, sizeof(seed)))
+		srand(seed);
+	else
+		srand(time(NULL));
+}
 
 /*
 =================
@@ -3595,6 +3700,7 @@ Com_Init
 void Com_Init(char *commandLine)
 {
 	char           *s;
+	int             qport;
 
 	Com_Printf("%s %s %s\n", Q3_VERSION, PLATFORM_STRING, __DATE__);
 
@@ -3606,6 +3712,9 @@ void Com_Init(char *commandLine)
 	// Clear queues
 	Com_Memset(&eventQueue[0], 0, MAX_QUEUED_EVENTS * sizeof(sysEvent_t));
 	Com_Memset(&sys_packetReceived[0], 0, MAX_MSGLEN * sizeof(byte));
+
+	// initialize the weak pseudo-random number generator for use later.
+	Com_InitRand();
 
 	// do this before anything else decides to push events
 	Com_InitPushEvent();
@@ -3620,11 +3729,11 @@ void Com_Init(char *commandLine)
 //  Swap_Init ();
 	Cbuf_Init();
 
-	Com_InitZoneMemory();
-	Cmd_Init();
-
 	// override anything from the config files with command line args
 	Com_StartupVariable(NULL);
+
+	Com_InitZoneMemory();
+	Cmd_Init();
 
 	// get the developer cvar set as early as possible
 	Com_StartupVariable("developer");
@@ -3636,17 +3745,25 @@ void Com_Init(char *commandLine)
 
 	Com_InitJournaling();
 
-	Cbuf_AddText("exec default.cfg\n");
-
-	// skip the q3config.cfg if "safe" is on the command line
-	if(!Com_SafeMode())
+	// Add some commands here already so users can use them from config files
+	Cmd_AddCommand("setenv", Com_Setenv_f);
+	if(com_developer && com_developer->integer)
 	{
-		Cbuf_AddText("exec " Q3CONFIG_CFG "\n");
+		Cmd_AddCommand("error", Com_Error_f);
+		Cmd_AddCommand("crash", Com_Crash_f);
+		Cmd_AddCommand("freeze", Com_Freeze_f);
 	}
+	Cmd_AddCommand("quit", Com_Quit_f);
+	Cmd_AddCommand("changeVectors", MSG_ReportChangeVectors_f);
+	Cmd_AddCommand("writeconfig", Com_WriteConfig_f);
+	Cmd_SetCommandCompletionFunc("writeconfig", Cmd_CompleteCfgName);
+	Cmd_AddCommand("game_restart", Com_GameRestart_f);
 
-	Cbuf_AddText("exec autoexec.cfg\n");
+	Cmd_AddCommand("mathtest", Com_MathTest_f);
+	Cmd_AddCommand("generateMEDIA.txt", Com_GenerateMediaTXT_f);
+	Cmd_AddCommand("generatecore.pk3", Com_GenerateCorePK3_f);
 
-	Cbuf_Execute();
+	Com_ExecuteCfg();
 
 	// override anything from the config files with command line args
 	Com_StartupVariable(NULL);
@@ -3702,30 +3819,34 @@ void Com_Init(char *commandLine)
 	com_maxfpsUnfocused = Cvar_Get("com_maxfpsUnfocused", "0", CVAR_ARCHIVE);
 	com_minimized = Cvar_Get("com_minimized", "0", CVAR_ROM);
 	com_maxfpsMinimized = Cvar_Get("com_maxfpsMinimized", "0", CVAR_ARCHIVE);
+	com_abnormalExit = Cvar_Get("com_abnormalExit", "0", CVAR_ROM);
 	com_standalone = Cvar_Get("com_standalone", "1", CVAR_INIT);
 
 	com_introPlayed = Cvar_Get("com_introplayed", "0", CVAR_ARCHIVE);
-
-	if(com_developer && com_developer->integer)
-	{
-		Cmd_AddCommand("error", Com_Error_f);
-		Cmd_AddCommand("crash", Com_Crash_f);
-		Cmd_AddCommand("freeze", Com_Freeze_f);
-	}
-	Cmd_AddCommand("quit", Com_Quit_f);
-	Cmd_AddCommand("changeVectors", MSG_ReportChangeVectors_f);
-	Cmd_AddCommand("writeconfig", Com_WriteConfig_f);
-	Cmd_SetCommandCompletionFunc("writeconfig", Cmd_CompleteCfgName);
-
-	Cmd_AddCommand("mathtest", Com_MathTest_f);
-	Cmd_AddCommand("generateMEDIA.txt", Com_GenerateMediaTXT_f);
-	Cmd_AddCommand("generatecore.pk3", Com_GenerateCorePK3_f);
 
 	s = va("%s %s %s", Q3_VERSION, PLATFORM_STRING, __DATE__);
 	com_version = Cvar_Get("version", s, CVAR_ROM | CVAR_SERVERINFO);
 
 	Sys_Init();
-	Netchan_Init(Com_Milliseconds() & 0xffff);	// pick a port value that should be nice and random
+
+	if(Sys_WritePIDFile())
+	{
+#ifndef DEDICATED
+		const char     *message = "The last time " CLIENT_WINDOW_TITLE " ran, "
+			"it didn't exit properly. This may be due to inappropriate video "
+			"settings. Would you like to start with \"safe\" video settings?";
+
+		if(Sys_Dialog(DT_YES_NO, message, "Abnormal Exit") == DR_YES)
+		{
+			Cvar_Set("com_abnormalExit", "1");
+		}
+#endif
+	}
+
+	// Pick a random port value
+	Com_RandomBytes((byte *) & qport, sizeof(int));
+	Netchan_Init(qport & 0xffff);
+
 	VM_Init();
 #if defined(USE_JAVA)
 	JVM_Init();
@@ -3773,9 +3894,9 @@ void Com_Init(char *commandLine)
 	Com_Printf("Altivec support is %s\n", com_altivec->integer ? "enabled" : "disabled");
 #endif
 
-#if id386
-	Com_DetectSSE();
-#endif
+//#if id386
+//	Com_DetectSSE();
+//#endif
 
 	Com_Printf("--- Common Initialization Complete ---\n");
 }
@@ -4093,6 +4214,13 @@ void Com_Frame(void)
 	if(com_speeds->integer)
 	{
 		timeAfter = Sys_Milliseconds();
+	}
+#else
+	if(com_speeds->integer)
+	{
+		timeAfter = Sys_Milliseconds();
+		timeBeforeEvents = timeAfter;
+		timeBeforeClient = timeAfter;
 	}
 #endif
 
@@ -4455,7 +4583,6 @@ void Com_RandomBytes(byte * string, int len)
 		return;
 
 	Com_Printf("Com_RandomBytes: using weak randomization\n");
-	srand(time(0));
 	for(i = 0; i < len; i++)
 		string[i] = (unsigned char)(rand() % 255);
 }

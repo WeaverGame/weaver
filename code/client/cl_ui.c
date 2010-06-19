@@ -1280,5 +1280,5 @@ qboolean UI_GameCommand(void)
 	return VM_Call(uivm, UI_CONSOLE_COMMAND, cls.realtime);
 }
 
-#endif
+#endif // !defined(USE_JAVA)
 

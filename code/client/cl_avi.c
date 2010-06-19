@@ -543,7 +543,7 @@ void CL_WriteAVIAudioFrame(const byte * pcmBuffer, int size)
 
 		afd.numAudioFrames++;
 		afd.moviSize += (chunkSize + paddingSize);
-		afd.a.totalBytes = +bytesInBuffer;
+		afd.a.totalBytes += bytesInBuffer;
 
 		// Index
 		bufIndex = 0;
