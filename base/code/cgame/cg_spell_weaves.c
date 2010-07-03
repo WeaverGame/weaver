@@ -141,9 +141,12 @@ Adds thread entities to a player model
 */
 void CG_AddPlayerThreads(centity_t * player, playerState_t * ps, refEntity_t * parent)
 {
+	int             i;
 	refEntity_t     ent;
 	playerEntity_t *pe;
 	int             boneIndex;
+	vec3_t          pos;
+	float           d;
 
 	pe = &player->pe;
 
@@ -159,6 +162,7 @@ void CG_AddPlayerThreads(centity_t * player, playerState_t * ps, refEntity_t * p
 
 	//initialize render entity
 	memset(&ent, 0, sizeof(ent));
+	AxisClear(ent.axis);
 
 #ifdef XPPM
 	if(ps)
@@ -170,7 +174,6 @@ void CG_AddPlayerThreads(centity_t * player, playerState_t * ps, refEntity_t * p
 		boneIndex = trap_R_BoneIndex(parent->hModel, "tag_weapon");
 		if(boneIndex >= 0 && boneIndex < pe->torso.skeleton.numBones)
 		{
-			AxisClear(ent.axis);
 			CG_PositionRotatedEntityOnBone(&ent, parent, parent->hModel, "tag_weapon");
 		}
 		else
@@ -179,15 +182,6 @@ void CG_AddPlayerThreads(centity_t * player, playerState_t * ps, refEntity_t * p
 			boneIndex = trap_R_BoneIndex(parent->hModel, "MG_ATTACHER");
 			if(boneIndex >= 0 && boneIndex < pe->torso.skeleton.numBones)
 			{
-				// HACK: this is bone specific
-				vec3_t          angles;
-
-				angles[PITCH] = -90;
-				angles[YAW] = 0;
-				angles[ROLL] = -90;
-
-				AnglesToAxis(angles, ent.axis);
-
 				CG_PositionRotatedEntityOnBone(&ent, parent, parent->hModel, "MG_ATTACHER");
 			}
 		}
@@ -205,17 +199,45 @@ void CG_AddPlayerThreads(centity_t * player, playerState_t * ps, refEntity_t * p
 		ent.renderfx = 0;
 	}
 
-	ent.customShader = cgs.media.weaverThreads[pe->threads[0]];
+#if 1
 	ent.reType = RT_SPRITE;
-	ent.radius = 12;
-	ent.rotation = cg.time / 20.0;
+	ent.radius = 15.0f;
+#else
+	ent.reType = RT_MODEL;
+	ent.hModel = cgs.media.weaverThreadsModel;
+#endif
+
+	VectorCopy(ent.origin, pos);
+
+	for(i = 0; i < 3 && (pe->threads[i] != WVP_NONE); i++)
+	{
+		ent.customShader = cgs.media.weaverThreads[pe->threads[i]][i];
+		ent.rotation = cg.time / (20.0f - (i*3));
+
+		VectorCopy(pos, ent.origin);
+		d = (400.0f + (100.0f * i));
+		if(i & 1)
+		{
+			ent.rotation *= -1;
+			ent.origin[0] += 4 * sin(cg.time / d);
+		}
+		if(i & 2)
+		{
+			ent.origin[1] += 4 * sin((cg.time + 212) / d);
+		}
+		if(i & 3)
+		{
+			ent.origin[2] += 4 * sin((cg.time + 37) / d);
+		}
+
+		trap_R_AddRefEntityToScene(&ent);
+
+		ent.radius -= 5.0f;
+	}
 
 	//Com_Printf("color: R=%d G=%d B=%d\n", (int)(color[0]*255), (int)(color[1]*255), (int)(color[2]*255));
-
 	//TODO: use light shader instead of this code
 	trap_R_AddLightToScene(ent.origin, 50 + pe->threadsLight + sin(cg.time / 20.0), pe->threadsColor[0], pe->threadsColor[1], pe->threadsColor[2]);
-
-	trap_R_AddRefEntityToScene(&ent);
 }
 
 /*

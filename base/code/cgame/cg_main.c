@@ -906,7 +906,8 @@ This function may execute for a couple of minutes with a slow disk.
 */
 static void CG_RegisterGraphics(void)
 {
-	int             i;
+	int             i, j;
+	char            path[MAX_QPATH];
 	char            items[MAX_ITEMS + 1];
 	static char    *sb_nums[11] = {
 		"gfx/2d/numbers/zero_32b",
@@ -1371,15 +1372,15 @@ static void CG_RegisterGraphics(void)
 
 	cgs.media.weaverIconHP = trap_R_RegisterShaderNoMip("gfx/hud/icon_hp");
 
-	cgs.media.weaverThreads[WVP_AIR] = trap_R_RegisterShaderNoMip("models/threads/air1");
-	cgs.media.weaverThreads[WVP_AIRFIRE] = trap_R_RegisterShaderNoMip("models/threads/airfire1");
-	cgs.media.weaverThreads[WVP_FIRE] = trap_R_RegisterShaderNoMip("models/threads/fire1");
-	cgs.media.weaverThreads[WVP_EARTHFIRE] = trap_R_RegisterShaderNoMip("models/threads/earthfire1");
-	cgs.media.weaverThreads[WVP_EARTH] = trap_R_RegisterShaderNoMip("models/threads/earth1");
-	cgs.media.weaverThreads[WVP_EARTHWATER] = trap_R_RegisterShaderNoMip("models/threads/earthwater1");
-	cgs.media.weaverThreads[WVP_WATER] = trap_R_RegisterShaderNoMip("models/threads/water1");
-	cgs.media.weaverThreads[WVP_AIRWATER] = trap_R_RegisterShaderNoMip("models/threads/airwater1");
-	cgs.media.weaverThreads[WVP_SPIRIT] = trap_R_RegisterShaderNoMip("models/threads/spirit1");
+	for(i = 0; i < 3; i++)
+	{
+		for(j = WVP_NONE + 1; j < WVP_NUMBER; j++)
+		{
+			Com_sprintf(path, MAX_QPATH, "models/threads/%s%d", WeavePowerName(j), i+1);
+			cgs.media.weaverThreads[j][i] = trap_R_RegisterShaderNoMip(path);
+		}
+	}
+	cgs.media.weaverThreadsModel = trap_R_RegisterModel("models/threads/threads.md5mesh", qtrue);
 
 	cgs.media.weaverStatus[PW_REGEN] = trap_R_RegisterShaderNoMip("gfx/hud/powerups/healing");
 	cgs.media.weaverStatus[PW_SHIELDED] = trap_R_RegisterShaderNoMip("gfx/hud/powerups/shielded");
