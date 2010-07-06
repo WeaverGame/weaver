@@ -2281,7 +2281,14 @@ static void PM_Footsteps(void)
 	{
 		if(!(pm->cmd.buttons & BUTTON_WALKING))
 		{
-			bobmove = 0.4f;		// faster speeds bob faster
+			if(pm->ps->pm_flags & PMF_SPRINT)
+			{
+				bobmove = 0.6f;		// faster speeds bob faster
+			}
+			else
+			{
+				bobmove = 0.4f;
+			}
 
 			if(pm->ps->pm_flags & PMF_BACKWARDS_RUN)
 			{
