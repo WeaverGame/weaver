@@ -379,7 +379,7 @@ void AddHeldWeaveToPlayer(gentity_t * ent, playerState_t * player)
 
 	DEBUGWEAVEING("AddHeldWeaveToPlayer: start");
 
-	for(i = MAX_WEAPONS - HELD_MAX; i < MAX_WEAPONS; i++)
+	for(i = MIN_WEAPON_WEAVE; i < MAX_WEAPONS; i++)
 	{
 		if(player->ammo[i] <= 0)
 		{
@@ -860,7 +860,7 @@ void ClearHeldWeave(gentity_t * ent)
 
 	//for(i = 0; i < HELD_MAX; i++)
 	//[MAX_WEAPONS - i - 1]
-	for(i = MAX_WEAPONS - HELD_MAX; i < MAX_WEAPONS; i++)
+	for(i = MIN_WEAPON_WEAVE; i < MAX_WEAPONS; i++)
 	{
 		//where the weave is being held
 		//Com_Printf("player->ammo[%i] = %i == ent->s.number = %i\n", i, player->ammo[i], ent->s.number);
@@ -870,6 +870,10 @@ void ClearHeldWeave(gentity_t * ent)
 			player->ammo[i] = 0;
 			//weapon slot is no longer available
 			player->stats[STAT_WEAPONS] &= ~(1 << i);
+			if(i == player->weapon)
+			{
+				G_AddEvent(&g_entities[ent->s.otherEntityNum2], EV_WEAVE_CLEAREDCHANGE, 0);
+			}
 			break;
 		}
 	}

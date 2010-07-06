@@ -1668,6 +1668,7 @@ extern vmCvar_t cg_weaverDiscY;
 extern vmCvar_t cg_weaverSenseRadius;
 extern vmCvar_t cg_weaverDiscMoveScale;
 extern vmCvar_t cg_weaverThreadMoveScale;
+extern vmCvar_t cg_weaverSpellSwitch;
 
 extern vmCvar_t cg_redTeamName;
 extern vmCvar_t cg_blueTeamName;
@@ -1870,6 +1871,10 @@ void            CG_ShowThreads(centity_t * cent);
 void            CG_AddPlayerThreads(centity_t * player, playerState_t * ps, refEntity_t * parent);
 void            CG_AddPlayerHeldWeave(centity_t * player, playerState_t * ps, refEntity_t * parent);
 void            CG_HeldWeave(centity_t * cent);
+void            CG_WeaveSelect_f(void);
+void            CG_WeaveNext_f(void);
+void            CG_WeavePrev_f(void);
+void            CG_WeaveClearedChange(void);
 void            CG_RegisterWeave(int weaveNum);
 
 // cg_spell_sense.c

@@ -1335,7 +1335,7 @@ void ClientSpawn(gentity_t * ent)
 
 	//WEAVER
 	//clear held weaves
-	for(i = MAX_WEAPONS - HELD_MAX; i < MAX_WEAPONS; i++)
+	for(i = MIN_WEAPON_WEAVE; i < MAX_WEAPONS; i++)
 	{
 		if(client->ps.ammo[i] > 0)
 		{

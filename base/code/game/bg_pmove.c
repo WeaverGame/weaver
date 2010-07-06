@@ -2391,7 +2391,7 @@ PM_BeginWeaponChange
 static void PM_BeginWeaponChange(int weapon)
 {
 	//WEAVER
-	if(weapon > (MAX_WEAPONS - HELD_MAX - 1))
+	if(weapon >= MIN_WEAPON_WEAVE)
 	{
 		//this is a weave
 		if(weapon >= MAX_WEAPONS)
@@ -2438,7 +2438,7 @@ static void PM_FinishWeaponChange(void)
 
 	weapon = pm->cmd.weapon;
 	//WEAVER
-	if(!(weapon > (MAX_WEAPONS - HELD_MAX - 1)))
+	if(weapon < MIN_WEAPON_WEAVE)
 	{
 		//this is NOT a weave.
 		if(weapon < WP_NONE || weapon >= WP_NUM_WEAPONS)
@@ -2496,7 +2496,7 @@ static void PM_Weapon(void)
 	int             addTime;
 
 	//WEAVER
-	if(pm->ps->weapon > (MAX_WEAPONS - HELD_MAX - 1))
+	if(pm->ps->weapon >= MIN_WEAPON_WEAVE)
 	{
 		//this is a weave.
 	}
@@ -2680,7 +2680,7 @@ static void PM_Weapon(void)
 	}
 
 	//WEAVER
-	if(!(pm->ps->weapon > (MAX_WEAPONS - HELD_MAX - 1)))
+	if(pm->ps->weapon < MIN_WEAPON_WEAVE)
 	{
 		//this is not a weave.
 		// take an ammo away if not infinite
@@ -2691,7 +2691,7 @@ static void PM_Weapon(void)
 	}
 
 	//WEAVER
-	if(pm->ps->weapon > (MAX_WEAPONS - HELD_MAX - 1))
+	if(pm->ps->weapon >= MIN_WEAPON_WEAVE)
 	{
 		//this is a weave.
 		PM_AddEvent(EV_WEAVE_CAST);

@@ -222,6 +222,7 @@ vmCvar_t        cg_weaverDiscY;
 vmCvar_t        cg_weaverSenseRadius;
 vmCvar_t        cg_weaverDiscMoveScale;
 vmCvar_t        cg_weaverThreadMoveScale;
+vmCvar_t        cg_weaverSpellSwitch;
 
 vmCvar_t        cg_currentSelectedPlayer;
 vmCvar_t        cg_currentSelectedPlayerName;
@@ -382,7 +383,7 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_drawPlayerCollision, "cg_drawPlayerCollision", "0", CVAR_CHEAT},
 	{&cg_wallWalkSmoothTime, "cg_wallWalkSmoothTime", "300", CVAR_ARCHIVE},
 
-	//weaver cvars
+	// weaver cvars
 	{&cg_drawWeaverDisc, "cg_drawWeaverDisc", "1", CVAR_ARCHIVE},
 	{&cg_drawWeaverThread, "cg_drawWeaverThread", "1", CVAR_ARCHIVE},
 	{&cg_weaverTutorial, "cg_weaverTutorial", "2", CVAR_ARCHIVE},
@@ -392,6 +393,7 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_weaverSenseRadius, "cg_weaverSenseRadius", "180", CVAR_ARCHIVE},
 	{&cg_weaverDiscMoveScale, "cg_weaverDiscMoveScale", "0", CVAR_ARCHIVE},
 	{&cg_weaverThreadMoveScale, "cg_weaverThreadMoveScale", "1", CVAR_ARCHIVE},
+	{&cg_weaverSpellSwitch, "cg_weaverSpellSwitch", "1", CVAR_ARCHIVE},
 };
 
 static int      cvarTableSize = sizeof(cvarTable) / sizeof(cvarTable[0]);

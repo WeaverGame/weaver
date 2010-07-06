@@ -477,6 +477,10 @@ static consoleCommand_t commands[] = {
 	{"vtell_attacker", CG_VoiceTellAttacker_f},
 	{"tcmd", CG_TargetCommand_f},
 
+	{"spell", CG_WeaveSelect_f},
+	{"spellnext", CG_WeaveNext_f},
+	{"spellprev", CG_WeavePrev_f},
+
 	{"+osd", CG_OSDUp_f},
 	{"-osd", CG_OSDDown_f},
 

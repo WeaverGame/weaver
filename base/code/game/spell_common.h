@@ -6,10 +6,17 @@ It contains global weaver definitions.
 ===========================================================================
 */
 
+#ifndef SPELL_COMMON_H
+#define SPELL_COMMON_H
+
+#include "../../../code/qcommon/q_shared.h"
 
 //Game
 #define MAX_THREADS         8
 #define HELD_MAX            4
+
+#define MIN_WEAPON_WEAVE    (MAX_WEAPONS - HELD_MAX)
+#define MAX_WEAPON_WEAVE    (MAX_WEAPONS - 1)
 
 #define FULL_POWER          1000.0
 #define POWER_PER_THREAD    210
@@ -329,3 +336,5 @@ struct weaver_threadsMap_s
 	weaver_weaves   weaveA;
 	weaver_weaves   weaveD;
 };
+
+#endif							// SPELL_COMMON_H

@@ -289,7 +289,7 @@ void Cmd_Give_f(gentity_t * ent)
 	if(give_all || Q_stricmp(name, "ammo") == 0)
 	{
 		//weaver -held_max so it doesnt remove held weaves
-		for(i = 0; i < MAX_WEAPONS - HELD_MAX; i++)
+		for(i = 0; i < MIN_WEAPON_WEAVE; i++)
 		{
 			ent->client->ps.ammo[i] = 999;
 		}
@@ -1879,7 +1879,7 @@ void Cmd_Release_f(gentity_t * ent)
 
 	pstate = &ent->client->ps;
 
-	if(pstate->weapon && (pstate->weapon > (MAX_WEAPONS - HELD_MAX - 1)))
+	if(pstate->weapon && (pstate->weapon >= MIN_WEAPON_WEAVE))
 	{
 		//this is a weave)
 		if(pstate->ammo[pstate->weapon])

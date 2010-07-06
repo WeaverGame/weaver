@@ -1340,6 +1340,15 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 			CG_WeaveEffect(cent);
 			break;
 
+		case EV_WEAVE_CLEAREDCHANGE:
+			DEBUGNAME("EV_WEAVE_CLEAREDCHANGE");
+			if(es->number == cg.snap->ps.clientNum)
+			{
+				//Local player's current spell has been cleared, change spell
+				CG_WeaveClearedChange();
+			}
+			break;
+
 		case EV_WEAVEMISSILE_HIT:
 			DEBUGNAME("EV_WEAVEMISSILE_HIT");
 			ByteToDir(es->eventParm, dir);

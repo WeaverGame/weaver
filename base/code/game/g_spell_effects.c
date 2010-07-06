@@ -771,7 +771,7 @@ void RunWeave_Slice(gentity_t * ent)
 
 			Com_Printf("SLICE TRAP Hit player | ent %d hit %d \n", ent->s.number, hit->s.number);
 
-			for(j = MAX_WEAPONS - HELD_MAX; j < MAX_WEAPONS; j++)
+			for(j = MIN_WEAPON_WEAVE; j < MAX_WEAPONS; j++)
 			{
 				if(hit->client->ps.ammo[j] > 0)
 				{

@@ -366,11 +366,146 @@ void CG_HeldWeave(centity_t * cent)
 		pe = &cg_entities[cent->currentState.otherEntityNum2].pe;
 	}
 
-	slot = cent->currentState.modelindex2 - (MAX_WEAPONS - HELD_MAX);
+	slot = cent->currentState.modelindex2 - MIN_WEAPON_WEAVE;
 
 	pe->heldWeaveEnt[slot] = cent->currentState.number;
 }
 
+/*
+===============
+CG_WeaveSelect_f
+
+Weave nums are 1, 2, 3, 4...
+Corresponds with weaponbanks 15, 14, 13, 12...
+===============
+*/
+void CG_WeaveSelect_f(void)
+{
+	int             num;
+
+	if(!cg.snap)
+	{
+		return;
+	}
+	if(cg.snap->ps.pm_flags & PMF_FOLLOW)
+	{
+		return;
+	}
+
+	num = atoi(CG_Argv(1));
+
+	if(num < 1 || num > HELD_MAX)
+	{
+		return;
+	}
+
+	num = num + MIN_WEAPON_WEAVE - 1;
+
+	cg.weaponSelectTime = cg.time;
+
+	if(!(cg.snap->ps.stats[STAT_WEAPONS] & (1 << num)))
+	{
+		return;					// don't have the weapon
+	}
+
+	cg.weaponSelect = num;
+}
+
+/*
+===============
+CG_WeaveIncr_f
+===============
+*/
+void CG_WeaveIncr_f(int increment)
+{
+	int             i;
+	int             original;
+
+	if(!cg.snap)
+	{
+		return;
+	}
+	if(cg.snap->ps.pm_flags & PMF_FOLLOW)
+	{
+		return;
+	}
+
+	if(cg.osd.input)
+	{
+		CG_OSDNext_f();
+		return;
+	}
+
+	if(cg.scoreBoardShowing)
+	{
+		cg.scoreboard_offset++;
+		return;
+	}
+
+	cg.weaponSelectTime = cg.time;
+	original = cg.weaponSelect;
+
+	for(i = 0; i < HELD_MAX; i++)
+	{
+		cg.weaponSelect += increment;
+		if(cg.weaponSelect > MAX_WEAPON_WEAVE)
+		{
+			cg.weaponSelect = MIN_WEAPON_WEAVE;
+		}
+		if(cg.weaponSelect < MIN_WEAPON_WEAVE)
+		{
+			cg.weaponSelect = MAX_WEAPON_WEAVE;
+		}
+
+		if(cg.snap->ps.ammo[cg.weaponSelect] && (cg.snap->ps.stats[STAT_WEAPONS] & (1 << cg.weaponSelect)))
+		{
+			break;
+		}
+	}
+	if(i >= HELD_MAX)
+	{
+		cg.weaponSelect = original;
+	}
+}
+
+/*
+===============
+CG_WeaveNext_f
+CG_WeavePrev_f
+===============
+*/
+void CG_WeaveNext_f(void)
+{
+	CG_WeaveIncr_f(+1);
+}
+
+void CG_WeavePrev_f(void)
+{
+	CG_WeaveIncr_f(-1);
+}
+
+/*
+===================
+CG_WeaveClearedChange
+
+The current spell has run out of shots, or was released
+===================
+*/
+void CG_WeaveClearedChange(void)
+{
+	switch(cg_weaverSpellSwitch.integer)
+	{
+		case 0:
+			break;
+		default:
+		case 1:
+			CG_WeaveIncr_f(+1);
+			break;
+		case 2:
+			CG_WeaveIncr_f(-1);
+			break;
+	}
+}
 
 /*
 =================

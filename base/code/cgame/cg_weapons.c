@@ -755,7 +755,7 @@ void CG_RegisterWeapon(int weaponNum)
 		return;
 	}
 
-	if(weaponNum > (MAX_WEAPONS - HELD_MAX - 1))
+	if(weaponNum >= MIN_WEAPON_WEAVE)
 	{
 		//this is a weave.
 		//Com_Printf("CG_FireWeapon: Weave registered\n");

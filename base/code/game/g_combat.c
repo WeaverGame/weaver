@@ -593,7 +593,7 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 	ClientLinkLeave(self->client);
 
 	//WEAVER - clear held weaves
-	for(j = MAX_WEAPONS - HELD_MAX; j < MAX_WEAPONS; j++)
+	for(j = MIN_WEAPON_WEAVE; j < MAX_WEAPONS; j++)
 	{
 		//where the weave is being held
 		if(self->client->ps.ammo[j] > 0)

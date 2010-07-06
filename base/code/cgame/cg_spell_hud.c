@@ -445,7 +445,7 @@ static void CG_DrawWeaverHeld(void)
 	x = 0.0f;
 	y = 20.0f;
 
-	for(i = MAX_WEAPONS - HELD_MAX; i < MAX_WEAPONS; i++)
+	for(i = MIN_WEAPON_WEAVE; i < MAX_WEAPONS; i++)
 	{
 		if(cg.predictedPlayerState.ammo[i] > 0)
 		{
@@ -456,7 +456,7 @@ static void CG_DrawWeaverHeld(void)
 	xi = 324 - count * 20;		// 640/2-(count*20)+4
 	yi = 440;					//480 - 40 = 40 up from bottom
 
-	for(i = MAX_WEAPONS - HELD_MAX; i < MAX_WEAPONS; i++)
+	for(i = MIN_WEAPON_WEAVE; i < MAX_WEAPONS; i++)
 	{
 		if(cg.predictedPlayerState.ammo[i] > 0)
 		{

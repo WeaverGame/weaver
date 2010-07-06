@@ -24,7 +24,7 @@ int ClientWeaveHeldCount(gentity_t * holdingClient)
 
 	heldCount = 0;
 
-	for(i = MAX_WEAPONS - HELD_MAX; i < MAX_WEAPONS; i++)
+	for(i = MIN_WEAPON_WEAVE; i < MAX_WEAPONS; i++)
 	{
 		if(holdingClient->client->ps.ammo[i] > 0)
 		{
