@@ -101,6 +101,14 @@ JNIEXPORT void JNICALL Java_xreal_Engine_sendConsoleCommand
 JNIEXPORT jbyteArray JNICALL Java_xreal_Engine_readFile
   (JNIEnv *, jclass, jstring);
 
+/*
+ * Class:     xreal_Engine
+ * Method:    writeFile
+ * Signature: (Ljava/lang/String;[B)V
+ */
+JNIEXPORT void JNICALL Java_xreal_Engine_writeFile
+  (JNIEnv *, jclass, jstring, jbyteArray);
+
 #ifdef __cplusplus
 }
 #endif

@@ -107,6 +107,9 @@ void R_AddPolygonSurfaces(void)
 	shader_t       *sh;
 	srfPoly_t      *poly;
 
+	if(!r_drawpolies->integer)
+		return;
+
 	tr.currentEntity = &tr.worldEntity;
 
 	for(i = 0, poly = tr.refdef.polys; i < tr.refdef.numPolys; i++, poly++)
@@ -130,6 +133,9 @@ void RE_AddPolyToScene(qhandle_t hShader, int numVerts, const polyVert_t * verts
 	{
 		return;
 	}
+
+	if(!r_drawpolies->integer)
+		return;
 
 	if(!hShader)
 	{

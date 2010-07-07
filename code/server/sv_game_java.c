@@ -297,7 +297,6 @@ static jclass   interface_GameListener;
 static jmethodID method_Game_ctor;
 static jmethodID method_Game_initGame;
 static jmethodID method_Game_shutdownGame;
-static jmethodID method_Game_clientConnect;
 static jmethodID method_Game_runFrame;
 static jmethodID method_Game_runAIFrame;
 static jmethodID method_Game_consoleCommand;
@@ -332,7 +331,6 @@ void Game_javaRegister()
 	// load game interface methods
 	method_Game_initGame = (*javaEnv)->GetMethodID(javaEnv, class_Game, "initGame", "(IIZ)V");
 	method_Game_shutdownGame = (*javaEnv)->GetMethodID(javaEnv, class_Game, "shutdownGame", "(Z)V");
-	method_Game_clientConnect = (*javaEnv)->GetMethodID(javaEnv, class_Game, "clientConnect", "(Lxreal/server/game/Player;ZZ)Ljava/lang/String;");
 	method_Game_runFrame = (*javaEnv)->GetMethodID(javaEnv, class_Game, "runFrame", "(I)V");
 	method_Game_runAIFrame = (*javaEnv)->GetMethodID(javaEnv, class_Game, "runAIFrame", "(I)V");
 	method_Game_consoleCommand = (*javaEnv)->GetMethodID(javaEnv, class_Game, "consoleCommand", "()Z");
@@ -764,7 +762,7 @@ jobject JNICALL Java_xreal_server_game_GameEntity_getEntityState_1pos(JNIEnv *en
  * Signature: (IIIIFFFFFFF)V
  */
 //int index, int trType, int trTime, int trDuration, float trAcceleration, float trBaseX, float trBaseY, float trBaseZ, float trDeltaX, float trDeltaY, float trDeltaZ);
-void JNICALL Java_xreal_server_game_GameEntity_setEntityState_1pos(JNIEnv *env, jclass cls, jint index, jint trType, jint trTime, jint trDuration, jfloat trAcceleration, jfloat trBaseX, jfloat trBaseY, jfloat trBaseZ, jfloat trDeltaX, jfloat trDeltaY, jfloat trDeltaZ)
+void JNICALL Java_xreal_server_game_GameEntity_setEntityState_1pos(JNIEnv *env, jclass cls, jint index, jint trType, jint trTime, jint trDuration, jfloat trAcceleration, jfloat trBaseX, jfloat trBaseY, jfloat trBaseZ, jfloat trBaseW, jfloat trDeltaX, jfloat trDeltaY, jfloat trDeltaZ, jfloat trDeltaW)
 {
 	gentity_t	   *ent;
 
@@ -782,10 +780,12 @@ void JNICALL Java_xreal_server_game_GameEntity_setEntityState_1pos(JNIEnv *env, 
 	ent->s.pos.trBase[0] = trBaseX;
 	ent->s.pos.trBase[1] = trBaseY;
 	ent->s.pos.trBase[2] = trBaseZ;
+	ent->s.pos.trBase[3] = trBaseW;
 
 	ent->s.pos.trDelta[0] = trDeltaX;
 	ent->s.pos.trDelta[1] = trDeltaY;
 	ent->s.pos.trDelta[2] = trDeltaZ;
+	ent->s.pos.trDelta[3] = trDeltaW;
 }
 
 /*
@@ -811,7 +811,7 @@ jobject JNICALL Java_xreal_server_game_GameEntity_getEntityState_1apos(JNIEnv *e
  * Method:    setEntityState_apos
  * Signature: (IIIIFFFFFFF)V
  */
-void JNICALL Java_xreal_server_game_GameEntity_setEntityState_1apos(JNIEnv *env, jclass cls, jint index, jint trType, jint trTime, jint trDuration, jfloat trAcceleration, jfloat trBaseX, jfloat trBaseY, jfloat trBaseZ, jfloat trDeltaX, jfloat trDeltaY, jfloat trDeltaZ)
+void JNICALL Java_xreal_server_game_GameEntity_setEntityState_1apos(JNIEnv *env, jclass cls, jint index, jint trType, jint trTime, jint trDuration, jfloat trAcceleration, jfloat trBaseX, jfloat trBaseY, jfloat trBaseZ, jfloat trBaseW, jfloat trDeltaX, jfloat trDeltaY, jfloat trDeltaZ, jfloat trDeltaW)
 {
 	gentity_t	   *ent;
 
@@ -829,10 +829,12 @@ void JNICALL Java_xreal_server_game_GameEntity_setEntityState_1apos(JNIEnv *env,
 	ent->s.apos.trBase[0] = trBaseX;
 	ent->s.apos.trBase[1] = trBaseY;
 	ent->s.apos.trBase[2] = trBaseZ;
+	ent->s.apos.trBase[3] = trBaseW;
 
 	ent->s.apos.trDelta[0] = trDeltaX;
 	ent->s.apos.trDelta[1] = trDeltaY;
 	ent->s.apos.trDelta[2] = trDeltaZ;
+	ent->s.apos.trDelta[3] = trDeltaW;
 }
 
 /*
@@ -1686,10 +1688,10 @@ static JNINativeMethod GameEntity_methods[] = {
 	{"setEntityState_eFlags", "(II)V", Java_xreal_server_game_GameEntity_setEntityState_1eFlags},
 
 	{"getEntityState_pos", "(I)Lxreal/Trajectory;", Java_xreal_server_game_GameEntity_getEntityState_1pos},
-	{"setEntityState_pos", "(IIIIFFFFFFF)V", Java_xreal_server_game_GameEntity_setEntityState_1pos},
+	{"setEntityState_pos", "(IIIIFFFFFFFFF)V", Java_xreal_server_game_GameEntity_setEntityState_1pos},
 
 	{"getEntityState_apos", "(I)Lxreal/Trajectory;", Java_xreal_server_game_GameEntity_getEntityState_1apos},
-	{"setEntityState_apos", "(IIIIFFFFFFF)V", Java_xreal_server_game_GameEntity_setEntityState_1apos},
+	{"setEntityState_apos", "(IIIIFFFFFFFFF)V", Java_xreal_server_game_GameEntity_setEntityState_1apos},
 
 	{"getEntityState_time", "(I)I", Java_xreal_server_game_GameEntity_getEntityState_1time},
 	{"setEntityState_time", "(II)V", Java_xreal_server_game_GameEntity_setEntityState_1time},
@@ -1945,6 +1947,24 @@ void JNICALL Java_xreal_server_game_Player_setUserInfo(JNIEnv *env, jclass cls, 
 	SV_SetUserinfo(clientNum, userinfo);
 
 	(*env)->ReleaseStringUTFChars(env, juserinfo, userinfo);
+}
+
+/*
+ * Class:     xreal_server_game_Player
+ * Method:    getUserCommand
+ * Signature: (I)Lxreal/UserCommand;
+ */
+jobject JNICALL Java_xreal_server_game_Player_getUserCommand(JNIEnv *env, jclass cls, jint clientNum)
+{
+	gclient_t	   *client;
+
+	if(clientNum < 0 || clientNum >= sv_maxclients->integer)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_server_game_Player_getUserCommand: bad index %i\n", clientNum);
+	}
+
+	client = &g_clients[clientNum];
+	return Java_NewUserCommand(&svs.clients[clientNum].lastUsercmd);
 }
 
 /*
@@ -2420,6 +2440,8 @@ static JNINativeMethod Player_methods[] = {
 
 	{"getUserInfo", "(I)Ljava/lang/String;", Java_xreal_server_game_Player_getUserInfo},
 	{"setUserInfo", "(ILjava/lang/String;)V", Java_xreal_server_game_Player_setUserInfo},
+
+	{"getUserCommand", "(I)Lxreal/UserCommand;", Java_xreal_server_game_Player_getUserCommand},
 
 	{"getPlayerState_commandTime", "(I)I", Java_xreal_server_game_Player_getPlayerState_1commandTime},
 	{"setPlayerState_commandTime", "(II)V", Java_xreal_server_game_Player_setPlayerState_1commandTime},

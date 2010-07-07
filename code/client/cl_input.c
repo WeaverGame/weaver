@@ -598,7 +598,11 @@ void CL_MouseEvent(int dx, int dy, int time)
 	}
 	else if(Key_GetCatcher() & KEYCATCH_CGAME)
 	{
+#if defined(USE_JAVA)
+		Java_CG_MouseEvent(dx, dy);
+#else
 		VM_Call(cgvm, CG_MOUSE_EVENT, dx, dy);
+#endif
 	}
 	else
 	{
@@ -1086,14 +1090,24 @@ void CL_WritePacket(void)
 
 			if(Q_stricmp(target, "attacker") == 0)
 			{
-				int             player = VM_Call(cgvm, CG_LAST_ATTACKER);
+				int             player;
+#if defined(USE_JAVA)
+				player = Java_CG_LastAttacker();
+#else
+				player = VM_Call(cgvm, CG_LAST_ATTACKER);
+#endif
 
 				Com_sprintf(buffer, sizeof(buffer), "%d", player);
 				target = buffer;
 			}
 			else if(Q_stricmp(target, "crosshair") == 0)
 			{
-				int             player = VM_Call(cgvm, CG_CROSSHAIR_PLAYER);
+				int             player;
+#if defined(USE_JAVA)
+				player = Java_CG_CrosshairPlayer();
+#else
+				player = VM_Call(cgvm, CG_CROSSHAIR_PLAYER);
+#endif
 
 				Com_sprintf(buffer, sizeof(buffer), "%d", player);
 				target = buffer;

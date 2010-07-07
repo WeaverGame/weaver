@@ -24,6 +24,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "client.h"
 
+#if !defined(USE_JAVA)
+
+vm_t           *cgvm;
+
 extern qboolean loadCamera(const char *name);
 extern void     startCamera(int time);
 extern qboolean getCameraInfo(int time, vec3_t * origin, vec3_t * angles);
@@ -1260,3 +1264,5 @@ void CL_SetCGameTime(void)
 	}
 
 }
+
+#endif // !defined(USE_JAVA)

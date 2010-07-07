@@ -3019,6 +3019,9 @@ static void ParseNormalMap(shaderStage_t * stage, char **text)
 	}
 	if(r_highQualityNormalMapping->integer)
 	{
+		stage->overrideFilterType = qtrue;
+		stage->filterType = FT_LINEAR;
+
 		stage->overrideNoPicMip = qtrue;
 	}
 
@@ -3069,6 +3072,7 @@ static void ParseReflectionMap(shaderStage_t * stage, char **text)
 	stage->active = qtrue;
 	stage->type = ST_REFLECTIONMAP;
 	stage->rgbGen = CGEN_IDENTITY;
+	stage->stateBits = GLS_DEFAULT;
 	stage->overrideWrapType = qtrue;
 	stage->wrapType = WT_EDGE_CLAMP;
 

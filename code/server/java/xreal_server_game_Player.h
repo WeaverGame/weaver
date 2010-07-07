@@ -33,6 +33,14 @@ JNIEXPORT void JNICALL Java_xreal_server_game_Player_setUserInfo
 
 /*
  * Class:     xreal_server_game_Player
+ * Method:    getUserCommand
+ * Signature: (I)Lxreal/UserCommand;
+ */
+JNIEXPORT jobject JNICALL Java_xreal_server_game_Player_getUserCommand
+  (JNIEnv *, jclass, jint);
+
+/*
+ * Class:     xreal_server_game_Player
  * Method:    getPlayerState_commandTime
  * Signature: (I)I
  */

@@ -131,7 +131,11 @@ Con_MessageMode3_f
 */
 void Con_MessageMode3_f(void)
 {
+#if defined(USE_JAVA)
+	chat_playerNum = Java_CG_CrosshairPlayer();
+#else
 	chat_playerNum = VM_Call(cgvm, CG_CROSSHAIR_PLAYER);
+#endif
 	if(chat_playerNum < 0 || chat_playerNum >= MAX_CLIENTS)
 	{
 		chat_playerNum = -1;
@@ -150,7 +154,11 @@ Con_MessageMode4_f
 */
 void Con_MessageMode4_f(void)
 {
+#if defined(USE_JAVA)
+	chat_playerNum = Java_CG_LastAttacker();
+#else
 	chat_playerNum = VM_Call(cgvm, CG_LAST_ATTACKER);
+#endif
 	if(chat_playerNum < 0 || chat_playerNum >= MAX_CLIENTS)
 	{
 		chat_playerNum = -1;

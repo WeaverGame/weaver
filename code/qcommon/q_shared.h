@@ -1925,8 +1925,8 @@ typedef struct
 	int             trTime;
 	int             trDuration;	// if non 0, trTime + trDuration = stop time
 	float           trAcceleration;	// gravity factor, etc
-	vec3_t          trBase;
-	vec3_t          trDelta;	// velocity, etc
+	vec4_t          trBase;		// Tr3B: changed from vec3_t to vec4_t to support quaternions
+	vec4_t          trDelta;	// velocity, etc - Tr3B: changed from vec3_t to vec4_t to support quaternions
 } trajectory_t;
 
 // entityState_t is the information conveyed from the server

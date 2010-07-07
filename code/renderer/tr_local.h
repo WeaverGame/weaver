@@ -3766,6 +3766,7 @@ extern cvar_t  *r_noMarksOnTrisurfs;
 extern cvar_t  *r_norefresh;	// bypasses the ref rendering
 extern cvar_t  *r_drawentities;	// disable/enable entity rendering
 extern cvar_t  *r_drawworld;	// disable/enable world rendering
+extern cvar_t  *r_drawpolies;	// disable/enable world rendering
 extern cvar_t  *r_speeds;		// various levels of information display
 extern cvar_t  *r_novis;		// disable/enable usage of PVS
 extern cvar_t  *r_nocull;

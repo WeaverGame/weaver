@@ -1321,7 +1321,11 @@ void CL_KeyDownEvent(int key, unsigned time)
 		if(Key_GetCatcher() & KEYCATCH_CGAME)
 		{
 			Key_SetCatcher(Key_GetCatcher() & ~KEYCATCH_CGAME);
+#if defined(USE_JAVA)
+			Java_CG_EventHandling(CGAME_EVENT_NONE);
+#else
 			VM_Call(cgvm, CG_EVENT_HANDLING, CGAME_EVENT_NONE);
+#endif
 			return;
 		}
 
@@ -1374,14 +1378,14 @@ void CL_KeyDownEvent(int key, unsigned time)
 	}
 	else if(Key_GetCatcher() & KEYCATCH_CGAME)
 	{
-//#if defined(USE_JAVA)
-//		// TODO Java_CG_KeyEvent(key, qtrue);
-//#else
+#if defined(USE_JAVA)
+		Java_CG_KeyEvent(key, qtrue);
+#else
 		if(cgvm)
 		{
 			VM_Call(cgvm, CG_KEY_EVENT, key, qtrue);
 		}
-//#endif
+#endif
 	}
 	else if(Key_GetCatcher() & KEYCATCH_MESSAGE)
 	{
@@ -1442,10 +1446,14 @@ void CL_KeyUpEvent(int key, unsigned time)
 	}
 	else if(Key_GetCatcher() & KEYCATCH_CGAME)
 	{
+#if defined(USE_JAVA)
+		Java_CG_KeyEvent(key, qfalse);
+#else
 		if(cgvm)
 		{
 			VM_Call(cgvm, CG_KEY_EVENT, key, qfalse);
 		}
+#endif
 	}
 }
 

@@ -30,6 +30,14 @@ opts.Add(BoolVariable('master', 'Set to 1 to compile the master server', 0))
 env = Environment(ENV = {'PATH' : os.environ['PATH']}, options = opts, tools = ['default'])
 #env = Environment(ENV = {'PATH' : os.environ['PATH']}, options = opts, tools = ['mingw'])
 
+#
+# set user-defined compiler if need be
+#
+if os.environ.has_key('CC'):
+	env['CC'] = os.environ['CC']
+if os.environ.has_key('CXX'):
+	env['CXX'] = os.environ['CXX']
+
 Help(opts.GenerateHelpText(env))
 
 #

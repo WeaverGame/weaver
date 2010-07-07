@@ -17,6 +17,30 @@ JNIEXPORT jstring JNICALL Java_xreal_client_Client_getConfigString
 
 /*
  * Class:     xreal_client_Client
+ * Method:    getCurrentSnapshotNumber
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_xreal_client_Client_getCurrentSnapshotNumber
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     xreal_client_Client
+ * Method:    getCurrentSnapshotTime
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_xreal_client_Client_getCurrentSnapshotTime
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     xreal_client_Client
+ * Method:    getSnapshot
+ * Signature: (I)Lxreal/client/Snapshot;
+ */
+JNIEXPORT jobject JNICALL Java_xreal_client_Client_getSnapshot
+  (JNIEnv *, jclass, jint);
+
+/*
+ * Class:     xreal_client_Client
  * Method:    getKeyCatchers
  * Signature: ()I
  */
@@ -62,6 +86,30 @@ JNIEXPORT jboolean JNICALL Java_xreal_client_Client_isKeyDown
  */
 JNIEXPORT void JNICALL Java_xreal_client_Client_clearKeyStates
   (JNIEnv *, jclass);
+
+/*
+ * Class:     xreal_client_Client
+ * Method:    getCurrentCommandNumber
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_xreal_client_Client_getCurrentCommandNumber
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     xreal_client_Client
+ * Method:    getOldestCommandNumber
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_xreal_client_Client_getOldestCommandNumber
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     xreal_client_Client
+ * Method:    getUserCommand
+ * Signature: (I)Lxreal/UserCommand;
+ */
+JNIEXPORT jobject JNICALL Java_xreal_client_Client_getUserCommand
+  (JNIEnv *, jclass, jint);
 
 /*
  * Class:     xreal_client_Client

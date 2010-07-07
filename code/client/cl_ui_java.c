@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2006-2009 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2009-2010 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -683,7 +683,421 @@ static void CL_GetClipboardData(char *buf, int buflen)
 
 
 
+// ====================================================================================
 
+
+static jclass class_EntityState = NULL;
+static jmethodID method_EntityState_ctor = NULL;
+
+static jclass class_PlayerState = NULL;
+static jmethodID method_PlayerState_ctor = NULL;
+
+static jclass   class_Snapshot = NULL;
+static jmethodID method_Snapshot_ctor = NULL;
+
+void Snapshot_javaRegister()
+{
+	class_EntityState = (*javaEnv)->FindClass(javaEnv, "xreal/client/EntityState");
+	if(CheckException() || !class_EntityState)
+	{
+		Com_Error(ERR_FATAL, "Couldn't find xreal.client.EntityState");
+	}
+
+	/*
+		EntityState(int number, int eType, int eFlags,
+			Trajectory pos, Trajectory apos,
+			int time, int time2,
+			Vector3f origin, Vector3f origin2,
+			Angle3f angles, Angle3f angles2,
+			int otherEntityNum, int otherEntityNum2, int groundEntityNum,
+			int constantLight, int loopSound, int modelindex, int modelindex2,
+			int clientNum, int frame, int solid, int event, int eventParm,
+			int powerups, int weapon, int legsAnim, int torsoAnim, int generic1) {
+	 */
+
+
+	method_EntityState_ctor = (*javaEnv)->GetMethodID(javaEnv, class_EntityState, "<init>",
+			"(III"
+			"Lxreal/Trajectory;Lxreal/Trajectory;"
+			"II"
+			"Ljavax/vecmath/Vector3f;Ljavax/vecmath/Vector3f;"
+			"Lxreal/Angle3f;Lxreal/Angle3f;"
+			"III"
+			"IIII"
+			"IIIII"
+			"IIIII"
+			")V");
+
+	if(CheckException())
+	{
+		Com_Error(ERR_FATAL, "Couldn't find constructor of xreal.client.EntityState");
+	}
+
+
+
+	class_PlayerState = (*javaEnv)->FindClass(javaEnv, "xreal/client/PlayerState");
+	if(CheckException() || !class_PlayerState)
+	{
+		Com_Error(ERR_FATAL, "Couldn't find xreal.client.PlayerState");
+	}
+
+	/*
+	 public PlayerState(int commandTime, int pmType, int pmFlags, int pmTime,
+			int bobCycle, Vector3f origin, Vector3f velocity, int weaponTime,
+			int gravity, int speed, int deltaPitch, int deltaYaw,
+			int deltaRoll, int groundEntityNum, int legsTimer, int legsAnim,
+			int torsoTimer, int torsoAnim, int movementDir,
+			Vector3f grapplePoint, int eFlags, int eventSequence, int[] events,
+			int[] eventParms, int externalEvent, int externalEventParm,
+			int externalEventTime, int clientNum, int weapon, int weaponState,
+			Angle3f viewAngles, int viewHeight, int damageEvent, int damageYaw,
+			int damagePitch, int damageCount, int[] stats, int[] persistant,
+			int[] powerups, int[] ammo, int generic1, int loopSound,
+			int jumppadEnt, int ping, int pmoveFramecount, int jumppadFrame,
+			int entityEventSequence) {
+	 */
+	method_PlayerState_ctor = (*javaEnv)->GetMethodID(javaEnv, class_PlayerState, "<init>",
+			"(IIII"
+			"ILjavax/vecmath/Vector3f;Ljavax/vecmath/Vector3f;I"
+			"IIII"
+			"IIII"
+			"III"
+			"Ljavax/vecmath/Vector3f;II[I"
+			"[III"
+			"IIII"
+			"Lxreal/Angle3f;III"
+			"II[I[I"
+			"[I[III"
+			"IIII"
+			"I"
+			")V");
+
+	if(CheckException())
+	{
+		Com_Error(ERR_FATAL, "Couldn't find constructor of xreal.client.PlayerState");
+	}
+
+
+
+	class_Snapshot = (*javaEnv)->FindClass(javaEnv, "xreal/client/Snapshot");
+	if(CheckException() || !class_Snapshot)
+	{
+		Com_Error(ERR_FATAL, "Couldn't find xreal.client.Snapshot");
+	}
+
+	/*
+	public Snapshot(int snapFlags, int ping, int serverTime,
+					byte areamask[], PlayerState ps, EntityState[] entities,
+					int numServerCommands, int serverCommandSequence)
+	 */
+	method_Snapshot_ctor = (*javaEnv)->GetMethodID(javaEnv, class_Snapshot, "<init>",
+			"(III"
+			"[BLxreal/client/PlayerState;[Lxreal/client/EntityState;"
+			"I"
+			")V");
+
+	if(CheckException())
+	{
+		Com_Error(ERR_FATAL, "Couldn't find constructor of xreal.client.Snapshot");
+	}
+}
+
+void Snapshot_javaDetach()
+{
+	if(class_EntityState)
+	{
+		(*javaEnv)->DeleteLocalRef(javaEnv, class_EntityState);
+		class_EntityState = NULL;
+	}
+
+	if(class_PlayerState)
+	{
+		(*javaEnv)->DeleteLocalRef(javaEnv, class_PlayerState);
+		class_PlayerState = NULL;
+	}
+
+	if(class_Snapshot)
+	{
+		(*javaEnv)->DeleteLocalRef(javaEnv, class_Snapshot);
+		class_Snapshot = NULL;
+	}
+}
+
+static jobject Java_NewEntityState(const entityState_t * ent)
+{
+	jobject obj = NULL;
+
+	if(class_PlayerState)
+	{
+		/*
+		public EntityState(int number, int eType, int eFlags,
+			Trajectory pos, Trajectory apos,
+			int time, int time2,
+			Vector3f origin, Vector3f origin2,
+			Angle3f angles, Angle3f angles2,
+			int otherEntityNum, int otherEntityNum2, int groundEntityNum,
+			int constantLight, int loopSound, int modelindex, int modelindex2,
+			int clientNum, int frame, int solid, int event, int eventParm,
+			int powerups, int weapon, int legsAnim, int torsoAnim, int generic1) {
+		*/
+		obj = (*javaEnv)->NewObject(javaEnv, class_EntityState, method_EntityState_ctor,
+				ent->number,
+
+				ent->eType,
+				ent->eFlags,
+
+				Java_NewTrajectory(&ent->pos),
+				Java_NewTrajectory(&ent->apos),
+
+				ent->time,
+				ent->time2,
+
+				Java_NewVector3f(ent->origin),
+				Java_NewVector3f(ent->origin2),
+
+				Java_NewAngle3f(ent->angles[PITCH], ent->angles[YAW], ent->angles[ROLL]),
+				Java_NewAngle3f(ent->angles2[PITCH], ent->angles2[YAW], ent->angles2[ROLL]),
+
+				ent->otherEntityNum,
+				ent->otherEntityNum2,
+				ent->groundEntityNum,
+
+				ent->constantLight,
+				ent->loopSound,
+
+				ent->modelindex,
+				ent->modelindex2,
+
+				ent->clientNum,
+				ent->frame,
+				ent->solid,
+
+				ent->event,
+				ent->eventParm,
+
+				ent->powerups,
+				ent->weapon,
+
+				ent->legsAnim,
+				ent->torsoAnim,
+
+				ent->generic1);
+	}
+
+	return obj;
+}
+
+static jobject Java_NewPlayerState(const playerState_t * ps)
+{
+	jobject obj = NULL;
+
+	if(class_PlayerState)
+	{
+		jintArray eventsArray;
+		jintArray eventParmsArray;
+
+		jintArray statsArray;
+		jintArray persistantArray;
+		jintArray powerupsArray;
+		jintArray ammoArray;
+
+		// build arrays
+		eventsArray = (*javaEnv)->NewIntArray(javaEnv, MAX_PS_EVENTS);
+		(*javaEnv)->SetIntArrayRegion(javaEnv, eventsArray, 0, MAX_PS_EVENTS, ps->events);
+
+		eventParmsArray = (*javaEnv)->NewIntArray(javaEnv, MAX_PS_EVENTS);
+		(*javaEnv)->SetIntArrayRegion(javaEnv, eventParmsArray, 0, MAX_PS_EVENTS, ps->eventParms);
+
+
+		statsArray = (*javaEnv)->NewIntArray(javaEnv, MAX_STATS);
+		(*javaEnv)->SetIntArrayRegion(javaEnv, statsArray, 0, MAX_STATS, ps->stats);
+
+		persistantArray = (*javaEnv)->NewIntArray(javaEnv, MAX_PERSISTANT);
+		(*javaEnv)->SetIntArrayRegion(javaEnv, persistantArray, 0, MAX_PERSISTANT, ps->persistant);
+
+		powerupsArray = (*javaEnv)->NewIntArray(javaEnv, MAX_POWERUPS);
+		(*javaEnv)->SetIntArrayRegion(javaEnv, powerupsArray, 0, MAX_POWERUPS, ps->powerups);
+
+		ammoArray = (*javaEnv)->NewIntArray(javaEnv, MAX_WEAPONS);
+		(*javaEnv)->SetIntArrayRegion(javaEnv, ammoArray, 0, MAX_WEAPONS, ps->ammo);
+
+
+		/*
+		public PlayerState(int commandTime, int pmType, int pmFlags, int pmTime,
+			int bobCycle, Vector3f origin, Vector3f velocity, int weaponTime,
+			int gravity, int speed, int deltaPitch, int deltaYaw,
+			int deltaRoll, int groundEntityNum, int legsTimer, int legsAnim,
+			int torsoTimer, int torsoAnim, int movementDir,
+			Vector3f grapplePoint, int eFlags, int eventSequence, int[] events,
+			int[] eventParms, int externalEvent, int externalEventParm,
+			int externalEventTime, int clientNum, int weapon, int weaponState,
+			Angle3f viewAngles, int viewHeight, int damageEvent, int damageYaw,
+			int damagePitch, int damageCount, int[] stats, int[] persistant,
+			int[] powerups, int[] ammo, int generic1, int loopSound,
+			int jumppadEnt, int ping, int pmoveFramecount, int jumppadFrame,
+			int entityEventSequence)
+		*/
+		obj = (*javaEnv)->NewObject(javaEnv, class_PlayerState, method_PlayerState_ctor,
+				ps->commandTime,
+
+				ps->pm_type,
+				ps->pm_flags,
+				ps->pm_time,
+
+				ps->bobCycle,
+
+				Java_NewVector3f(ps->origin),
+				Java_NewVector3f(ps->velocity),
+
+				ps->weaponTime,
+				ps->gravity,
+				ps->speed,
+
+				ps->delta_angles[PITCH],
+				ps->delta_angles[YAW],
+				ps->delta_angles[ROLL],
+
+				ps->groundEntityNum,
+
+				ps->legsTimer,
+				ps->legsAnim,
+				ps->torsoTimer,
+				ps->torsoAnim,
+
+				ps->movementDir,
+
+				Java_NewVector3f(ps->grapplePoint),
+
+				ps->eFlags,
+
+				ps->eventSequence,
+				eventsArray,
+				eventParmsArray,
+
+				ps->externalEvent,
+				ps->externalEventParm,
+				ps->externalEventTime,
+
+				ps->clientNum,
+				ps->weapon,
+				ps->weaponstate,
+
+				Java_NewAngle3f(ps->viewangles[PITCH], ps->viewangles[YAW], ps->viewangles[ROLL]),
+				ps->viewheight,
+
+				ps->damageEvent,
+				ps->damageYaw,
+				ps->damagePitch,
+				ps->damageCount,
+
+				statsArray,
+				persistantArray,
+				powerupsArray,
+				ammoArray,
+
+				ps->generic1,
+				ps->loopSound,
+				ps->jumppad_ent,
+				ps->ping,
+
+				ps->pmove_framecount,
+				ps->jumppad_frame,
+
+				ps->entityEventSequence);
+
+		(*javaEnv)->DeleteLocalRef(javaEnv, eventsArray);
+
+		CheckException();
+	}
+
+	return obj;
+}
+
+static jobject Java_NewSnapshot(const clSnapshot_t * clSnap)
+{
+	jobject obj = NULL;
+
+	/*
+	 snapshot->snapFlags = clSnap->snapFlags;
+	snapshot->serverCommandSequence = clSnap->serverCommandNum;
+	snapshot->ping = clSnap->ping;
+	snapshot->serverTime = clSnap->serverTime;
+	Com_Memcpy(snapshot->areamask, clSnap->areamask, sizeof(snapshot->areamask));
+	snapshot->ps = clSnap->ps;
+	count = clSnap->numEntities;
+	if(count > MAX_ENTITIES_IN_SNAPSHOT)
+	{
+		Com_DPrintf("CL_GetSnapshot: truncated %i entities to %i\n", count, MAX_ENTITIES_IN_SNAPSHOT);
+		count = MAX_ENTITIES_IN_SNAPSHOT;
+	}
+	snapshot->numEntities = count;
+	for(i = 0; i < count; i++)
+	{
+		snapshot->entities[i] = cl.parseEntities[(clSnap->parseEntitiesNum + i) & (MAX_PARSE_ENTITIES - 1)];
+	}
+
+	// FIXME: configstring changes and server commands!!!
+	 */
+
+	if(class_Snapshot && class_PlayerState && class_EntityState)
+	{
+		int				i, count;
+		jobjectArray 	entitiesArray;
+		jbyteArray		areamaskArray;
+		jobject			playerState;
+
+		// build EntityState[] entities
+		count = clSnap->numEntities;
+		if(count > MAX_ENTITIES_IN_SNAPSHOT)
+		{
+			Com_DPrintf("Java_NewSnapshot: truncated %i entities to %i\n", count, MAX_ENTITIES_IN_SNAPSHOT);
+			count = MAX_ENTITIES_IN_SNAPSHOT;
+		}
+
+		entitiesArray = (*javaEnv)->NewObjectArray(javaEnv, count, class_EntityState, NULL);
+
+		for(i = 0; i < count; i++) {
+
+			jobject			javaEntityState;
+			entityState_t*	entityState;
+
+			entityState = &cl.parseEntities[(clSnap->parseEntitiesNum + i) & (MAX_PARSE_ENTITIES - 1)];
+
+			javaEntityState = Java_NewEntityState(entityState);
+
+			(*javaEnv)->SetObjectArrayElement(javaEnv, entitiesArray, i, javaEntityState);
+		}
+
+		// build byte[] areamask
+		areamaskArray = (*javaEnv)->NewByteArray(javaEnv, sizeof(clSnap->areamask));
+		(*javaEnv)->SetByteArrayRegion(javaEnv, areamaskArray, 0, sizeof(clSnap->areamask), clSnap->areamask);
+
+		// build player state
+		playerState = Java_NewPlayerState(&clSnap->ps);
+
+		/*
+		public Snapshot(int snapFlags, int ping, int serverTime,
+					byte areamask[], PlayerState ps, EntityState[] entities,
+					int serverCommandSequence)
+		*/
+		obj = (*javaEnv)->NewObject(javaEnv, class_Snapshot, method_Snapshot_ctor,
+				clSnap->snapFlags,
+				clSnap->ping,
+				clSnap->serverTime,
+				areamaskArray,
+				playerState,
+				entitiesArray,
+				clSnap->serverCommandNum);
+
+		(*javaEnv)->DeleteLocalRef(javaEnv, entitiesArray);
+		(*javaEnv)->DeleteLocalRef(javaEnv, areamaskArray);
+		(*javaEnv)->DeleteLocalRef(javaEnv, playerState);
+
+		CheckException();
+	}
+
+	return obj;
+}
 
 // ====================================================================================
 
@@ -709,6 +1123,65 @@ jstring JNICALL Java_xreal_client_Client_getConfigString(JNIEnv *env, jclass cls
 	Q_strncpyz(buf, cl.gameState.stringData + offset, sizeof(buf));
 
 	return (*env)->NewStringUTF(env, buf);
+}
+
+/*
+ * Class:     xreal_client_Client
+ * Method:    getCurrentSnapshotNumber
+ * Signature: ()I
+ */
+jint JNICALL Java_xreal_client_Client_getCurrentSnapshotNumber(JNIEnv *env, jclass cls)
+{
+	return cl.snap.messageNum;
+}
+
+/*
+ * Class:     xreal_client_Client
+ * Method:    getCurrentSnapshotTime
+ * Signature: ()I
+ */
+jint JNICALL Java_xreal_client_Client_getCurrentSnapshotTime(JNIEnv *env, jclass cls)
+{
+	return cl.snap.serverTime;
+}
+
+/*
+ * Class:     xreal_client_Client
+ * Method:    getSnapshot
+ * Signature: (I)Lxreal/client/game/Snapshot;
+ */
+jobject JNICALL Java_xreal_client_Client_getSnapshot(JNIEnv *env, jclass cls, jint snapshotNumber)
+{
+	clSnapshot_t   *clSnap;
+	int             i, count;
+
+	if(snapshotNumber > cl.snap.messageNum)
+	{
+		Com_Error(ERR_DROP, "CL_GetSnapshot: snapshotNumber > cl.snapshot.messageNum");
+	}
+
+	// if the frame has fallen out of the circular buffer, we can't return it
+	if(cl.snap.messageNum - snapshotNumber >= PACKET_BACKUP)
+	{
+		return NULL;
+	}
+
+	// if the frame is not valid, we can't return it
+	clSnap = &cl.snapshots[snapshotNumber & PACKET_MASK];
+	if(!clSnap->valid)
+	{
+		return NULL;
+	}
+
+	// if the entities in the frame have fallen out of their
+	// circular buffer, we can't return it
+	if(cl.parseEntitiesNum - clSnap->parseEntitiesNum >= MAX_PARSE_ENTITIES)
+	{
+		return NULL;
+	}
+
+	// write the snapshot
+	return Java_NewSnapshot(clSnap);
 }
 
 /*
@@ -785,6 +1258,54 @@ void JNICALL Java_xreal_client_Client_clearKeyStates(JNIEnv *env, jclass cls)
 {
 	Key_ClearStates();
 }
+
+
+/*
+ * Class:     xreal_client_Client
+ * Method:    getCurrentCommandNumber
+ * Signature: ()I
+ */
+jint JNICALL Java_xreal_client_Client_getCurrentCommandNumber(JNIEnv *env, jclass cls)
+{
+	return cl.cmdNumber;
+}
+
+/*
+ * Class:     xreal_client_Client
+ * Method:    getOldestCommandNumber
+ * Signature: ()I
+ */
+jint JNICALL Java_xreal_client_Client_getOldestCommandNumber(JNIEnv *env, jclass cls)
+{
+	return (cl.cmdNumber - CMD_BACKUP + 1);
+}
+
+/*
+ * Class:     xreal_client_Client
+ * Method:    getUserCommand
+ * Signature: (I)Lxreal/UserCommand;
+ */
+jobject JNICALL Java_xreal_client_Client_getUserCommand(JNIEnv *env, jclass cls, jint cmdNumber)
+{
+	// cmds[cmdNumber] is the last properly generated command
+
+	// can't return anything that we haven't created yet
+	if(cmdNumber > cl.cmdNumber)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_client_Client_getUserCommand: %i >= %i", cmdNumber, cl.cmdNumber);
+	}
+
+	// the usercmd has been overwritten in the wrapping
+	// buffer because it is too far out of date
+	if(cmdNumber <= cl.cmdNumber - CMD_BACKUP)
+	{
+		return qfalse;
+	}
+
+	return Java_NewUserCommand(&cl.cmds[cmdNumber & CMD_MASK]);
+}
+
+
 
 /*
  * Class:     xreal_client_Client
@@ -953,12 +1474,20 @@ static jclass   class_Client = NULL;
 static JNINativeMethod Client_methods[] = {
 	{"getConfigString", "(I)Ljava/lang/String;", Java_xreal_client_Client_getConfigString},
 
+	{"getCurrentSnapshotNumber", "()I", Java_xreal_client_Client_getCurrentSnapshotNumber},
+	{"getCurrentSnapshotTime", "()I", Java_xreal_client_Client_getCurrentSnapshotTime},
+	{"getSnapshot", "(I)Lxreal/client/Snapshot;", Java_xreal_client_Client_getSnapshot},
+
 	{"getKeyCatchers", "()I", Java_xreal_client_Client_getKeyCatchers},
 	{"setKeyCatchers", "(I)V", Java_xreal_client_Client_setKeyCatchers},
 	{"getKeyBinding", "(I)Ljava/lang/String;", Java_xreal_client_Client_getKeyBinding},
 	{"setKeyBinding", "(ILjava/lang/String;)V", Java_xreal_client_Client_setKeyBinding},
 	{"isKeyDown", "(I)Z", Java_xreal_client_Client_isKeyDown},
 	{"clearKeyStates", "()V", Java_xreal_client_Client_clearKeyStates},
+
+	{"getCurrentCommandNumber", "()I", Java_xreal_client_Client_getCurrentCommandNumber},
+	{"getOldestCommandNumber", "()I", Java_xreal_client_Client_getOldestCommandNumber},
+	{"getUserCommand", "(I)Lxreal/UserCommand;", Java_xreal_client_Client_getUserCommand},
 
 	{"registerSound", "(Ljava/lang/String;)I", Java_xreal_client_Client_registerSound},
 	{"startSound", "(FFFIII)V", Java_xreal_client_Client_startSound},
@@ -1029,7 +1558,10 @@ void Font_javaRegister()
 				String materialName) {
 	 */
 
-	method_Glyph_ctor = (*javaEnv)->GetMethodID(javaEnv, class_Glyph, "<init>", "(IIIIIIIFFFFILjava/lang/String;)V");
+	method_Glyph_ctor = (*javaEnv)->GetMethodID(javaEnv, class_Glyph, "<init>",
+			"("
+			"IIIIIIIFFFFILjava/lang/String;"
+			")V");
 	if(CheckException())
 	{
 		Com_Error(ERR_FATAL, "Couldn't find constructor of xreal.client.renderer.Glyph");
@@ -1298,6 +1830,430 @@ jint JNICALL Java_xreal_client_renderer_Renderer_registerSkin(JNIEnv *env, jclas
 	return handle;
 }
 
+/*
+ * Class:     xreal_client_renderer_Renderer
+ * Method:    loadWorldBsp
+ * Signature: (Ljava/lang/String;)V
+ */
+void JNICALL Java_xreal_client_renderer_Renderer_loadWorldBsp(JNIEnv *env, jclass cls, jstring jname)
+{
+	char           *name;
+
+	name = (char *)((*env)->GetStringUTFChars(env, jname, 0));
+
+	re.LoadWorld(name);
+
+	(*env)->ReleaseStringUTFChars(env, jname, name);
+}
+
+/*
+ * Class:     xreal_client_renderer_Renderer
+ * Method:    clearScene
+ * Signature: ()V
+ */
+void JNICALL Java_xreal_client_renderer_Renderer_clearScene(JNIEnv *env, jclass cls)
+{
+	re.ClearScene();
+}
+
+static refEntity_t		refEntity;
+
+/*
+ * Class:     xreal_client_renderer_Renderer
+ * Method:    addRefEntityToScene
+ * Signature: (IIIFFFFFFFFFFFFFFIFFFIFIIIFFFFFFFFFIZ)V
+ */
+// *INDENT-OFF*
+void JNICALL Java_xreal_client_renderer_Renderer_addRefEntityToScene(JNIEnv *env, jclass cls, jint reType, jint renderfx, jint hModel,
+			jfloat posX, jfloat posY, jfloat posZ,
+			jfloat quatX, jfloat quatY, jfloat quatZ, jfloat quatW,
+			jfloat scaleX, jfloat scaleY, jfloat scaleZ,
+			jfloat lightPosX, jfloat lightPosY, jfloat lightPosZ,
+			jfloat shadowPlane,
+			jint frame,
+			jfloat oldPosX, jfloat oldPosY, jfloat oldPosZ,
+			jint oldFrame,
+			jfloat lerp,
+			jint skinNum, jint customSkin, jint customMaterial,
+			jfloat materialRed, jfloat materialGreen, jfloat materialBlue, jfloat materialAlpha,
+			jfloat materialTexCoordU, jfloat materialTexCoordV,
+			jfloat materialTime,
+			jfloat radius, jfloat rotation,
+			jint noShadowID,
+			jboolean useSkeleton)
+{
+	quat_t			quat;
+
+	refEntity.reType = reType;
+	refEntity.renderfx = renderfx;
+	refEntity.hModel = hModel;
+
+	// most recrefEntity data
+	VectorSet(refEntity.origin, posX, posY, posZ);
+
+	QuatSet(quat, quatX, quatY, quatZ, quatW);
+	QuatToAxis(quat, refEntity.axis);
+
+	if(scaleX != 1 || scaleY != 1 || scaleZ != 1)
+	{
+		VectorScale(refEntity.axis[0], scaleX, refEntity.axis[0]);
+		VectorScale(refEntity.axis[1], scaleY, refEntity.axis[1]);
+		VectorScale(refEntity.axis[2], scaleZ, refEntity.axis[2]);
+
+		refEntity.nonNormalizedAxes = qtrue;
+	}
+	else
+	{
+		refEntity.nonNormalizedAxes = qfalse;
+	}
+
+	VectorSet(refEntity.lightingOrigin, lightPosX, lightPosY, lightPosZ);
+	refEntity.shadowPlane = shadowPlane;
+
+	refEntity.frame = frame;
+
+	// previous data for frame interpolation
+	VectorSet(refEntity.oldorigin, oldPosX, oldPosY, oldPosZ);
+	refEntity.oldframe = oldFrame;
+	refEntity.backlerp = 1.0 - lerp;
+
+	// texturing
+	refEntity.skinNum = skinNum;
+	refEntity.customSkin = customSkin;
+	refEntity.customShader = customMaterial;
+
+	// misc
+	refEntity.shaderRGBA[0] = (byte) (materialRed * 255);
+	refEntity.shaderRGBA[1] = (byte) (materialGreen * 255);
+	refEntity.shaderRGBA[2] = (byte) (materialBlue * 255);
+	refEntity.shaderRGBA[3] = (byte) (materialAlpha * 255);
+
+	refEntity.shaderTexCoord[0] = materialTexCoordU;
+	refEntity.shaderTexCoord[1] = materialTexCoordV;
+
+	refEntity.shaderTime = materialTime;
+
+	// extra sprite information
+	refEntity.radius = radius;
+	refEntity.rotation = rotation;
+
+	// extra light interaction information
+	refEntity.noShadowID = noShadowID;
+
+	if(useSkeleton == qfalse)
+	{
+		refEntity.skeleton.type = SK_INVALID;
+	}
+
+	re.AddRefEntityToScene(&refEntity);
+
+}
+// *INDENT-ON*
+
+/*
+ * Class:     xreal_client_renderer_Renderer
+ * Method:    setRefEntityBone
+ * Signature: (ILjava/lang/String;IFFFFFFF)V
+ */
+// *INDENT-OFF*
+void JNICALL Java_xreal_client_renderer_Renderer_setRefEntityBone(	JNIEnv *env, jclass cls,
+																	jint boneIndex, jstring jname, jint parentIndex,
+																	jfloat posX, jfloat posY, jfloat posZ,
+																	jfloat quatX, jfloat quatY, jfloat quatZ, jfloat quatW)
+{
+	refBone_t*		bone;
+
+#if defined(REFBONE_NAMES)
+	char           *name;
+#endif
+
+	if(boneIndex < 0 || boneIndex >= MAX_BONES)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_client_renderer_Renderer_setRefEntityBone: bad bone index %i\n", boneIndex);
+	}
+
+	bone = &refEntity.skeleton.bones[boneIndex];
+
+#if defined(REFBONE_NAMES)
+	name = (char *)((*env)->GetStringUTFChars(env, jname, 0));
+
+	Q_strncpyz(bone->name, name, sizeof(bone->name));
+
+	(*env)->ReleaseStringUTFChars(env, jname, name);
+#endif
+
+	bone->parentIndex = parentIndex;
+
+	VectorSet(bone->origin, posX, posY, posZ);
+	QuatSet(bone->rotation, quatX, quatY, quatZ, quatW);
+}
+
+/*
+ * Class:     xreal_client_renderer_Renderer
+ * Method:    setRefEntitySkeleton
+ * Signature: (IIFFFFFFFFF)V
+ */
+void JNICALL Java_xreal_client_renderer_Renderer_setRefEntitySkeleton(JNIEnv *env, jclass cls,
+																	jint type,
+																	jint numBones,
+																	jfloat minX, jfloat minY, jfloat minZ,
+																	jfloat maxX, jfloat maxY, jfloat maxZ,
+																	jfloat scaleX, jfloat scaleY, jfloat scaleZ)
+{
+	refEntity.skeleton.type = type;
+	refEntity.skeleton.numBones = numBones;
+
+	VectorSet(refEntity.skeleton.bounds[0], minX, minY, minZ);
+	VectorSet(refEntity.skeleton.bounds[1], maxX, maxY, maxZ);
+
+	VectorSet(refEntity.skeleton.scale, scaleX, scaleY, scaleZ);
+}
+
+
+
+
+// ====================================================================================
+
+static jclass class_RefBone = NULL;
+static jmethodID method_RefBone_ctor = NULL;
+
+static jclass   class_RefSkeleton = NULL;
+static jmethodID method_RefSkeleton_ctor = NULL;
+
+
+static void RefSkeleton_javaRegister()
+{
+	class_RefBone = (*javaEnv)->FindClass(javaEnv, "xreal/client/renderer/RefBone");
+	if(CheckException() || !class_RefBone)
+	{
+		Com_Error(ERR_FATAL, "Couldn't find xreal.client.renderer.RefBone");
+	}
+
+
+	// public RefBone(String name, int parentIndex, Vector3f origin, Quat4f rotation)
+
+	method_RefBone_ctor = (*javaEnv)->GetMethodID(javaEnv, class_RefBone, "<init>", "(Ljava/lang/String;ILjavax/vecmath/Vector3f;Ljavax/vecmath/Quat4f;)V");
+	if(CheckException())
+	{
+		Com_Error(ERR_FATAL, "Couldn't find constructor of xreal.client.renderer.RefBone");
+	}
+
+
+	class_RefSkeleton = (*javaEnv)->FindClass(javaEnv, "xreal/client/renderer/RefSkeleton");
+	if(CheckException() || !class_RefSkeleton)
+	{
+		Com_Error(ERR_FATAL, "Couldn't find xreal.client.renderer.RefSkeleton");
+	}
+
+	// public RefSkeleton(int type, RefBone[] bones, Vector3f mins, Vector3f maxs)
+
+	method_RefSkeleton_ctor = (*javaEnv)->GetMethodID(javaEnv, class_RefSkeleton, "<init>", "(I[Lxreal/client/renderer/RefBone;Ljavax/vecmath/Vector3f;Ljavax/vecmath/Vector3f;)V");
+
+	if(CheckException())
+	{
+		Com_Error(ERR_FATAL, "Couldn't find constructor of xreal.client.renderer.RefSkeleton");
+	}
+}
+
+void RefSkeleton_javaDetach()
+{
+	if(class_RefBone)
+	{
+		(*javaEnv)->DeleteLocalRef(javaEnv, class_RefBone);
+		class_RefBone = NULL;
+	}
+
+	if(class_RefSkeleton)
+	{
+		(*javaEnv)->DeleteLocalRef(javaEnv, class_RefSkeleton);
+		class_RefSkeleton = NULL;
+	}
+}
+
+jobject Java_NewRefBone(const refBone_t * bone)
+{
+	jobject obj = NULL;
+
+	if(class_RefBone)
+	{
+		jstring name = (*javaEnv)->NewStringUTF(javaEnv, bone->name);
+
+		// public RefBone(String name, int parentIndex, Vector3f origin, Quat4f rotation) {
+		obj = (*javaEnv)->NewObject(javaEnv, class_RefBone, method_RefBone_ctor,
+				name,
+				bone->parentIndex,
+				Java_NewVector3f(bone->origin),
+				Java_NewQuat4f(bone->rotation));
+	}
+
+	return obj;
+}
+
+jobject Java_NewRefSkeleton(const refSkeleton_t * skel)
+{
+	jobject obj = NULL;
+
+	if(class_RefSkeleton && class_RefBone)
+	{
+		int i;
+		jobjectArray bonesArray;
+
+		bonesArray = (*javaEnv)->NewObjectArray(javaEnv, skel->numBones, class_RefBone, NULL);
+
+		for(i = 0; i < skel->numBones; i++) {
+			jobject bone = Java_NewRefBone(&skel->bones[i]);
+
+			(*javaEnv)->SetObjectArrayElement(javaEnv, bonesArray, i, bone);
+		}
+
+		/*
+		public RefSkeleton(int type, RefBone[] bones, Vector3f mins, Vector3f maxs)
+		*/
+		obj = (*javaEnv)->NewObject(javaEnv, class_RefSkeleton, method_RefSkeleton_ctor,
+				skel->type,
+				bonesArray,
+				Java_NewVector3f(skel->bounds[0]),
+				Java_NewVector3f(skel->bounds[1]));
+
+		(*javaEnv)->DeleteLocalRef(javaEnv, bonesArray);
+
+		CheckException();
+	}
+
+	return obj;
+}
+
+// ====================================================================================
+
+
+/*
+ * Class:     xreal_client_renderer_Renderer
+ * Method:    buildSkeleton
+ * Signature: (IIIFZ)Lxreal/client/renderer/RefSkeleton;
+ */
+jobject JNICALL Java_xreal_client_renderer_Renderer_buildSkeleton(JNIEnv *env, jclass cls, jint hAnim, jint startFrame, jint endFrame, jfloat frac, jboolean clearOrigin)
+{
+	refSkeleton_t   skeleton;
+
+	re.BuildSkeleton(&skeleton, hAnim, startFrame, endFrame, frac, clearOrigin);
+
+	return Java_NewRefSkeleton(&skeleton);
+}
+
+static refEntity_t		refEntity;
+
+static int				s_maxPolyVerts;
+static poly_t			s_poly;
+
+/*
+ * Class:     xreal_client_renderer_Renderer
+ * Method:    addPolygonToSceneBegin
+ * Signature: (II)V
+ */
+void JNICALL Java_xreal_client_renderer_Renderer_addPolygonToSceneBegin(JNIEnv *env, jclass cls, jint hMaterial, jint numVertices)
+{
+	if(hMaterial <= 0)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_client_renderer_Renderer_addPolygonToSceneBegin: null hMaterial\n");
+	}
+
+	s_poly.numVerts = 0;
+	s_poly.hShader = hMaterial;
+}
+
+/*
+ * Class:     xreal_client_renderer_Renderer
+ * Method:    addPolygonVertexToScene
+ * Signature: (FFFFFFFFF)V
+ */
+void JNICALL Java_xreal_client_renderer_Renderer_addPolygonVertexToScene(JNIEnv *env, jclass cls,
+																					jfloat posX, jfloat posY, jfloat posZ,
+																					jfloat texCoordU, jfloat texCoordV,
+																					jfloat red, jfloat green, jfloat blue, jfloat alpha)
+{
+	polyVert_t*				v;
+
+	if(s_poly.numVerts >= s_maxPolyVerts)
+	{
+		Com_DPrintf("WARNING: Java_xreal_client_renderer_Renderer_addPolygonVertexToScene: r_maxPolyVerts reached\n");
+		return;
+	}
+
+	v = &s_poly.verts[s_poly.numVerts++];
+
+	v->xyz[0] = posX;
+	v->xyz[1] = posY;
+	v->xyz[2] = posZ;
+
+	v->st[0] = texCoordU;
+	v->st[1] = texCoordV;
+
+	v->modulate[0] = (byte) (red * 255);
+	v->modulate[1] = (byte) (green * 255);
+	v->modulate[2] = (byte) (blue * 255);
+	v->modulate[3] = (byte) (alpha * 255);
+}
+
+/*
+ * Class:     xreal_client_renderer_Renderer
+ * Method:    addPolygonToSceneEnd
+ * Signature: ()V
+ */
+void JNICALL Java_xreal_client_renderer_Renderer_addPolygonToSceneEnd(JNIEnv *env, jclass cls)
+{
+	if(s_poly.numVerts == 0) {
+		return;
+	}
+
+	re.AddPolyToScene(s_poly.hShader, s_poly.numVerts, s_poly.verts, 1);
+
+	s_poly.numVerts = 0;
+}
+
+
+
+/*
+ * Class:     xreal_client_renderer_Renderer
+ * Method:    renderScene
+ * Signature: (IIIIFFFFFFFFFII)V
+ */
+void JNICALL Java_xreal_client_renderer_Renderer_renderScene(JNIEnv *env, jclass cls,
+																jint viewPortX, jint viewPortY, jint viewPortWidth, jint viewPortHeight,
+																jfloat fovX, jfloat fovY,
+																jfloat posX, jfloat posY, jfloat posZ,
+																jfloat quatX, jfloat quatY, jfloat quatZ, jfloat quatW,
+																jint time,
+																jint flags)
+{
+	refdef_t		refdef;
+	quat_t			quat;
+
+	Com_Memset(&refdef, 0, sizeof(refdef));
+
+	refdef.x = viewPortX;
+	refdef.y = viewPortY;
+	refdef.width = viewPortWidth;
+	refdef.height = viewPortHeight;
+
+	refdef.fov_x = fovX;
+	refdef.fov_y = fovY;
+
+	VectorSet(refdef.vieworg, posX, posY, posZ);
+
+	QuatSet(quat, quatX, quatY, quatZ, quatW);
+	QuatToAxis(quat, refdef.viewaxis);
+
+	refdef.time = time;
+	refdef.rdflags = flags;
+
+	re.RenderScene(&refdef);
+}
+
+
+
+
+
+
 // handle to Renderer class
 static jclass   class_Renderer = NULL;
 static JNINativeMethod Renderer_methods[] = {
@@ -1310,6 +2266,18 @@ static JNINativeMethod Renderer_methods[] = {
 	{"registerModel", "(Ljava/lang/String;Z)I", Java_xreal_client_renderer_Renderer_registerModel},
 	{"registerAnimation", "(Ljava/lang/String;)I", Java_xreal_client_renderer_Renderer_registerAnimation},
 	{"registerSkin", "(Ljava/lang/String;)I", Java_xreal_client_renderer_Renderer_registerSkin},
+	{"loadWorldBsp", "(Ljava/lang/String;)V", Java_xreal_client_renderer_Renderer_loadWorldBsp},
+	{"clearScene", "()V", Java_xreal_client_renderer_Renderer_clearScene},
+	{"addRefEntityToScene", "(IIIFFFFFFFFFFFFFFIFFFIFIIIFFFFFFFFFIZ)V", Java_xreal_client_renderer_Renderer_addRefEntityToScene},
+	{"setRefEntityBone", "(ILjava/lang/String;IFFFFFFF)V", Java_xreal_client_renderer_Renderer_setRefEntityBone},
+	{"setRefEntitySkeleton", "(IIFFFFFFFFF)V", Java_xreal_client_renderer_Renderer_setRefEntitySkeleton},
+	{"buildSkeleton", "(IIIFZ)Lxreal/client/renderer/RefSkeleton;", Java_xreal_client_renderer_Renderer_buildSkeleton},
+
+	{"addPolygonToSceneBegin", "(II)V", Java_xreal_client_renderer_Renderer_addPolygonToSceneBegin},
+	{"addPolygonVertexToScene", "(FFFFFFFFF)V", Java_xreal_client_renderer_Renderer_addPolygonVertexToScene},
+	{"addPolygonToSceneEnd", "()V", Java_xreal_client_renderer_Renderer_addPolygonToSceneEnd},
+
+	{"renderScene", "(IIIIFFFFFFFFFII)V", Java_xreal_client_renderer_Renderer_renderScene}
 };
 
 void Renderer_javaRegister()
@@ -1327,6 +2295,12 @@ void Renderer_javaRegister()
 	{
 		Com_Error(ERR_FATAL, "Couldn't register native methods for xreal.client.renderer.Renderer");
 	}
+
+	// allocate memory for temporary polygon vertices
+	cvar_t* r_maxPolyVerts = Cvar_Get("r_maxpolyverts", "100000", 0);	// 3000 in vanilla Q3A
+
+	s_maxPolyVerts = r_maxPolyVerts->integer;
+	s_poly.verts = (polyVert_t *) Com_Allocate(sizeof(polyVert_t) * r_maxPolyVerts->integer);
 }
 
 
@@ -1342,6 +2316,15 @@ void Renderer_javaDetach()
 			(*javaEnv)->DeleteLocalRef(javaEnv, class_Renderer);
 			class_Renderer = NULL;
 		}
+	}
+
+	// destroy polygon vertices pool
+	if(s_poly.verts != NULL)
+	{
+		Com_Dealloc(s_poly.verts);
+		s_poly.verts = NULL;
+
+		s_maxPolyVerts = 0;
 	}
 }
 
@@ -1612,8 +2595,12 @@ void CL_ShutdownUI(void)
 	CheckException();
 
 	Client_javaDetach();
+	Snapshot_javaDetach();
+
 	Renderer_javaDetach();
 	Font_javaDetach();
+	RefSkeleton_javaDetach();
+
 	UserInterface_javaDetach();
 }
 
@@ -1625,8 +2612,12 @@ CL_InitUI
 void CL_InitUI(void)
 {
 	Client_javaRegister();
+	Snapshot_javaRegister();
+
 	Renderer_javaRegister();
 	Font_javaRegister();
+	RefSkeleton_javaRegister();
+
 	UserInterface_javaRegister();
 
 	// init for this gamestate

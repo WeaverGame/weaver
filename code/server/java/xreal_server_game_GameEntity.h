@@ -82,10 +82,10 @@ JNIEXPORT jobject JNICALL Java_xreal_server_game_GameEntity_getEntityState_1pos
 /*
  * Class:     xreal_server_game_GameEntity
  * Method:    setEntityState_pos
- * Signature: (IIIIFFFFFFF)V
+ * Signature: (IIIIFFFFFFFFF)V
  */
 JNIEXPORT void JNICALL Java_xreal_server_game_GameEntity_setEntityState_1pos
-  (JNIEnv *, jclass, jint, jint, jint, jint, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat);
+  (JNIEnv *, jclass, jint, jint, jint, jint, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat);
 
 /*
  * Class:     xreal_server_game_GameEntity
@@ -98,10 +98,10 @@ JNIEXPORT jobject JNICALL Java_xreal_server_game_GameEntity_getEntityState_1apos
 /*
  * Class:     xreal_server_game_GameEntity
  * Method:    setEntityState_apos
- * Signature: (IIIIFFFFFFF)V
+ * Signature: (IIIIFFFFFFFFF)V
  */
 JNIEXPORT void JNICALL Java_xreal_server_game_GameEntity_setEntityState_1apos
-  (JNIEnv *, jclass, jint, jint, jint, jint, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat);
+  (JNIEnv *, jclass, jint, jint, jint, jint, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat);
 
 /*
  * Class:     xreal_server_game_GameEntity

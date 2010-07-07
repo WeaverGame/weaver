@@ -164,6 +164,10 @@ static jmethodID method_Vector3f_ctor = NULL;
 static jclass   class_Angle3f = NULL;
 static jmethodID method_Angle3f_ctor = NULL;
 
+// handles to the javax.vecmath.Quat4f class
+static jclass   class_Quat4f = NULL;
+static jmethodID method_Quat4f_ctor = NULL;
+
 // handles to the xreal.Trajectory class
 static jclass   class_Trajectory = NULL;
 static jmethodID method_Trajectory_ctor = NULL;
@@ -208,6 +212,8 @@ void Misc_javaRegister()
 		Com_Error(ERR_FATAL, "Couldn't find javax.vecmath.Tuple3f constructor method");
 	}
 
+
+
 	class_Point3f = (*javaEnv)->FindClass(javaEnv, "javax/vecmath/Point3f");
 	if(CheckException() || !class_Point3f)
 	{
@@ -219,6 +225,8 @@ void Misc_javaRegister()
 	{
 		Com_Error(ERR_FATAL, "Couldn't find javax.vecmath.Point3f constructor method");
 	}
+
+
 
 	class_Vector3f = (*javaEnv)->FindClass(javaEnv, "javax/vecmath/Vector3f");
 	if(CheckException() || !class_Vector3f)
@@ -232,6 +240,8 @@ void Misc_javaRegister()
 		Com_Error(ERR_FATAL, "Couldn't find javax.vecmath.Vector3f constructor method");
 	}
 
+
+
 	class_Angle3f = (*javaEnv)->FindClass(javaEnv, "xreal/Angle3f");
 	if(CheckException() || !class_Angle3f)
 	{
@@ -244,6 +254,21 @@ void Misc_javaRegister()
 		Com_Error(ERR_FATAL, "Couldn't find xreal.Angle3f constructor method");
 	}
 
+
+	class_Quat4f = (*javaEnv)->FindClass(javaEnv, "javax/vecmath/Quat4f");
+	if(CheckException() || !class_Quat4f)
+	{
+		Com_Error(ERR_FATAL, "Couldn't find javax.vecmath.Quat4f");
+	}
+
+	method_Quat4f_ctor = (*javaEnv)->GetMethodID(javaEnv, class_Quat4f, "<init>", "(FFFF)V");
+	if(CheckException() || !method_Quat4f_ctor)
+	{
+		Com_Error(ERR_FATAL, "Couldn't find javax.vecmath.Quat4f constructor method");
+	}
+
+
+
 	class_Trajectory = (*javaEnv)->FindClass(javaEnv, "xreal/Trajectory");
 	if(CheckException() || !class_Trajectory)
 	{
@@ -251,9 +276,9 @@ void Misc_javaRegister()
 	}
 
 	// int trType, int trTime, int trDuration, float trAcceleration,
-	//float trBaseX, float trBaseY, float trBaseZ,
-	//float trDeltaX, float trDeltaY, float trDeltaZ)
-	method_Trajectory_ctor = (*javaEnv)->GetMethodID(javaEnv, class_Trajectory, "<init>", "(IIIFFFFFFF)V");
+	//float trBaseX, float trBaseY, float trBaseZ, float trBaseW,
+	//float trDeltaX, float trDeltaY, float trDeltaZ, float trDeltaW)
+	method_Trajectory_ctor = (*javaEnv)->GetMethodID(javaEnv, class_Trajectory, "<init>", "(IIIFFFFFFFFF)V");
 	if(CheckException() || !method_Trajectory_ctor)
 	{
 		Com_Error(ERR_FATAL, "Couldn't find xreal.Trajectory constructor method");
@@ -292,6 +317,12 @@ void Misc_javaDetach()
 		class_Angle3f = NULL;
 	}
 
+	if(class_Quat4f)
+	{
+		(*javaEnv)->DeleteLocalRef(javaEnv, class_Quat4f);
+		class_Quat4f = NULL;
+	}
+
 	if(class_Trajectory)
 	{
 		(*javaEnv)->DeleteLocalRef(javaEnv, class_Trajectory);
@@ -328,6 +359,21 @@ jobject Java_NewAngle3f(float pitch, float yaw, float roll)
 	return obj;
 }
 
+
+// OPTIMIZE: Quat4f constructor normalizes the input and calls sqrt() ..
+
+jobject Java_NewQuat4f(const quat_t q)
+{
+	jobject obj = NULL;
+
+	if(class_Quat4f)
+	{
+		obj = (*javaEnv)->NewObject(javaEnv, class_Quat4f, method_Quat4f_ctor, q[0], q[1], q[2]);
+	}
+
+	return obj;
+}
+
 jobject Java_NewTrajectory(const trajectory_t * t)
 {
 	jobject obj = NULL;
@@ -335,8 +381,8 @@ jobject Java_NewTrajectory(const trajectory_t * t)
 	if(class_Trajectory)
 	{
 		obj = (*javaEnv)->NewObject(javaEnv, class_Trajectory, method_Trajectory_ctor, t->trType, t->trTime, t->trDuration, t->trAcceleration,
-				t->trBase[0], t->trBase[1], t->trBase[2],
-				t->trDelta[0], t->trDelta[1], t->trDelta[2]);
+				t->trBase[0], t->trBase[1], t->trBase[2], t->trBase[3],
+				t->trDelta[0], t->trDelta[1], t->trDelta[2], t->trDelta[3]);
 	}
 
 	return obj;
@@ -525,14 +571,20 @@ jobject Java_NewUserCommand(const usercmd_t * ucmd)
  */
 void JNICALL Java_xreal_Engine_print(JNIEnv * env, jclass cls, jstring js)
 {
-	char            string[MAXPRINTMSG];
+//	char            string[MAXPRINTMSG];
+	char           *s;
 
 	if(js == NULL)
 		return;
 
-	ConvertJavaString(string, js, sizeof(string));
+	s = (char *)((*env)->GetStringUTFChars(env, js, 0));
 
-	Com_Printf("%s", string);
+	Com_Printf("%s", s);
+
+	(*env)->ReleaseStringUTFChars(env, js, s);
+
+//	ConvertJavaString(string, js, sizeof(string));
+//	Com_Printf("%s", string);
 }
 
 /*
@@ -542,14 +594,20 @@ void JNICALL Java_xreal_Engine_print(JNIEnv * env, jclass cls, jstring js)
  */
 void JNICALL Java_xreal_Engine_error(JNIEnv *env, jclass cls, jstring js)
 {
-	char            string[MAXPRINTMSG];
+//	char            string[MAXPRINTMSG];
+	char           *s;
 
 	if(js == NULL)
 		return;
 
-	ConvertJavaString(string, js, sizeof(string));
+	s = (char *)((*env)->GetStringUTFChars(env, js, 0));
 
-	Com_Error(ERR_DROP, "%s", string);
+	Com_Error(ERR_DROP, "%s", s);
+
+	(*env)->ReleaseStringUTFChars(env, js, s);
+
+//	ConvertJavaString(string, js, sizeof(string));
+//	Com_Error(ERR_DROP, "%s", string);
 }
 
 /*
@@ -614,16 +672,16 @@ void JNICALL Java_xreal_Engine_sendConsoleCommand(JNIEnv *env, jclass cls, jint 
  * Method:    readFile
  * Signature: (Ljava/lang/String;)[B
  */
-jbyteArray JNICALL Java_xreal_Engine_readFile(JNIEnv *env, jclass cls, jstring jfilename)
+jbyteArray JNICALL Java_xreal_Engine_readFile(JNIEnv *env, jclass cls, jstring jfileName)
 {
-	char           *filename;
+	char           *fileName;
 	jbyteArray		array;
 	int				length;
 	byte           *buf;
 
-	filename = (char *)((*env)->GetStringUTFChars(env, jfilename, 0));
+	fileName = (char *)((*env)->GetStringUTFChars(env, jfileName, 0));
 
-	length = FS_ReadFile(filename, (void **)&buf);
+	length = FS_ReadFile(fileName, (void **)&buf);
 	if(!buf)
 	{
 		return NULL;
@@ -634,11 +692,39 @@ jbyteArray JNICALL Java_xreal_Engine_readFile(JNIEnv *env, jclass cls, jstring j
 	array = (*env)->NewByteArray(env, length);
 	(*env)->SetByteArrayRegion(env, array, 0, length, buf);
 
-	(*env)->ReleaseStringUTFChars(env, jfilename, filename);
+	(*env)->ReleaseStringUTFChars(env, jfileName, fileName);
 
 	FS_FreeFile(buf);
 
 	return array;
+}
+
+/*
+ * Class:     xreal_Engine
+ * Method:    writeFile
+ * Signature: (Ljava/lang/String;[B)V
+ */
+void JNICALL Java_xreal_Engine_writeFile(JNIEnv *env, jclass cls, jstring jfileName, jbyteArray array)
+{
+	char           *fileName;
+	int				length;
+	byte           *buf = NULL;
+
+	fileName = (char *)((*env)->GetStringUTFChars(env, jfileName, 0));
+	length = (*env)->GetArrayLength(env, array);
+
+	//Com_Printf("Java_xreal_Engine_writeFile: file '%s' has length = %i\n", fileName, length);
+
+	buf = (byte*) malloc(length);
+
+	(*env)->GetByteArrayRegion(env, array, 0, length, buf);
+
+	FS_WriteFile(fileName, buf, length);
+
+	(*env)->ReleaseStringUTFChars(env, jfileName, fileName);
+	(*env)->ReleaseByteArrayElements(env, array, buf, 0);
+
+//	Com_Dealloc(buf);
 }
 
 // handle to Engine class
@@ -652,6 +738,7 @@ static JNINativeMethod Engine_methods[] = {
 	{"getConsoleArgs", "()Ljava/lang/String;", Java_xreal_Engine_getConsoleArgs},
 	{"sendConsoleCommand", "(ILjava/lang/String;)V", Java_xreal_Engine_sendConsoleCommand},
 	{"readFile", "(Ljava/lang/String;)[B", Java_xreal_Engine_readFile},
+	{"writeFile", "(Ljava/lang/String;[B)V", Java_xreal_Engine_writeFile}
 };
 
 void Engine_javaRegister()

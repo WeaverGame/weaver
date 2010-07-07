@@ -361,8 +361,8 @@ extern clientStatic_t cls;
 
 //=============================================================================
 
-extern vm_t    *cgvm;			// interface to cgame dll or vm
 #if !defined(USE_JAVA)
+extern vm_t    *cgvm;			// interface to cgame dll or vm
 extern vm_t    *uivm;			// interface to ui dll or vm
 #endif
 extern refexport_t re;			// interface to refresh .dll
@@ -637,6 +637,13 @@ void            CL_CGameRendering(stereoFrame_t stereo);
 void            CL_SetCGameTime(void);
 void            CL_FirstSnapshot(void);
 void            CL_ShaderStateChanged(void);
+
+#if defined(USE_JAVA)
+void			Java_CG_KeyEvent(int key, qboolean down);
+void			Java_CG_MouseEvent(int dx, int dy);
+int				Java_CG_CrosshairPlayer();
+int				Java_CG_LastAttacker();
+#endif
 
 //
 // cl_ui.c

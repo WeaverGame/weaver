@@ -26,7 +26,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "cg_local.h"
 
 
-qboolean CG_RegisterAnimation(animation_t * anim, const char *filename, qboolean loop, qboolean reversed, qboolean clearOrigin)
+qboolean CG_RegisterAnimation(animation_t * anim, const char *filename,
+										   qboolean loop, qboolean reversed, qboolean clearOrigin)
 {
 	int             frameRate;
 
