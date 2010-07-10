@@ -43,7 +43,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <stdio.h>
 
-#if defined (__linux__) || defined (__APPLE__) || defined (__FreeBSD__)
+#if defined (__linux__) || defined (__APPLE__) || defined (__FreeBSD__) || defined (__sun)
 #include <dirent.h>
 #include <unistd.h>
 #else

@@ -156,6 +156,16 @@ if env['arch'] == 'freebsd-i386':
 	xmap_env.Program('xmap', xmap_src)
 	xmap_env.InstallAs('#xmap.i386', 'xmap')
 	
+if env['arch'] == 'opensolaris-i386':
+	xmap_src += ['code/xmap/gldraw.c']
+
+	xmap_env.ParseConfig('pkg-config libxml-2.0 --cflags --libs')
+	xmap_env.ParseConfig('pkg-config glib-2.0 --cflags --libs')
+	xmap_env.ParseConfig('sdl-config --cflags --libs')
+	xmap_env.Append(LIBS=['m', 'pthread', 'GL', 'GLU', 'socket', 'nsl'])
+	xmap_env.Program('xmap', xmap_src)
+	xmap_env.InstallAs('#xmap.i386', 'xmap')
+
 elif env['arch'] == 'win32-mingw':
 	xmap_src += ['code/xmap/nodraw.c']
 

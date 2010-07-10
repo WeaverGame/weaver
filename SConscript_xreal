@@ -246,6 +246,17 @@ elif env['arch'] == 'freebsd-i386':
 	xreal_env.Program('xreal', [xreal_src, unix_src, theora_decoder_x86_32_src])	
 	xreal_env.InstallAs('#xreal.i386', 'xreal')
 
+elif env['arch'] == 'opensolaris-i386':
+	xreal_env.ParseConfig('sdl-config --cflags --libs')
+	xreal_env.Append(LIBS=['m', 'socket', 'nsl'])
+
+	if env['smp'] == 1:
+		xreal_env.Append(CCFLAGS='-DSMP')
+		xreal_env.Append(LIBS=['pthread'])
+	
+	xreal_env.Program('xreal', [xreal_src, unix_src, theora_decoder_x86_32_src])	
+	xreal_env.InstallAs('#xreal.i386', 'xreal')
+
 elif env['arch'] == 'darwin-ppc ' or env['arch'] == 'darwin-i386':
 	xreal_env.ParseConfig('sdl-config --cflags --libs')
 	xreal_env.Append(LIBS=['m'])

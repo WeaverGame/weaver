@@ -90,3 +90,8 @@ elif env['arch'] == 'netbsd-i386':
 	xrealded_env.Append(LIBS=['m'])
 	xrealded_env.Program('xrealded', [xrealded_src, unix_src])
 	xrealded_env.InstallAs('#xrealded.i386', 'xrealded')
+	
+elif env['arch'] == 'opensolaris-i386':
+	xrealded_env.Append(LIBS=['dl', 'm', 'socket', 'nsl'])
+	xrealded_env.Program('xrealded', [xrealded_src, unix_src])
+	xrealded_env.InstallAs('#xrealded.i386', 'xrealded')

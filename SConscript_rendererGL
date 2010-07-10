@@ -179,6 +179,13 @@ elif env['arch'] == 'freebsd-i386':
 	rendererGL_env.SharedLibrary('rendererGL', rendererGL_src)
 	rendererGL_env.InstallAs('#rendererGLi386.so', 'librendererGL.so')
 
+elif env['arch'] == 'opensolaris-i386':
+	rendererGL_env.ParseConfig('sdl-config --cflags --libs')
+	rendererGL_env.Append(LIBS=['dl', 'm', 'GL'])
+
+	rendererGL_env.SharedLibrary('rendererGL', rendererGL_src)
+	rendererGL_env.InstallAs('#rendererGLi386.so', 'librendererGL.so')
+
 elif env['arch'] == 'darwin-ppc ' or env['arch'] == 'darwin-i386':
 	rendererGL_env.ParseConfig('sdl-config --cflags --libs')
 	rendererGL_env.Append(LIBS=['m'])

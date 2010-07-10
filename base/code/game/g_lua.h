@@ -39,7 +39,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define LUA_MAX_FSIZE 1024*1024	// 1MB
 
 // define HOSTARCH and EXTENSION depending on host architecture
-#if defined __linux__
+#if defined(__linux__) || defined(__APPLE__) || defined(__FreeBSD__) || defined(__sun)
 
 #define HOSTARCH	"UNIX"
 #define EXTENSION	"so"

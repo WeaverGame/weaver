@@ -1153,7 +1153,6 @@ jint JNICALL Java_xreal_client_Client_getCurrentSnapshotTime(JNIEnv *env, jclass
 jobject JNICALL Java_xreal_client_Client_getSnapshot(JNIEnv *env, jclass cls, jint snapshotNumber)
 {
 	clSnapshot_t   *clSnap;
-	int             i, count;
 
 	if(snapshotNumber > cl.snap.messageNum)
 	{
@@ -1299,7 +1298,7 @@ jobject JNICALL Java_xreal_client_Client_getUserCommand(JNIEnv *env, jclass cls,
 	// buffer because it is too far out of date
 	if(cmdNumber <= cl.cmdNumber - CMD_BACKUP)
 	{
-		return qfalse;
+		return NULL;
 	}
 
 	return Java_NewUserCommand(&cl.cmds[cmdNumber & CMD_MASK]);
@@ -2282,6 +2281,8 @@ static JNINativeMethod Renderer_methods[] = {
 
 void Renderer_javaRegister()
 {
+	cvar_t* r_maxPolyVerts;
+
 	Com_Printf("Renderer_javaRegister()\n");
 
 	class_Renderer = (*javaEnv)->FindClass(javaEnv, "xreal/client/renderer/Renderer");
@@ -2297,7 +2298,7 @@ void Renderer_javaRegister()
 	}
 
 	// allocate memory for temporary polygon vertices
-	cvar_t* r_maxPolyVerts = Cvar_Get("r_maxpolyverts", "100000", 0);	// 3000 in vanilla Q3A
+	r_maxPolyVerts = Cvar_Get("r_maxpolyverts", "100000", 0);	// 3000 in vanilla Q3A
 
 	s_maxPolyVerts = r_maxPolyVerts->integer;
 	s_poly.verts = (polyVert_t *) Com_Allocate(sizeof(polyVert_t) * r_maxPolyVerts->integer);

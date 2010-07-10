@@ -76,6 +76,10 @@ elif env['arch'] == 'freebsd-i386':
 	ui_env.SharedLibrary('ui', [ui_src, dll_src], LIBS=['m'])
 	ui_env.InstallAs('#base/uii386.so', 'libui.so')
 
+elif env['arch'] == 'opensolaris-i386':
+	ui_env.SharedLibrary('ui', [ui_src, dll_src], LIBS=['m'])
+	ui_env.InstallAs('#base/uii386.so', 'libui.so')
+
 elif env['arch'] == 'win32-mingw':
 	ui_env.SharedLibrary('ui', [ui_src, dll_src], LIBS=['m'])
 	ui_env.InstallAs('#base/uix86.dll', 'ui.dll')
