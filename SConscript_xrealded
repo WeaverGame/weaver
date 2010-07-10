@@ -66,15 +66,6 @@ xrealded_env.Append(CCFLAGS='-DSTANDALONE')
 xrealded_env.Append(CCFLAGS='-DUSE_VOIP')
 xrealded_env.Append(CCFLAGS='-Icode/speex/include')
 
-if env['java'] == 1:
-	xrealded_env.Append(CCFLAGS='-DUSE_JAVA')
-	xrealded_env.Append(CCFLAGS='-Ijdk/include')
-	xrealded_src += ['code/qcommon/vm_java.c']
-	xrealded_src += ['code/server/sv_game_java.c']
-
-if env['compatq3a'] == 1:
-	xrealded_env.Append(CCFLAGS='-DCOMPAT_Q3A')
-
 if env['arch'] == 'linux-i386':
 	xrealded_env.Append(LIBS=['dl', 'm'])
 	xrealded_env.Program('xrealded', [xrealded_src, unix_src])
