@@ -16,5 +16,4 @@ glob:*.suo
 glob:*.bak
 glob:*\Release\*
 glob:*\Debug\*
-glob:maps\*\*
-glob:code\*\*.user
+glob:*.user
