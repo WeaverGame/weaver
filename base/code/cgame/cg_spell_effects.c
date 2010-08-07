@@ -493,20 +493,39 @@ WeaveEffect_Lightning
 */
 void WeaveEffect_Lightning(centity_t * cent)
 {
-	vec3_t          mins = { -32, -32, -1 };
-	vec3_t          maxs = { 32, 32, 20 };
+	vec3_t          mins = { -4.0f, -4.0f, -1 };
+	vec3_t          maxs = { 4.0f, 4.0f, 20 };
 	int             i;
+	refEntity_t     beam;
 
-	//TODO: better explosion
-	i = 0;
-	CG_ExplosiveRubble(cent->lerpOrigin, mins, maxs, cgs.media.debrisModels[ENTMAT_STONE][0][i & 1]);
+	if(cent->currentState.eType != ET_WEAVE_EFFECT)
+	{
+		//Strike event
+		memset(&beam, 0, sizeof(beam));
 
-	//TODO: don't use WeaveEffect_Instance for lighting, instead spawn a ent with a light shader
+		for(i = 0; i < 4; i++)
+		{
+			CG_ExplosiveRubble(cent->lerpOrigin, mins, maxs, cgs.media.debrisModels[ENTMAT_STONE][0][i & 1]);
+			CG_ExplosiveRubble(cent->lerpOrigin, mins, maxs, cgs.media.debrisModels[ENTMAT_STONE][1][i & 1]);
+		}
 
-	//TODO: don't use WeaveEffect_Instance for sound, play sound and
+		//Visual
+		VectorCopy(cent->currentState.origin2, beam.oldorigin);
+		VectorCopy(cent->lerpOrigin, beam.origin);
+		beam.reType = RT_LIGHTNING;
+		beam.radius = 100.0f;
+		beam.customShader = cgs.media.lightningShader;
+		trap_R_AddRefEntityToScene(&beam);
 
-	//TODO: don't call WeaveEffect_Instance when above are done.
-	WeaveEffect_Instance(cent);
+		//TODO: sound
+
+		//TODO: light
+	}
+	else
+	{
+		// Regular lightning entity, warning static
+		WeaveEffect_Instance(cent);
+	}
 }
 
 /*
@@ -521,11 +540,7 @@ void CG_WeaveEffect(centity_t * cent)
 	{
 			//Held special
 		case WVW_A_AIRFIRE_LIGHTNING:
-			//Only display on event (strike)
-			if((cent->currentState.event & ~EV_EVENT_BITS) == EV_WEAVE_SHOT)
-			{
-				WeaveEffect_Lightning(cent);
-			}
+			WeaveEffect_Lightning(cent);
 			break;
 			//Remove effect (effect added when weaved, this executed to end it)
 		case WVW_A_AIRFIRE_SWORD:

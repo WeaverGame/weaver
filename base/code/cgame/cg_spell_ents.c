@@ -13,7 +13,6 @@ void CG_ShieldInfo(centity_t * cent)
 	refEntity_t     ent;
 	entityState_t  *s1;
 	vec3_t          normalaxis[3];
-	int             k;
 	float           scale;
 
 	s1 = &cent->currentState;

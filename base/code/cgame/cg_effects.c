@@ -28,6 +28,46 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 vec3_t          zeroVector = { 0, 0, 0 };
 
+static ID_INLINE void VectorRandom(vec3_t a, const vec3_t mins, const vec3_t maxs)
+{
+	float           r;
+
+	r = crandom();
+	if(r > 0)
+	{
+		a[0] += r * maxs[0];
+	}
+	else
+	{
+		a[0] -= r * mins[0];
+	}
+	r = crandom();
+	if(r > 0)
+	{
+		a[1] += r * maxs[1];
+	}
+	else
+	{
+		a[1] -= r * mins[1];
+	}
+	r = crandom();
+	if(r > 0)
+	{
+		a[2] += r * maxs[2];
+	}
+	else
+	{
+		a[2] -= r * mins[2];
+	}
+}
+
+static ID_INLINE void VectorRandomUniform(vec3_t a, const vec3_t maxs)
+{
+	a[0] += crandom() * maxs[0];
+	a[1] += crandom() * maxs[1];
+	a[2] += crandom() * maxs[2];
+}
+
 /*
 ==================
 CG_BubbleTrail
@@ -670,45 +710,13 @@ void CG_GibPlayer(vec3_t playerOrigin)
 	CG_LaunchGib(origin, velocity, cgs.media.gibLeg);
 }
 
-void VectorRandom(vec3_t * a, const vec3_t mins, const vec3_t maxs)
-{
-	float           r;
-
-	r = crandom();
-	if(r > 0)
-	{
-		*a[0] += r * maxs[0];
-	}
-	else
-	{
-		*a[0] -= r * mins[0];
-	}
-	r = crandom();
-	if(r > 0)
-	{
-		*a[1] += r * maxs[1];
-	}
-	else
-	{
-		*a[1] -= r * mins[1];
-	}
-	r = crandom();
-	if(r > 0)
-	{
-		*a[2] += r * maxs[2];
-	}
-	else
-	{
-		*a[2] -= r * mins[2];
-	}
-}
-
 void CG_FireEffect(vec3_t org, vec3_t mins, vec3_t maxs, float flameSize, int particles, float intensity)
 {
 	cparticle_t    *p;
 	refEntity_t     re;
 	int             i;
 	refLight_t      light;
+	const vec3_t    velmax = {25.0f, 25.0f, 25.0f};
 
 	memset(&re, 0, sizeof(re));
 	memset(&light, 0, sizeof(light));
@@ -763,11 +771,9 @@ void CG_FireEffect(vec3_t org, vec3_t mins, vec3_t maxs, float flameSize, int pa
 		p->endWidth = p->width / 4;
 
 		VectorCopy(org, p->org);
-		VectorRandom(&p->org, mins, maxs);
-
-		p->vel[0] = crandom() * 25;
-		p->vel[1] = crandom() * 25;
-		p->vel[2] = crandom() * 25;
+		VectorRandom(p->org, mins, maxs);
+		VectorClear(p->vel);
+		VectorRandomUniform(p->vel, velmax);
 
 		p->accel[0] = -p->vel[0] / 2;
 		p->accel[1] = -p->vel[0] / 2;
@@ -818,6 +824,8 @@ void CG_ExplosiveRubble(vec3_t origin, vec3_t mins, vec3_t maxs, qhandle_t model
 {
 	localEntity_t  *le;
 	refEntity_t    *re;
+	const vec3_t    avelmax = {100.0f, 100.0f, 100.0f};
+	const vec3_t    velmax = {200.0f, 200.0f, 100.0f};
 
 	//Spawn debris ents
 	le = CG_AllocLocalEntity();
@@ -834,9 +842,8 @@ void CG_ExplosiveRubble(vec3_t origin, vec3_t mins, vec3_t maxs, qhandle_t model
 	//Initialize random rotations
 	le->angles.trType = TR_LINEAR;
 	le->angles.trTime = cg.time;
-	le->angles.trDelta[0] = crandom() * 100;
-	le->angles.trDelta[1] = crandom() * 100;
-	le->angles.trDelta[2] = crandom() * 100;
+	VectorClear(le->angles.trDelta);
+	VectorRandomUniform(le->angles.trDelta, avelmax);
 	le->angVel = 20 * crandom();	// random angular velocity
 	le->rotAxis[0] = crandom();	// random axis of rotation
 	le->rotAxis[1] = crandom();
@@ -848,23 +855,18 @@ void CG_ExplosiveRubble(vec3_t origin, vec3_t mins, vec3_t maxs, qhandle_t model
 	le->leFlags = LEF_TUMBLE;
 
 	//Initialize location
-	//VectorCopy(cent->lerpOrigin, re->origin);
 	AxisCopy(axisDefault, re->axis);
 	VectorCopy(origin, le->pos.trBase);
 	VectorCopy(origin, re->origin);
 	le->pos.trTime = cg.time;
 	//Randomly offset base within model bounds
-	VectorRandom(&le->pos.trBase, mins, maxs);
-
-	//Debug
-	//Com_Printf("...pos.trBase %f %f %f \n", le->pos.trBase[0], le->pos.trBase[1], le->pos.trBase[2]);
+	VectorRandom(le->pos.trBase, mins, maxs);
 
 	//Initialize velocity
 	le->pos.trType = TR_GRAVITY;
 	le->pos.trAcceleration = 600;
-	le->pos.trDelta[0] = crandom() * 200;
-	le->pos.trDelta[1] = crandom() * 200;
-	le->pos.trDelta[2] = crandom() * 100;
+	VectorClear(le->pos.trDelta);
+	VectorRandomUniform(le->pos.trDelta, velmax);
 
 	//Initialize bouncing
 	le->bounceFactor = 0.4f;
@@ -883,40 +885,12 @@ void CG_ExplosiveBlood(vec3_t origin, vec3_t mins, vec3_t maxs, int count)
 	vec3_t          bloodOrigin;
 	vec3_t          impactVel;
 	int             i;
-	float           r;
 
 	VectorCopy(zeroVector, impactVel);
 	for(i = count; i > 0; i--)
 	{
 		VectorCopy(origin, bloodOrigin);
-		//Randomly offset base within model bounds
-		r = crandom();
-		if(r > 0)
-		{
-			bloodOrigin[0] += r * maxs[0];
-		}
-		else
-		{
-			bloodOrigin[0] -= r * mins[0];
-		}
-		r = crandom();
-		if(r > 0)
-		{
-			bloodOrigin[1] += r * maxs[1];
-		}
-		else
-		{
-			bloodOrigin[1] -= r * mins[1];
-		}
-		r = crandom();
-		if(r > 0)
-		{
-			bloodOrigin[2] += r * maxs[2];
-		}
-		else
-		{
-			bloodOrigin[2] -= r * mins[2];
-		}
+		VectorRandom(bloodOrigin, mins, maxs);
 		CG_ParticleBlood(bloodOrigin, impactVel, 4);
 	}
 }
@@ -931,6 +905,8 @@ void CG_ExplosiveDust(vec3_t org, vec3_t mins, vec3_t maxs, int smokes, int dust
 {
 	cparticle_t    *p;
 	int             i;
+	const vec3_t    smoke_velmax = {128.0f, 128.0f, 32.0f};
+	const vec3_t    dust_velmax = {180.0f, 180.0f, 100.0f};
 
 	for(i = smokes; i > 0; i--)
 	{
@@ -964,11 +940,10 @@ void CG_ExplosiveDust(vec3_t org, vec3_t mins, vec3_t maxs, int smokes, int dust
 		p->endWidth = p->width * 2;
 
 		VectorCopy(org, p->org);
-		VectorRandom(&p->org, mins, maxs);
+		VectorRandom(p->org, mins, maxs);
 
-		p->vel[0] = crandom() * 128;
-		p->vel[1] = crandom() * 128;
-		p->vel[2] = crandom() * 32;
+		VectorClear(p->vel);
+		VectorRandomUniform(p->vel, smoke_velmax);
 
 		p->accel[0] = crandom() * 64;
 		p->accel[1] = crandom() * 64;
@@ -1001,12 +976,10 @@ void CG_ExplosiveDust(vec3_t org, vec3_t mins, vec3_t maxs, int smokes, int dust
 
 		VectorCopy(org, p->org);
 
-		p->vel[0] = crandom() * 180;
-		p->vel[1] = crandom() * 180;
-		p->vel[2] = crandom() * 100;
+		VectorClear(p->vel);
+		VectorRandomUniform(p->vel, dust_velmax);
 
-		p->accel[0] = p->accel[1] = p->accel[2] = 0;
-
+		VectorClear(p->accel);
 		p->accel[2] = -100;
 		p->vel[2] += -20;
 	}
@@ -1016,6 +989,7 @@ void CG_ExplosivePlaster(vec3_t org, vec3_t mins, vec3_t maxs, int plasters)
 {
 	cparticle_t    *p;
 	int             i;
+	const vec3_t    plaster_velmax = {180.0f, 180.0f, 100.0f};
 
 	for(i = plasters; i > 0; i--)
 	{
@@ -1043,12 +1017,10 @@ void CG_ExplosivePlaster(vec3_t org, vec3_t mins, vec3_t maxs, int plasters)
 
 		VectorCopy(org, p->org);
 
-		p->vel[0] = crandom() * 180;
-		p->vel[1] = crandom() * 180;
-		p->vel[2] = crandom() * 100;
+		VectorClear(p->vel);
+		VectorRandomUniform(p->vel, plaster_velmax);
 
-		p->accel[0] = p->accel[1] = p->accel[2] = 0;
-
+		VectorClear(p->accel);
 		p->accel[2] = -100;
 		p->vel[2] += -20;
 	}
@@ -1058,6 +1030,7 @@ void CG_ExplosiveSmoke(vec3_t org, vec3_t mins, vec3_t maxs, int smokes)
 {
 	cparticle_t    *p;
 	int             i;
+	const vec3_t    smoke_velmax = {128.0f, 128.0f, 32.0f};
 
 	for(i = smokes; i > 0; i--)
 	{
@@ -1089,11 +1062,10 @@ void CG_ExplosiveSmoke(vec3_t org, vec3_t mins, vec3_t maxs, int smokes)
 		p->endWidth = p->width * 2;
 
 		VectorCopy(org, p->org);
-		VectorRandom(&p->org, mins, maxs);
+		VectorRandom(p->org, mins, maxs);
 
-		p->vel[0] = crandom() * 128;
-		p->vel[1] = crandom() * 128;
-		p->vel[2] = crandom() * 32;
+		VectorClear(p->vel);
+		VectorRandomUniform(p->vel, smoke_velmax);
 
 		p->accel[0] = crandom() * 64;
 		p->accel[1] = crandom() * 64;
@@ -1136,7 +1108,7 @@ void CG_ExplosiveGas(vec3_t org, vec3_t mins, vec3_t maxs, int smokes)
 		p->endWidth = p->width * 2;
 
 		VectorCopy(org, p->org);
-		VectorRandom(&p->org, mins, maxs);
+		VectorRandom(p->org, mins, maxs);
 
 		p->vel[0] = crandom() * 128;
 		p->vel[1] = crandom() * 128;
@@ -1173,9 +1145,6 @@ void CG_ExplosiveExplode(centity_t * cent)
 	vec3_t          mins, maxs;
 	int             i;
 
-	// create an explosion
-	//le = CG_MakeExplosion(cent->lerpOrigin, cent->lerpOrigin, cgs.media.dishFlashModel, cgs.media.rocketExplosionShader, 600, qtrue);
-
 	//Prevent excessively long loops
 	if(cent->currentState.torsoAnim > 10)
 	{
@@ -1193,10 +1162,6 @@ void CG_ExplosiveExplode(centity_t * cent)
 	//Get area of model
 	centmodel = cgs.inlineDrawModel[cent->currentState.modelindex];
 	trap_R_ModelBounds(centmodel, mins, maxs);
-
-	//Debug
-	//Com_Printf("Mat: %d Mass(123): (%d, %d, %d) org: {%f %f %f} min: {%f %f %f} max: {%f %f %f}\n", cent->currentState.generic1, cent->currentState.weapon, cent->currentState.legsAnim, cent->currentState.torsoAnim, cent->lerpOrigin[0], cent->lerpOrigin[1], cent->lerpOrigin[2], mins[0], mins[1], mins[2], maxs[0], maxs[1], maxs[2]);
-
 
 	switch (cent->currentState.generic1)	//Type
 	{

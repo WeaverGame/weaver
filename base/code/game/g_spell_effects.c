@@ -2434,13 +2434,14 @@ qboolean FireWeave_Lightning(gentity_t * self, vec3_t start, vec3_t dir, int hel
 	//time of next hit
 	bolt->wait = bolt->spawnTime + WEAVE_LIGHTNING_DELAY +	//spawn time, initial delay
 		(WEAVE_LIGHTNING_PERIOD * bolt->s.modelindex) +	//offset number of hits
-		(random() * WEAVE_LIGHTNING_PERIOD);	//randomize
+		(crandom() * WEAVE_LIGHTNING_PERIOD);	//randomize
 	bolt->methodOfDeath = MOD_A_AIRFIRE_LIGHTNING;
 	bolt->splashMethodOfDeath = MOD_A_AIRFIRE_LIGHTNING;
 	bolt->clipmask = MASK_SHOT;
 	bolt->freeAfterEvent = qfalse;
 
 	G_SetOrigin(bolt, wallhit);
+	VectorCopy(trace.endpos, bolt->s.origin2);
 
 	trap_LinkEntity(bolt);
 
@@ -2465,20 +2466,23 @@ Lightning
 */
 void RunWeave_Lightning(gentity_t * ent)
 {
+	gentity_t      *tent;
 	// If its time to explode again
 	if(level.time > ent->wait)
 	{
 		//another hit
 		ent->s.modelindex++;
 		//time of next hit
-		ent->wait = ent->spawnTime + WEAVE_LIGHTNING_DELAY +	//spawn time, initial delay
-			(WEAVE_LIGHTNING_PERIOD * ent->s.modelindex) +	//offset number of hits
-			(random() * WEAVE_LIGHTNING_PERIOD);	//randomize
+		ent->wait += (random() * WEAVE_LIGHTNING_PERIOD);	//randomize
 
-		//TODO: randomize damage a bit. Damage should be proportional to client side effect (strike intensity as event param)
+		//Strike event
+		tent = G_TempEntity(ent->s.pos.trBase, EV_WEAVE_SHOT);
+		VectorCopy(ent->s.origin2, tent->s.origin2);
+		tent->s.eventParm = rand() & 7;
+		tent->s.weapon = ent->s.weapon;
+
+		//Damage should be proportional to client side effect (strike intensity as event param)
 		G_RadiusDamage(ent->r.currentOrigin, ent->parent, ent->splashDamage, ent->splashRadius, ent, ent->splashMethodOfDeath);
-		G_AddEvent(ent, EV_WEAVE_SHOT, 0);
-		G_Printf("Lightning explode\n");
 	}
 }
 
