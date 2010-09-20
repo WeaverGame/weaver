@@ -365,7 +365,7 @@ void RE_RegisterFont(const char *fontName, int pointSize, fontInfo_t * font)
 
 	if(registeredFontCount >= MAX_FONTS)
 	{
-		ri.Printf(PRINT_ALL, "RE_RegisterFont: Too many fonts registered already.\n");
+		ri.Printf(PRINT_WARNING, "RE_RegisterFont: Too many fonts registered already.\n");
 		return;
 	}
 
@@ -380,6 +380,7 @@ void RE_RegisterFont(const char *fontName, int pointSize, fontInfo_t * font)
 		}
 	}
 
+#if 0
 	len = ri.FS_ReadFile(fileName, NULL);
 	if(len == sizeof(fontInfo_t))
 	{
@@ -415,13 +416,14 @@ void RE_RegisterFont(const char *fontName, int pointSize, fontInfo_t * font)
 		Com_Memcpy(&registeredFont[registeredFontCount++], font, sizeof(fontInfo_t));
 		return;
 	}
+#endif
 
 #ifndef BUILD_FREETYPE
 	ri.Printf(PRINT_ALL, "RE_RegisterFont: FreeType code not available\n");
 #else
 	if(ftLibrary == NULL)
 	{
-		ri.Printf(PRINT_ALL, "RE_RegisterFont: FreeType not initialized.\n");
+		ri.Printf(PRINT_WARNING, "RE_RegisterFont: FreeType not initialized.\n");
 		return;
 	}
 
@@ -429,21 +431,21 @@ void RE_RegisterFont(const char *fontName, int pointSize, fontInfo_t * font)
 	len = ri.FS_ReadFile(fileName, &faceData);
 	if(len <= 0)
 	{
-		ri.Printf(PRINT_ALL, "RE_RegisterFont: Unable to read font file '%s'\n", fileName);
+		ri.Printf(PRINT_WARNING, "RE_RegisterFont: Unable to read font file '%s'\n", fileName);
 		return;
 	}
 
 	// allocate on the stack first in case we fail
 	if(FT_New_Memory_Face(ftLibrary, faceData, len, 0, &face))
 	{
-		ri.Printf(PRINT_ALL, "RE_RegisterFont: FreeType2, unable to allocate new face.\n");
+		ri.Printf(PRINT_WARNING, "RE_RegisterFont: FreeType2, unable to allocate new face.\n");
 		return;
 	}
 
 
 	if(FT_Set_Char_Size(face, pointSize << 6, pointSize << 6, dpi, dpi))
 	{
-		ri.Printf(PRINT_ALL, "RE_RegisterFont: FreeType2, Unable to set face char size.\n");
+		ri.Printf(PRINT_WARNING, "RE_RegisterFont: FreeType2, Unable to set face char size.\n");
 		return;
 	}
 
@@ -453,7 +455,7 @@ void RE_RegisterFont(const char *fontName, int pointSize, fontInfo_t * font)
 	out = ri.Malloc(1024 * 1024);
 	if(out == NULL)
 	{
-		ri.Printf(PRINT_ALL, "RE_RegisterFont: ri.Malloc failure during output image creation.\n");
+		ri.Printf(PRINT_WARNING, "RE_RegisterFont: ri.Malloc failure during output image creation.\n");
 		return;
 	}
 	Com_Memset(out, 0, 1024 * 1024);
@@ -555,13 +557,16 @@ void RE_RegisterFont(const char *fontName, int pointSize, fontInfo_t * font)
 
 	registeredFont[registeredFontCount].glyphScale = glyphScale;
 	font->glyphScale = glyphScale;
-	Com_Memcpy(&registeredFont[registeredFontCount++], font, sizeof(fontInfo_t));
 
 	Com_sprintf(fileName, sizeof(fileName), "%s_%i.dat", strippedName, pointSize);
+	Q_strncpyz(font->name, fileName, sizeof(font->name));
+
 	if(!ri.FS_FileExists(fileName))
 	{
 		ri.FS_WriteFile(fileName, font, sizeof(fontInfo_t));
 	}
+
+	Com_Memcpy(&registeredFont[registeredFontCount++], font, sizeof(fontInfo_t));
 
 	ri.Free(out);
 

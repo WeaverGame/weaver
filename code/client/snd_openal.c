@@ -447,7 +447,7 @@ static void S_AL_BufferShutdown(void)
 S_AL_RegisterSound
 =================
 */
-static sfxHandle_t S_AL_RegisterSound(const char *sample, qboolean compressed)
+static sfxHandle_t S_AL_RegisterSound(const char *sample)
 {
 	sfxHandle_t     sfx = S_AL_BufferFind(sample);
 

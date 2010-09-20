@@ -481,3 +481,21 @@ void CON_Print(const char *msg)
 
 	CON_Show();
 }
+
+/*
+==================
+CON_SetVisibility
+==================
+*/
+void CON_SetVisibility(int visLevel)
+{
+}
+
+/*
+==================
+CON_SetErrorText
+==================
+*/
+void CON_SetErrorText(const char *buf)
+{
+}

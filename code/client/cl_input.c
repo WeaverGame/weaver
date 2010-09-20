@@ -679,6 +679,45 @@ void CL_JoystickMove(usercmd_t * cmd)
 
 /*
 =================
+CL_Xbox360ControllerMove
+=================
+*/
+void CL_Xbox360ControllerMove(usercmd_t * cmd)
+{
+	int             movespeed;
+	float           anglespeed;
+
+	if(in_speed.active ^ cl_run->integer)
+	{
+		movespeed = 2;
+	}
+	else
+	{
+		movespeed = 1;
+		cmd->buttons |= BUTTON_WALKING;
+	}
+
+	if(in_speed.active)
+	{
+		anglespeed = 0.001 * cls.frametime * cl_anglespeedkey->value;
+	}
+	else
+	{
+		anglespeed = 0.001 * cls.frametime;
+	}
+
+	//anglespeed = 1;
+
+	cl.viewangles[PITCH] += anglespeed * cl_pitchspeed->value * (cl.joystickAxis[AXIS_PITCH] / 127.0f);
+	cl.viewangles[YAW] += anglespeed * cl_yawspeed->value * (cl.joystickAxis[AXIS_YAW] / 127.0f);
+
+	cmd->rightmove = ClampChar(cmd->rightmove + cl.joystickAxis[AXIS_SIDE]);
+	cmd->forwardmove = ClampChar(cmd->forwardmove + cl.joystickAxis[AXIS_FORWARD]);
+	cmd->upmove = ClampChar(cmd->upmove + cl.joystickAxis[AXIS_UP]);
+}
+
+/*
+=================
 CL_MouseMove
 =================
 */
@@ -860,8 +899,15 @@ usercmd_t CL_CreateCmd(void)
 	// get basic movement from mouse
 	CL_MouseMove(&cmd);
 
-	// get basic movement from joystick
-	CL_JoystickMove(&cmd);
+	// get basic movement from joystick or controller
+	if(cl_xbox360ControllerAvailable->integer)
+	{
+		CL_Xbox360ControllerMove(&cmd);
+	}
+	else
+	{
+		CL_JoystickMove(&cmd);
+	}
 
 	// check to make sure the angles haven't wrapped
 	if(cl.viewangles[PITCH] - oldAngles[PITCH] > 90)

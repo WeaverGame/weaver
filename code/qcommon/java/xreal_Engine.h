@@ -63,26 +63,10 @@ JNIEXPORT jint JNICALL Java_xreal_Engine_getTimeInMilliseconds
 
 /*
  * Class:     xreal_Engine
- * Method:    getConsoleArgc
- * Signature: ()I
- */
-JNIEXPORT jint JNICALL Java_xreal_Engine_getConsoleArgc
-  (JNIEnv *, jclass);
-
-/*
- * Class:     xreal_Engine
- * Method:    getConsoleArgv
- * Signature: (I)Ljava/lang/String;
- */
-JNIEXPORT jstring JNICALL Java_xreal_Engine_getConsoleArgv
-  (JNIEnv *, jclass, jint);
-
-/*
- * Class:     xreal_Engine
  * Method:    getConsoleArgs
- * Signature: ()Ljava/lang/String;
+ * Signature: ()[Ljava/lang/String;
  */
-JNIEXPORT jstring JNICALL Java_xreal_Engine_getConsoleArgs
+JNIEXPORT jobjectArray JNICALL Java_xreal_Engine_getConsoleArgs
   (JNIEnv *, jclass);
 
 /*

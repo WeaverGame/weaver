@@ -39,6 +39,8 @@ void            CON_Shutdown(void);
 void            CON_Init(void);
 char           *CON_Input(void);
 void            CON_Print(const char *message);
+void            CON_SetVisibility(int visLevel);
+void            CON_SetErrorText(const char *message);
 
 unsigned int    CON_LogSize(void);
 unsigned int    CON_LogWrite(const char *in);

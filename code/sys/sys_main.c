@@ -344,6 +344,16 @@ void Sys_Print(const char *msg)
 
 /*
 =================
+Sys_SetConsoleVisibility
+=================
+*/
+void Sys_SetConsoleVisibility(int visLevel)
+{
+	CON_SetVisibility(visLevel);
+}
+
+/*
+=================
 Sys_Error
 =================
 */
@@ -630,10 +640,18 @@ int main(int argc, char **argv)
 		Q_strcat(commandLine, sizeof(commandLine), " ");
 	}
 
+	// done before Com/Sys_Init since we need this for error output
+	CON_Init();
+
 	Com_Init(commandLine);
 	NET_Init();
 
-	CON_Init();
+	// hide the early console since we've reached the point where we
+	// have a working graphics subsystems
+	//if(!com_dedicated->integer && !com_viewlog->integer)
+	{
+		CON_SetVisibility(0);
+	}
 
 	// Tr3B: don't set the signal handlers
 	// as it effectively breaks all debugging features

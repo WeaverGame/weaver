@@ -72,6 +72,10 @@ static cvar_t  *in_joystickNo = NULL;
 
 static cvar_t  *in_fullscreen = NULL;
 
+static cvar_t  *in_xbox360Controller = NULL;
+static cvar_t  *in_xbox360ControllerAvailable = NULL;
+static cvar_t  *in_xbox360ControllerDebug = NULL;
+
 #define CTRL(a) ((a)-'a'+1)
 
 /*
@@ -727,9 +731,15 @@ static void IN_InitJoystick(void)
 	stick = NULL;
 	memset(&stick_state, '\0', sizeof(stick_state));
 
-	if(!in_joystick->integer)
+	if(!in_joystick->integer && !in_xbox360Controller->integer)
 	{
 		Com_DPrintf("Joystick is not active.\n");
+
+		if(!in_xbox360Controller->integer)
+		{
+			Com_DPrintf("Gamepad is not active.\n");
+			Cvar_Set("in_xbox360ControllerAvailable", "0");
+		}
 		return;
 	}
 
@@ -769,6 +779,17 @@ static void IN_InitJoystick(void)
 	Com_DPrintf("Balls: %d\n", SDL_JoystickNumBalls(stick));
 
 	SDL_JoystickEventState(SDL_QUERY);
+
+	// XBox 360 controller support
+	if(	!Q_stricmp(SDL_JoystickName(in_joystickNo->integer), "Microsoft X-Box 360 pad") ||
+		!Q_stricmp(SDL_JoystickName(in_joystickNo->integer), "Controller (XBOX 360 For Windows)"))
+	{
+		Cvar_Set("in_xbox360ControllerAvailable", "1");
+	}
+	else
+	{
+		Cvar_Set("in_xbox360ControllerAvailable", "0");
+	}
 }
 
 /*
@@ -801,6 +822,9 @@ static void IN_JoyMove(void)
 	int             i = 0;
 
 	if(!stick)
+		return;
+
+	if(!in_joystick->integer)
 		return;
 
 	SDL_JoystickUpdate();
@@ -841,13 +865,24 @@ static void IN_JoyMove(void)
 	{
 		if(total > ARRAYLEN(stick_state.buttons))
 			total = ARRAYLEN(stick_state.buttons);
+
 		for(i = 0; i < total; i++)
 		{
 			qboolean        pressed = (SDL_JoystickGetButton(stick, i) != 0);
 
 			if(pressed != stick_state.buttons[i])
 			{
-				Com_QueueEvent(0, SE_KEY, K_JOY1 + i, pressed, 0, NULL);
+				if(in_xbox360ControllerAvailable->integer)
+				{
+					if(i == 0)
+					{
+						Com_QueueEvent(0, SE_KEY, K_XBOX360_A, pressed, 0, NULL);
+					}
+				}
+				else
+				{
+					Com_QueueEvent(0, SE_KEY, K_JOY1 + i, pressed, 0, NULL);
+				}
 				stick_state.buttons[i] = pressed;
 			}
 		}
@@ -990,6 +1025,265 @@ static void IN_JoyMove(void)
 	stick_state.oldaxes = axes;
 }
 
+
+
+static void IN_XBox360Axis(int controllerAxis, int gameAxis, float scale)
+{
+	Sint16          axis = SDL_JoystickGetAxis(stick, controllerAxis);
+	float           f = ((float)axis) / 32767.0f;
+
+	if(f > -in_joystickThreshold->value && f < in_joystickThreshold->value)
+	{
+		Com_QueueEvent(0, SE_JOYSTICK_AXIS, gameAxis, 0, 0, NULL);
+	}
+	else
+	{
+		if(in_xbox360ControllerDebug->integer)
+		{
+			Com_Printf("xbox axis %i = %f\n", controllerAxis, f);
+		}
+
+		Com_QueueEvent(0, SE_JOYSTICK_AXIS, gameAxis, f * scale, 0, NULL);
+	}
+}
+
+static int IN_XBox360AxisToButton(int controllerAxis, int key, float expectedStartValue, float threshold)
+{
+	unsigned int    axes = 0;
+
+	Sint16          axis = SDL_JoystickGetAxis(stick, controllerAxis);
+	float           f = ((float)axis) / 32767.0f;
+
+	/*
+	if(f < -in_joystickThreshold->value)
+	{
+		axes |= (1 << (controllerAxis * 2));
+	}
+	else if(f > in_joystickThreshold->value)
+	{
+		axes |= (1 << ((controllerAxis * 2) + 1));
+	}
+	*/
+
+	if(f > (expectedStartValue + threshold + in_joystickThreshold->value))
+	{
+		axes |= (1 << (controllerAxis));
+	}
+
+	if((axes & (1 << controllerAxis)) && !(stick_state.oldaxes & (1 << controllerAxis)))
+	{
+		Com_QueueEvent(0, SE_KEY, key, qtrue, 0, NULL);
+
+		if(in_xbox360ControllerDebug->integer)
+		{
+			Com_Printf("xbox axis = %i to key = Q:0x%02x(%s), value = %f\n", controllerAxis, key, Key_KeynumToString(key), f);
+		}
+	}
+
+	if(!(axes & (1 << controllerAxis)) && (stick_state.oldaxes & (1 << controllerAxis)))
+	{
+		Com_QueueEvent(0, SE_KEY, key, qfalse, 0, NULL);
+
+		if(in_xbox360ControllerDebug->integer)
+		{
+			Com_Printf("xbox axis = %i to key = Q:0x%02x(%s), value = %f\n", controllerAxis, key, Key_KeynumToString(key), f);
+		}
+	}
+
+	return axes;
+}
+
+/*
+===============
+IN_Xbox360ControllerMove
+===============
+*/
+static void IN_Xbox360ControllerMove(void)
+{
+	qboolean        joy_pressed[ARRAYLEN(joy_keys)];
+	unsigned int    axes = 0;
+	unsigned int    hat = 0;
+	int             total = 0;
+	int             i = 0;
+
+	if(!stick)
+		return;
+
+	SDL_JoystickUpdate();
+
+	memset(joy_pressed, '\0', sizeof(joy_pressed));
+
+	// query the stick buttons...
+	total = SDL_JoystickNumButtons(stick);
+	if(total > 0)
+	{
+		if(total > ARRAYLEN(stick_state.buttons))
+			total = ARRAYLEN(stick_state.buttons);
+
+		for(i = 0; i < total; i++)
+		{
+			qboolean        pressed = (SDL_JoystickGetButton(stick, i) != 0);
+
+			if(pressed != stick_state.buttons[i])
+			{
+				Com_QueueEvent(0, SE_KEY, K_XBOX360_A + i, pressed, 0, NULL);
+
+				if(in_xbox360ControllerDebug->integer)
+				{
+					Com_Printf("xbox button = %i to key = Q:0x%02x(%s)\n", i, K_XBOX360_A + i, Key_KeynumToString(K_XBOX360_A + i));
+				}
+				stick_state.buttons[i] = pressed;
+			}
+		}
+	}
+
+	// look at the hats...
+	total = SDL_JoystickNumHats(stick);
+	hat = SDL_JoystickGetHat(stick, 0);
+
+	// update hat state
+	if(hat != stick_state.oldhats)
+	{
+		if(hat != stick_state.oldhats)
+		{
+			int			key;
+
+			const int	allHatDirections = (SDL_HAT_UP |
+											SDL_HAT_RIGHT |
+											SDL_HAT_DOWN |
+											SDL_HAT_LEFT);
+
+			if(in_xbox360ControllerDebug->integer)
+			{
+				switch (hat & allHatDirections)
+				{
+					case SDL_HAT_UP:
+						key = K_XBOX360_DPAD_UP;
+						break;
+					case SDL_HAT_RIGHT:
+						key = K_XBOX360_DPAD_RIGHT;
+						break;
+					case SDL_HAT_DOWN:
+						key = K_XBOX360_DPAD_DOWN;
+						break;
+					case SDL_HAT_LEFT:
+						key = K_XBOX360_DPAD_LEFT;
+						break;
+					case SDL_HAT_RIGHTUP:
+						key = K_XBOX360_DPAD_RIGHTUP;
+						break;
+					case SDL_HAT_RIGHTDOWN:
+						key = K_XBOX360_DPAD_RIGHTDOWN;
+						break;
+					case SDL_HAT_LEFTUP:
+						key = K_XBOX360_DPAD_LEFTUP;
+						break;
+					case SDL_HAT_LEFTDOWN:
+						key = K_XBOX360_DPAD_LEFTDOWN;
+						break;
+					default:
+						break;
+				}
+
+				if(hat != SDL_HAT_CENTERED)
+					Com_Printf("xbox hat bits = %i to key = Q:0x%02x(%s)\n", hat, key, Key_KeynumToString(key));
+			}
+
+			// release event
+			switch (stick_state.oldhats & allHatDirections)
+			{
+				case SDL_HAT_UP:
+					Com_QueueEvent(0, SE_KEY, K_XBOX360_DPAD_UP, qfalse, 0, NULL);
+					break;
+				case SDL_HAT_RIGHT:
+					Com_QueueEvent(0, SE_KEY, K_XBOX360_DPAD_RIGHT, qfalse, 0, NULL);
+					break;
+				case SDL_HAT_DOWN:
+					Com_QueueEvent(0, SE_KEY, K_XBOX360_DPAD_DOWN, qfalse, 0, NULL);
+					break;
+				case SDL_HAT_LEFT:
+					Com_QueueEvent(0, SE_KEY, K_XBOX360_DPAD_LEFT, qfalse, 0, NULL);
+					break;
+				case SDL_HAT_RIGHTUP:
+					Com_QueueEvent(0, SE_KEY, K_XBOX360_DPAD_RIGHTUP, qfalse, 0, NULL);
+					break;
+				case SDL_HAT_RIGHTDOWN:
+					Com_QueueEvent(0, SE_KEY, K_XBOX360_DPAD_RIGHTDOWN, qfalse, 0, NULL);
+					break;
+				case SDL_HAT_LEFTUP:
+					Com_QueueEvent(0, SE_KEY, K_XBOX360_DPAD_LEFTUP, qfalse, 0, NULL);
+					break;
+				case SDL_HAT_LEFTDOWN:
+					Com_QueueEvent(0, SE_KEY, K_XBOX360_DPAD_LEFTDOWN, qfalse, 0, NULL);
+					break;
+				default:
+					break;
+			}
+
+			// press event
+			switch (hat & allHatDirections)
+			{
+				case SDL_HAT_UP:
+					Com_QueueEvent(0, SE_KEY, K_XBOX360_DPAD_UP, qtrue, 0, NULL);
+					break;
+				case SDL_HAT_RIGHT:
+					Com_QueueEvent(0, SE_KEY, K_XBOX360_DPAD_RIGHT, qtrue, 0, NULL);
+					break;
+				case SDL_HAT_DOWN:
+					Com_QueueEvent(0, SE_KEY, K_XBOX360_DPAD_DOWN, qtrue, 0, NULL);
+					break;
+				case SDL_HAT_LEFT:
+					Com_QueueEvent(0, SE_KEY, K_XBOX360_DPAD_LEFT, qtrue, 0, NULL);
+					break;
+				case SDL_HAT_RIGHTUP:
+					Com_QueueEvent(0, SE_KEY, K_XBOX360_DPAD_RIGHTUP, qtrue, 0, NULL);
+					break;
+				case SDL_HAT_RIGHTDOWN:
+					Com_QueueEvent(0, SE_KEY, K_XBOX360_DPAD_RIGHTDOWN, qtrue, 0, NULL);
+					break;
+				case SDL_HAT_LEFTUP:
+					Com_QueueEvent(0, SE_KEY, K_XBOX360_DPAD_LEFTUP, qtrue, 0, NULL);
+					break;
+				case SDL_HAT_LEFTDOWN:
+					Com_QueueEvent(0, SE_KEY, K_XBOX360_DPAD_LEFTDOWN, qtrue, 0, NULL);
+					break;
+				default:
+					break;
+			}
+		}
+	}
+
+	// save hat state
+	stick_state.oldhats = hat;
+
+#if defined(WIN32)
+	// use left stick for strafing
+	IN_XBox360Axis(0, AXIS_SIDE, 127);
+	IN_XBox360Axis(1, AXIS_FORWARD, -127);
+
+	// use right stick for viewing
+	IN_XBox360Axis(4, AXIS_YAW, -127);
+	IN_XBox360Axis(3, AXIS_PITCH, 127);
+
+	axes |= IN_XBox360AxisToButton(2, K_XBOX360_RT, -1, 0);
+	//axes |= IN_XBox360AxisToButton(5, K_XBOX360_RT, -1, 0);
+#else
+	// use left stick for strafing
+	IN_XBox360Axis(0, AXIS_SIDE, 127);
+	IN_XBox360Axis(1, AXIS_FORWARD, -127);
+
+	// use right stick for viewing
+	IN_XBox360Axis(3, AXIS_YAW, -127);
+	IN_XBox360Axis(4, AXIS_PITCH, 127);
+
+	axes |= IN_XBox360AxisToButton(2, K_XBOX360_LT, -1, 0);
+	axes |= IN_XBox360AxisToButton(5, K_XBOX360_RT, -1, 0);
+#endif
+
+	/* Save for future generations. */
+	stick_state.oldaxes = axes;
+}
+
 /*
 ===============
 IN_ProcessEvents
@@ -1095,7 +1389,15 @@ void IN_Frame(void)
 {
 	qboolean        loading;
 
-	IN_JoyMove();
+	if(in_xbox360ControllerAvailable->integer)
+	{
+		IN_Xbox360ControllerMove();
+	}
+	else
+	{
+		IN_JoyMove();
+	}
+
 	IN_ProcessEvents();
 
 	// If not DISCONNECTED (main menu) or ACTIVE (in game), we're loading
@@ -1150,6 +1452,10 @@ void IN_Init(void)
 #endif
 
 	in_fullscreen = Cvar_Get("r_fullscreen", "", 0);
+
+	in_xbox360Controller = Cvar_Get("in_xbox360Controller", "1", CVAR_TEMP);
+	in_xbox360ControllerAvailable = Cvar_Get("in_xbox360ControllerAvailable", "0", CVAR_ROM);
+	in_xbox360ControllerDebug = Cvar_Get("in_xbox360ControllerDebug", "0", CVAR_TEMP);
 
 	SDL_EnableUNICODE(1);
 	SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);

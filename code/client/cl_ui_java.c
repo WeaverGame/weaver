@@ -827,7 +827,7 @@ static jobject Java_NewEntityState(const entityState_t * ent)
 {
 	jobject obj = NULL;
 
-	if(class_PlayerState)
+	if(class_EntityState)
 	{
 		/*
 		public EntityState(int number, int eType, int eFlags,
@@ -1183,6 +1183,212 @@ jobject JNICALL Java_xreal_client_Client_getSnapshot(JNIEnv *env, jclass cls, ji
 	return Java_NewSnapshot(clSnap);
 }
 
+
+
+/*
+=====================
+CL_ConfigstringModified
+=====================
+*/
+static void CL_ConfigstringModified(void)
+{
+	char           *old, *s;
+	int             i, index;
+	char           *dup;
+	gameState_t     oldGs;
+	int             len;
+
+	index = atoi(Cmd_Argv(1));
+	if(index < 0 || index >= MAX_CONFIGSTRINGS)
+	{
+		Com_Error(ERR_DROP, "configstring > MAX_CONFIGSTRINGS");
+	}
+	// get everything after "cs <num>"
+	s = Cmd_ArgsFrom(2);
+
+	old = cl.gameState.stringData + cl.gameState.stringOffsets[index];
+	if(!strcmp(old, s))
+	{
+		return;					// unchanged
+	}
+
+	// build the new gameState_t
+	oldGs = cl.gameState;
+
+	Com_Memset(&cl.gameState, 0, sizeof(cl.gameState));
+
+	// leave the first 0 for uninitialized strings
+	cl.gameState.dataCount = 1;
+
+	for(i = 0; i < MAX_CONFIGSTRINGS; i++)
+	{
+		if(i == index)
+		{
+			dup = s;
+		}
+		else
+		{
+			dup = oldGs.stringData + oldGs.stringOffsets[i];
+		}
+		if(!dup[0])
+		{
+			continue;			// leave with the default empty string
+		}
+
+		len = strlen(dup);
+
+		if(len + 1 + cl.gameState.dataCount > MAX_GAMESTATE_CHARS)
+		{
+			Com_Error(ERR_DROP, "MAX_GAMESTATE_CHARS exceeded");
+		}
+
+		// append it to the gameState string buffer
+		cl.gameState.stringOffsets[i] = cl.gameState.dataCount;
+		Com_Memcpy(cl.gameState.stringData + cl.gameState.dataCount, dup, len + 1);
+		cl.gameState.dataCount += len + 1;
+	}
+
+	if(index == CS_SYSTEMINFO)
+	{
+		// parse serverId and other cvars
+		CL_SystemInfoChanged();
+	}
+
+}
+
+/*
+ * Class:     xreal_client_Client
+ * Method:    getServerCommand
+ * Signature: (I)[Ljava/lang/String;
+ */
+jobjectArray JNICALL Java_xreal_client_Client_getServerCommand(JNIEnv *env, jclass cls, jint serverCommandNumber)
+{
+	char           *s;
+	char           *cmd;
+	static char     bigConfigString[BIG_INFO_STRING];
+	int             argc;
+
+	// if we have irretrievably lost a reliable command, drop the connection
+	if(serverCommandNumber <= clc.serverCommandSequence - MAX_RELIABLE_COMMANDS)
+	{
+		// when a demo record was started after the client got a whole bunch of
+		// reliable commands then the client never got those first reliable commands
+		if(clc.demoplaying)
+			return NULL;
+
+		Com_Error(ERR_DROP, "Java_xreal_client_Client_getServerCommand: a reliable command was cycled out");
+		return NULL;
+	}
+
+	if(serverCommandNumber > clc.serverCommandSequence)
+	{
+		Com_Error(ERR_DROP, "Java_xreal_client_Client_getServerCommand: requested a command not received");
+		return NULL;
+	}
+
+	s = clc.serverCommands[serverCommandNumber & (MAX_RELIABLE_COMMANDS - 1)];
+	clc.lastExecutedServerCommand = serverCommandNumber;
+
+	Com_DPrintf("serverCommand: %i : %s\n", serverCommandNumber, s);
+
+  rescan:
+	Cmd_TokenizeString(s);
+	cmd = Cmd_Argv(0);
+	argc = Cmd_Argc();
+
+	if(!strcmp(cmd, "disconnect"))
+	{
+		// https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=552
+		// allow server to indicate why they were disconnected
+		if(argc >= 2)
+			Com_Error(ERR_SERVERDISCONNECT, "Server disconnected - %s", Cmd_Argv(1));
+		else
+			Com_Error(ERR_SERVERDISCONNECT, "Server disconnected\n");
+	}
+
+	if(!strcmp(cmd, "bcs0"))
+	{
+		Com_sprintf(bigConfigString, BIG_INFO_STRING, "cs %s \"%s", Cmd_Argv(1), Cmd_Argv(2));
+		return NULL;
+	}
+
+	if(!strcmp(cmd, "bcs1"))
+	{
+		s = Cmd_Argv(2);
+		if(strlen(bigConfigString) + strlen(s) >= BIG_INFO_STRING)
+		{
+			Com_Error(ERR_DROP, "bcs exceeded BIG_INFO_STRING");
+		}
+		strcat(bigConfigString, s);
+		return NULL;
+	}
+
+	if(!strcmp(cmd, "bcs2"))
+	{
+		s = Cmd_Argv(2);
+		if(strlen(bigConfigString) + strlen(s) + 1 >= BIG_INFO_STRING)
+		{
+			Com_Error(ERR_DROP, "bcs exceeded BIG_INFO_STRING");
+		}
+		strcat(bigConfigString, s);
+		strcat(bigConfigString, "\"");
+		s = bigConfigString;
+		goto rescan;
+	}
+
+	if(!strcmp(cmd, "cs"))
+	{
+		CL_ConfigstringModified();
+
+		// reparse the string, because CL_ConfigstringModified may have done another Cmd_TokenizeString()
+		Cmd_TokenizeString(s);
+
+		return Java_NewConsoleArgs();
+	}
+
+	if(!strcmp(cmd, "map_restart"))
+	{
+		// clear notify lines and outgoing commands before passing
+		// the restart to the cgame
+		Con_ClearNotify();
+
+		// reparse the string, because Con_ClearNotify() may have done another Cmd_TokenizeString()
+		Cmd_TokenizeString(s);
+		Com_Memset(cl.cmds, 0, sizeof(cl.cmds));
+
+		return Java_NewConsoleArgs();
+	}
+
+	// the clientLevelShot command is used during development
+	// to generate 128*128 screenshots from the intermission
+	// point of levels for the menu system to use
+	// we pass it along to the cgame to make apropriate adjustments,
+	// but we also clear the console and notify lines here
+	if(!strcmp(cmd, "clientLevelShot"))
+	{
+		// don't do it if we aren't running the server locally,
+		// otherwise malicious remote servers could overwrite
+		// the existing thumbnails
+		if(!com_sv_running->integer)
+		{
+			return NULL;
+		}
+
+		// close the console
+		Con_Close();
+
+		// take a special screenshot next frame
+		Cbuf_AddText("wait ; wait ; wait ; wait ; screenshot levelshot\n");
+
+		return Java_NewConsoleArgs();
+	}
+
+	// we may want to put a "connect to other server" command here
+
+	// cgame can now act on the command
+	return Java_NewConsoleArgs();
+}
+
 /*
  * Class:     xreal_client_Client
  * Method:    getKeyCatchers
@@ -1245,7 +1451,7 @@ void JNICALL Java_xreal_client_Client_setKeyBinding(JNIEnv *env, jclass cls, jin
  */
 jboolean JNICALL Java_xreal_client_Client_isKeyDown(JNIEnv *env, jclass cls, jint keynum)
 {
-	return Key_IsDown(keynum);
+	return (jboolean) Key_IsDown(keynum);
 }
 
 /*
@@ -1476,6 +1682,7 @@ static JNINativeMethod Client_methods[] = {
 	{"getCurrentSnapshotNumber", "()I", Java_xreal_client_Client_getCurrentSnapshotNumber},
 	{"getCurrentSnapshotTime", "()I", Java_xreal_client_Client_getCurrentSnapshotTime},
 	{"getSnapshot", "(I)Lxreal/client/Snapshot;", Java_xreal_client_Client_getSnapshot},
+	{"getServerCommand", "(I)[Ljava/lang/String;", Java_xreal_client_Client_getServerCommand},
 
 	{"getKeyCatchers", "()I", Java_xreal_client_Client_getKeyCatchers},
 	{"setKeyCatchers", "(I)V", Java_xreal_client_Client_setKeyCatchers},
@@ -1708,7 +1915,13 @@ jobject JNICALL Java_xreal_client_renderer_Renderer_registerFont(JNIEnv *env, jc
 
 	name = (char *)((*env)->GetStringUTFChars(env, jname, 0));
 
+	Com_Memset(&font, 0, sizeof(font));
+
 	re.RegisterFont(name, pointSize, &font);
+	if(font.name[0] == '\0')
+	{
+		Com_Error(ERR_DROP, "Java_xreal_client_renderer_Renderer_registerFont: Couldn't register font '%s'", name);
+	}
 
 	(*env)->ReleaseStringUTFChars(env, jname, name);
 

@@ -443,7 +443,7 @@ extern vec4_t   colorMdGrey;
 extern vec4_t   colorDkGrey;
 
 #define Q_COLOR_ESCAPE	'^'
-#define Q_IsColorString(p)	( p && *(p) == Q_COLOR_ESCAPE && *((p)+1) && *((p)+1) != Q_COLOR_ESCAPE )
+#define Q_IsColorString(p)	( p && *(p) == Q_COLOR_ESCAPE && *((p)+1) && *((p)+1) != Q_COLOR_ESCAPE )	// ^[0-9a-zA-Z]
 
 #define COLOR_BLACK		'0'
 #define COLOR_RED		'1'
@@ -454,8 +454,7 @@ extern vec4_t   colorDkGrey;
 #define COLOR_MAGENTA	'6'
 #define COLOR_WHITE		'7'
 
-#define MAX_CCODES	62
-int             ColorIndex(char ccode);
+#define ColorIndex(c)	(((c) - '0') & 0x07)
 
 #define S_COLOR_BLACK	"^0"
 #define S_COLOR_RED		"^1"
@@ -466,7 +465,7 @@ int             ColorIndex(char ccode);
 #define S_COLOR_MAGENTA	"^6"
 #define S_COLOR_WHITE	"^7"
 
-extern const vec4_t g_color_table[MAX_CCODES];
+extern const vec4_t g_color_table[8];
 
 #define	MAKERGB( v, r, g, b ) v[0]=r;v[1]=g;v[2]=b
 #define	MAKERGBA( v, r, g, b, a ) v[0]=r;v[1]=g;v[2]=b;v[3]=a

@@ -66,3 +66,22 @@ void CON_Print(const char *msg)
 	else
 		fputs(msg, stderr);
 }
+
+
+/*
+==================
+CON_SetVisibility
+==================
+*/
+void CON_SetVisibility(int visLevel)
+{
+}
+
+/*
+==================
+CON_SetErrorText
+==================
+*/
+void CON_SetErrorText(const char *buf)
+{
+}

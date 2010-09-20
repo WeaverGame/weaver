@@ -27,6 +27,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define QCONSOLE_HISTORY 32
 
+static HWND     qconsole_window = 0;
+static int      qconsole_visLevel = 0;
 static WORD     qconsole_attrib;
 
 // saved console status
@@ -145,10 +147,17 @@ static void CON_Show(void)
 	if(binfo.dwCursorPosition.X != 0)
 		return;
 
+#if 0
 	writeArea.Left = 0;
 	writeArea.Top = binfo.dwCursorPosition.Y;
 	writeArea.Bottom = binfo.dwCursorPosition.Y;
 	writeArea.Right = MAX_EDIT_LINE;
+#else
+	writeArea.Left = 0;
+	writeArea.Top = binfo.srWindow.Bottom;
+	writeArea.Bottom = binfo.srWindow.Bottom;
+	writeArea.Right = MAX_EDIT_LINE;
+#endif
 
 	// build a space-padded CHAR_INFO array
 	for(i = 0; i < MAX_EDIT_LINE; i++)
@@ -157,8 +166,7 @@ static void CON_Show(void)
 			line[i].Char.AsciiChar = qconsole_line[i];
 		else
 			line[i].Char.AsciiChar = ' ';
-
-		line[i].Attributes = qconsole_attrib;
+		line[i].Attributes = qconsole_attrib;// | BACKGROUND_BLUE | FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE;
 	}
 
 	if(qconsole_linelen > binfo.srWindow.Right)
@@ -182,6 +190,10 @@ void CON_Shutdown(void)
 	SetConsoleCursorInfo(qconsole_hout, &qconsole_orig_cursorinfo);
 	CloseHandle(qconsole_hout);
 	CloseHandle(qconsole_hin);
+
+	FreeConsole();
+	qconsole_window = 0;
+	qconsole_visLevel = 0;
 }
 
 /*
@@ -195,6 +207,20 @@ void CON_Init(void)
 	CONSOLE_SCREEN_BUFFER_INFO info;
 	int             i;
 
+	// inside main or an initialisation function, after calling SDL_Init (to be safe):
+    const char*		confile = "CONOUT$";
+    
+    FreeConsole();
+    if(!AllocConsole())
+    {
+		Com_Printf("couldn't allocate console\n");
+    }
+    else
+    {
+       freopen(confile, "w", stdout);
+       freopen(confile, "w", stderr);
+    }
+
 	// handle Ctrl-C or other console termination
 	SetConsoleCtrlHandler(CON_CtrlHandler, TRUE);
 
@@ -206,6 +232,9 @@ void CON_Init(void)
 	if(qconsole_hout == INVALID_HANDLE_VALUE)
 		return;
 
+	qconsole_window = GetConsoleWindow();
+	qconsole_visLevel = 1;
+
 	GetConsoleMode(qconsole_hin, &qconsole_orig_mode);
 
 	// allow mouse wheel scrolling
@@ -216,13 +245,15 @@ void CON_Init(void)
 	GetConsoleScreenBufferInfo(qconsole_hout, &info);
 	qconsole_attrib = info.wAttributes;
 
-	SetConsoleTitle("ioquake3 Dedicated Server Console");
+	SetConsoleTitle("XreaL Console");
 
 	// make cursor invisible
+#if 1
 	GetConsoleCursorInfo(qconsole_hout, &qconsole_orig_cursorinfo);
 	curs.dwSize = 1;
 	curs.bVisible = FALSE;
 	SetConsoleCursorInfo(qconsole_hout, &curs);
+#endif
 
 	// initialize history
 	for(i = 0; i < QCONSOLE_HISTORY; i++)
@@ -236,6 +267,7 @@ CON_Input
 */
 char           *CON_Input(void)
 {
+#if 1
 	INPUT_RECORD    buff[MAX_EDIT_LINE];
 	DWORD           count = 0, events = 0;
 	WORD            key = 0;
@@ -331,6 +363,77 @@ char           *CON_Input(void)
 	qconsole_linelen = 0;
 
 	return qconsole_line;
+#else
+	return NULL;
+#endif
+}
+
+
+static void CON_ColorPrint(const char *msg)
+{
+	static char     buffer[MAXPRINTMSG];
+	int             length = 0;
+	static int      q3ToWin[8] = {
+		0,														// COLOR_BLACK
+		FOREGROUND_RED,											// COLOR_RED
+		FOREGROUND_GREEN,										// COLOR_GREEN
+		FOREGROUND_RED | FOREGROUND_GREEN,						// COLOR_YELLOW
+		FOREGROUND_BLUE,										// COLOR_BLUE
+		FOREGROUND_GREEN | FOREGROUND_BLUE,						// COLOR_CYAN
+		FOREGROUND_RED | FOREGROUND_BLUE,						// COLOR_MAGENTA
+		FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE		// COLOR_WHITE
+	};
+
+	while(*msg)
+	{
+		if(Q_IsColorString(msg))
+		{
+			// First empty the buffer
+			if(length > 0)
+			{
+				buffer[length] = '\0';
+				fputs(buffer, stderr);
+				length = 0;
+			}
+
+			// Change the color code
+			SetConsoleTextAttribute(qconsole_hout, q3ToWin[ColorIndex(*(msg + 1))]);
+			msg += 2;
+		}
+		else if(*msg == '\n')// || *msg == '\r')
+		{
+			if(length > 0)
+			{
+				buffer[length] = '\0';
+				fputs(buffer, stderr);
+				length = 0;
+			}
+			
+			buffer[length++] = '\n';
+			msg++;
+
+			// Issue a reset and then the newline
+			SetConsoleTextAttribute(qconsole_hout, q3ToWin[ColorIndex(COLOR_WHITE)]);
+		}
+		else
+		{
+			if(length >= MAXPRINTMSG - 1)
+				break;
+
+			buffer[length] = *msg;
+			length++;
+			msg++;
+		}
+	}
+
+	// Empty anything still left in the buffer
+	if(length > 0)
+	{
+		buffer[length] = '\0';
+		fputs(buffer, stderr);
+	}
+
+	SetConsoleTextAttribute(qconsole_hout, q3ToWin[ColorIndex(COLOR_WHITE)]);
 }
 
 /*
@@ -340,7 +443,53 @@ CON_Print
 */
 void CON_Print(const char *msg)
 {
-	fputs(msg, stderr);
+	//if(com_ansiColor && com_ansiColor->integer)
+		CON_ColorPrint(msg);
+	//else
+	//	fputs(msg, stderr);
 
 	CON_Show();
+}
+
+/*
+==================
+CON_SetVisibility
+==================
+*/
+void CON_SetVisibility(int visLevel)
+{
+	if(!qconsole_window)
+		return;
+
+	if(visLevel == qconsole_visLevel)
+	{
+		return;
+	}
+
+	qconsole_visLevel = visLevel;
+
+	switch (visLevel)
+	{
+		case 0:
+			ShowWindow(qconsole_window, SW_HIDE);
+			break;
+		case 1:
+			ShowWindow(qconsole_window, SW_SHOWNORMAL);
+			break;
+		case 2:
+			ShowWindow(qconsole_window, SW_MINIMIZE);
+			break;
+		default:
+			Sys_Error("Invalid visLevel %d sent to CON_SetVisibility\n", visLevel);
+			break;
+	}
+}
+
+/*
+==================
+CON_SetErrorText
+==================
+*/
+void CON_SetErrorText(const char *buf)
+{
 }

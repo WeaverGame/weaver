@@ -9863,11 +9863,11 @@ static void RB_RenderDebugUtils()
 
 						VectorCopy(origin, tetraVerts[3]);
 						tetraVerts[3][3] = 1;
-						Tess_AddTetrahedron(tetraVerts, g_color_table[j % MAX_CCODES]);
+						Tess_AddTetrahedron(tetraVerts, g_color_table[ColorIndex(j)]);
 
 						VectorCopy(offset, tetraVerts[3]);
 						tetraVerts[3][3] = 1;
-						Tess_AddTetrahedron(tetraVerts, g_color_table[j % MAX_CCODES]);
+						Tess_AddTetrahedron(tetraVerts, g_color_table[ColorIndex(j)]);
 					}
 
 					MatrixTransformPoint(backEnd.orientation.transformMatrix, skel->bones[j].origin, worldOrigins[j]);
@@ -10261,7 +10261,7 @@ static void RB_RenderDebugUtils()
 
 				if(r_showBspNodes->integer == 4)
 				{
-					GLSL_SetUniform_Color(&tr.genericSingleShader, g_color_table[node->occlusionQueryNumbers[backEnd.viewParms.viewCount] % MAX_CCODES]);
+					GLSL_SetUniform_Color(&tr.genericSingleShader, g_color_table[ColorIndex(node->occlusionQueryNumbers[backEnd.viewParms.viewCount])]);
 				}
 
 				GL_CheckErrors();

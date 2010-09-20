@@ -61,6 +61,7 @@ static fileHandle_t logfile;
 fileHandle_t    com_journalFile;	// events are written here
 fileHandle_t    com_journalDataFile;	// config files are written here
 
+cvar_t         *com_viewlog;
 cvar_t         *com_speeds;
 cvar_t         *com_developer;
 cvar_t         *com_dedicated;
@@ -270,7 +271,7 @@ void QDECL Com_Error(int code, const char *fmt, ...)
 		if(!calledSysError)
 		{
 			calledSysError = qtrue;
-			Sys_Error("recursive error after: %s", com_errorMessage);
+			Sys_Error(S_COLOR_RED "recursive error after: %s" S_COLOR_WHITE, com_errorMessage);
 		}
 
 		return;
@@ -323,8 +324,8 @@ void QDECL Com_Error(int code, const char *fmt, ...)
 	}
 	else if(code == ERR_DROP)
 	{
-		Com_Printf("********************\nERROR: %s\n********************\n", com_errorMessage);
-		SV_Shutdown(va("Server crashed: %s", com_errorMessage));
+		Com_Printf(S_COLOR_RED "********************\n" S_COLOR_RED "ERROR: %s\n" S_COLOR_RED "********************\n", com_errorMessage);
+		SV_Shutdown(va(S_COLOR_RED "Server crashed: %s" S_COLOR_WHITE, com_errorMessage));
 		CL_Disconnect(qtrue);
 		VM_Forced_Unload_Start();
 		CL_FlushMemory();
@@ -335,8 +336,8 @@ void QDECL Com_Error(int code, const char *fmt, ...)
 	}
 	else
 	{
-		CL_Shutdown(va("Client fatal crashed: %s", com_errorMessage));
-		SV_Shutdown(va("Server fatal crashed: %s", com_errorMessage));
+		CL_Shutdown(va(S_COLOR_RED "Client fatal crashed: %s" S_COLOR_WHITE, com_errorMessage));
+		SV_Shutdown(va(S_COLOR_RED "Server fatal crashed: %s" S_COLOR_WHITE, com_errorMessage));
 
 #if defined(USE_JAVA)
 		JVM_Shutdown();
@@ -3738,6 +3739,14 @@ void Com_Init(char *commandLine)
 	// get the developer cvar set as early as possible
 	Com_StartupVariable("developer");
 
+#if defined(_DEBUG)
+	com_developer = Cvar_Get("developer", "1", CVAR_TEMP);
+	com_logfile = Cvar_Get("logfile", "2", CVAR_TEMP);
+#else
+	com_developer = Cvar_Get("developer", "0", CVAR_TEMP);
+	com_logfile = Cvar_Get("logfile", "0", CVAR_TEMP);
+#endif
+
 	// done early so bind command exists
 	CL_InitKeyCommands();
 
@@ -3790,18 +3799,11 @@ void Com_Init(char *commandLine)
 	com_maxfps = Cvar_Get("com_maxfps", "125", CVAR_ARCHIVE);
 	com_blood = Cvar_Get("com_blood", "1", CVAR_ARCHIVE);
 
-#if defined(_DEBUG)
-	com_developer = Cvar_Get("developer", "1", CVAR_TEMP);
-	com_logfile = Cvar_Get("logfile", "2", CVAR_TEMP);
-#else
-	com_developer = Cvar_Get("developer", "0", CVAR_TEMP);
-	com_logfile = Cvar_Get("logfile", "0", CVAR_TEMP);
-#endif
-
 	com_timescale = Cvar_Get("timescale", "1", CVAR_CHEAT | CVAR_SYSTEMINFO);
 	com_fixedtime = Cvar_Get("fixedtime", "0", CVAR_CHEAT);
 	com_showtrace = Cvar_Get("com_showtrace", "0", CVAR_CHEAT);
 	com_dropsim = Cvar_Get("com_dropsim", "0", CVAR_CHEAT);
+	com_viewlog = Cvar_Get("viewlog", "0", CVAR_CHEAT);
 	com_speeds = Cvar_Get("com_speeds", "0", 0);
 	com_timedemo = Cvar_Get("timedemo", "0", CVAR_CHEAT);
 	com_cameraMode = Cvar_Get("com_cameraMode", "0", CVAR_CHEAT);
@@ -4093,6 +4095,16 @@ void Com_Frame(void)
 
 	// write config file if anything changed
 	Com_WriteConfiguration();
+
+	// if "viewlog" has been modified, show or hide the log console
+	if(com_viewlog->modified)
+	{
+		//if(!com_dedicated->value)
+		{
+			Sys_SetConsoleVisibility(com_viewlog->integer);
+		}
+		com_viewlog->modified = qfalse;
+	}
 
 	//
 	// main event loop

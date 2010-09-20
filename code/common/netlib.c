@@ -1153,8 +1153,10 @@ UNIX
 
 ===================================================================
 */
-#if defined(__linux__) || defined(__APPLE__) || defined(__FreeBSD__) || defined(__sun)
+#if defined(__linux__) || defined(__APPLE__) || defined(__FreeBSD__) || defined(__sun) || defined(__SunOS__)
+#if defined(__sun) || defined(__SunOS__)
 #include <sys/filio.h>
+#endif
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/ioctl.h>

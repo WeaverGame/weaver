@@ -896,6 +896,7 @@ extern cvar_t  *com_speeds;
 extern cvar_t  *com_timescale;
 extern cvar_t  *com_sv_running;
 extern cvar_t  *com_cl_running;
+extern cvar_t  *com_viewlog;	// 0 = hidden, 1 = visible, 2 = minimized
 extern cvar_t  *com_version;
 extern cvar_t  *com_blood;
 extern cvar_t  *com_buildScript;	// for building release pak files
@@ -1141,6 +1142,7 @@ void            Sys_Quit(void);
 char           *Sys_GetClipboardData(void);	// note that this isn't journaled...
 
 void            Sys_Print(const char *msg);
+void            Sys_SetConsoleVisibility(int visLevel);
 
 // Sys_Milliseconds should only be used for profiling purposes,
 // any game related timing information should come from event timestamps

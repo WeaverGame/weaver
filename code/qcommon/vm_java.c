@@ -146,7 +146,23 @@ static qboolean JVM_JNI_Init()
 // handles to java.lang.Throwable class
 static jclass   class_Throwable = NULL;
 static jmethodID method_Throwable_printStackTrace = NULL;
+//static jmethodID method_Throwable_fillInStackTrace = NULL;
+static jmethodID method_Throwable_toString = NULL;
 jmethodID method_Throwable_getMessage = NULL;
+
+
+// handles to java.io.StringWriter class
+static jclass	class_StringWriter = NULL;
+static jmethodID method_StringWriter_ctor = NULL;
+static jmethodID method_StringWriter_toString = NULL;
+
+// handles to java.io.PrintWriter class
+static jclass	class_PrintWriter = NULL;
+static jmethodID method_PrintWriter_ctor = NULL;
+
+
+// handles to java.lang.String class
+static jclass	class_String = NULL;
 
 // handles to the javax.vecmath.Tuple3f class
 static jclass   class_Tuple3f = NULL;
@@ -172,11 +188,9 @@ static jmethodID method_Quat4f_ctor = NULL;
 static jclass   class_Trajectory = NULL;
 static jmethodID method_Trajectory_ctor = NULL;
 
-/**
- * @brief Convert a Java string (which is Unicode) to reasonable 7-bit ASCII.
- *
- * @author Berry Pederson
- */
+
+
+
 void Misc_javaRegister()
 {
 	class_Throwable = (*javaEnv)->FindClass(javaEnv, "java/lang/Throwable");
@@ -185,11 +199,19 @@ void Misc_javaRegister()
 		Com_Error(ERR_FATAL, "Couldn't find java.lang.Throwable");
 	}
 
-	method_Throwable_printStackTrace = (*javaEnv)->GetMethodID(javaEnv, class_Throwable, "printStackTrace", "()V");
+	method_Throwable_printStackTrace = (*javaEnv)->GetMethodID(javaEnv, class_Throwable, "printStackTrace", "(Ljava/io/PrintWriter;)V");
 	if(!method_Throwable_printStackTrace)
 	{
 		Com_Error(ERR_FATAL, "Couldn't find java.lang.Throwable.printStackTrace() method");
 	}
+
+	/*
+	method_Throwable_fillInStackTrace = (*javaEnv)->GetMethodID(javaEnv, class_Throwable, "fillInStackTrace", "()Ljava/lang/Throwable;");
+	if(!method_Throwable_fillInStackTrace)
+	{
+		Com_Error(ERR_FATAL, "Couldn't find java.lang.Throwable.fillInStackTrace() method");
+	}
+	*/
 
 	method_Throwable_getMessage = (*javaEnv)->GetMethodID(javaEnv, class_Throwable, "getMessage", "()Ljava/lang/String;");
 	if(!method_Throwable_getMessage)
@@ -197,7 +219,60 @@ void Misc_javaRegister()
 		Com_Error(ERR_FATAL, "Couldn't find java.lang.Throwable.getMessage() method");
 	}
 
-	// now that the java.lang.Class and java.lang.Throwable handles are obtained
+	method_Throwable_toString = (*javaEnv)->GetMethodID(javaEnv, class_Throwable, "toString", "()Ljava/lang/String;");
+	if(!method_Throwable_toString)
+	{
+		Com_Error(ERR_FATAL, "Couldn't find java.lang.Throwable.toString() method");
+	}
+
+
+	// get class java.io.StringWriter
+	class_StringWriter = (*javaEnv)->FindClass(javaEnv, "java/io/StringWriter");
+	if(!class_StringWriter)
+	{
+		Com_Error(ERR_FATAL, "Couldn't find java.io.StringWriter");
+	}
+
+	method_StringWriter_ctor = (*javaEnv)->GetMethodID(javaEnv, class_StringWriter, "<init>", "()V");
+	if(!method_StringWriter_ctor)
+	{
+		Com_Error(ERR_FATAL, "Couldn't find java.io.StringWriter constructor method");
+	}
+
+	method_StringWriter_toString = (*javaEnv)->GetMethodID(javaEnv, class_StringWriter, "toString", "()Ljava/lang/String;");
+	if(!method_StringWriter_toString)
+	{
+		Com_Error(ERR_FATAL, "Couldn't find java.io.StringWriter.toString() method");
+	}
+
+
+
+
+	// get class java.io.PrintWriter
+	class_PrintWriter = (*javaEnv)->FindClass(javaEnv, "java/io/PrintWriter");
+	if(!class_PrintWriter)
+	{
+		Com_Error(ERR_FATAL, "Couldn't find java.io.PrintWriter");
+	}
+
+	method_PrintWriter_ctor = (*javaEnv)->GetMethodID(javaEnv, class_PrintWriter, "<init>", "(Ljava/io/Writer;)V");
+	if(!method_PrintWriter_ctor)
+	{
+		Com_Error(ERR_FATAL, "Couldn't find java.io.PrintWriter constructor method");
+	}
+
+
+
+	// get class java.lang.String
+	class_String = (*javaEnv)->FindClass(javaEnv, "java/lang/String");
+	if(!class_String)
+	{
+		Com_Error(ERR_FATAL, "Couldn't find java.lang.String");
+	}
+
+
+
+	// now that the java.lang.Class, java.lang.Throwable handles are obtained
 	// we can start checking for exceptions
 
 	class_Tuple3f = (*javaEnv)->FindClass(javaEnv, "javax/vecmath/Tuple3f");
@@ -293,6 +368,12 @@ void Misc_javaDetach()
 		class_Throwable = NULL;
 	}
 
+	if(class_String)
+	{
+		(*javaEnv)->DeleteLocalRef(javaEnv, class_String);
+		class_String = NULL;
+	}
+
 	if(class_Tuple3f)
 	{
 		(*javaEnv)->DeleteLocalRef(javaEnv, class_Tuple3f);
@@ -368,7 +449,7 @@ jobject Java_NewQuat4f(const quat_t q)
 
 	if(class_Quat4f)
 	{
-		obj = (*javaEnv)->NewObject(javaEnv, class_Quat4f, method_Quat4f_ctor, q[0], q[1], q[2]);
+		obj = (*javaEnv)->NewObject(javaEnv, class_Quat4f, method_Quat4f_ctor, q[0], q[1], q[2], q[3]);
 	}
 
 	return obj;
@@ -442,6 +523,24 @@ void JNICALL Java_xreal_CVar_set0(JNIEnv * env, jclass cls, jstring jname, jstri
 
 /*
  * Class:     xreal_CVar
+ * Method:    set0
+ * Signature: (Ljava/lang/String;)V
+ */
+void JNICALL Java_xreal_CVar_reset0(JNIEnv * env, jclass cls, jstring jname)
+{
+	char           *varName;
+
+	varName = (char *)((*env)->GetStringUTFChars(env, jname, 0));
+	
+	Cvar_Reset(varName);
+
+	(*env)->ReleaseStringUTFChars(env, jname, varName);
+
+	//CheckException();
+}
+
+/*
+ * Class:     xreal_CVar
  * Method:    getString0
  * Signature: (I)Ljava/lang/String;
  */
@@ -483,6 +582,7 @@ static jclass   class_CVar;
 static JNINativeMethod CVar_methods[] = {
 	{"register0", "(Ljava/lang/String;Ljava/lang/String;I)I", Java_xreal_CVar_register0},
 	{"set0", "(Ljava/lang/String;Ljava/lang/String;)V", Java_xreal_CVar_set0},
+	{"reset0", "(Ljava/lang/String;)V", Java_xreal_CVar_reset0},
 	{"getString0", "(I)Ljava/lang/String;", Java_xreal_CVar_getString0},
 	{"getValue0", "(I)F", Java_xreal_CVar_getValue0},
 	{"getInteger0", "(I)I", Java_xreal_CVar_getInteger0},
@@ -626,29 +726,75 @@ jint JNICALL Java_xreal_Engine_getTimeInMilliseconds(JNIEnv *env, jclass cls)
  * Method:    getConsoleArgc
  * Signature: ()I
  */
+/*
 jint JNICALL Java_xreal_Engine_getConsoleArgc(JNIEnv *env, jclass cls)
 {
 	return Cmd_Argc();
 }
+*/
 
 /*
  * Class:     xreal_Engine
  * Method:    getConsoleArgv
  * Signature: (I)Ljava/lang/String;
  */
+/*
 jstring JNICALL Java_xreal_Engine_getConsoleArgv(JNIEnv *env, jclass cls, jint arg)
 {
 	return (*env)->NewStringUTF(env, Cmd_Argv(arg));
 }
+*/
 
 /*
  * Class:     xreal_Engine
  * Method:    getConsoleArgs
  * Signature: ()Ljava/lang/String;
  */
+/*
 jstring JNICALL Java_xreal_Engine_getConsoleArgs(JNIEnv *env, jclass cls)
 {
 	return (*env)->NewStringUTF(env, Cmd_Args());
+}
+*/
+
+
+
+jobjectArray Java_NewConsoleArgs()
+{
+#if 1
+	int				i, argc;
+	jobjectArray 	argsArray = NULL;
+
+	argc = Cmd_Argc();
+	if(argc <= 0)
+		return NULL;
+
+	argsArray = (*javaEnv)->NewObjectArray(javaEnv, argc, class_String, NULL);
+
+	for(i = 0; i < argc; i++) {
+
+		jstring	argv = (*javaEnv)->NewStringUTF(javaEnv, Cmd_Argv(i));
+
+		(*javaEnv)->SetObjectArrayElement(javaEnv, argsArray, i, argv);
+	}
+
+	CheckException();
+
+	return argsArray;
+#else
+	return NULL;
+#endif
+}
+
+
+/*
+ * Class:     xreal_Engine
+ * Method:    getConsoleArgs
+ * Signature: ()[Ljava/lang/String;
+ */
+jobjectArray JNICALL Java_xreal_Engine_getConsoleArgs(JNIEnv *env, jclass cls)
+{
+	return Java_NewConsoleArgs();
 }
 
 /*
@@ -733,9 +879,14 @@ static JNINativeMethod Engine_methods[] = {
 	{"print", "(Ljava/lang/String;)V", Java_xreal_Engine_print},
 	{"error", "(Ljava/lang/String;)V", Java_xreal_Engine_error},
 	{"getTimeInMilliseconds", "()I", Java_xreal_Engine_getTimeInMilliseconds},
-	{"getConsoleArgc", "()I", Java_xreal_Engine_getConsoleArgc},
-	{"getConsoleArgv", "(I)Ljava/lang/String;", Java_xreal_Engine_getConsoleArgv},
-	{"getConsoleArgs", "()Ljava/lang/String;", Java_xreal_Engine_getConsoleArgs},
+
+//	{"getConsoleArgc", "()I", Java_xreal_Engine_getConsoleArgc},
+//	{"getConsoleArgv", "(I)Ljava/lang/String;", Java_xreal_Engine_getConsoleArgv},
+//	{"getConsoleArgs", "()Ljava/lang/String;", Java_xreal_Engine_getConsoleArgs},
+
+	{"getConsoleArgs", "()[Ljava/lang/String;", Java_xreal_Engine_getConsoleArgs},
+
+
 	{"sendConsoleCommand", "(ILjava/lang/String;)V", Java_xreal_Engine_sendConsoleCommand},
 	{"readFile", "(Ljava/lang/String;)[B", Java_xreal_Engine_readFile},
 	{"writeFile", "(Ljava/lang/String;[B)V", Java_xreal_Engine_writeFile}
@@ -830,12 +981,50 @@ void ConvertJavaString(char *dest, jstring jstr, int destsize)
 //  return result;
 }
 
-/**
- * @author Berry Pederson
- */
+
+
+static void GetExceptionMessage(jthrowable ex, char *dest, int destsize)
+{
+	char           *message;
+	jstring			msgObject;
+	
+
+	//(*javaEnv)->CallVoidMethod(javaEnv, ex, method_Throwable_fillInStackTrace);
+
+	msgObject = (*javaEnv)->CallObjectMethod(javaEnv, ex, method_Throwable_toString);
+	message = (char *)((*javaEnv)->GetStringUTFChars(javaEnv, msgObject, 0));
+
+	Q_strncpyz(dest, message, destsize);
+
+	(*javaEnv)->ReleaseStringUTFChars(javaEnv, msgObject, message);
+}
+
+static void GetExceptionStackTrace(jthrowable ex, char *dest, int destsize)
+{
+	char           *message;
+	jstring			stringObject;
+	jobject			stringWriter;
+	jobject			printWriter;
+
+	//(*javaEnv)->CallVoidMethod(javaEnv, ex, method_Throwable_fillInStackTrace);
+
+	stringWriter = (*javaEnv)->NewObject(javaEnv, class_StringWriter, method_StringWriter_ctor);
+	printWriter = (*javaEnv)->NewObject(javaEnv, class_PrintWriter, method_PrintWriter_ctor, stringWriter);
+
+	(*javaEnv)->CallVoidMethod(javaEnv, ex, method_Throwable_printStackTrace, printWriter);
+	stringObject = (*javaEnv)->CallObjectMethod(javaEnv, stringWriter, method_StringWriter_toString);
+	
+	message = (char *)((*javaEnv)->GetStringUTFChars(javaEnv, stringObject, 0));
+
+	Q_strncpyz(dest, message, destsize);
+
+	(*javaEnv)->ReleaseStringUTFChars(javaEnv, stringObject, message);
+}
+
 qboolean CheckException_(char *filename, int linenum)
 {
 	jthrowable      ex;
+	char			message[MAXPRINTMSG];
 
 	ex = (*javaEnv)->ExceptionOccurred(javaEnv);
 	if(!ex)
@@ -843,12 +1032,20 @@ qboolean CheckException_(char *filename, int linenum)
 
 	(*javaEnv)->ExceptionClear(javaEnv);
 
-	Com_Printf("%s line: %d\n-----------------\n", filename, linenum);
+	Com_Printf(S_COLOR_RED "%s line: %d\n-----------------\n", filename, linenum);
 
-	(*javaEnv)->CallVoidMethod(javaEnv, ex, method_Throwable_printStackTrace);
+	//(*javaEnv)->CallVoidMethod(javaEnv, ex, method_Throwable_printStackTrace);
+
+	GetExceptionMessage(ex, message, sizeof(message));
+	Com_Printf(S_COLOR_RED "message: %s\n", message);
+
+	GetExceptionStackTrace(ex, message, sizeof(message));
+	Com_Printf(S_COLOR_RED "stacktrace: %s\n", message);
+	Cvar_Set("com_stackTrace", message);
 
 	return qtrue;
 }
+
 
 
 
@@ -932,7 +1129,7 @@ void JVM_Init(void)
 
 	jvm_javaLib = Cvar_Get("jvm_javaLib", DEFAULT_JAVA_LIB, CVAR_ARCHIVE | CVAR_LATCH);
 	jvm_useJITCompiler = Cvar_Get("jvm_useJITCompiler", "1", CVAR_INIT);
-	jvm_useJAR = Cvar_Get("jvm_useJAR", "1", CVAR_ARCHIVE | CVAR_LATCH);
+	jvm_useJAR = Cvar_Get("jvm_useJAR", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	jvm_remoteDebugging = Cvar_Get("jvm_remoteDebugging", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	jvm_profiling = Cvar_Get("jvm_profiling", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	jvm_verboseJNI = Cvar_Get("jvm_verboseJNI", "0", CVAR_ARCHIVE | CVAR_LATCH);

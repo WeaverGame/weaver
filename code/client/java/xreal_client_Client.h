@@ -7,6 +7,10 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+#undef xreal_client_Client_CMD_BACKUP
+#define xreal_client_Client_CMD_BACKUP 64L
+#undef xreal_client_Client_CMD_MASK
+#define xreal_client_Client_CMD_MASK 63L
 /*
  * Class:     xreal_client_Client
  * Method:    getConfigString
@@ -37,6 +41,14 @@ JNIEXPORT jint JNICALL Java_xreal_client_Client_getCurrentSnapshotTime
  * Signature: (I)Lxreal/client/Snapshot;
  */
 JNIEXPORT jobject JNICALL Java_xreal_client_Client_getSnapshot
+  (JNIEnv *, jclass, jint);
+
+/*
+ * Class:     xreal_client_Client
+ * Method:    getServerCommand
+ * Signature: (I)[Ljava/lang/String;
+ */
+JNIEXPORT jobjectArray JNICALL Java_xreal_client_Client_getServerCommand
   (JNIEnv *, jclass, jint);
 
 /*
