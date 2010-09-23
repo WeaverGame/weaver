@@ -734,13 +734,7 @@ void ClientEvents(gentity_t * ent, int oldEventSequence)
 
 				break;
 
-			case EV_USE_ITEM3:	// kamikaze
-#ifdef MISSIONPACK
-				// make sure the invulnerability is off
-				ent->client->invulnerabilityTime = 0;
-#endif
-				// start the kamikze
-				G_StartKamikaze(ent);
+			case EV_USE_ITEM3:
 				break;
 
 #ifdef MISSIONPACK
@@ -1082,9 +1076,6 @@ void ClientRevived(gentity_t * ent)
 	// prepare revived client similar to code in ClientSpawn(ent)
 
 	client->pers.teamState.state = TEAM_ACTIVE;
-
-	// always clear the kamikaze flag
-	ent->s.eFlags &= ~EF_KAMIKAZE;
 
 	//WEAVER
 	//clear held weaves

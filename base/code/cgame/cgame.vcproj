@@ -737,6 +737,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\cg_sword.c"
+				>
+			</File>
+			<File
 				RelativePath="cg_syscalls.c"
 				>
 				<FileConfiguration

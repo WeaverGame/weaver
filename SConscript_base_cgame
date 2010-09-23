@@ -37,6 +37,7 @@ cgame_src = [
 'base/code/cgame/cg_spell_hud.c',
 'base/code/cgame/cg_spell_sense.c',
 'base/code/cgame/cg_spell_weaves.c',
+'base/code/cgame/cg_sword.c',
 'base/code/game/spell_shared.c'
 ]
 

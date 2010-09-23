@@ -219,7 +219,7 @@ int Pickup_Holdable(gentity_t * ent, gentity_t * other)
 
 	if(ent->item->giTag == HI_KAMIKAZE)
 	{
-		other->client->ps.eFlags |= EF_KAMIKAZE;
+		//other->client->ps.eFlags |= EF_KAMIKAZE;
 	}
 
 	return RESPAWN_HOLDABLE;
@@ -921,7 +921,6 @@ void ClearRegisteredItems(void)
 	memset(itemRegistered, 0, sizeof(itemRegistered));
 
 	// players always start with the base weapon
-	RegisterItem(BG_FindItemForWeapon(WP_MACHINEGUN));
 	RegisterItem(BG_FindItemForWeapon(WP_GAUNTLET));
 
 	if(g_gametype.integer == GT_HARVESTER)

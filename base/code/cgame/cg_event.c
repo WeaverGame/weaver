@@ -183,52 +183,7 @@ static void CG_Obituary(entityState_t * ent)
 		gender = ci->gender;
 		switch (mod)
 		{
-			case MOD_KAMIKAZE:
-				message = "goes out with a bang";
-				break;
-			case MOD_GRENADE_SPLASH:
-				if(gender == GENDER_FEMALE)
-					message = "tripped on her own grenade";
-				else if(gender == GENDER_NEUTER)
-					message = "tripped on its own grenade";
-				else
-					message = "tripped on his own grenade";
-				break;
-			case MOD_ROCKET_SPLASH:
-				if(gender == GENDER_FEMALE)
-					message = "blew herself up";
-				else if(gender == GENDER_NEUTER)
-					message = "blew itself up";
-				else
-					message = "blew himself up";
-				break;
-			case MOD_PLASMA_SPLASH:
-				if(gender == GENDER_FEMALE)
-					message = "melted herself";
-				else if(gender == GENDER_NEUTER)
-					message = "melted itself";
-				else
-					message = "melted himself";
-				break;
-			case MOD_BFG_SPLASH:
-				message = "should have used a smaller gun";
-				break;
-#ifdef MISSIONPACK
-			case MOD_PROXIMITY_MINE:
-				if(gender == GENDER_FEMALE)
-				{
-					message = "found her prox mine";
-				}
-				else if(gender == GENDER_NEUTER)
-				{
-					message = "found it's prox mine";
-				}
-				else
-				{
-					message = "found his prox mine";
-				}
-				break;
-#endif
+			//TODO: suicide messages for spells
 			default:
 				if(gender == GENDER_FEMALE)
 					message = "killed herself";
@@ -293,83 +248,14 @@ static void CG_Obituary(entityState_t * ent)
 	{
 		switch (mod)
 		{
-			case MOD_GRAPPLE:
-				message = "was caught by";
-				break;
 			case MOD_GAUNTLET:
 				message = "was pummeled by";
 				break;
-			case MOD_MACHINEGUN:
-				message = "was machinegunned by";
-				break;
-			case MOD_SHOTGUN:
-				message = "was gunned down by";
-				break;
-			case MOD_GRENADE:
-				message = "ate";
-				message2 = "'s grenade";
-				break;
-			case MOD_GRENADE_SPLASH:
-				message = "was shredded by";
-				message2 = "'s shrapnel";
-				break;
-			case MOD_ROCKET:
-				message = "ate";
-				message2 = "'s rocket";
-				break;
-			case MOD_ROCKET_SPLASH:
-				message = "almost dodged";
-				message2 = "'s rocket";
-				break;
-			case MOD_PLASMA:
-				message = "was melted by";
-				message2 = "'s plasmagun";
-				break;
-			case MOD_PLASMA_SPLASH:
-				message = "was melted by";
-				message2 = "'s plasmagun";
-				break;
-			case MOD_RAILGUN:
-				message = "was railed by";
-				break;
-			case MOD_RAILGUN_SPLASH:
-				message = "was blasted by";
-				message2 = "'s railgun";
-				break;
-			case MOD_LIGHTNING:
-				message = "was electrocuted by";
-				break;
-			case MOD_BFG:
-			case MOD_BFG_SPLASH:
-				message = "was blasted by";
-				message2 = "'s BFG";
-				break;
-			case MOD_NAIL:
-				message = "was nailed by";
-				break;
-#ifdef MISSIONPACK
-			case MOD_CHAINGUN:
-				message = "got lead poisoning from";
-				message2 = "'s Chaingun";
-				break;
-			case MOD_PROXIMITY_MINE:
-				message = "was too close to";
-				message2 = "'s Prox Mine";
-				break;
-#endif
-			case MOD_KAMIKAZE:
-				message = "falls to";
-				message2 = "'s Kamikaze blast";
-				break;
-#ifdef MISSIONPACK
-			case MOD_JUICED:
-				message = "was juiced by";
-				break;
-#endif
 			case MOD_TELEFRAG:
 				message = "tried to invade";
 				message2 = "'s personal space";
 				break;
+			//TODO: death messages for spells.
 			default:
 				message = "was killed by";
 				break;
@@ -444,15 +330,6 @@ static void CG_UseItem(centity_t * cent)
 
 		case HI_KAMIKAZE:
 			break;
-
-#ifdef MISSIONPACK
-		case HI_PORTAL:
-			break;
-
-		case HI_INVULNERABILITY:
-			trap_S_StartSound(NULL, es->number, CHAN_BODY, cgs.media.useInvulnerabilitySound);
-			break;
-#endif
 	}
 
 }
@@ -473,7 +350,7 @@ static void CG_ItemPickup(int itemNum)
 	if(bg_itemlist[itemNum].giType == IT_WEAPON)
 	{
 		// select it immediately
-		if(cg_autoswitch.integer && bg_itemlist[itemNum].giTag != WP_MACHINEGUN)
+		if(cg_autoswitch.integer)
 		{
 			cg.weaponSelectTime = cg.time;
 			cg.weaponSelect = bg_itemlist[itemNum].giTag;
@@ -1065,7 +942,6 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 
 		case EV_RAILTRAIL:
 			DEBUGNAME("EV_RAILTRAIL");
-			cent->currentState.weapon = WP_RAILGUN;
 			// draw a rail trail, because it wasn't predicted
 			CG_RailTrail(ci, es->origin2, es->pos.trBase);
 			if(es->eventParm != 255)
@@ -1295,10 +1171,8 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 			// don't play gib sound when using the kamikaze because it interferes
 			// with the kamikaze sound, downside is that the gib sound will also
 			// not be played when someone is gibbed while just carrying the kamikaze
-			if(!(es->eFlags & EF_KAMIKAZE))
-			{
-				trap_S_StartSound(NULL, es->number, CHAN_BODY, cgs.media.gibSound);
-			}
+			trap_S_StartSound(NULL, es->number, CHAN_BODY, cgs.media.gibSound);
+
 			//CG_GibPlayer(cent->lerpOrigin);
 			CG_ParticleGibEffect(cent->lerpOrigin);
 			break;

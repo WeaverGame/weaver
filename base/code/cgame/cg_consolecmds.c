@@ -88,9 +88,6 @@ static void CG_Viewpos_f(void)
 static void CG_ScoresDown_f(void)
 {
 
-#ifdef MISSIONPACK
-	CG_BuildSpectatorString();
-#endif
 	if(cg.scoresRequestTime + 2000 < cg.time)
 	{
 		// the scores are more than two seconds out of data,
@@ -483,29 +480,6 @@ static consoleCommand_t commands[] = {
 
 	{"+osd", CG_OSDUp_f},
 	{"-osd", CG_OSDDown_f},
-
-#ifdef MISSIONPACK
-	{"nextTeamMember", CG_NextTeamMember_f},
-	{"prevTeamMember", CG_PrevTeamMember_f},
-	{"nextOrder", CG_NextOrder_f},
-	{"confirmOrder", CG_ConfirmOrder_f},
-	{"denyOrder", CG_DenyOrder_f},
-	{"taskOffense", CG_TaskOffense_f},
-	{"taskDefense", CG_TaskDefense_f},
-	{"taskPatrol", CG_TaskPatrol_f},
-	{"taskCamp", CG_TaskCamp_f},
-	{"taskFollow", CG_TaskFollow_f},
-	{"taskRetrieve", CG_TaskRetrieve_f},
-	{"taskEscort", CG_TaskEscort_f},
-	{"taskSuicide", CG_TaskSuicide_f},
-	{"taskOwnFlag", CG_TaskOwnFlag_f},
-	{"tauntKillInsult", CG_TauntKillInsult_f},
-	{"tauntPraise", CG_TauntPraise_f},
-	{"tauntTaunt", CG_TauntTaunt_f},
-	{"tauntDeathInsult", CG_TauntDeathInsult_f},
-	{"tauntGauntlet", CG_TauntGauntlet_f},
-	{"startOrbit", CG_StartOrbit_f},
-#endif
 
 #ifdef CG_LUA
 	{"restartLuaCGameVM", CG_RestartLua_f},

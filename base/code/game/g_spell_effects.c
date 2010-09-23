@@ -437,7 +437,7 @@ qboolean FireWeave_FireDartsBase(gentity_t * self, vec3_t start, vec3_t dir, int
 	if(traceEnt->takedamage)
 	{
 		//TODO: change mod per weaveID
-		G_Damage(traceEnt, self, self, dir, tr.endpos, WEAVE_FIREDARTS_DAMAGE, 0, MOD_MACHINEGUN);
+		G_Damage(traceEnt, self, self, dir, tr.endpos, WEAVE_FIREDARTS_DAMAGE, 0, MOD_A_FIRE_DARTS);
 	}
 
 	VectorCopy(tr.endpos, end);

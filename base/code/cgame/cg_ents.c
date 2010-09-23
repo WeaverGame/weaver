@@ -621,40 +621,11 @@ static void CG_Projectile(centity_t * cent)
 	VectorCopy(cent->lerpOrigin, ent.origin);
 	VectorCopy(cent->lerpOrigin, ent.oldorigin);
 
-	if(cent->currentState.weapon == WP_PLASMAGUN)
-	{
-		ent.reType = RT_SPRITE;
-		ent.radius = 16;
-		ent.rotation = 0;
-		ent.customShader = cgs.media.plasmaBallShader;
-		trap_R_AddRefEntityToScene(&ent);
-		return;
-	}
-
 	// flicker between two skins
 	ent.skinNum = cg.clientFrame & 1;
 	ent.hModel = weapon->projectileModel;
 	ent.renderfx = weapon->projectileRenderfx | RF_NOSHADOW;
 
-#ifdef MISSIONPACK
-	if(cent->currentState.weapon == WP_PROX_LAUNCHER)
-	{
-		if(s1->generic1 == TEAM_BLUE)
-		{
-			ent.hModel = cgs.media.blueProxMine;
-		}
-	}
-#endif
-
-#if defined(USE_JAVA)
-	{
-		vec3_t          angles;
-
-		//VectorToAngles(s1->pos.trDelta, angles);
-		//AnglesToAxis(angles, ent.axis);
-		AnglesToAxis(cent->lerpAngles, ent.axis);
-	}
-#else
 	// convert direction of travel into axis
 	if(VectorNormalize2(s1->pos.trDelta, ent.axis[0]) == 0)
 	{
@@ -668,18 +639,8 @@ static void CG_Projectile(centity_t * cent)
 	}
 	else
 	{
-#ifdef MISSIONPACK
-		if(s1->weapon == WP_PROX_LAUNCHER)
-		{
-			AnglesToAxis(cent->lerpAngles, ent.axis);
-		}
-		else
-#endif
-		{
-			RotateAroundDirection(ent.axis, s1->time);
-		}
+		RotateAroundDirection(ent.axis, s1->time);
 	}
-#endif
 
 	// add to refresh list
 	trap_R_AddRefEntityToScene(&ent);
@@ -753,30 +714,10 @@ static void CG_Projectile2(centity_t * cent)
 	VectorCopy(cent->lerpOrigin, ent.origin);
 	VectorCopy(cent->lerpOrigin, ent.oldorigin);
 
-	if(cent->currentState.weapon == WP_PLASMAGUN)
-	{
-		ent.reType = RT_SPRITE;
-		ent.radius = 16;
-		ent.rotation = 0;
-		ent.customShader = cgs.media.plasmaBallShader;
-		trap_R_AddRefEntityToScene(&ent);
-		return;
-	}
-
 	// flicker between two skins
 	ent.skinNum = cg.clientFrame & 1;
 	ent.hModel = weapon->projectileModel2;
 	ent.renderfx = weapon->projectileRenderfx2 | RF_NOSHADOW;
-
-#ifdef MISSIONPACK
-	if(cent->currentState.weapon == WP_PROX_LAUNCHER)
-	{
-		if(s1->generic1 == TEAM_BLUE)
-		{
-			ent.hModel = cgs.media.blueProxMine;
-		}
-	}
-#endif
 
 	// convert direction of travel into axis
 	if(VectorNormalize2(s1->pos.trDelta, ent.axis[0]) == 0)

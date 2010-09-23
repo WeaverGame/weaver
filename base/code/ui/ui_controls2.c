@@ -488,39 +488,39 @@ static void Controls_UpdateModel(int anim)
 			break;
 
 		case ANIM_WEAPON1:
-			s_controls.playerWeapon = WP_GAUNTLET;
+			//s_controls.playerWeapon = WP_GAUNTLET;
 			break;
 
 		case ANIM_WEAPON2:
-			s_controls.playerWeapon = WP_MACHINEGUN;
+			//s_controls.playerWeapon = WP_MACHINEGUN;
 			break;
 
 		case ANIM_WEAPON3:
-			s_controls.playerWeapon = WP_SHOTGUN;
+			//s_controls.playerWeapon = WP_SHOTGUN;
 			break;
 
 		case ANIM_WEAPON4:
-			s_controls.playerWeapon = WP_FLAK_CANNON;
+			//s_controls.playerWeapon = WP_FLAK_CANNON;
 			break;
 
 		case ANIM_WEAPON5:
-			s_controls.playerWeapon = WP_ROCKET_LAUNCHER;
+			//s_controls.playerWeapon = WP_ROCKET_LAUNCHER;
 			break;
 
 		case ANIM_WEAPON6:
-			s_controls.playerWeapon = WP_LIGHTNING;
+			//s_controls.playerWeapon = WP_LIGHTNING;
 			break;
 
 		case ANIM_WEAPON7:
-			s_controls.playerWeapon = WP_RAILGUN;
+			//s_controls.playerWeapon = WP_RAILGUN;
 			break;
 
 		case ANIM_WEAPON8:
-			s_controls.playerWeapon = WP_PLASMAGUN;
+			//s_controls.playerWeapon = WP_PLASMAGUN;
 			break;
 
 		case ANIM_WEAPON9:
-			s_controls.playerWeapon = WP_BFG;
+			//s_controls.playerWeapon = WP_BFG;
 			break;
 
 		case ANIM_ATTACK:

@@ -94,29 +94,26 @@ void TossClientItems(gentity_t * self)
 	int             i;
 	gentity_t      *drop;
 
-	// drop the weapon if not a gauntlet or machinegun
+	// drop the weapon if a gauntlet
 	weapon = self->s.weapon;
 
 	// make a special check to see if they are changing to a new
 	// weapon that isn't the mg or gauntlet.  Without this, a client
 	// can pick up a weapon, be killed, and not drop the weapon because
 	// their weapon change hasn't completed yet and they are still holding the MG.
-	if(weapon == WP_MACHINEGUN || weapon == WP_GAUNTLET)
+	if(weapon == WP_GAUNTLET)
 	{
 		if(self->client->ps.weaponstate == WEAPON_DROPPING)
 		{
-			weapon = self->client->pers.cmd.weapon;
+			weapon = WP_NONE;
 		}
 		if(!(self->client->ps.stats[STAT_WEAPONS] & (1 << weapon)))
 		{
 			weapon = WP_NONE;
 		}
-	}
 
-	if(weapon > WP_MACHINEGUN && weapon != WP_GAUNTLET && self->client->ps.ammo[weapon])
-	{
 		// find the item type for this weapon
-		item = BG_FindItemForWeapon(weapon);
+		item = BG_FindItemForWeapon(WP_GAUNTLET);
 
 		// spawn the item
 		Drop_Item(self, item, 0);
@@ -278,30 +275,6 @@ GibEntity
 */
 void GibEntity(gentity_t * self, int killer)
 {
-	//if this entity still has kamikaze
-	if(self->s.eFlags & EF_KAMIKAZE)
-	{
-		gentity_t      *ent;
-		int             i;
-
-		// check if there is a kamikaze timer around for this owner
-		for(i = 0; i < MAX_GENTITIES; i++)
-		{
-			ent = &g_entities[i];
-			if(!ent->inuse)
-				continue;
-
-			if(ent->activator != self)
-				continue;
-
-			if(strcmp(ent->classname, "kamikaze timer"))
-				continue;
-
-			G_FreeEntity(ent);
-			break;
-		}
-	}
-
 	G_AddEvent(self, EV_GIB_PLAYER, killer);
 	self->takedamage = qfalse;
 	self->s.eType = ET_INVISIBLE;
@@ -391,36 +364,6 @@ char           *modNames[] = {
 	"MOD_D_EARTHFIRE_EXPLOSIVE_S",
 	"MOD_D_EARTHFIRE_EXPLOSIVE_M"
 };
-
-/*
-==================
-Kamikaze_DeathActivate
-==================
-*/
-void Kamikaze_DeathActivate(gentity_t * ent)
-{
-	G_StartKamikaze(ent);
-	G_FreeEntity(ent);
-}
-
-/*
-==================
-Kamikaze_DeathTimer
-==================
-*/
-void Kamikaze_DeathTimer(gentity_t * self)
-{
-	gentity_t      *ent;
-
-	ent = G_Spawn();
-	ent->classname = "kamikaze timer";
-	VectorCopy(self->s.pos.trBase, ent->s.pos.trBase);
-	ent->r.svFlags |= SVF_NOCLIENT;
-	ent->think = Kamikaze_DeathActivate;
-	ent->nextthink = level.time + 5 * 1000;
-
-	ent->activator = self;
-}
 
 /*
 ==================
@@ -555,19 +498,6 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 	CheckAlmostCapture(self, attacker);
 	// check for a player that almost brought in cubes
 	CheckAlmostScored(self, attacker);
-
-	if(self->client && self->client->hook)
-	{
-		Weapon_HookFree(self->client->hook);
-	}
-#ifdef MISSIONPACK
-	if((self->client->ps.eFlags & EF_TICKING) && self->activator)
-	{
-		self->client->ps.eFlags &= ~EF_TICKING;
-		self->activator->think = G_FreeEntity;
-		self->activator->nextthink = level.time;
-	}
-#endif
 
 	G_Printf("Wounded Player - G_Combat pm_type1=%d\n", self->client->ps.pm_type);
 
@@ -886,11 +816,6 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 
 		// globally cycle through the different death animations
 		i = (i + 1) % 3;
-
-		if(self->s.eFlags & EF_KAMIKAZE)
-		{
-			Kamikaze_DeathTimer(self);
-		}
 	}
 
 	trap_LinkEntity(self);
@@ -1206,11 +1131,6 @@ qboolean G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 		}
 	}
 
-	if(attacker->s.weapon == WP_RAILGUN && targ->s.eType == ET_PROJECTILE && targ->s.weapon == WP_RAILGUN)
-	{
-		// Tr3B: added this special case to shoot railgun spheres
-		// railgun spheres can be shot by any raigun user
-	}
 	// check for completely getting out of the damage
 	else if(!(dflags & DAMAGE_NO_PROTECTION))
 	{

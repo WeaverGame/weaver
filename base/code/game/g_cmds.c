@@ -288,7 +288,7 @@ void Cmd_Give_f(gentity_t * ent)
 
 	if(give_all || Q_stricmp(name, "ammo") == 0)
 	{
-		//weaver -held_max so it doesnt remove held weaves
+		//weaver do not remove held weaves
 		for(i = 0; i < MIN_WEAPON_WEAVE; i++)
 		{
 			ent->client->ps.ammo[i] = 999;

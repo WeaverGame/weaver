@@ -1311,9 +1311,6 @@ void ClientSpawn(gentity_t * ent)
 	}
 	client->pers.teamState.state = TEAM_ACTIVE;
 
-	// always clear the kamikaze flag
-	ent->s.eFlags &= ~EF_KAMIKAZE;
-
 	// toggle the teleport bit so the client knows to not lerp
 	// and never clear the voted flag
 	flags = ent->client->ps.eFlags & (EF_TELEPORT_BIT | EF_VOTED | EF_TEAMVOTED);
@@ -1424,10 +1421,10 @@ void ClientSpawn(gentity_t * ent)
 	{
 		client->ps.ammo[WP_MACHINEGUN] = 100;
 	}
+	*/
 
 	client->ps.stats[STAT_WEAPONS] |= (1 << WP_GAUNTLET);
 	client->ps.ammo[WP_GAUNTLET] = -1;
-	*/
 
 	// health will count down towards max_health
 	ent->health = client->ps.stats[STAT_HEALTH] = client->ps.stats[STAT_MAX_HEALTH] + 25;

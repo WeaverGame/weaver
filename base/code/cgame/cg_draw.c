@@ -676,9 +676,6 @@ static void CG_DrawStatusBarQ3(void)
 	vec3_t          angles;
 	vec3_t          origin;
 
-#ifdef MISSIONPACK
-	qhandle_t       handle;
-#endif
 	static float    colors[4][4] = {
 		{1.0f, 0.69f, 0.0f, 1.0f},	// normal
 		{1.0f, 0.2f, 0.2f, 1.0f},	// low health
@@ -731,22 +728,6 @@ static void CG_DrawStatusBarQ3(void)
 		CG_Draw3DModel(370 + CHAR_WIDTH * 3 + TEXT_ICON_SPACE, 445, ICON_SIZE, ICON_SIZE,
 					   cgs.media.armorModel, 0, origin, angles);
 	}
-
-#ifdef MISSIONPACK
-	if(cgs.gametype == GT_HARVESTER)
-	{
-		origin[0] = 90;
-		origin[1] = 0;
-		origin[2] = -10;
-		angles[YAW] = (cg.time & 2047) * 360 / 2048.0;
-		if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE)
-			handle = cgs.media.blueSkullModel;
-		else
-			handle = cgs.media.redSkullModel;
-
-		CG_Draw3DModel(640 - (TEXT_ICON_SPACE + ICON_SIZE), 416, ICON_SIZE, ICON_SIZE, handle, 0, origin, angles);
-	}
-#endif
 
 	// ammo
 	if(cent->currentState.weapon)
@@ -820,31 +801,6 @@ static void CG_DrawStatusBarQ3(void)
 		if(!cg_draw3dIcons.integer && cg_drawIcons.integer)
 			CG_DrawPic(370 + CHAR_WIDTH * 3 + TEXT_ICON_SPACE, 445, ICON_SIZE, ICON_SIZE, cgs.media.armorIcon);
 	}
-
-#ifdef MISSIONPACK
-	// cubes
-	if(cgs.gametype == GT_HARVESTER)
-	{
-		value = ps->generic1;
-		if(value > 99)
-			value = 99;
-
-		trap_R_SetColor(colors[0]);
-		CG_DrawField(640 - (CHAR_WIDTH * 2 + TEXT_ICON_SPACE + ICON_SIZE), 445, 2, value);
-		trap_R_SetColor(NULL);
-
-		// if we didn't draw a 3D icon, draw a 2D icon for armor
-		if(!cg_draw3dIcons.integer && cg_drawIcons.integer)
-		{
-			if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE)
-				handle = cgs.media.redSkullIcon;
-			else
-				handle = cgs.media.blueSkullIcon;
-
-			CG_DrawPic(640 - (TEXT_ICON_SPACE + ICON_SIZE), 445, ICON_SIZE, ICON_SIZE, handle);
-		}
-	}
-#endif
 }
 
 /*
@@ -2846,14 +2802,7 @@ static void CG_DrawLagometer(void)
 	//
 	// draw the graph
 	//
-/*#ifdef MISSIONPACK
-	x = 640 - 48;
-	y = 480 - 144;
-#else
-	x = 640 - 72;
-	y = 480 - 84;
-#endif
-*/
+
 	//otty: readjusted lagometer
 	x = 640 - 68;
 	y = 480 - 120;

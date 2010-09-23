@@ -39,6 +39,7 @@ game_src = [
 'base/code/game/g_spell_ents.c',
 'base/code/game/g_spell_weave.c',
 'base/code/game/g_spell_misc.c',
+'base/code/game/g_sword.c',
 'base/code/game/spell_shared.c',
 'code/qcommon/q_math.c',
 'code/qcommon/q_shared.c'

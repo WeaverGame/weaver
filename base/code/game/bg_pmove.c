@@ -734,23 +734,6 @@ static void PM_WaterMove(void)
 	PM_SlideMove(qfalse);
 }
 
-#ifdef MISSIONPACK
-/*
-===================
-PM_InvulnerabilityMove
-
-Only with the invulnerability powerup
-===================
-*/
-static void PM_InvulnerabilityMove(void)
-{
-	pm->cmd.forwardmove = 0;
-	pm->cmd.rightmove = 0;
-	pm->cmd.upmove = 0;
-	VectorClear(pm->ps->velocity);
-}
-#endif
-
 /*
 ===================
 PM_FlyMove
@@ -2723,64 +2706,8 @@ static void PM_Weapon(void)
 			case WP_GAUNTLET:
 				addTime = 400;
 				break;
-			case WP_LIGHTNING:
-				addTime = 50;
-				break;
-			case WP_SHOTGUN:
-				addTime = 1000;
-				break;
-			case WP_MACHINEGUN:
-				addTime = 100;
-				break;
-			case WP_FLAK_CANNON:
-				if(pm->cmd.buttons & BUTTON_ATTACK2)
-					addTime = 800;
-				else
-					addTime = 1000;
-				break;
-			case WP_ROCKET_LAUNCHER:
-				addTime = 800;
-				break;
-			case WP_PLASMAGUN:
-				addTime = 100;
-				break;
-			case WP_RAILGUN:
-				if(pm->cmd.buttons & BUTTON_ATTACK2)
-					addTime = 800;
-				else
-					addTime = 1500;
-				break;
-			case WP_BFG:
-				addTime = 200;
-				break;
-#ifdef MISSIONPACK
-			case WP_PROX_LAUNCHER:
-				addTime = 800;
-				break;
-			case WP_CHAINGUN:
-				addTime = 30;
-				break;
-#endif
 		}
 	}
-
-	/*
-#ifdef MISSIONPACK
-	if(bg_itemlist[pm->ps->stats[STAT_PERSISTANT_POWERUP]].giTag == PW_SCOUT)
-	{
-		addTime /= 1.5;
-	}
-	else if(bg_itemlist[pm->ps->stats[STAT_PERSISTANT_POWERUP]].giTag == PW_AMMOREGEN)
-	{
-		addTime /= 1.3;
-	}
-	else
-#endif
-	if(pm->ps->powerups[PW_HASTE])
-	{
-		addTime /= 1.3;
-	}
-	*/
 
 	pm->ps->weaponTime += addTime;
 }
@@ -2800,6 +2727,8 @@ static void PM_Animate(void)
 			pm->ps->torsoTimer = TIMER_GESTURE;
 			PM_AddEvent(EV_TAUNT);
 		}
+	//TODO: add more animations?
+		/*
 #ifdef MISSIONPACK
 	}
 	else if(pm->cmd.buttons & BUTTON_GETFLAG)
@@ -2850,6 +2779,7 @@ static void PM_Animate(void)
 			pm->ps->torsoTimer = 600;	//TIMER_GESTURE;
 		}
 #endif
+		*/
 	}
 }
 
@@ -3319,16 +3249,6 @@ void PmoveSingle(pmove_t * pmove)
 	}
 
 	PM_DropTimers();
-
-#ifdef MISSIONPACK
-	if(pm->ps->powerups[PW_INVULNERABILITY])
-	{
-		PM_InvulnerabilityMove();
-	}
-	else
-#endif
-
-	//WEAVER flight nolonger exists
 
 	if(pm->ps->pm_flags & PMF_GRAPPLE_PULL)
 	{

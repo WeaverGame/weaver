@@ -726,25 +726,10 @@ static void CG_RegisterSounds(void)
 	cgs.media.gibBounce2Sound = trap_S_RegisterSound("sound/player/gibimp2.ogg");
 	cgs.media.gibBounce3Sound = trap_S_RegisterSound("sound/player/gibimp3.ogg");
 
-#ifdef MISSIONPACK
-	cgs.media.useInvulnerabilitySound = trap_S_RegisterSound("sound/items/invul_activate.wav", qfalse);
-	cgs.media.invulnerabilityImpactSound1 = trap_S_RegisterSound("sound/items/invul_impact_01.wav", qfalse);
-	cgs.media.invulnerabilityImpactSound2 = trap_S_RegisterSound("sound/items/invul_impact_02.wav", qfalse);
-	cgs.media.invulnerabilityImpactSound3 = trap_S_RegisterSound("sound/items/invul_impact_03.wav", qfalse);
-	cgs.media.invulnerabilityJuicedSound = trap_S_RegisterSound("sound/items/invul_juiced.wav", qfalse);
-#endif
-
 	cgs.media.obeliskHitSound1 = trap_S_RegisterSound("sound/items/obelisk_hit_01.ogg");
 	cgs.media.obeliskHitSound2 = trap_S_RegisterSound("sound/items/obelisk_hit_02.ogg");
 	cgs.media.obeliskHitSound3 = trap_S_RegisterSound("sound/items/obelisk_hit_03.ogg");
 	cgs.media.obeliskRespawnSound = trap_S_RegisterSound("sound/items/obelisk_respawn.ogg");
-
-#ifdef MISSIONPACK
-	cgs.media.ammoregenSound = trap_S_RegisterSound("sound/items/cl_ammoregen.wav", qfalse);
-	cgs.media.doublerSound = trap_S_RegisterSound("sound/items/cl_doubler.wav", qfalse);
-	cgs.media.guardSound = trap_S_RegisterSound("sound/items/cl_guard.wav", qfalse);
-	cgs.media.scoutSound = trap_S_RegisterSound("sound/items/cl_scout.wav", qfalse);
-#endif
 
 	CG_LoadingString("ambient sounds", qfalse);
 
@@ -757,10 +742,6 @@ static void CG_RegisterSounds(void)
 	cgs.media.talkSound = trap_S_RegisterSound("sound/player/talk.ogg");
 
 	cgs.media.hitSound = trap_S_RegisterSound("sound/feedback/hit.wav");
-#ifdef MISSIONPACK
-	cgs.media.hitSoundHighArmor = trap_S_RegisterSound("sound/feedback/hithi.wav", qfalse);
-	cgs.media.hitSoundLowArmor = trap_S_RegisterSound("sound/feedback/hitlo.wav", qfalse);
-#endif
 
 	CG_LoadingString("medal sounds", qfalse);
 
@@ -865,26 +846,12 @@ static void CG_RegisterSounds(void)
 	cgs.media.sfx_nghitflesh = trap_S_RegisterSound("sound/weapons/flakcannon/wnalimpl.ogg");
 	cgs.media.sfx_nghitmetal = trap_S_RegisterSound("sound/weapons/flakcannon/wnalimpm.ogg");
 
-#ifdef MISSIONPACK
-	cgs.media.sfx_proxexp = trap_S_RegisterSound("sound/weapons/proxmine/wstbexpl.wav", qfalse);
-	cgs.media.sfx_chghit = trap_S_RegisterSound("sound/weapons/vulcan/wvulimpd.wav", qfalse);
-	cgs.media.sfx_chghitflesh = trap_S_RegisterSound("sound/weapons/vulcan/wvulimpl.wav", qfalse);
-	cgs.media.sfx_chghitmetal = trap_S_RegisterSound("sound/weapons/vulcan/wvulimpm.wav", qfalse);
-	cgs.media.weaponHoverSound = trap_S_RegisterSound("sound/weapons/weapon_hover.wav", qfalse);
-#endif
 	cgs.media.kamikazeExplodeSound = trap_S_RegisterSound("sound/items/kam_explode.wav");
 	cgs.media.kamikazeImplodeSound = trap_S_RegisterSound("sound/items/kam_implode.wav");
 	cgs.media.kamikazeFarSound = trap_S_RegisterSound("sound/items/kam_explode_far.wav");
 
 	cgs.media.winnerSound = trap_S_RegisterSound("sound/feedback/youwin.ogg");
 	cgs.media.loserSound = trap_S_RegisterSound("sound/feedback/youlose.ogg");
-
-#ifdef MISSIONPACK
-	cgs.media.wstbimplSound = trap_S_RegisterSound("sound/weapons/proxmine/wstbimpl.wav", qfalse);
-	cgs.media.wstbimpmSound = trap_S_RegisterSound("sound/weapons/proxmine/wstbimpm.wav", qfalse);
-	cgs.media.wstbimpdSound = trap_S_RegisterSound("sound/weapons/proxmine/wstbimpd.wav", qfalse);
-	cgs.media.wstbactvSound = trap_S_RegisterSound("sound/weapons/proxmine/wstbactv.wav", qfalse);
-#endif
 
 	CG_LoadingString("misc sounds", qfalse);
 
@@ -1000,9 +967,6 @@ static void CG_RegisterGraphics(void)
 
 	cgs.media.nailPuffShader = trap_R_RegisterShader("nailtrail");
 
-#ifdef MISSIONPACK
-	cgs.media.blueProxMine = trap_R_RegisterModel("models/weaphits/proxmineb.md3");
-#endif
 	cgs.media.plasmaBallShader = trap_R_RegisterShader("sprites/plasma1");
 	cgs.media.bloodTrailShader = trap_R_RegisterShader("particles/blood_trail");
 	cgs.media.bloodSpurtShader = trap_R_RegisterShader("particles/blood_spurt");
@@ -1119,10 +1083,6 @@ static void CG_RegisterGraphics(void)
 		cgs.media.harvesterNeutralModel = trap_R_RegisterModel("models/powerups/obelisk/obelisk.md5mesh", qfalse);
 	}
 
-#ifdef MISSIONPACK
-	cgs.media.dustPuffShader = trap_R_RegisterShader("hasteSmokePuff");
-#endif
-
 	cgs.media.redKamikazeShader = trap_R_RegisterShader("models/weaphits/kamikred");
 
 	CG_LoadingString("teams", qfalse);
@@ -1169,17 +1129,6 @@ static void CG_RegisterGraphics(void)
 	cgs.media.kamikazeShockWave = trap_R_RegisterModel("models/powerups/kamikaze/shockwave.md5mesh", qfalse);
 	cgs.media.kamikazeHeadModel = trap_R_RegisterModel("models/powerups/kamikaze/kamikaze.md5mesh", qfalse);
 	cgs.media.kamikazeHeadTrail = trap_R_RegisterModel("models/powerups/kamikaze/trailtest.md5mesh", qfalse);
-
-#ifdef MISSIONPACK
-	cgs.media.guardPowerupModel = trap_R_RegisterModel("models/powerups/guard_player.md3");
-	cgs.media.scoutPowerupModel = trap_R_RegisterModel("models/powerups/scout_player.md3");
-	cgs.media.doublerPowerupModel = trap_R_RegisterModel("models/powerups/doubler_player.md3");
-	cgs.media.ammoRegenPowerupModel = trap_R_RegisterModel("models/powerups/ammo_player.md3");
-	cgs.media.invulnerabilityImpactModel = trap_R_RegisterModel("models/powerups/shield/impact.md3");
-	cgs.media.invulnerabilityJuicedModel = trap_R_RegisterModel("models/powerups/shield/juicer.md3");
-	cgs.media.medkitUsageModel = trap_R_RegisterModel("models/powerups/regen.md3");
-	cgs.media.heartShader = trap_R_RegisterShaderNoMip("ui/assets/selectedhealth.tga");
-#endif
 
 	CG_LoadingString("awards", qfalse);
 
@@ -1252,24 +1201,6 @@ static void CG_RegisterGraphics(void)
 		}
 		cgs.gameModels[i] = trap_R_RegisterModel(modelName, qtrue);
 	}
-
-#ifdef MISSIONPACK
-	// new stuff
-	cgs.media.patrolShader = trap_R_RegisterShaderNoMip("ui/assets/patrol.tga");
-	cgs.media.assaultShader = trap_R_RegisterShaderNoMip("ui/assets/assault.tga");
-	cgs.media.campShader = trap_R_RegisterShaderNoMip("ui/assets/camp.tga");
-	cgs.media.followShader = trap_R_RegisterShaderNoMip("ui/assets/follow.tga");
-	cgs.media.defendShader = trap_R_RegisterShaderNoMip("ui/assets/defend.tga");
-	cgs.media.teamLeaderShader = trap_R_RegisterShaderNoMip("ui/assets/team_leader.tga");
-	cgs.media.retrieveShader = trap_R_RegisterShaderNoMip("ui/assets/retrieve.tga");
-	cgs.media.escortShader = trap_R_RegisterShaderNoMip("ui/assets/escort.tga");
-	cgs.media.cursor = trap_R_RegisterShaderNoMip("menuCursor");
-	cgs.media.sizeCursor = trap_R_RegisterShaderNoMip("ui/assets/sizecursor.tga");
-	cgs.media.selectCursor = trap_R_RegisterShaderNoMip("ui/assets/selectcursor.tga");
-	cgs.media.flagShaders[0] = trap_R_RegisterShaderNoMip("ui/assets/flag_in_base.tga");
-	cgs.media.flagShaders[1] = trap_R_RegisterShaderNoMip("ui/assets/flag_capture.tga");
-	cgs.media.flagShaders[2] = trap_R_RegisterShaderNoMip("ui/assets/flag_missing.tga");
-#endif
 
 	// debug utils
 	cgs.media.lightningShader = trap_R_RegisterShader("lightningBolt");
@@ -1362,12 +1293,16 @@ static void CG_RegisterGraphics(void)
 
 	// weaver resorces
 
+	// weaver sword
+	cgs.media.swordModel = trap_R_RegisterModel("models/sword/sword.md5mesh", qtrue);
+
 	// weaver disc
 	for(i = 0; i < NUM_WEAVERDISCS; i++)
 	{
 		cgs.media.weaverDiscShader[i] = trap_R_RegisterShaderNoMip(va("gfx/hud/disc%i", i));
 	}
 
+	// sense dots
 	cgs.media.weaverSenseDot1 = trap_R_RegisterShaderNoMip("gfx/hud/sensedot1");
 	cgs.media.weaverSenseDot2 = trap_R_RegisterShaderNoMip("gfx/hud/sensedot2");
 	cgs.media.weaverSenseDot3 = trap_R_RegisterShaderNoMip("gfx/hud/sensedot3");

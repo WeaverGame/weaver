@@ -265,9 +265,6 @@ typedef enum
 {
 	STAT_HEALTH,
 	STAT_HOLDABLE_ITEM,
-#ifdef MISSIONPACK
-	STAT_PERSISTANT_POWERUP,
-#endif
 	STAT_WEAPONS,				// 16 bit fields
 	STAT_ARMOR,
 	STAT_DEAD_YAW,				// look this direction when dead (FIXME: get rid of?)
@@ -335,7 +332,7 @@ enum
 	EF_AWARD_DENIED			= BIT(18),	// denied
 	EF_AWARD_TELEFRAG		= BIT(18),	// draw a telefrag sprite
 	EF_TEAMVOTED			= BIT(19),	// already cast a team vote
-	EF_KAMIKAZE				= BIT(20),
+	//EF_KAMIKAZE			= BIT(20),	// AVAILABLE FOR USE
 	EF_TICKING				= BIT(21),	// used to make players play the prox mine ticking sound
 	EF_FIRING2				= BIT(22),	// for lightning gun
 	EF_WALLCLIMB			= BIT(23),	// TA: wall walking
@@ -398,18 +395,6 @@ typedef enum
 	WP_NONE,
 
 	WP_GAUNTLET,
-	WP_MACHINEGUN,
-	WP_SHOTGUN,
-	WP_FLAK_CANNON,
-	WP_ROCKET_LAUNCHER,
-	WP_LIGHTNING,
-	WP_RAILGUN,
-	WP_PLASMAGUN,
-	WP_BFG,
-#ifdef MISSIONPACK
-	WP_PROX_LAUNCHER,
-	WP_CHAINGUN,
-#endif
 
 	WP_NUM_WEAPONS
 } weapon_t;
@@ -698,20 +683,7 @@ typedef enum
 typedef enum
 {
 	MOD_UNKNOWN,
-	MOD_SHOTGUN,
 	MOD_GAUNTLET,
-	MOD_MACHINEGUN,
-	MOD_GRENADE,
-	MOD_GRENADE_SPLASH,
-	MOD_ROCKET,
-	MOD_ROCKET_SPLASH,
-	MOD_PLASMA,
-	MOD_PLASMA_SPLASH,
-	MOD_RAILGUN,
-	MOD_RAILGUN_SPLASH,
-	MOD_LIGHTNING,
-	MOD_BFG,
-	MOD_BFG_SPLASH,
 	MOD_WATER,
 	MOD_SLIME,
 	MOD_LAVA,
@@ -721,16 +693,6 @@ typedef enum
 	MOD_SUICIDE,
 	MOD_TARGET_LASER,
 	MOD_TRIGGER_HURT,
-	MOD_NAIL,
-#ifdef MISSIONPACK
-	MOD_CHAINGUN,
-	MOD_PROXIMITY_MINE,
-#endif
-	MOD_KAMIKAZE,
-#ifdef MISSIONPACK
-	MOD_JUICED,
-#endif
-	MOD_GRAPPLE,
 	MOD_BURN,
 
 	//Spells

@@ -289,10 +289,6 @@ typedef enum
 	LE_RAILEXPLOSION,
 	LE_FIRE,
 	LE_MOVING_REFENT,
-#ifdef MISSIONPACK
-	LE_INVULIMPACT,
-	LE_INVULJUICED,
-#endif
 	LE_SHOWREFENTITY
 } leType_t;
 
@@ -1155,10 +1151,6 @@ typedef struct
 	// globe mapping shaders
 	qhandle_t       shadowProjectedLightShader;
 
-#ifdef MISSIONPACK
-	qhandle_t       blueProxMine;
-#endif
-
 	qhandle_t       numberShaders[11];
 
 	qhandle_t       shadowMarkShader;
@@ -1203,17 +1195,7 @@ typedef struct
 	qhandle_t       kamikazeShockWave;
 	qhandle_t       kamikazeHeadModel;
 	qhandle_t       kamikazeHeadTrail;
-#ifdef MISSIONPACK
-	qhandle_t       guardPowerupModel;
-	qhandle_t       scoutPowerupModel;
-	qhandle_t       doublerPowerupModel;
-	qhandle_t       ammoRegenPowerupModel;
-	qhandle_t       invulnerabilityImpactModel;
-	qhandle_t       invulnerabilityJuicedModel;
-	qhandle_t       medkitUsageModel;
-	qhandle_t       dustPuffShader;
-	qhandle_t       heartShader;
-#endif
+
 	qhandle_t       invulnerabilityPowerupModel;
 
 	// scoreboard headers
@@ -1266,22 +1248,11 @@ typedef struct
 	sfxHandle_t     sfx_nghit;
 	sfxHandle_t     sfx_nghitflesh;
 	sfxHandle_t     sfx_nghitmetal;
-#ifdef MISSIONPACK
-	sfxHandle_t     sfx_proxexp;
-	sfxHandle_t     sfx_chghit;
-	sfxHandle_t     sfx_chghitflesh;
-	sfxHandle_t     sfx_chghitmetal;
-#endif
+
 	sfxHandle_t     kamikazeExplodeSound;
 	sfxHandle_t     kamikazeImplodeSound;
 	sfxHandle_t     kamikazeFarSound;
-#ifdef MISSIONPACK
-	sfxHandle_t     useInvulnerabilitySound;
-	sfxHandle_t     invulnerabilityImpactSound1;
-	sfxHandle_t     invulnerabilityImpactSound2;
-	sfxHandle_t     invulnerabilityImpactSound3;
-	sfxHandle_t     invulnerabilityJuicedSound;
-#endif
+
 	sfxHandle_t     obeliskHitSound1;
 	sfxHandle_t     obeliskHitSound2;
 	sfxHandle_t     obeliskHitSound3;
@@ -1372,30 +1343,6 @@ typedef struct
 	sfxHandle_t     countFightSound;
 	sfxHandle_t     countPrepareSound;
 
-#ifdef MISSIONPACK
-	// new stuff
-	qhandle_t       patrolShader;
-	qhandle_t       assaultShader;
-	qhandle_t       campShader;
-	qhandle_t       followShader;
-	qhandle_t       defendShader;
-	qhandle_t       teamLeaderShader;
-	qhandle_t       retrieveShader;
-	qhandle_t       escortShader;
-	qhandle_t       flagShaders[3];
-	sfxHandle_t     countPrepareTeamSound;
-
-	sfxHandle_t     ammoregenSound;
-	sfxHandle_t     doublerSound;
-	sfxHandle_t     guardSound;
-	sfxHandle_t     scoutSound;
-
-	sfxHandle_t     wstbimplSound;
-	sfxHandle_t     wstbimpmSound;
-	sfxHandle_t     wstbimpdSound;
-	sfxHandle_t     wstbactvSound;
-#endif
-
 	qhandle_t       cursor;
 	qhandle_t       selectCursor;
 	qhandle_t       sizeCursor;
@@ -1411,6 +1358,9 @@ typedef struct
 	qhandle_t       debugPlayerAABB_twoSided;
 
 	// weaver resorces
+
+	// weaver sword
+	qhandle_t       swordModel;
 
 	// weaver disc
 	qhandle_t       weaverDiscShader[NUM_WEAVERDISCS];
@@ -1975,11 +1925,6 @@ void            CG_ObeliskExplode(vec3_t org, int entityNum);
 void            CG_ObeliskPain(vec3_t org);
 
 void            CG_ExplosiveRubble(vec3_t origin, vec3_t mins, vec3_t maxs, qhandle_t model);
-
-#ifdef MISSIONPACK
-void            CG_InvulnerabilityImpact(vec3_t org, vec3_t angles);
-void            CG_InvulnerabilityJuiced(vec3_t org);
-#endif
 
 void            CG_LightningBoltBeam(vec3_t start, vec3_t end);
 

@@ -679,6 +679,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\g_sword.c"
+				>
+			</File>
+			<File
 				RelativePath="g_syscalls.c"
 				>
 				<FileConfiguration
