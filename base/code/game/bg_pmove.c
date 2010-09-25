@@ -2392,15 +2392,18 @@ static void PM_BeginWeaponChange(int weapon)
 	else
 	{
 		//this is NOT a weave.
-		if(weapon <= WP_NONE || weapon >= WP_NUM_WEAPONS)
+		if(weapon < WP_NONE || weapon >= WP_NUM_WEAPONS)
 		{
 			return;
 		}
 	}
 
-	if(!(pm->ps->stats[STAT_WEAPONS] & (1 << weapon)))
+	if(weapon != WP_NONE)
 	{
-		return;
+		if(!(pm->ps->stats[STAT_WEAPONS] & (1 << weapon)))
+		{
+			return;
+		}
 	}
 
 	if(pm->ps->weaponstate == WEAPON_DROPPING)

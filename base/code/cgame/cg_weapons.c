@@ -2480,10 +2480,10 @@ void CG_NextWeapon_f(void)
 		{
 			cg.weaponSelect = 0;
 		}
-		//if(cg.weaponSelect == WP_GAUNTLET)
-		//{
-		//  continue;           // never cycle to gauntlet
-		//}
+		if(cg.weaponSelect == WP_GAUNTLET)
+		{
+			continue;           // never cycle to gauntlet
+		}
 		if(CG_WeaponSelectable(cg.weaponSelect))
 		{
 			break;
@@ -2537,10 +2537,10 @@ void CG_PrevWeapon_f(void)
 		{
 			cg.weaponSelect = 15;
 		}
-		//if(cg.weaponSelect == WP_GAUNTLET)
-		//{
-		//  continue;           // never cycle to gauntlet
-		//}
+		if(cg.weaponSelect == WP_GAUNTLET)
+		{
+			continue;           // never cycle to gauntlet
+		}
 		if(CG_WeaponSelectable(cg.weaponSelect))
 		{
 			break;
@@ -2585,6 +2585,11 @@ void CG_Weapon_f(void)
 		return;					// don't have the weapon
 	}
 
+	if((cg.weaponSelect == WP_GAUNTLET) && (num == WP_GAUNTLET))
+	{
+		num = WP_NONE;
+	}
+
 	cg.weaponSelect = num;
 }
 
@@ -2608,6 +2613,11 @@ void CG_OutOfAmmoChange(void)
 			cg.weaponSelect = i;
 			break;
 		}
+	}
+
+	if(cg.weaponSelect == WP_GAUNTLET)
+	{
+		cg.weaponSelect = WP_NONE;
 	}
 }
 
