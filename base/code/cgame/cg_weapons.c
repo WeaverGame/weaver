@@ -887,7 +887,7 @@ void CG_RegisterWeapon(int weaponNum)
 	{
 		case WP_GAUNTLET:
 			MAKERGB(weaponInfo->flashLightColor, 0.6f, 0.6f, 1.0f);
-			weaponInfo->projectileModel = trap_R_RegisterModel("models/weapons/gauntlet/gauntlet_barrel.md3", qtrue);
+			weaponInfo->projectileModel = trap_R_RegisterModel("models/sword/sword.md5mesh", qtrue);
 			weaponInfo->projectileTrailFunc = CG_GrappleTrail;
 			weaponInfo->projectileLight = 200;
 			weaponInfo->wiTrailTime = 2000;
@@ -1658,7 +1658,7 @@ void CG_PositionEntityOnWeaponTag(refEntity_t *gun, const refEntity_t * parent, 
 
 	if(ps)
 	{
-		CG_PositionEntityOnTag(&gun, parent, parentModel, "tag_weapon");
+		CG_PositionEntityOnTag(gun, parent, parentModel, "tag_weapon");
 	}
 	else
 	{
@@ -1668,7 +1668,7 @@ void CG_PositionEntityOnWeaponTag(refEntity_t *gun, const refEntity_t * parent, 
 			if(boneIndex >= 0 && boneIndex < cent->pe.torso.skeleton.numBones)
 			{
 				AxisClear(gun->axis);
-				CG_PositionRotatedEntityOnBone(&gun, parent, parentModel, "tag_weapon");
+				CG_PositionRotatedEntityOnBone(gun, parent, parentModel, "tag_weapon");
 				break;
 			}
 			boneIndex = trap_R_BoneIndex(parentModel, "MG_ATTACHER");
@@ -1677,19 +1677,21 @@ void CG_PositionEntityOnWeaponTag(refEntity_t *gun, const refEntity_t * parent, 
 				// HACK: this is bone specific
 				vec3_t          angles;
 
+				/*
 				angles[PITCH] = -90;
 				angles[YAW] = 0;
 				angles[ROLL] = -90;
+				*/
 
 				AnglesToAxis(angles, gun->axis);
 
-				CG_PositionRotatedEntityOnBone(&gun, parent, parentModel, "MG_ATTACHER");
+				CG_PositionRotatedEntityOnBone(gun, parent, parentModel, "MG_ATTACHER");
 				break;
 			}
 		} while(0);
 	}
 #else
-	CG_PositionEntityOnTag(&gun, parent, parent->hModel, "tag_weapon");
+	CG_PositionEntityOnTag(gun, parent, parent->hModel, "tag_weapon");
 #endif
 }
 
@@ -1749,6 +1751,12 @@ void CG_AddPlayerWeapon(refEntity_t * parent, playerState_t * ps, centity_t * ce
 	}
 
 	gun.hModel = weapon->weaponModel;
+
+	if(weaponNum == WP_GAUNTLET)
+	{
+		gun.hModel = cgs.media.swordModel;
+	}
+
 	if(!gun.hModel)
 	{
 		return;

@@ -272,29 +272,11 @@ void FireWeapon(gentity_t * ent)
 	{
 		s_quadFactor = 1;
 	}
-#ifdef MISSIONPACK
-	if(ent->client->persistantPowerup && ent->client->persistantPowerup->item &&
-	   ent->client->persistantPowerup->item->giTag == PW_DOUBLER)
-	{
-		s_quadFactor *= 2;
-	}
-#endif
 
 	// track shots taken for accuracy tracking.  Grapple is not a weapon and gauntlet is just not tracked
 	if(ent->s.weapon != WP_GAUNTLET)
 	{
-#ifdef MISSIONPACK
-		if(ent->s.weapon == WP_NAILGUN)
-		{
-			ent->client->accuracy_shots += NUM_NAILSHOTS;
-		}
-		else
-		{
-			ent->client->accuracy_shots++;
-		}
-#else
 		ent->client->accuracy_shots++;
-#endif
 	}
 
 	if(ent->client)
@@ -336,31 +318,13 @@ void FireWeapon2(gentity_t * ent)
 	{
 		s_quadFactor = 1;
 	}
-#ifdef MISSIONPACK
-	if(ent->client->persistantPowerup && ent->client->persistantPowerup->item &&
-	   ent->client->persistantPowerup->item->giTag == PW_DOUBLER)
-	{
-		s_quadFactor *= 2;
-	}
-#endif
 
 
 #if 0
 	// track shots taken for accuracy tracking.  Grapple is not a weapon and gauntlet is just not tracked
 	if(ent->s.weapon != WP_GAUNTLET)
 	{
-#ifdef MISSIONPACK
-		if(ent->s.weapon == WP_NAILGUN)
-		{
-			ent->client->accuracy_shots += NUM_NAILSHOTS;
-		}
-		else
-		{
-			ent->client->accuracy_shots++;
-		}
-#else
 		ent->client->accuracy_shots++;
-#endif
 	}
 #endif
 
