@@ -1638,22 +1638,18 @@ static void CG_AddCEntity(centity_t * cent)
 		case ET_WEAVE_HELD:
 			//weave is being held;
 			CG_HeldWeave(cent);
-			//Com_Printf("RECIEVED A WEAVE\n");
 			break;
 		case ET_WEAVE_LINK:
 			//link between players
-			//Com_Printf("RECIEVED A LINK\n");
 			CG_WeaveEffect_Link(cent);
 			break;
 		case ET_WEAVE_EFFECT:
 			//actual result of a weave
 			CG_WeaveEffect(cent);
-			//CG_Error("Bad entity type: %i\n", cent->currentState.eType);
 			break;
 		case ET_WEAVE_MISSILE:
 			//actual result of a weave
 			CG_WeaveEffect(cent);
-			//CG_Error("Bad entity type: %i\n", cent->currentState.eType);
 			break;
 		case ET_WEAVE_THREADS:
 			//weave being created by player

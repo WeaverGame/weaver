@@ -371,46 +371,47 @@ WeaveEffect_Protect
 */
 void WeaveEffect_Protect(centity_t * cent)
 {
-	refEntity_t     ent;
-	centity_t      *player;
-	entityState_t  *s1;
-	vec3_t          offset = { 0, 0, 20 };
-	const weaver_weaveInfo *weave;
-
-	//vec3_t          velocity;
-
-	s1 = &cent->currentState;
-	if(s1->weapon > WVW_NUM_WEAVES)
-	{
-		s1->weapon = 0;
-	}
-	weave = &cg_weaves[s1->weapon];
+	playerEntity_t *pe;
+	int             slot;
 
 	if(cg.clientNum == cent->currentState.generic1 && !cg.renderingThirdPerson)
 	{
-		//Threads belong to this player
+		//Threads belong to this player, first person
 		return;
 	}
 
-	player = &cg_entities[cent->currentState.generic1];
-
-	if(!player)
+	if(cg.predictedPlayerState.clientNum == cent->currentState.generic1)
 	{
-		return;
+		//Heldweave belong to this client.
+		pe = &cg.predictedPlayerEntity.pe;
+	}
+	else
+	{
+		//Heldweave belong to another player.
+		pe = &cg_entities[cent->currentState.generic1].pe;
 	}
 
-	memset(&ent, 0, sizeof(ent));
+	switch(cent->currentState.weapon)
+	{
+		case WVW_D_AIR_PROTECT:
+			slot = 0;
+			break;
+		case WVW_D_EARTH_PROTECT:
+			slot = 1;
+			break;
+		case WVW_D_FIRE_PROTECT:
+			slot = 2;
+			break;
+		case WVW_D_WATER_PROTECT:
+			slot = 3;
+			break;
+		default:
+			return;
+	}
 
-	VectorCopy(player->lerpOrigin, ent.origin);
-	VectorAdd(ent.origin, offset, ent.origin);
-
-	//Com_Printf("DRAWING A PROTECT weaveid=%d\n", cent->currentState.weapon);
-	ent.customShader = weave->instanceShader[0];
-	ent.reType = RT_SPRITE;
-	ent.radius = 40;
-
-	trap_R_AddRefEntityToScene(&ent);
+	pe->protectWeaveEnt[slot] = cent->currentState.number;
 }
+
 
 /*
 ===============

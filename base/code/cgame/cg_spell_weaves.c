@@ -54,6 +54,8 @@ int             threadColorB[WVP_NUMBER] = {
 	42
 };								//spirit
 
+static const vec3_t protectOffset = { 0, 0, 40 };
+
 void PowerDecode(playerEntity_t * pe, int n, int offset, int count)
 {
 	int             i = 0;
@@ -128,8 +130,88 @@ void CG_ShowThreads(centity_t * cent)
 	{
 		return;
 	}
+	else
+	{
+		// If threads belong to this client, and this client is holding the sword
+		if((cg.weaponSelect == WP_GAUNTLET) && (cg.predictedPlayerState.clientNum == cent->currentState.otherEntityNum2))
+		{
+			// Change weapon to none
+			cg.weaponSelectTime = cg.time;
+			cg.weaponSelect = WP_NONE;
+		}
+	}
 
 	pe->threadsLight = PowerColor(pe->threads, &pe->threadsColor);
+}
+
+/*
+=================
+CG_AddPlayerProtects
+
+Adds protect weave entities to a player model
+=================
+*/
+
+void CG_AddPlayerProtects(centity_t * player, playerState_t * ps, refEntity_t * parent)
+{
+	int             i;
+	refEntity_t     ent;
+	playerEntity_t *pe;
+	entityState_t  *s1;
+	centity_t      *protectWeave;
+	const weaver_weaveInfo *weave;
+
+	pe = &player->pe;
+
+	memset(&ent, 0, sizeof(ent));
+
+	/*
+#ifdef XPPM
+	if(ps)
+	{
+		CG_PositionEntityOnTag(&ent[0], parent, parent->hModel, "Head");
+	}
+	else
+	{
+		boneIndex = trap_R_BoneIndex(parent->hModel, "Head");
+		if(boneIndex >= 0 && boneIndex < pe->torso.skeleton.numBones)
+		{
+			AxisClear(ent[0].axis);
+			CG_PositionRotatedEntityOnBone(&ent[0], parent, parent->hModel, "Head");
+		}
+		else
+		{
+			CG_Error("No tag found while adding held weave.");
+		}
+	}
+#else
+	CG_PositionEntityOnTag(&ent[0], parent, parent->hModel, "tag_weapon");
+#endif
+	*/
+
+	VectorCopy(parent->origin, ent.origin);
+	VectorAdd(ent.origin, protectOffset, ent.origin);
+
+	for(i = 0; i <= 3; i++)
+	{
+		protectWeave = &cg_entities[pe->protectWeaveEnt[i]];
+
+		if((protectWeave == NULL) || (protectWeave->currentValid < 1))
+		{
+			// this ent number is no longer a protect weave
+			pe->protectWeaveEnt[i] = 0;
+			continue;
+		}
+
+		weave = &cg_weaves[protectWeave->currentState.weapon];
+
+		//Com_Printf("DRAWING A PROTECT weaveid=%d\n", cent->currentState.weapon);
+		ent.customShader = weave->instanceShader[0];
+		ent.reType = RT_SPRITE;
+		ent.radius = 40;
+
+		trap_R_AddRefEntityToScene(&ent);
+	}
 }
 
 /*

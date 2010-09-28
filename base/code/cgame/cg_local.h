@@ -213,6 +213,9 @@ typedef struct
 
 	// held weaves
 	int             heldWeaveEnt[HELD_MAX];
+
+	// weaves on player
+	int             protectWeaveEnt[4];
 } playerEntity_t;
 
 //=================================================
@@ -1820,6 +1823,7 @@ void            CG_ShieldInfo(centity_t * cent);
 void            CG_ShowThreads(centity_t * cent);
 void            CG_AddPlayerThreads(centity_t * player, playerState_t * ps, refEntity_t * parent);
 void            CG_AddPlayerHeldWeave(centity_t * player, playerState_t * ps, refEntity_t * parent);
+void            CG_AddPlayerProtects(centity_t * player, playerState_t * ps, refEntity_t * parent);
 void            CG_HeldWeave(centity_t * cent);
 void            CG_WeaveSelect_f(void);
 void            CG_WeaveNext_f(void);

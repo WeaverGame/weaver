@@ -3076,6 +3076,9 @@ void CG_Player(centity_t * cent)
 	// add held weaves
 	CG_AddPlayerHeldWeave(cent, NULL, &body);
 
+	// add player protect spells
+	CG_AddPlayerProtects(cent, NULL, &body);
+
 	// add powerups floating behind the player
 	CG_PlayerPowerups(cent, &body, noShadowID);
 
