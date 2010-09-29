@@ -215,6 +215,7 @@ typedef struct
 	int             heldWeaveEnt[HELD_MAX];
 
 	// weaves on player
+	qboolean        protectWeaveOn[4];
 	int             protectWeaveEnt[4];
 } playerEntity_t;
 

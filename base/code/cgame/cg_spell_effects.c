@@ -410,6 +410,7 @@ void WeaveEffect_Protect(centity_t * cent)
 	}
 
 	pe->protectWeaveEnt[slot] = cent->currentState.number;
+	pe->protectWeaveOn[slot] = qtrue;
 }
 
 
@@ -435,12 +436,15 @@ void CG_WeaveEffect_Link(centity_t * cent)
 
 	memset(&beam, 0, sizeof(beam));
 
-	VectorCopy(cent->currentState.pos.trBase, beam.origin);
-	VectorCopy(cent->currentState.origin2, beam.oldorigin);
+	VectorCopy(cent->lerpOrigin, beam.origin);
+	//VectorCopy(cent->currentState.pos.trBase, beam.lightingOrigin);
+	//AnglesToAxis(cent->currentState.angles, beam.axis);
+	AxisClear(beam.axis);
 
-	Com_Printf("DRAWING A LINK\n");
-	beam.reType = RT_BEAM;
-	beam.customShader = weave->instanceShader[0];
+	//Com_Printf("DRAWING A LINK\n");
+	beam.reType = RT_MODEL;
+	//beam.customShader = weave->instanceShader[0];
+	beam.hModel = cgs.media.swordModel;
 	trap_R_AddRefEntityToScene(&beam);
 }
 

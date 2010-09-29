@@ -206,6 +206,8 @@ It contains global weaver definitions.
 #define WEAVE_EXPLOSIVE_M_RADIUS 350
 #define WEAVE_EXPLOSIVE_OFFSET 10.0f
 
+#define WEAVE_LINKTHINK_TIME 200
+
 typedef enum
 {
 	WST_HELD,

@@ -194,12 +194,18 @@ void CG_AddPlayerProtects(centity_t * player, playerState_t * ps, refEntity_t * 
 
 	for(i = 0; i <= 3; i++)
 	{
+		if(!pe->protectWeaveOn[i])
+		{
+			continue;
+		}
+
 		protectWeave = &cg_entities[pe->protectWeaveEnt[i]];
 
 		if((protectWeave == NULL) || (protectWeave->currentValid < 1))
 		{
 			// this ent number is no longer a protect weave
 			pe->protectWeaveEnt[i] = 0;
+			pe->protectWeaveOn[i] = qfalse;
 			continue;
 		}
 

@@ -309,8 +309,8 @@ void ClientLink(gclient_t * leadClient, gclient_t * followClient)
 	//Create link ent
 	bolt = G_Spawn();
 	bolt->classname = LINK_CLASSNAME;
-	bolt->nextthink = -1;
-	bolt->think = G_FreeEntity;
+	bolt->nextthink = level.time + WEAVE_LINKTHINK_TIME;
+	bolt->think = RunLinkEnt;
 	bolt->s.eType = ET_WEAVE_LINK;
 	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
 	bolt->s.weapon = WVW_D_SPIRIT_LINK;
@@ -327,7 +327,14 @@ void ClientLink(gclient_t * leadClient, gclient_t * followClient)
 	bolt->target_ent = &g_entities[leadClient->ps.clientNum];
 	bolt->freeAfterEvent = qfalse;
 
+	bolt->s.pos.trType = TR_INTERPOLATE;
+
 	Com_Printf("LINK: ClientLink: bolt created, about to run\n");
+	
+	//VectorCopy(bolt->parent->s.origin, bolt->s.origin);
+	//VectorCopy(bolt->parent->s.origin, bolt->s.pos.trBase);
+	//VectorCopy(bolt->target_ent->s.origin, bolt->r.currentOrigin);
+
 	RunLinkEnt(bolt);
 
 	followClient->linkEnt = bolt;
@@ -401,12 +408,25 @@ RunLinkEnt
 Updates the location of a linkEnt.
 =================
 */
-void RunLinkEnt(gentity_t * bolt)
+void RunLinkEnt(gentity_t * link)
 {
+	vec3_t          nextPos;
+
 	DEBUGWEAVEING("RunLinkEnt: start");
-	//update origins
-	VectorCopy(bolt->target_ent->s.origin, bolt->s.origin2);
-	VectorCopy(bolt->parent->s.origin, bolt->s.pos.trBase);
+
+	// New link origin = average of old origin and players' origins
+	VectorAdd(link->target_ent->s.pos.trBase, link->parent->s.pos.trBase, nextPos);
+	VectorMA(vec3_origin, 0.5f, nextPos, nextPos);
+
+	//VectorSubtract(nextPos, link->s.pos.trBase, link->s.pos.trDelta);
+	VectorCopy(nextPos, link->s.pos.trBase);
+	VectorCopy(nextPos, link->r.currentOrigin);
+
+	link->s.pos.trTime = level.time;
+	link->nextthink = level.time + WEAVE_LINKTHINK_TIME;
+
+	//G_Printf("LinkEnt type=%d weapon=%d pos=%f %f %f\n", link->s.eType, link->s.weapon, link->s.pos.trBase[0], link->s.pos.trBase[1], link->s.pos.trBase[2]);
+
 	DEBUGWEAVEING("RunLinkEnt: end");
 }
 
