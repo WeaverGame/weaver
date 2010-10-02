@@ -458,13 +458,11 @@ struct gclient_s
 	int             currentWeaveThreads[MAX_THREADS];	//current weave threads
 
 	int             powerMax;
-	//int           powerFull;
 	int             powerThreading;
 	int             powerUsed;
 	int             slowTicks;
 	int             poisonTicks;
 	int             poisonDamage;
-	//int             powerAvailable;
 
 	gclient_t      *linkFollower;	//Client linking to this client
 	gclient_t      *linkTarget;	//Client this client is linked to
@@ -498,8 +496,6 @@ typedef struct
 	struct gclient_s *clients;	// [maxclients]
 
 	struct gentity_s *gentities;
-
-	struct weaver_weaveGInfo_s *weaveGInfo;
 
 	int             gentitySize;
 	int             numEntities;	// current number, <= MAX_GENTITIES
@@ -725,19 +721,15 @@ qboolean        ExecuteWeave(gentity_t * weave);
 void            EndWeave(gentity_t * weave);
 void            AddHeldWeaveToPlayer(gentity_t * ent, playerState_t * player);
 void            UseHeldWeave(gentity_t * ent);
+void            ReleaseHeldWeave(gentity_t * ent);
 void            ExpireHeldWeave(gentity_t * weave);
 void            ClearHeldWeave(gentity_t * ent);
 void            G_RunWeaveEffect(gentity_t * ent);
 void            G_ReleaseWeave(gentity_t * weave);
-void            ThreadsThink(gentity_t * ent);
+void            ThreadsThink();
 int             WeaveTime(int weaveID);
 
-// g_main.c for weaver stuff
-void            DEBUGWEAVEING(char *str);
-void            DEBUGWEAVEING_LVL(char *str, int level);
-
-// g_spell_misc.c
-//
+// g_spell_power.c
 qboolean        ClientPowerShielded(gclient_t * holdingClient);
 int             ClientPowerInUse(gclient_t * holdingClient);
 int             ClientPowerAvailable(gclient_t * holdingClient);
@@ -752,9 +744,28 @@ qboolean        ClientLinkJoin(gclient_t * leadClient, gclient_t * followClient)
 void            ClientLinkLeave(gclient_t * followClient);
 void            RunLinkEnt(gentity_t * bolt);
 
-void            WeaveProtectCheck(gclient_t * checkClient);
+// g_spell_client.c
+//
+void            ClientWeaverCleanup(gclient_t * client);
+void            ClientWeaverInitialize(gclient_t * client);
 
-void            G_RegisterWeaveGInfo();
+void            ClientWeaverDie(gentity_t * self);
+int             ClientWeaverProtectDamage(gentity_t * targ, gclient_t *client, gentity_t * inflictor, gentity_t * attacker,
+										  const vec3_t dir, const vec3_t point, int damageBase, int dflags, int mod);
+
+void            ClientWeaveStart(gclient_t * client);
+void            ClientThreadStart(gclient_t * client);
+void            ClientThreadEnd(gclient_t * client);
+void            ClientWeaveEnd(gclient_t * client, gentity_t * ent);
+void            ClientWeaveUpdateStats(gentity_t * ent, gclient_t * client);
+void            ClientPoisonUpdateStats(gentity_t *ent);
+
+// g_spell_misc.c
+//
+void            DEBUGWEAVEING(char *str);
+void            DEBUGWEAVEING_LVL(char *str, int level);
+void            WeaveProtectCheck(gclient_t * checkClient);
+int             PowerEncode(int threads[MAX_THREADS], int offset, int count);
 
 
 //
@@ -1043,6 +1054,9 @@ extern vmCvar_t g_cubeTimeout;
 extern vmCvar_t g_redteam;
 extern vmCvar_t g_blueteam;
 extern vmCvar_t g_smoothClients;
+
+extern vmCvar_t g_debugWeaving;
+extern vmCvar_t g_debugEntities;
 
 extern vmCvar_t g_rankings;
 extern vmCvar_t g_enableDust;

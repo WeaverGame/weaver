@@ -967,10 +967,6 @@ typedef struct
 	int             teamSpawnPrevious;
 	int             teamSpawnPeriod;
 
-	// improved crosshair
-	vec4_t          crosshairColor;
-	vec4_t          crosshairColorAlt;
-
 	// hud variables
 
 	float           bar_offset;	// offset calculation for middle bar
@@ -1199,7 +1195,6 @@ typedef struct
 	qhandle_t       kamikazeShockWave;
 	qhandle_t       kamikazeHeadModel;
 	qhandle_t       kamikazeHeadTrail;
-
 	qhandle_t       invulnerabilityPowerupModel;
 
 	// scoreboard headers
@@ -1508,8 +1503,6 @@ extern vmCvar_t cg_drawIcons;
 extern vmCvar_t cg_drawAmmoWarning;
 extern vmCvar_t cg_drawCrosshair;
 
-extern vmCvar_t cg_drawCrosshairAlt;
-
 extern vmCvar_t cg_hudRed;
 extern vmCvar_t cg_hudGreen;
 extern vmCvar_t cg_hudBlue;
@@ -1522,7 +1515,6 @@ extern vmCvar_t cg_teamOverlayUserinfo;
 extern vmCvar_t cg_crosshairX;
 extern vmCvar_t cg_crosshairY;
 extern vmCvar_t cg_crosshairSize;
-extern vmCvar_t cg_crosshairSizeAlt;
 extern vmCvar_t cg_crosshairHealth;
 
 extern vmCvar_t cg_crosshairDot;
@@ -1530,10 +1522,6 @@ extern vmCvar_t cg_crosshairCircle;
 extern vmCvar_t cg_crosshairCross;
 extern vmCvar_t cg_crosshairPulse;
 
-extern vmCvar_t cg_crosshairAlpha;
-extern vmCvar_t cg_crosshairAlphaAlt;
-extern vmCvar_t cg_crosshairColor;
-extern vmCvar_t cg_crosshairColorAlt;
 extern vmCvar_t cg_drawStatus;
 extern vmCvar_t cg_drawStatusLines;
 extern vmCvar_t cg_drawSideBar;

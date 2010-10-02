@@ -640,6 +640,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\g_spell_client.c"
+				>
+			</File>
+			<File
 				RelativePath=".\g_spell_effects.c"
 				>
 			</File>
@@ -649,6 +653,10 @@
 			</File>
 			<File
 				RelativePath=".\g_spell_misc.c"
+				>
+			</File>
+			<File
+				RelativePath=".\g_spell_power.c"
 				>
 			</File>
 			<File

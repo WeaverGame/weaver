@@ -1330,20 +1330,7 @@ void ClientSpawn(gentity_t * ent)
 	}
 	eventSequence = client->ps.eventSequence;
 
-	//WEAVER
-	//clear held weaves
-	for(i = MIN_WEAPON_WEAVE; i < MAX_WEAPONS; i++)
-	{
-		if(client->ps.ammo[i] > 0)
-		{
-			ClearHeldWeave(&g_entities[client->ps.ammo[i]]);
-		}
-	}
-	if(client->threadEnt)
-	{
-		Com_Printf("Free ThreadsEnt player %d\n", client->ps.clientNum);
-		G_FreeEntity(client->threadEnt);
-	}
+	ClientWeaverCleanup(client);
 
 	Com_Memset(client, 0, sizeof(*client));
 
@@ -1373,26 +1360,7 @@ void ClientSpawn(gentity_t * ent)
 	client->ps.stats[STAT_MAX_HEALTH] = client->pers.maxHealth;
 	client->ps.eFlags = flags;
 
-	//WEAVER
-	//give stamina and power
-	client->ps.stats[STAT_STAMINA] = MAX_STAMINA;
-	//client->ps.stats[STAT_MAX_POWER] = FULL_POWER;
-	//client->ps.stats[STAT_POWER] = client->ps.stats[STAT_MAX_POWER];
-	ClientPowerInitialize(client);
-
-	//Clear Links
-	client->linkEnt = NULL;
-	client->linkFollower = NULL;
-	client->linkHeld = NULL;
-	client->linkTarget = NULL;
-
-	//Clear shields
-	client->ps.stats[STAT_AIRPROTECT] = 0;
-	client->ps.stats[STAT_FIREPROTECT] = 0;
-	client->ps.stats[STAT_EARTHPROTECT] = 0;
-	client->ps.stats[STAT_WATERPROTECT] = 0;
-
-	WeaveProtectCheck(client);
+	ClientWeaverInitialize(client);
 
 	ent->s.groundEntityNum = ENTITYNUM_NONE;
 	ent->client = &level.clients[index];

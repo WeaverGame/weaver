@@ -3067,9 +3067,6 @@ void CG_Player(centity_t * cent)
 
 	CG_DustTrail(cent);
 
-	// add the gun / barrel / flash
-	CG_AddPlayerWeapon(&body, NULL, cent, ci->team);
-
 	// add threads entity
 	CG_AddPlayerThreads(cent, NULL, &body);
 
@@ -3078,6 +3075,9 @@ void CG_Player(centity_t * cent)
 
 	// add player protect spells
 	CG_AddPlayerProtects(cent, NULL, &body);
+
+	// add the gun / barrel / flash
+	CG_AddPlayerWeapon(&body, NULL, cent, ci->team);
 
 	// add powerups floating behind the player
 	CG_PlayerPowerups(cent, &body, noShadowID);

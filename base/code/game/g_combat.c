@@ -476,9 +476,8 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 	int             anim;
 	int             contents;
 	int             killer;
-	int             i, j;
+	int             i;
 	char           *killerName, *obit;
-	gentity_t      *heldWeave;
 
 #ifdef G_LUA
 	char            customObit[MAX_STRING_CHARS] = "";
@@ -512,29 +511,7 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 
 	G_Printf("Wounded Player - G_Combat pm_type2=%d\n", self->client->ps.pm_type);
 
-	//WEAVER - free this players threads
-	if(self->client->threadEnt)
-	{
-		Com_Printf("Free ThreadsEnt player %d\n", self->client->ps.clientNum);
-		G_FreeEntity(self->client->threadEnt);
-		self->client->threadEnt = NULL;
-	}
-
-	ClientLinkLeave(self->client);
-
-	//WEAVER - clear held weaves
-	for(j = MIN_WEAPON_WEAVE; j < MAX_WEAPONS; j++)
-	{
-		//where the weave is being held
-		if(self->client->ps.ammo[j] > 0)
-		{
-			//clear held weave
-			heldWeave = &g_entities[self->client->ps.ammo[j]];
-			EndWeave(heldWeave);
-			ClearHeldWeave(heldWeave);
-			break;
-		}
-	}
+	ClientWeaverDie(self);
 
 	if(attacker)
 	{
@@ -978,14 +955,6 @@ qboolean G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 	int             knockback;
 	int             max;
 
-	//WEAVER
-	float           airprotect;
-	float           fireprotect;
-	float           earthprotect;
-	float           waterprotect;
-
-	int             damageBase;
-
 #ifdef MISSIONPACK
 	vec3_t          bouncedir, impactpoint;
 #endif
@@ -1219,66 +1188,11 @@ qboolean G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 		G_Printf("%i: client:%i health:%i damage:%i armor:%i\n", level.time, targ->s.number, targ->health, take, asave);
 	}
 
-	//Weaver
-	//reduce damage if target client has a relevant protect
-	//first check if the inflictor is a weave or weave effect
-	if(client && (inflictor->s.eType == ET_WEAVE_EFFECT || inflictor->s.eType == ET_WEAVE_MISSILE))
+	damage = ClientWeaverProtectDamage(targ, client, inflictor, attacker, dir, point, damage, dflags, mod);
+
+	if(damage <= 0)
 	{
-		damageBase = damage;
-		//Get protection factor for this weave
-		//Note, air shield is prioritized? checks first? is this good?
-		WeaveProtectScales(inflictor->s.weapon, &airprotect, &fireprotect, &earthprotect, &waterprotect);
-		if(client->ps.stats[STAT_AIRPROTECT] >= damage)
-		{
-			//Shield is sufficient to take the whole blow
-			client->ps.stats[STAT_AIRPROTECT] -= damage;
-			damage -= damage * airprotect;
-		}
-		else if(client->ps.stats[STAT_AIRPROTECT])
-		{
-			damage -= (client->ps.stats[STAT_AIRPROTECT] * airprotect);
-			client->ps.stats[STAT_AIRPROTECT] = 0;
-		}
-
-		if(client->ps.stats[STAT_FIREPROTECT] >= damage)
-		{
-			client->ps.stats[STAT_FIREPROTECT] -= damage;
-			damage -= damage * fireprotect;
-		}
-		else if(client->ps.stats[STAT_FIREPROTECT])
-		{
-			damage -= (client->ps.stats[STAT_FIREPROTECT] * fireprotect);
-			client->ps.stats[STAT_FIREPROTECT] = 0;
-		}
-
-		if(client->ps.stats[STAT_EARTHPROTECT] >= damage)
-		{
-			client->ps.stats[STAT_EARTHPROTECT] -= damage;
-			damage -= damage * earthprotect;
-		}
-		else if(client->ps.stats[STAT_EARTHPROTECT])
-		{
-			damage -= (client->ps.stats[STAT_EARTHPROTECT] * earthprotect);
-			client->ps.stats[STAT_EARTHPROTECT] = 0;
-		}
-
-		if(client->ps.stats[STAT_WATERPROTECT] >= damage)
-		{
-			client->ps.stats[STAT_WATERPROTECT] -= damage;
-			damage -= damage * waterprotect;
-		}
-		else if(client->ps.stats[STAT_WATERPROTECT])
-		{
-			damage -= (client->ps.stats[STAT_WATERPROTECT] * waterprotect);
-			client->ps.stats[STAT_WATERPROTECT] = 0;
-		}
-
-		WeaveProtectCheck(client);
-
-		if(damage <= 0)
-		{
-			return qfalse;
-		}
+		return qfalse;
 	}
 
 	// add to the damage inflicted on a player this frame

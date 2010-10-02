@@ -1869,39 +1869,7 @@ Cmd_Release_f
 */
 void Cmd_Release_f(gentity_t * ent)
 {
-	playerState_t  *pstate;
-	gentity_t      *heldWeave;
-
-	if(!ent || !ent->client)
-	{
-		return;
-	}
-
-	pstate = &ent->client->ps;
-
-	if(pstate->weapon && (pstate->weapon >= MIN_WEAPON_WEAVE))
-	{
-		//this is a weave)
-		if(pstate->ammo[pstate->weapon])
-		{
-			heldWeave = &g_entities[pstate->ammo[pstate->weapon]];
-			switch (heldWeave->s.frame)
-			{
-				case WST_HELD:
-				case WST_EXPIRED:
-					heldWeave->s.frame = WST_RELEASED;
-					break;
-				case WST_INPROCESS:
-					heldWeave->s.frame = WST_INPROCESSRELEASED;
-					break;
-				case WST_RELEASED:
-				case WST_INPROCESSRELEASED:
-				default:
-					break;
-			}
-			UseHeldWeave(heldWeave);
-		}
-	}
+	ReleaseHeldWeave(ent);
 }
 
 /*

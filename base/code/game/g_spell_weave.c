@@ -55,74 +55,72 @@ void CreateThreads(gentity_t * player)
 	return;
 }
 
-int PowerEncode(int threads[MAX_THREADS], int offset, int count)
+void ThreadsThink()
 {
-	int             n = 0;
-	int             i = 0;
-
-	for(i = 0; i < count; i++)
-	{
-		//Com_Printf("n=%d thread=%d mult=%d add=%d\n", n, threads[offset+i], (int)pow(WVP_NUMBER, i), (threads[offset+i] * (int)pow(WVP_NUMBER, i)));
-		n += (threads[offset + i] * (int)pow(WVP_NUMBER, i));
-	}
-	return n;
-}
-
-void ThreadsThink(gentity_t * ent)
-{
+	int             i;
 	gentity_t      *player;
 	gclient_t      *pclient;
-
-	if(!ent)
-	{
-		DEBUGWEAVEING("ThreadsThink: no ent");
-		return;
-	}
-
-	player = ent->parent;
-	pclient = player->client;
+	gentity_t      *ent;
 
 	DEBUGWEAVEING_LVL("ThreadsThink: start", 2);
 
-	//update location
-	VectorCopy(player->r.currentOrigin, ent->s.origin);
-	//update thread info
-	if(pclient->weaving)
+	player = &g_entities[0];
+	for(i = 0; i < MAX_CLIENTS; i++, player++)
 	{
-		ent->s.constantLight = PowerEncode(pclient->currentWeaveThreads, 0, 8);
+		if(!player->inuse)
+		{
+			continue;
+		}
+
+		if(!player->client)
+		{
+			continue;
+		}
+
+		if(player->client->threadEnt)
+		{
+			pclient = player->client;
+			ent = pclient->threadEnt;
+
+			// Update location
+			VectorCopy(player->r.currentOrigin, ent->s.origin);
+			// Update thread info
+			if(pclient->weaving)
+			{
+				ent->s.constantLight = PowerEncode(pclient->currentWeaveThreads, 0, 8);
+			}
+			else
+			{
+				ent->s.constantLight = 0;
+			}
+
+			// Copy Trajectory
+			ent->s.pos.trAcceleration = player->s.pos.trAcceleration;
+			VectorCopy(player->s.pos.trBase, ent->s.pos.trBase);
+			VectorCopy(player->s.pos.trDelta, ent->s.pos.trDelta);
+			ent->s.pos.trDuration = player->s.pos.trDuration;
+			ent->s.pos.trTime = player->s.pos.trTime;
+			ent->s.pos.trType = player->s.pos.trType;
+
+			// Copy power in use
+			ent->s.powerups = ClientPowerInUse(pclient);
+
+			// Update status
+			ent->s.frame = 0;
+			if(pclient->weaving)
+			{
+				ent->s.frame |= 1 << 0;
+			}
+			if(pclient->threading)
+			{
+				ent->s.frame |= 1 << 1;
+			}
+
+			ent->s.frame += (pclient->currentWeaveGroup << 2);
+
+			trap_LinkEntity(ent);
+		}
 	}
-	else
-	{
-		ent->s.constantLight = 0;
-	}
-
-	//Copy Trajectory
-	ent->s.pos.trAcceleration = player->s.pos.trAcceleration;
-	VectorCopy(player->s.pos.trBase, ent->s.pos.trBase);
-	VectorCopy(player->s.pos.trDelta, ent->s.pos.trDelta);
-	ent->s.pos.trDuration = player->s.pos.trDuration;
-	ent->s.pos.trTime = player->s.pos.trTime;
-	ent->s.pos.trType = player->s.pos.trType;
-
-	//Copy power in use
-	ent->s.powerups = ClientPowerInUse(pclient);
-
-	//Com_Printf("Client=%d PowerInUse=%d\n", pclient->ps.clientNum, ent->s.generic1);
-
-	//update status
-	ent->s.frame = 0;
-	if(pclient->weaving)
-	{
-		ent->s.frame |= 1 << 0;
-	}
-	if(pclient->threading)
-	{
-		ent->s.frame |= 1 << 1;
-	}
-
-	ent->s.frame += (pclient->currentWeaveGroup << 2);
-
-	trap_LinkEntity(ent);
 
 	DEBUGWEAVEING_LVL("ThreadsThink: end", 2);
 }
@@ -191,7 +189,7 @@ gentity_t      *MakeWeaveHeld(gentity_t * self, int weaveID, int holdTime, int h
 	weave->s.otherEntityNum = self->s.number;
 	//unlagged - projectile nudge
 
-	Com_Printf("Weave ent num = %i\n", weave->s.number);
+	DEBUGWEAVEING(va("Weave ent num = %i", weave->s.number));
 	trap_LinkEntity(weave);
 
 	DEBUGWEAVEING("MakeWeaveHeld: end");
@@ -492,6 +490,52 @@ void UseHeldWeave(gentity_t * heldWeave)
 		ClearHeldWeave(heldWeave);
 	}
 	DEBUGWEAVEING("UseHeldWeave: end");
+}
+
+/*
+=================
+ReleaseWeaveCmd
+
+Given a weave effect in progress, 
+this method gets the held weave 
+and releases it (and subsequently this weave effect).
+=================
+*/
+void ReleaseHeldWeave(gentity_t * ent)
+{
+	playerState_t  *pstate;
+	gentity_t      *heldWeave;
+
+	if(!ent || !ent->client)
+	{
+		return;
+	}
+
+	pstate = &ent->client->ps;
+
+	if(pstate->weapon && (pstate->weapon >= MIN_WEAPON_WEAVE))
+	{
+		//this is a weave)
+		if(pstate->ammo[pstate->weapon])
+		{
+			heldWeave = &g_entities[pstate->ammo[pstate->weapon]];
+			switch (heldWeave->s.frame)
+			{
+				case WST_HELD:
+				case WST_EXPIRED:
+					heldWeave->s.frame = WST_RELEASED;
+					break;
+				case WST_INPROCESS:
+					heldWeave->s.frame = WST_INPROCESSRELEASED;
+					break;
+				case WST_RELEASED:
+				case WST_INPROCESSRELEASED:
+				default:
+					break;
+			}
+			UseHeldWeave(heldWeave);
+		}
+	}
 }
 
 /*

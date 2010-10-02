@@ -41,7 +41,6 @@ typedef struct
 
 gentity_t       g_entities[MAX_GENTITIES];
 gclient_t       g_clients[MAX_CLIENTS];
-weaver_weaveGInfo_t g_weaveGInfo[WVW_NUM_WEAVES];
 
 vmCvar_t        g_gametype;
 vmCvar_t        g_dmflags;
@@ -272,18 +271,6 @@ static cvarTable_t gameCvarTable[] = {
 	{&ace_botsFile, "g_botsFile", "3", 0, 0, qfalse},	// FIXME rename
 #endif
 };
-
-void DEBUGWEAVEING_LVL(char *str, int level)
-{
-	if(g_debugWeaving.integer >= level)
-	{
-		Com_Printf("%s\n", str);
-	}
-}
-void DEBUGWEAVEING(char *str)
-{
-	DEBUGWEAVEING_LVL(str, 1);
-}
 
 // bk001129 - made static to avoid aliasing
 static int      gameCvarTableSize = sizeof(gameCvarTable) / sizeof(gameCvarTable[0]);
@@ -616,14 +603,6 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 	level.maxclients = g_maxclients.integer;
 	memset(g_clients, 0, MAX_CLIENTS * sizeof(g_clients[0]));
 	level.clients = g_clients;
-
-	//WEAVER
-	// initialize all weave GInfo for this game
-	//TODO: weaver: delete or use this (for obituaries, etc probably)
-	memset(g_weaveGInfo, 0, WVW_NUM_WEAVES * sizeof(g_weaveGInfo[0]));
-	level.weaveGInfo = g_weaveGInfo;
-
-	G_RegisterWeaveGInfo();
 
 	// set client fields on player ents
 	for(i = 0; i < level.maxclients; i++)
@@ -2563,7 +2542,6 @@ void G_RunFrame(int levelTime)
 		//WEAVER
 		if(ent->s.eType == ET_WEAVE_THREADS)
 		{
-			//ThreadsThink(ent);
 			continue;
 		}
 
@@ -2572,24 +2550,7 @@ void G_RunFrame(int levelTime)
 
 	//WEAVER do threads think after entities, 
 	//since threads need heldWeaves to have throught first
-	ent = &g_entities[0];
-	for(i = 0; i < MAX_CLIENTS; i++, ent++)
-	{
-		if(!ent->inuse)
-		{
-			continue;
-		}
-
-		if(!ent->client)
-		{
-			continue;
-		}
-
-		if(ent->client->threadEnt)
-		{
-			ThreadsThink(ent->client->threadEnt);
-		}
-	}
+	ThreadsThink();
 
 	end = trap_Milliseconds();
 
