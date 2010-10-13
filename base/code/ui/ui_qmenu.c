@@ -1950,6 +1950,12 @@ void Menu_Cache(void)
 	sliderButton_0 = trap_R_RegisterShaderNoMip("ui/sliderbutt_0");
 	sliderButton_1 = trap_R_RegisterShaderNoMip("ui/sliderbutt_1");
 
+	uis.threadAir = trap_R_RegisterShaderNoMip("models/threads/air1");
+	uis.threadFire = trap_R_RegisterShaderNoMip("models/threads/fire1");
+	uis.threadEarth = trap_R_RegisterShaderNoMip("models/threads/earth1");
+	uis.threadWater = trap_R_RegisterShaderNoMip("models/threads/water1");
+	uis.threadSpirit = trap_R_RegisterShaderNoMip("models/threads/spirit1");
+
 	//uis.rb_on = trap_R_RegisterShaderNoMip("ui/switch_on");
 	//uis.rb_off = trap_R_RegisterShaderNoMip("ui/switch_off");
 

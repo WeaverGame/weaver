@@ -2103,6 +2103,7 @@ refexport_t* QCALL GetRefAPI(int apiVersion, refimport_t * rimp)
 	re.GetEntityToken = R_GetEntityToken;
 	re.inPVS = R_inPVS;
 
+	re.DrawRotatedPic = RE_RotatedPic;
 	re.TakeVideoFrame = RE_TakeVideoFrame;
 
 	return &re;

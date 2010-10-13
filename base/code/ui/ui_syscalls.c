@@ -221,6 +221,13 @@ void trap_R_DrawStretchPic(float x, float y, float w, float h, float s1, float t
 			PASSFLOAT(s2), PASSFLOAT(t2), hShader);
 }
 
+void trap_R_DrawRotatedPic(float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader,
+						   float angle)
+{
+	syscall(UI_R_DRAWROTATEDPIC, PASSFLOAT(x), PASSFLOAT(y), PASSFLOAT(w), PASSFLOAT(h), PASSFLOAT(s1), PASSFLOAT(t1),
+			PASSFLOAT(s2), PASSFLOAT(t2), hShader, PASSFLOAT(angle));
+}
+
 void trap_R_ModelBounds(clipHandle_t model, vec3_t mins, vec3_t maxs)
 {
 	syscall(UI_R_MODELBOUNDS, model, mins, maxs);

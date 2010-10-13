@@ -1495,6 +1495,20 @@ void UI_DrawHandlePic(float x, float y, float w, float h, qhandle_t hShader)
 
 /*
 ================
+UI_DrawRotatedPic
+
+Coordinates are 640*480 virtual values
+=================
+*/
+void UI_DrawRotatedPic(float x, float y, float width, float height, qhandle_t hShader, float angle)
+{
+	UI_AdjustFrom640(&x, &y, &width, &height);
+
+	trap_R_DrawRotatedPic(x, y, width, height, 0, 0, 1, 1, hShader, angle);
+}
+
+/*
+================
 UI_FillRect
 
 Coordinates are 640*480 virtual values
@@ -1594,7 +1608,15 @@ void UI_Refresh(int realtime)
 
 	UI_SetColor(NULL);
 
+	UI_DrawRotatedPic(320 + 100*sin(uis.realtime / 1300.0f + 1234), 120 + 100*sin(uis.realtime / 2100.0f), 200, 200, uis.threadAir, uis.realtime / 7000.0f);
+	UI_DrawRotatedPic(480 + 100*sin(uis.realtime / 1400.0f), 240 + 100*sin(uis.realtime / 2300.0f + 1234), 200, 200, uis.threadFire, uis.realtime / -8000.0f);
+	UI_DrawRotatedPic(320 + 100*sin(uis.realtime / 1200.0f + 5678), 360 + 100*sin(uis.realtime / 1700.0f + 2345), 200, 200, uis.threadEarth, uis.realtime / 7300.0f);
+	UI_DrawRotatedPic(160 + 100*sin(uis.realtime / 2200.0f + 1357), 240 + 100*sin(uis.realtime / 1500.0f + 3456), 200, 200, uis.threadWater, uis.realtime / -7600.0f);
+	UI_DrawRotatedPic(320 + 100*sin(uis.realtime / 1700.0f + 1825), 240 + 100*sin(uis.realtime / 1300.0f + 4567), 200, 200, uis.threadSpirit, uis.realtime / 8500.0f);
 
+	UI_SetColor(NULL);
+
+	/*
 // draw cursor lines
 	UI_DrawRect(0, uis.cursory - 1, 640, 3, color_cursorLines);
 	UI_DrawRect(uis.cursorx - 1, 0, 3, 480, color_cursorLines);
@@ -1604,6 +1626,7 @@ void UI_Refresh(int realtime)
 
 	UI_Text_Paint(630, uis.cursory, 0.15f, color_cursorLines, va("%i", uis.cursorx), 0, 0, UI_CENTER, &uis.freeSansFont);
 	UI_Text_Paint(uis.cursorx, 470, 0.15f, color_cursorLines, va("%i", uis.cursory), 0, 0, UI_CENTER, &uis.freeSansFont);
+	*/
 
 	UI_SetColor(NULL);
 
@@ -1611,6 +1634,7 @@ void UI_Refresh(int realtime)
 	UI_DrawHandlePic(uis.cursorx - 24, uis.cursory - 24, 46, 46, uis.cursor);
 
 
+	/*
 //draw moving scanlines
 
 	if(uis.realtime > nextLine)
@@ -1635,7 +1659,7 @@ void UI_Refresh(int realtime)
 
 //draw border around screen
 	UI_DrawRect(0, 0, 640, 480, color_cursorLines);
-
+	*/
 
 #ifndef NDEBUG
 	if(uis.debug)

@@ -588,6 +588,12 @@ typedef struct
 	//single podium the playermodel is standing on in the menu
 	qhandle_t       podiumModel;
 
+	qhandle_t threadAir;
+	qhandle_t threadFire;
+	qhandle_t threadEarth;
+	qhandle_t threadWater;
+	qhandle_t threadSpirit;
+
 //  fontInfo_t      smallFont;
 //  fontInfo_t      bigFont;
 
@@ -708,6 +714,8 @@ void            trap_R_RenderScene(const refdef_t * fd);
 void            trap_R_SetColor(const float *rgba);
 void            trap_R_DrawStretchPic(float x, float y, float w, float h, float s1, float t1, float s2, float t2,
 									  qhandle_t hShader);
+void            trap_R_DrawRotatedPic(float x, float y, float w, float h, float s1, float t1, float s2, float t2,
+									  qhandle_t hShader, float angle);
 void            trap_R_RegisterFont(const char *fontName, int pointSize, fontInfo_t * font);
 void            trap_UpdateScreen(void);
 int             trap_CM_LerpTag(orientation_t * tag, clipHandle_t mod, int startFrame, int endFrame, float frac,
