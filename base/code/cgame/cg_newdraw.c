@@ -41,7 +41,7 @@ int             drawTeamOverlayModificationCount = -1;
 //static char teamChat1[256];
 //static char teamChat2[256];
 
-void CG_InitTeamChat()
+void CG_InitTeamChat(void)
 {
 	memset(teamChat1, 0, sizeof(teamChat1));
 	memset(teamChat2, 0, sizeof(teamChat2));
@@ -61,7 +61,7 @@ void CG_SetPrintString(int type, const char *p)
 	}
 }
 
-void CG_CheckOrderPending()
+void CG_CheckOrderPending(void)
 {
 	if(cgs.gametype < GT_CTF)
 	{
@@ -137,7 +137,7 @@ void CG_CheckOrderPending()
 	}
 }
 
-static void CG_SetSelectedPlayerName()
+static void CG_SetSelectedPlayerName(void)
 {
 	if(cg_currentSelectedPlayer.integer >= 0 && cg_currentSelectedPlayer.integer < numSortedTeamPlayers)
 	{
@@ -155,7 +155,7 @@ static void CG_SetSelectedPlayerName()
 		trap_Cvar_Set("cg_selectedPlayerName", "Everyone");
 	}
 }
-int CG_GetSelectedPlayer()
+int CG_GetSelectedPlayer(void)
 {
 	if(cg_currentSelectedPlayer.integer < 0 || cg_currentSelectedPlayer.integer >= numSortedTeamPlayers)
 	{
@@ -164,7 +164,7 @@ int CG_GetSelectedPlayer()
 	return cg_currentSelectedPlayer.integer;
 }
 
-void CG_SelectNextPlayer()
+void CG_SelectNextPlayer(void)
 {
 	CG_CheckOrderPending();
 	if(cg_currentSelectedPlayer.integer >= 0 && cg_currentSelectedPlayer.integer < numSortedTeamPlayers)
@@ -178,7 +178,7 @@ void CG_SelectNextPlayer()
 	CG_SetSelectedPlayerName();
 }
 
-void CG_SelectPrevPlayer()
+void CG_SelectPrevPlayer(void)
 {
 	CG_CheckOrderPending();
 	if(cg_currentSelectedPlayer.integer > 0 && cg_currentSelectedPlayer.integer < numSortedTeamPlayers)
@@ -1183,7 +1183,7 @@ float CG_GetValue(int ownerDraw)
 	return -1;
 }
 
-qboolean CG_OtherTeamHasFlag()
+qboolean CG_OtherTeamHasFlag(void)
 {
 	if(cgs.gametype == GT_CTF || cgs.gametype == GT_1FCTF)
 	{
@@ -1223,7 +1223,7 @@ qboolean CG_OtherTeamHasFlag()
 	return qfalse;
 }
 
-qboolean CG_YourTeamHasFlag()
+qboolean CG_YourTeamHasFlag(void)
 {
 	if(cgs.gametype == GT_CTF || cgs.gametype == GT_1FCTF)
 	{
@@ -1442,7 +1442,7 @@ static void CG_DrawAreaChat(rectDef_t * rect, float scale, vec4_t color, qhandle
 	CG_Text_Paint(rect->x, rect->y + rect->h, scale, color, teamChat2, 0, 0, 0);
 }
 
-const char     *CG_GetKillerText()
+const char     *CG_GetKillerText(void)
 {
 	const char     *s = "";
 
@@ -1491,7 +1491,7 @@ static void CG_Draw2ndPlace(rectDef_t * rect, float scale, vec4_t color, qhandle
 	}
 }
 
-const char     *CG_GetGameStatusText()
+const char     *CG_GetGameStatusText(void)
 {
 	const char     *s = "";
 
@@ -1525,7 +1525,7 @@ static void CG_DrawGameStatus(rectDef_t * rect, float scale, vec4_t color, qhand
 	CG_Text_Paint(rect->x, rect->y + rect->h, scale, color, CG_GetGameStatusText(), 0, 0, textStyle);
 }
 
-const char     *CG_GameTypeString()
+const char     *CG_GameTypeString(void)
 {
 	if(cgs.gametype == GT_FFA)
 	{
@@ -2165,7 +2165,7 @@ CG_HideTeamMenus
 ==================
 
 */
-void CG_HideTeamMenu()
+void CG_HideTeamMenu(void)
 {
 	Menus_CloseByName("teamMenu");
 	Menus_CloseByName("getMenu");
@@ -2177,7 +2177,7 @@ CG_ShowTeamMenus
 ==================
 
 */
-void CG_ShowTeamMenu()
+void CG_ShowTeamMenu(void)
 {
 	Menus_OpenByName("teamMenu");
 }
@@ -2266,7 +2266,7 @@ int CG_ClientNumFromName(const char *p)
 	return -1;
 }
 
-void CG_ShowResponseHead()
+void CG_ShowResponseHead(void)
 {
 	Menus_OpenByName("voiceMenu");
 	trap_Cvar_Set("cl_conXOffset", "72");

@@ -521,7 +521,7 @@ G_InitSWRound
 
 ============
 */
-void G_InitSWRound()
+void G_InitSWRound(void)
 {
 	char            cs[MAX_STRING_CHARS];
 

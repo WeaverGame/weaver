@@ -72,7 +72,7 @@ void CG_InitParticles(void)
 CG_AllocParticle
 ==========================
 */
-cparticle_t    *CG_AllocParticle()
+cparticle_t *CG_AllocParticle(void)
 {
 	cparticle_t    *p;
 

@@ -8,7 +8,7 @@ It creates projectiles for weaves and other weave effects.
 #include "g_local.h"
 #include "g_spell_effects.h"
 
-qboolean G_IsTeamGame()
+qboolean G_IsTeamGame(void)
 {
 	if(g_gametype.integer >= GT_TEAM)
 	{

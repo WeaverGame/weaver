@@ -176,7 +176,7 @@ qboolean LoadLuaFile(char *path, int num_vm, vmType_t type)
 /** G_LuaInit()
 * Initialises the Lua API interface 
 */
-qboolean G_LuaInit()
+qboolean G_LuaInit(void)
 {
 	//load from cvar
 	int             i, len, num_vm = 0;
@@ -488,7 +488,7 @@ void G_LuaStopVM(lua_vm_t * vm)
 /** G_LuaShutdown()
  * Shuts down everything related to Lua API.
  */
-void G_LuaShutdown()
+void G_LuaShutdown(void)
 {
 	int             i;
 	lua_vm_t       *vm;

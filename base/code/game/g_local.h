@@ -726,7 +726,7 @@ void            ExpireHeldWeave(gentity_t * weave);
 void            ClearHeldWeave(gentity_t * ent);
 void            G_RunWeaveEffect(gentity_t * ent);
 void            G_ReleaseWeave(gentity_t * weave);
-void            ThreadsThink();
+void            ThreadsThink(void);
 int             WeaveTime(int weaveID);
 
 // g_spell_power.c
@@ -898,8 +898,8 @@ void            Team_CheckDroppedItem(gentity_t * dropped);
 qboolean        CheckObeliskAttack(gentity_t * obelisk, gentity_t * attacker);
 void            Team_ReadyPlayers(int team, qboolean readyness);
 int             Team_CaptureFlag(gentity_t * ent, gentity_t * other, int team);
-void            Team_SwapTeams();
-void            Team_SwapTeamsMapping();
+void            Team_SwapTeams(void);
+void            Team_SwapTeamsMapping(void);
 
 //
 // g_mem.c
@@ -996,8 +996,8 @@ qboolean        G_LuaHook_EntitySpawn(char *function, int entity);
 
 // Other
 void            G_LuaStatus(gentity_t * ent);
-qboolean        G_LuaInit();
-void            G_LuaShutdown();
+qboolean        G_LuaInit(void);
+void            G_LuaShutdown(void);
 
 #endif							// G_LUA
 

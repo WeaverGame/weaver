@@ -1131,7 +1131,7 @@ void Team_ReadyPlayers(int team, qboolean readyness)
 	}
 }
 
-void Team_SwapTeams()
+void Team_SwapTeams(void)
 {
 	int             i;
 	gentity_t      *ent;
@@ -1175,7 +1175,7 @@ void Team_SwapTeams()
 	Team_SwapTeamsMapping();
 }
 
-void Team_SwapTeamsMapping()
+void Team_SwapTeamsMapping(void)
 {
 	// Swap team to A/B mapping
 	trap_Cvar_Set("g_swTeamToClan", va("%i", !g_swTeamToClan.integer));

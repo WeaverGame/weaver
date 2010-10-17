@@ -1392,7 +1392,7 @@ static void CG_RegisterWeaves(void)
 CG_BuildSpectatorString
 =======================
 */
-void CG_BuildSpectatorString()
+void CG_BuildSpectatorString(void)
 {
 	int             i;
 

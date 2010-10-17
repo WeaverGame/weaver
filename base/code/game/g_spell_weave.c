@@ -55,7 +55,7 @@ void CreateThreads(gentity_t * player)
 	return;
 }
 
-void ThreadsThink()
+void ThreadsThink(void)
 {
 	int             i;
 	gentity_t      *player;

@@ -1651,8 +1651,7 @@ void            CG_MouseEvent(int x, int y);
 void            CG_EventHandling(int type);
 void            CG_RankRunFrame(void);
 void            CG_SetScoreSelection(void *menu);
-score_t        *CG_GetSelectedScore();
-void            CG_BuildSpectatorString();
+void            CG_BuildSpectatorString(void);
 
 
 //
@@ -1749,24 +1748,24 @@ void            CG_DrawFlagModel(float x, float y, float w, float h, int team, q
 void            CG_DrawTeamBackground(int x, int y, int w, int h, float alpha, int team);
 void            CG_OwnerDraw(float x, float y, float w, float h, float text_x, float text_y, int ownerDraw, int ownerDrawFlags,
 							 int align, float special, float scale, vec4_t color, qhandle_t shader, int textStyle);
-void            CG_SelectPrevPlayer();
-void            CG_SelectNextPlayer();
+void            CG_SelectPrevPlayer(void);
+void            CG_SelectNextPlayer(void);
 float           CG_GetValue(int ownerDraw);
 qboolean        CG_OwnerDrawVisible(int flags);
 void            CG_RunMenuScript(char **args);
-void            CG_ShowResponseHead();
+void            CG_ShowResponseHead(void);
 void            CG_SetPrintString(int type, const char *p);
-void            CG_InitTeamChat();
+void            CG_InitTeamChat(void);
 void            CG_GetTeamColor(vec4_t * color);
-const char     *CG_GetGameStatusText();
-const char     *CG_GetKillerText();
+const char     *CG_GetGameStatusText(void);
+const char     *CG_GetKillerText(void);
 void            CG_Draw3DModel(float x, float y, float w, float h, qhandle_t model, qhandle_t skin, vec3_t origin, vec3_t angles);
 void            CG_Draw3DWeaponModel(float x, float y, float w, float h, qhandle_t weaponModel, qhandle_t barrelModel,
 									 qhandle_t skin, vec3_t origin, vec3_t angles);
-void            CG_CheckOrderPending();
-const char     *CG_GameTypeString();
-qboolean        CG_YourTeamHasFlag();
-qboolean        CG_OtherTeamHasFlag();
+void            CG_CheckOrderPending(void);
+const char     *CG_GameTypeString(void);
+qboolean        CG_YourTeamHasFlag(void);
+qboolean        CG_OtherTeamHasFlag(void);
 qhandle_t       CG_StatusHandle(int task);
 
 
@@ -1825,7 +1824,7 @@ void            CG_UpdateWeaveSense(int clientnum, vec3_t origin, int power);
 void            CG_DrawWeaveSense(void);
 
 // cg_spell_hud.c
-void            CG_DrawWeaverHUD();
+void            CG_DrawWeaverHUD(void);
 
 //
 // cg_events.c
@@ -1985,11 +1984,11 @@ void            CG_CheckChangedPredictableEvents(playerState_t * ps);
 // cg_lua.c
 //
 #include <lua.h>
-void            CG_InitLua();
-void            CG_ShutdownLua();
+void            CG_InitLua(void);
+void            CG_ShutdownLua(void);
 void            CG_LoadLuaScript(const char *filename);
 void            CG_RunLuaFunction(const char *func, const char *sig, ...);
-void            CG_DumpLuaStack();
+void            CG_DumpLuaStack(void);
 void            CG_RestartLua_f(void);
 
 //

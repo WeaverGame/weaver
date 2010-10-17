@@ -38,7 +38,7 @@ static lua_State *cg_luaState = NULL;
 CG_InitLua
 ============
 */
-void CG_InitLua()
+void CG_InitLua(void)
 {
 	int             numdirs;
 	char            filename[MAX_QPATH];
@@ -97,7 +97,7 @@ void CG_InitLua()
 CG_ShutdownLua
 =================
 */
-void CG_ShutdownLua()
+void CG_ShutdownLua(void)
 {
 	CG_Printf("------- Game Lua Finalization -------\n");
 
@@ -272,7 +272,7 @@ void CG_RunLuaFunction(const char *func, const char *sig, ...)
 CG_DumpLuaStack
 =================
 */
-void CG_DumpLuaStack()
+void CG_DumpLuaStack(void)
 {
 	int             i;
 	lua_State      *L = cg_luaState;

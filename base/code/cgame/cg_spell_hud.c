@@ -551,7 +551,7 @@ CG_DrawWeaverHUD
 Calls all HUD drawing for players.
 =================
 */
-void CG_DrawWeaverHUD()
+void CG_DrawWeaverHUD(void)
 {
 	//Health and Power
 	CG_DrawWeaverStatusBar();

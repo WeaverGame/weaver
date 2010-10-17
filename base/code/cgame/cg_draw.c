@@ -3801,7 +3801,7 @@ static void CG_DrawDebug(void)
 
 }
 
-void CG_DrawWoundedInfo()
+void CG_DrawWoundedInfo(void)
 {
 	char           *info;
 
