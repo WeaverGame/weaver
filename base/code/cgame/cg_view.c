@@ -688,8 +688,17 @@ static void CG_OffsetThirdPersonView(void)
 
 	VectorCopy(cg.refdefViewAngles, focusAngles);
 
+	// allow wounded to look around
+	if(cg.predictedPlayerState.pm_type == PM_WOUNDED)
+	{
+		// focus angle used to calculate direction of camera
+		// view angle between +-180, divide by 5; between +-36; prevents some weird angles
+		focusAngles[PITCH] = AngleNormalize180(focusAngles[PITCH])/5.0f;
+		// refdefViewAngles used to calculate position of camera on sphere around origin
+		cg.refdefViewAngles[PITCH] = 0;
+	}
 	// if dead, look at killer
-	if(cg.predictedPlayerState.stats[STAT_HEALTH] <= 0)
+	else if(cg.predictedPlayerState.stats[STAT_HEALTH] <= 0)
 	{
 		focusAngles[YAW] = cg.predictedPlayerState.stats[STAT_DEAD_YAW];
 		cg.refdefViewAngles[YAW] = cg.predictedPlayerState.stats[STAT_DEAD_YAW];

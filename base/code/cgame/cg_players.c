@@ -2837,6 +2837,12 @@ void CG_Player(centity_t * cent)
 	if(angles[PITCH] < -180.0f)
 		angles[PITCH] += 360.0f;
 
+	if(cent->currentState.eFlags & EF_WOUNDED)
+	{
+		// player is wounded, the body cannot rotate, they lie at the same angle they died at.
+		angles[YAW] = cent->currentState.generic1;
+	}
+
 	CG_PlayerAngles(cent, angles, legsAngles, torsoAngles, headAngles);
 	AnglesToAxis(legsAngles, body.axis);
 

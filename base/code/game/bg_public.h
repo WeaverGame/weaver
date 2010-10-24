@@ -73,6 +73,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	DEFAULT_VIEWHEIGHT	44 // 68	// Tr3B: was 26
 #define CROUCH_VIEWHEIGHT	16 // 32	// Tr3B: was 12
 #define CROUCH_HEIGHT		20 // 38	// Tr3B: was 16
+#define WOUNDED_HEIGHT	   -8
+#define WOUNDED_VIEWHEIGHT -16
 #define	DEAD_VIEWHEIGHT	   -16			// Tr3B: was -16
 
 //Weaver
@@ -171,8 +173,8 @@ typedef enum
 	PM_NOCLIP,					// noclip movement
 	PM_SPECTATOR,				// still run into walls
 	PM_FREEZE,					// stuck in place with no control
-	PM_DEAD,					// no acceleration or turning, but free falling
 	PM_WOUNDED,					// no acceleration, but free falling
+	PM_DEAD,					// no acceleration or turning, but free falling
 	PM_INTERMISSION,			// no movement or status bar
 	PM_SPINTERMISSION			// no movement or status bar
 } pmtype_t;
@@ -332,7 +334,7 @@ enum
 	EF_AWARD_DENIED			= BIT(18),	// denied
 	EF_AWARD_TELEFRAG		= BIT(18),	// draw a telefrag sprite
 	EF_TEAMVOTED			= BIT(19),	// already cast a team vote
-	//EF_KAMIKAZE			= BIT(20),	// AVAILABLE FOR USE
+	EF_WOUNDED				= BIT(20),	// player is wounded
 	EF_TICKING				= BIT(21),	// used to make players play the prox mine ticking sound
 	EF_FIRING2				= BIT(22),	// for lightning gun
 	EF_WALLCLIMB			= BIT(23),	// TA: wall walking
@@ -800,7 +802,6 @@ typedef enum
 {
 	ET_GENERAL,
 	ET_PLAYER,
-	ET_WOUNDED,
 	ET_ITEM,
 	ET_PROJECTILE,
 	ET_PROJECTILE2,

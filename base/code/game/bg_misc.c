@@ -1145,13 +1145,24 @@ void BG_PlayerStateToEntityState(playerState_t * ps, entityState_t * s, qboolean
 	s->clientNum = ps->clientNum;	// ET_PLAYER looks here instead of at number
 	// so corpses can also reference the proper config
 	s->eFlags = ps->eFlags;
-	if(ps->stats[STAT_HEALTH] <= 0 && !(ps->pm_type == PM_WOUNDED))
+	if(ps->stats[STAT_HEALTH] <= 0)
 	{
-		s->eFlags |= EF_DEAD;
+		if(ps->pm_type == PM_WOUNDED)
+		{
+			s->eFlags |= EF_WOUNDED;
+			s->eFlags &= ~EF_DEAD;
+			s->generic1 = ps->stats[STAT_DEAD_YAW];
+		}
+		else
+		{
+			s->eFlags |= EF_DEAD;
+			s->eFlags &= ~EF_WOUNDED;
+		}
 	}
 	else
 	{
 		s->eFlags &= ~EF_DEAD;
+		s->eFlags &= ~EF_WOUNDED;
 	}
 
 	if(ps->externalEvent)
@@ -1250,14 +1261,23 @@ void BG_PlayerStateToEntityStateExtraPolate(playerState_t * ps, entityState_t * 
 	s->clientNum = ps->clientNum;	// ET_PLAYER looks here instead of at number
 	// so corpses can also reference the proper config
 	s->eFlags = ps->eFlags;
-
-	if(ps->stats[STAT_HEALTH] <= 0 && !(ps->pm_type == PM_WOUNDED))
+	if(ps->stats[STAT_HEALTH] <= 0)
 	{
-		s->eFlags |= EF_DEAD;
+		if(ps->pm_type == PM_WOUNDED)
+		{
+			s->eFlags |= EF_WOUNDED;
+			s->eFlags &= ~EF_DEAD;
+		}
+		else
+		{
+			s->eFlags |= EF_DEAD;
+			s->eFlags &= ~EF_WOUNDED;
+		}
 	}
 	else
 	{
 		s->eFlags &= ~EF_DEAD;
+		s->eFlags &= ~EF_WOUNDED;
 	}
 
 	if(ps->externalEvent)

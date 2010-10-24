@@ -1588,9 +1588,6 @@ static void CG_AddCEntity(centity_t * cent)
 		case ET_PLAYER:
 			CG_Player(cent);
 			break;
-		case ET_WOUNDED:
-			CG_Player(cent);
-			break;
 		case ET_ITEM:
 			CG_Item(cent);
 			break;

@@ -2135,8 +2135,8 @@ static void PM_CheckDuck(void)
 	// wounded players
 	if(pm->ps->pm_type == PM_WOUNDED)
 	{
-		pm->maxs[2] = CROUCH_HEIGHT;
-		pm->ps->viewheight = CROUCH_VIEWHEIGHT;
+		pm->maxs[2] = WOUNDED_HEIGHT;
+		pm->ps->viewheight = WOUNDED_VIEWHEIGHT;
 		return;
 	}
 
@@ -2879,12 +2879,7 @@ void PM_UpdateViewAngles(playerState_t * ps, const usercmd_t * cmd)
 	vec3_t          axis[3], rotaxis[3];
 	vec3_t          tempang;
 
-	if(ps->pm_type == PM_INTERMISSION || ps->pm_type == PM_SPINTERMISSION)
-	{
-		return;					// no view changes at all
-	}
-
-	if(ps->pm_type != PM_SPECTATOR && ps->stats[STAT_HEALTH] <= 0)
+	if(ps->pm_type >= PM_DEAD)
 	{
 		return;					// no view changes at all
 	}
@@ -3129,9 +3124,9 @@ void PmoveSingle(pmove_t * pmove)
 
 	// update the viewangles
 	// WEAVER do not update view angles when weaving
-	if(pm->ps->pm_type >= PM_DEAD)
+	if(pm->ps->pm_type >= PM_WOUNDED)
 	{
-		// Player is not alive, no weaving
+		// Player is not alive enough for weaving, no weaving
 	}
 	else if(pm->ps->eFlags & EF_THREAD && (pm->ps->eFlags & EF_WEAVEA || pm->ps->eFlags & EF_WEAVED))
 	{
@@ -3187,6 +3182,9 @@ void PmoveSingle(pmove_t * pmove)
 		{
 			pm->ps->eFlags &= ~EF_TAPOUT;
 		}
+		pm->cmd.forwardmove = 0;
+		pm->cmd.rightmove = 0;
+		pm->cmd.upmove = 0;
 	}
 
 	if(pm->ps->pm_type >= PM_DEAD)
@@ -3246,7 +3244,7 @@ void PmoveSingle(pmove_t * pmove)
 	//Weaver, do not update weave angles (only when not threading)
 	//PM_UpdateViewAngles(pm->ps, &pm->cmd);
 
-	if(pm->ps->pm_type == PM_DEAD)
+	if(pm->ps->pm_type == PM_DEAD || pm->ps->pm_type == PM_WOUNDED)
 	{
 		PM_DeadMove();
 	}
