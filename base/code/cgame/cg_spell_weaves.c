@@ -157,7 +157,6 @@ void CG_AddPlayerProtects(centity_t * player, playerState_t * ps, refEntity_t * 
 	int             i;
 	refEntity_t     ent;
 	playerEntity_t *pe;
-	entityState_t  *s1;
 	centity_t      *protectWeave;
 	const weaver_weaveInfo *weave;
 

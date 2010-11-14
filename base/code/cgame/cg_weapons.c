@@ -2868,6 +2868,7 @@ void CG_MissileHitWall(int weapon, int entityType, int clientNum, vec3_t origin,
 		default:
 		case WP_GAUNTLET:
 			sfx = cgs.media.hookImpactSound;
+			alphaFade = qtrue;
 			break;
 	}
 
