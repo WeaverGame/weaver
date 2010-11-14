@@ -1130,6 +1130,8 @@ char           *ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)
 	G_LogPrintf("ClientConnect: %i\n", clientNum);
 	ClientUserinfoChanged(clientNum);
 
+	G_StatInitPlayer(ent);
+
 	// don't do the "xxx connected" messages if they were caried over from previous level
 	if(firstTime)
 	{
@@ -1420,6 +1422,11 @@ void ClientSpawn(gentity_t * ent)
 		client->ps.weapon = MAX_WEAPONS - 1;
 		client->ps.weaponstate = WEAPON_READY;
 
+		//WEAVER
+		//create threads entity for this player
+		CreateThreads(ent);
+
+		G_StatTimeStart(STATF_LIVETIME, ent, NULL, NULL);
 	}
 
 	// don't allow full run speed for a bit
@@ -1465,10 +1472,6 @@ void ClientSpawn(gentity_t * ent)
 		}
 		*/
 	}
-
-	//WEAVER
-	//create threads entity for this player
-	CreateThreads(ent);
 
 #if defined(ACEBOT)
 	if(ent->r.svFlags & SVF_BOT)

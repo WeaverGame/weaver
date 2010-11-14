@@ -687,6 +687,8 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 		G_InitSWRound();
 	}
 
+	G_StatInit();
+
 #ifdef G_LUA
 	// Lua API callbacks
 	G_LuaHook_InitGame(levelTime, randomSeed, restart);

@@ -664,6 +664,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\g_statistics.c"
+				>
+			</File>
+			<File
 				RelativePath="g_svcmds.c"
 				>
 				<FileConfiguration
@@ -933,6 +937,14 @@
 			</File>
 			<File
 				RelativePath=".\g_spell_effects.h"
+				>
+			</File>
+			<File
+				RelativePath=".\g_statfields.def"
+				>
+			</File>
+			<File
+				RelativePath=".\g_statistics.h"
 				>
 			</File>
 			<File

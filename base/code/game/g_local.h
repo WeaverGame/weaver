@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "g_public.h"
 #include "spell_common.h"
 #include "spell_shared.h"
+#include "g_statistics.h"
 
 //==================================================================
 
@@ -767,6 +768,15 @@ void            DEBUGWEAVEING_LVL(char *str, int level);
 void            WeaveProtectCheck(gclient_t * checkClient);
 int             PowerEncode(int threads[MAX_THREADS], int offset, int count);
 
+/* g_statistics.c */
+void            G_StatInitPlayer(gentity_t * ent);
+void            G_StatInit(void);
+
+void            G_StatCountAdd(statField_t f, gentity_t * ent, gentity_t * other, int weapon, int val);
+void            G_StatTimeStart(statField_t f, gentity_t * ent, gentity_t * other, int weapon);
+void            G_StatTimeAdd(statField_t f, gentity_t * ent, gentity_t * other, int weapon);
+
+void            G_StatDump(void);
 
 //
 // g_mover.c

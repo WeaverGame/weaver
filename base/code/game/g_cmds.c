@@ -2155,6 +2155,8 @@ void ClientCommand(int clientNum)
 		Cmd_ReadyTeam_f(ent);
 	else if(Q_stricmp(cmd, "unreadyteam") == 0)
 		Cmd_UnreadyTeam_f(ent);
+	else if(Q_stricmp(cmd, "statsdump") == 0)
+		G_StatDump();
 	else if(Q_stricmp(cmd, "spawntimes") == 0)
 		Cmd_Spawntimes_f(ent);
 	else
