@@ -19,40 +19,40 @@ int             threadColorR[WVP_NUMBER] = {
 	0,							//none
 	239,						//air
 	239,						//airfire
-	239,						//fire
-	185,						//earthfire
-	131,						//earth
-	65,							//earthwater
+	249,						//fire
+	215,						//earthfire
+	18,							//earth
+	5,							//earthwater
 	0,							//water
 	119,						//airwater
-	18
-};								//spirit
+	255							//spirit
+};
 
 int             threadColorG[WVP_NUMBER] = {
 	0,							//none
 	230,						//air
 	135,						//airfire
 	41,							//fire
-	51,							//earthfire
-	61,							//earth
-	71,							//earthwater
+	174,						//earthfire
+	195,						//earth
+	202,						//earthwater
 	82,							//water
 	156,						//airwater
-	173
-};								//spirit
+	255							//spirit
+};
 
 int             threadColorB[WVP_NUMBER] = {
 	0,							//none
 	0,							//air
 	20,							//airfire
 	41,							//fire
-	33,							//earthfire
-	26,							//earth
-	127,						//earthwater
+	0,							//earthfire
+	30,							//earth
+	176,						//earthwater
 	231,						//water
 	115,						//airwater
-	42
-};								//spirit
+	255							//spirit
+};
 
 static const vec3_t protectOffset = { 0, 0, 40 };
 

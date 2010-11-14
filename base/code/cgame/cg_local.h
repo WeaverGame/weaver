@@ -1362,7 +1362,7 @@ typedef struct
 	qhandle_t       swordModel;
 
 	// weaver disc
-	qhandle_t       weaverDiscShader[NUM_WEAVERDISCS];
+	qhandle_t       weaverDiscShader[NUM_WEAVERDISCS + 1];
 
 	// weaver sense dots
 	qhandle_t       weaverSenseDot1;

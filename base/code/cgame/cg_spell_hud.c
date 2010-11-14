@@ -392,32 +392,35 @@ static void CG_DrawWeaverDisc(void)
 		return;
 	}
 
-	if(cg_drawWeaverDisc.integer < 1)
-	{
-		return;
-	}
-
-	w = h = cg_weaverDiscSize.integer;
-	//TODO: reimplement move scale
-	//moveScale = (float)cg_weaverDiscMoveScale.value * 1.0;
-
-	CG_AdjustFrom640(&x, &y, &w, &h);
-
-	//thread = va("%i x, %i y ", cg.snap->ps.stats[STAT_THREADX], cg.snap->ps.stats[STAT_THREADY]);
-	thread = va("%i x, %i y", cg.predictedPlayerState.stats[STAT_THREADX], cg.predictedPlayerState.stats[STAT_THREADY]);
-	CG_DrawStringExt(8, 17, thread, colorWhite, qtrue, qfalse, 6, 8, 0);
-
-	//x += cg.predictedPlayerState.stats[STAT_THREADX] * moveScale;
-	//y -= cg.predictedPlayerState.stats[STAT_THREADY] * moveScale;
-
 	da = cg_drawWeaverDisc.integer;
 
-	weaverDisc = cgs.media.weaverDiscShader[da % NUM_WEAVERDISCS];
+	if(da >= 1 && da <= NUM_WEAVERDISCS)
+	{
+		w = h = cg_weaverDiscSize.integer;
+		//TODO: reimplement move scale
+		//moveScale = (float)cg_weaverDiscMoveScale.value * 1.0;
 
-	x = cg_weaverDiscX.integer + cg.refdef.x + (0.5 * cg.refdef.width);
-	y = cg_weaverDiscY.integer + cg.refdef.y + (0.5 * cg.refdef.height);
+		CG_AdjustFrom640(&x, &y, &w, &h);
 
-	trap_R_DrawStretchPic(x - (0.5 * w), y - (0.5 * w), w, w, 0, 0, 1, 1, weaverDisc);
+		//thread = va("%i x, %i y ", cg.snap->ps.stats[STAT_THREADX], cg.snap->ps.stats[STAT_THREADY]);
+		thread = va("%i x, %i y", cg.predictedPlayerState.stats[STAT_THREADX], cg.predictedPlayerState.stats[STAT_THREADY]);
+		CG_DrawStringExt(8, 17, thread, colorWhite, qtrue, qfalse, 6, 8, 0);
+
+		//x += cg.predictedPlayerState.stats[STAT_THREADX] * moveScale;
+		//y -= cg.predictedPlayerState.stats[STAT_THREADY] * moveScale;
+
+		weaverDisc = cgs.media.weaverDiscShader[da];
+
+		x = cg_weaverDiscX.integer + cg.refdef.x + (0.5 * cg.refdef.width);
+		y = cg_weaverDiscY.integer + cg.refdef.y + (0.5 * cg.refdef.height);
+
+		trap_R_DrawStretchPic(x - (0.5 * w), y - (0.5 * w), w, w, 0, 0, 1, 1, weaverDisc);
+	}
+	else
+	{
+		x = cg_weaverDiscX.integer + cg.refdef.x + (0.5 * cg.refdef.width);
+		y = cg_weaverDiscY.integer + cg.refdef.y + (0.5 * cg.refdef.height);
+	}
 
 	CG_DrawWeaverStroke(x, y);
 

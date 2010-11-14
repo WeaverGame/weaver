@@ -1297,7 +1297,7 @@ static void CG_RegisterGraphics(void)
 	cgs.media.swordModel = trap_R_RegisterModel("models/sword/sword.md5mesh", qtrue);
 
 	// weaver disc
-	for(i = 0; i < NUM_WEAVERDISCS; i++)
+	for(i = 1; i <= NUM_WEAVERDISCS; i++)
 	{
 		cgs.media.weaverDiscShader[i] = trap_R_RegisterShaderNoMip(va("gfx/hud/disc%i", i));
 	}

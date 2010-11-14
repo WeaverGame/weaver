@@ -30,7 +30,7 @@ It contains global weaver definitions.
 //Weaver disc
 #define WEAVER_CENTER       25
 #define WEAVER_POWERDIV     360/8
-#define NUM_WEAVERDISCS     1
+#define NUM_WEAVERDISCS     3
 
 //HUD
 #define HUD_HEALTH_HEIGHT   90
