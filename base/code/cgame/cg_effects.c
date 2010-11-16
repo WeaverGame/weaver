@@ -28,46 +28,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 vec3_t          zeroVector = { 0, 0, 0 };
 
-static ID_INLINE void VectorRandom(vec3_t a, const vec3_t mins, const vec3_t maxs)
-{
-	float           r;
-
-	r = crandom();
-	if(r > 0)
-	{
-		a[0] += r * maxs[0];
-	}
-	else
-	{
-		a[0] -= r * mins[0];
-	}
-	r = crandom();
-	if(r > 0)
-	{
-		a[1] += r * maxs[1];
-	}
-	else
-	{
-		a[1] -= r * mins[1];
-	}
-	r = crandom();
-	if(r > 0)
-	{
-		a[2] += r * maxs[2];
-	}
-	else
-	{
-		a[2] -= r * mins[2];
-	}
-}
-
-static ID_INLINE void VectorRandomUniform(vec3_t a, const vec3_t maxs)
-{
-	a[0] += crandom() * maxs[0];
-	a[1] += crandom() * maxs[1];
-	a[2] += crandom() * maxs[2];
-}
-
 /*
 ==================
 CG_BubbleTrail

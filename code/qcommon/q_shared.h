@@ -1209,6 +1209,45 @@ static ID_INLINE void AnglesToMatrix(const vec3_t angles, matrix_t m)
 	MatrixFromAngles(m, angles[PITCH], angles[YAW], angles[ROLL]);
 }
 
+static ID_INLINE void VectorRandom(vec3_t a, const vec3_t mins, const vec3_t maxs)
+{
+	float           r;
+
+	r = crandom();
+	if(r > 0)
+	{
+		a[0] += r * maxs[0];
+	}
+	else
+	{
+		a[0] -= r * mins[0];
+	}
+	r = crandom();
+	if(r > 0)
+	{
+		a[1] += r * maxs[1];
+	}
+	else
+	{
+		a[1] -= r * mins[1];
+	}
+	r = crandom();
+	if(r > 0)
+	{
+		a[2] += r * maxs[2];
+	}
+	else
+	{
+		a[2] -= r * mins[2];
+	}
+}
+
+static ID_INLINE void VectorRandomUniform(vec3_t a, const vec3_t maxs)
+{
+	a[0] += crandom() * maxs[0];
+	a[1] += crandom() * maxs[1];
+	a[2] += crandom() * maxs[2];
+}
 
 #define QuatSet(q,x,y,z,w)	((q)[0]=(x),(q)[1]=(y),(q)[2]=(z),(q)[3]=(w))
 #define QuatCopy(a,b)		((b)[0]=(a)[0],(b)[1]=(a)[1],(b)[2]=(a)[2],(b)[3]=(a)[3])

@@ -624,6 +624,9 @@ void EndWeave(gentity_t * weave)
 		case WVW_D_AIRFIRE_LIGHT:
 			EndWeave_LightSource(player, start, direction, heldWeaveNum);
 			break;
+		case WVW_D_AIRWATER_FOG:
+			EndWeave_Fog(player, start, direction, heldWeaveNum);
+			break;
 		case WVW_D_SPIRIT_TRAVEL:
 			break;
 			//Spawn Ent
@@ -667,7 +670,6 @@ void EndWeave(gentity_t * weave)
 		case WVW_A_EARTHFIRE_IGNITE:
 			break;
 		case WVW_D_WATER_CURE:
-		case WVW_D_AIRWATER_FOG:
 		case WVW_D_EARTH_UNLOCK:
 		case WVW_A_SPIRIT_STILL:
 		case WVW_A_SPIRIT_SLICE_S:
@@ -765,7 +767,10 @@ qboolean ExecuteWeave(gentity_t * heldWeave)
 			result = FireWeave_LightSource(player, start, direction, heldWeaveNum);
 			break;
 		case WVW_D_AIRWATER_FOG:
+			result = FireWeave_Fog(player, start, direction, heldWeaveNum);
+			break;
 		case WVW_D_SPIRIT_TRAVEL:
+			break;
 			//Spawn Ent
 		case WVW_D_AIRFIRE_WALL:
 			break;

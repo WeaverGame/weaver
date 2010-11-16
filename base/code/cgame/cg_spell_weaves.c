@@ -1331,6 +1331,27 @@ void CG_RegisterWeave(int weaveNum)
 			MAKERGB(weaveInfo->instanceLightColor, 1, 1, 1);
 
 			break;
+		case WVW_D_AIRWATER_FOG:
+			//weave info
+			weaveInfo->holdable = qtrue;
+			weaveInfo->holdPowerCharge = 200;
+			weaveInfo->holdMaxTime = 0;
+			weaveInfo->castDelay = 0;
+			weaveInfo->primaryPower = WVP_AIRWATER;
+			weaveInfo->effectType = WVT_SPAWN_ENTITY;
+			weaveInfo->group = WVG_DEFENSIVE;
+			weaveInfo->name = "Fog";
+
+			//misc resources
+			weaveInfo->icon = trap_R_RegisterShader("rocketExplosion");
+			weaveInfo->firingSound = trap_S_RegisterSound("sound/weapons/machinegun/par_shot_1.ogg");
+
+			//weaveInfo->instanceShader[0] = trap_R_RegisterShader("lightningBolt");;
+			//weaveInfo->instanceModel = trap_R_RegisterModel("models/projectiles/spike/spike.md3", qtrue);
+			//weaveInfo->instanceLight = 400;
+			//MAKERGB(weaveInfo->instanceLightColor, 1, 1, 1);
+
+			break;
 		case WVW_A_EARTHWATER_SLOW:
 			//weave info
 			weaveInfo->holdable = qtrue;

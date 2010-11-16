@@ -2606,3 +2606,75 @@ qboolean FireWeave_ExplosiveMed(gentity_t * self, vec3_t start, vec3_t dir, int 
 }
 
 //End Explosion
+
+//Begin Fog
+/*
+=================
+RunWeave
+Explosives
+=================
+*/
+qboolean FireWeave_Fog(gentity_t * self, vec3_t start, vec3_t dir, int heldWeaveNum)
+{
+	gentity_t      *bolt;
+	gentity_t      *heldWeave;
+
+	heldWeave = &g_entities[heldWeaveNum];
+
+	bolt = G_Spawn();
+	bolt->classname = EFFECT_CLASSNAME;
+	bolt->nextthink = 0;
+	bolt->think = G_ReleaseWeave;
+	bolt->s.eType = ET_WEAVE_EFFECT;
+	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
+	bolt->s.weapon = WVW_D_AIRWATER_FOG;
+	bolt->r.ownerNum = self->s.number;
+//unlagged - projectile nudge
+	// we'll need this for nudging projectiles later
+//unlagged - projectile nudge
+	bolt->s.otherEntityNum2 = heldWeaveNum;
+	bolt->parent = self;
+
+	bolt->splashDamage = 0;
+	bolt->splashRadius = 0;
+	bolt->methodOfDeath = MOD_UNKNOWN;
+	bolt->splashMethodOfDeath = MOD_UNKNOWN;
+	
+	bolt->damage = 0;
+	bolt->clipmask = MASK_DEADSOLID;
+	bolt->freeAfterEvent = qfalse;
+
+	G_SetOrigin(bolt, self->r.currentOrigin);
+
+	trap_LinkEntity(bolt);
+
+	//reference this from held
+	heldWeave->target_ent = bolt;
+	//held weave is now in progress
+	heldWeave->s.frame = WST_INPROCESS;
+	//prevent held weave expiring
+	heldWeave->nextthink = 0;
+
+	return qtrue;
+}
+
+/*
+=================
+EndWeave
+Fog
+=================
+*/
+gentity_t      *EndWeave_Fog(gentity_t * self, vec3_t start, vec3_t dir, int heldWeaveNum)
+{
+	gentity_t      *heldWeave;
+	gentity_t      *targetPlayer;
+
+	heldWeave = &g_entities[heldWeaveNum];
+
+	G_FreeEntity(heldWeave->target_ent);
+
+	heldWeave->target_ent = NULL;
+
+	return heldWeave;
+}
+//End Fog

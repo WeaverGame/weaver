@@ -535,6 +535,33 @@ void WeaveEffect_Lightning(centity_t * cent)
 
 /*
 ===============
+WeaveEffect_Fog
+===============
+*/
+void WeaveEffect_Fog(centity_t * cent)
+{
+	vec3_t          maxs = { 368.0f, 368.0f, 96.0f };
+	int             i;
+	refEntity_t     beam;
+	vec3_t          vel;
+	vec3_t          org;
+	localEntity_t  *smoke;
+
+	for(i = 0; i < 1; i++)
+	{
+		VectorCopy(vec3_origin, vel);
+		VectorRandomUniform(vel, maxs);
+		VectorCopy(cent->lerpOrigin, org);
+		VectorRandomUniform(org, maxs);
+		smoke = CG_SmokePuff(org, vel, 100.0f, 1.0f, 1.0f, 1.0f, 0.5, 5000,
+			cg.time, 2000, 0, cgs.media.smokePuffShader);
+
+		smoke->leType = LE_SCALE_FADE;
+	}
+}
+
+/*
+===============
 CG_WeaveEffect
 ===============
 */
@@ -549,11 +576,14 @@ void CG_WeaveEffect(centity_t * cent)
 			break;
 			//Remove effect (effect added when weaved, this executed to end it)
 		case WVW_A_AIRFIRE_SWORD:
+			break;
 		case WVW_D_SPIRIT_TRAVEL:
-		case WVW_D_AIRWATER_FOG:
 			break;
 		case WVW_D_AIRFIRE_LIGHT:
 			WeaveEffect_Light(cent);
+			break;
+		case WVW_D_AIRWATER_FOG:
+			WeaveEffect_Fog(cent);
 			break;
 			//protects - sprite on player
 		case WVW_D_AIR_PROTECT:
