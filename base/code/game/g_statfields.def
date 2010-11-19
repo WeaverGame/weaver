@@ -1,0 +1,106 @@
+/*
+===========================================================================
+This file is part of the weaver game.
+
+It defines statistics
+===========================================================================
+*/
+//
+
+/* No include guard */
+
+/*
+P = player
+W = weave / weapon
+M = map
+*/
+
+#ifdef STATFIELD
+#define STATFIELD_P STATFIELD
+#define STATFIELD_PW STATFIELD
+#define STATFIELD_PP STATFIELD
+#define STATFIELD_PPW STATFIELD
+#endif
+
+/* Undefined macros are nothing */
+#ifndef STATFIELD_P_FIRST
+#define STATFIELD_P_FIRST(e)
+#endif
+#ifndef STATFIELD_P
+#define STATFIELD_P(e, t, s1, s2)
+#endif
+#ifndef STATFIELD_P_LAST
+#define STATFIELD_P_LAST(e)
+#endif
+
+#ifndef STATFIELD_PW_FIRST
+#define STATFIELD_PW_FIRST(e)
+#endif
+#ifndef STATFIELD_PW
+#define STATFIELD_PW(e, t, s1, s2)
+#endif
+#ifndef STATFIELD_PW_LAST
+#define STATFIELD_PW_LAST(e)
+#endif
+
+#ifndef STATFIELD_PP_FIRST
+#define STATFIELD_PP_FIRST(e)
+#endif
+#ifndef STATFIELD_PP
+#define STATFIELD_PP(e, t, s1, s2)
+#endif
+#ifndef STATFIELD_PP_LAST
+#define STATFIELD_PP_LAST(e)
+#endif
+
+#ifndef STATFIELD_PPW_FIRST
+#define STATFIELD_PPW_FIRST(e)
+#endif
+#ifndef STATFIELD_PPW
+#define STATFIELD_PPW(e, t, s1, s2)
+#endif
+#ifndef STATFIELD_PPW_LAST
+#define STATFIELD_PPW_LAST(e)
+#endif
+
+/* Statistics Definitions */
+STATFIELD_P_FIRST(STATF_POINTS)
+STATFIELD_P(STATF_POINTS, STVT_COUNTER, "Points", "")
+STATFIELD_P(STATF_WEAVETIME, STVT_TIMER, "Time Weaving", "")
+STATFIELD_P(STATF_LIVETIME, STVT_TIMER, "Time Alive", "")
+STATFIELD_P_LAST(STATF_LIVETIME)
+
+STATFIELD_PW_FIRST(STATF_WEAVETIME)
+STATFIELD_PW(STATF_HOLDTIME, STVT_TIMER, "Time Holding", "")
+STATFIELD_PW(STATF_SHOTS, STVT_COUNTER, "Shots", "")
+STATFIELD_PW_LAST(STATF_SHOTS)
+
+STATFIELD_PP_FIRST(STATF_LINKTIME)
+STATFIELD_PP(STATF_LINKTIME, STVT_COUNTER, "Time Linked", "")
+STATFIELD_PP_LAST(STATF_LINKTIME)
+
+STATFIELD_PPW_FIRST(STATF_KILLS)
+STATFIELD_PPW(STATF_KILLS, STVT_COUNTER, "Kills", "Deaths")
+STATFIELD_PPW(STATF_DAMAGE, STVT_COUNTER, "Damage Given", "Damage Recieved")
+STATFIELD_PPW(STATF_HITS, STVT_COUNTER, "Hits", "")
+STATFIELD_PPW_LAST(STATF_HITS)
+
+/* Macro cleanup */
+#undef STATFIELD
+
+#undef STATFIELD_P_FIRST
+#undef STATFIELD_P
+#undef STATFIELD_P_LAST
+
+#undef STATFIELD_PW_FIRST
+#undef STATFIELD_PW
+#undef STATFIELD_PW_LAST
+
+#undef STATFIELD_PP_FIRST
+#undef STATFIELD_PP
+#undef STATFIELD_PP_LAST
+
+#undef STATFIELD_PPW_FIRST
+#undef STATFIELD_PPW
+#undef STATFIELD_PPW_LAST
+
