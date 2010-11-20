@@ -447,7 +447,10 @@ qboolean ClientLinkJoin(gclient_t * leadClient, gclient_t * followClient)
 			return qfalse;
 		}
 	}
-	DEBUGWEAVEING(va("LINK: ClientLinkJoin: lead=%d foll=%d", leadClient->ps.clientNum, followClient->ps.clientNum));
+	if(DEBUGWEAVEING_TST(1))
+	{
+		Com_Printf("LINK: ClientLinkJoin: lead=%d foll=%d", leadClient->ps.clientNum, followClient->ps.clientNum);
+	}
 	//create the link
 	ClientLink(leadClient, followClient);
 

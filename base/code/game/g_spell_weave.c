@@ -189,7 +189,10 @@ gentity_t      *MakeWeaveHeld(gentity_t * self, int weaveID, int holdTime, int h
 	weave->s.otherEntityNum = self->s.number;
 	//unlagged - projectile nudge
 
-	DEBUGWEAVEING(va("Weave ent num = %i", weave->s.number));
+	if(DEBUGWEAVEING_TST(1))
+	{
+		Com_Printf("Weave ent num = %i", weave->s.number);
+	}
 	trap_LinkEntity(weave);
 
 	DEBUGWEAVEING("MakeWeaveHeld: end");

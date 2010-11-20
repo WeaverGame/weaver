@@ -332,6 +332,9 @@ typedef struct weaver_weaveGInfo_s
 
 typedef struct weaver_threadsMap_s weaver_threadsMap_t;
 
+static const char *WeaveGroupNames[] = {"A", "D"};
+static const char *WeavePowerNames[] = {"none", "air", "airfire", "fire", "earthfire", "earth", "earthwater", "water", "airwater", "spirit"};
+
 struct weaver_threadsMap_s
 {
 	weaver_threadsMap_t *next[WVP_NUMBER];

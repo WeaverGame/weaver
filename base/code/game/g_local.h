@@ -763,8 +763,6 @@ void            ClientPoisonUpdateStats(gentity_t *ent);
 
 // g_spell_misc.c
 //
-void            DEBUGWEAVEING(char *str);
-void            DEBUGWEAVEING_LVL(char *str, int level);
 void            WeaveProtectCheck(gclient_t * checkClient);
 int             PowerEncode(int threads[MAX_THREADS], int offset, int count);
 
@@ -1175,8 +1173,9 @@ qboolean        trap_GetEntityToken(char *buffer, int bufferSize);
 
 int             trap_RealTime(qtime_t * qtime);
 
+#define DEBUGWEAVEING_TST(level) (g_debugWeaving.integer >= (level))
 
-#define DEBUGWEAVEING_LVL(str, level) {if(g_debugWeaving.integer >= (level)) Com_Printf("%s\n", (str));}
+#define DEBUGWEAVEING_LVL(str, level) {if(DEBUGWEAVEING_TST(level)) Com_Printf("%s\n", (str));}
 
 #define DEBUGWEAVEING(str) DEBUGWEAVEING_LVL((str), 1)
 

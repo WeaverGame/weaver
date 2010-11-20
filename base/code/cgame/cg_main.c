@@ -1313,7 +1313,7 @@ static void CG_RegisterGraphics(void)
 	{
 		for(j = WVP_NONE + 1; j < WVP_NUMBER; j++)
 		{
-			Com_sprintf(path, MAX_QPATH, "models/threads/%s%d", WeavePowerName(j), i+1);
+			Com_sprintf(path, MAX_QPATH, "models/threads/%s%d", WeavePowerNames[j], i+1);
 			cgs.media.weaverThreads[j][i] = trap_R_RegisterShaderNoMip(path);
 		}
 	}
