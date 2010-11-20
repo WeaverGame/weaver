@@ -1175,6 +1175,11 @@ qboolean        trap_GetEntityToken(char *buffer, int bufferSize);
 
 int             trap_RealTime(qtime_t * qtime);
 
+
+#define DEBUGWEAVEING_LVL(str, level) {if(g_debugWeaving.integer >= (level)) Com_Printf("%s\n", (str));}
+
+#define DEBUGWEAVEING(str) DEBUGWEAVEING_LVL((str), 1)
+
 #if defined(BRAINWORKS)
 int             trap_BotLibSetup(void);
 int             trap_BotLibShutdown(void);

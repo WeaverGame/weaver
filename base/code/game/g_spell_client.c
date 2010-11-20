@@ -287,6 +287,7 @@ void ClientWeaveEnd(gclient_t * client, gentity_t * ent)
 	client->weaving = qfalse;
 	if(client->thread > 0)
 	{
+#if 1
 		DEBUGWEAVEING(va("POWER: %i WEAVE: %s %s_%s_%s_%s_%s_%s_%s_%s_%s",
 			ClientPowerAvailable(client),
 			WeaveGroupName(client->currentWeaveGroup),
@@ -298,6 +299,21 @@ void ClientWeaveEnd(gclient_t * client, gentity_t * ent)
 			WeavePowerName(client->currentWeaveThreads[5]),
 			WeavePowerName(client->currentWeaveThreads[6]),
 			WeavePowerName(client->currentWeaveThreads[7])));
+#else
+		//Com_Printf("POWER: %i WEAVE: %s\n", client->ps.stats[STAT_POWER], va("!%i_0=%i_1=%i_2=%i_", client->currentWeaveGroup, client->currentWeaveThreads[0], client->currentWeaveThreads[1], client->currentWeaveThreads[2]));
+		Com_Printf("POWER: %i WEAVE: %s\n",
+				   ClientPowerAvailable(client),
+				   va("%s_%s_%s_%s_%s_%s_%s_%s_%s",
+					  WeaveGroupName(client->currentWeaveGroup),
+					  WeavePowerName(client->currentWeaveThreads[0]),
+					  WeavePowerName(client->currentWeaveThreads[1]),
+					  WeavePowerName(client->currentWeaveThreads[2]),
+					  WeavePowerName(client->currentWeaveThreads[3]),
+					  WeavePowerName(client->currentWeaveThreads[4]),
+					  WeavePowerName(client->currentWeaveThreads[5]),
+					  WeavePowerName(client->currentWeaveThreads[6]), 
+					  WeavePowerName(client->currentWeaveThreads[7])));
+#endif
 		AnglesToVector(client->ps.viewangles, dir);
 		CreateWeave(ent, client->ps.origin, dir, client->currentWeaveGroup, client->currentWeaveThreads);
 	}

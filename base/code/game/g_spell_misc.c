@@ -5,20 +5,7 @@ This file is part of the weaver game.
 It has misc weaver functions.
 ===========================================================================
 */
-#include "../../../code/qcommon/q_shared.h"
 #include "g_local.h"
-
-void DEBUGWEAVEING_LVL(char *str, int level)
-{
-	if(g_debugWeaving.integer >= level)
-	{
-		Com_Printf("%s\n", str);
-	}
-}
-void DEBUGWEAVEING(char *str)
-{
-	DEBUGWEAVEING_LVL(str, 1);
-}
 
 /*
 =================
