@@ -251,31 +251,7 @@ void CG_AddPlayerThreads(centity_t * player, playerState_t * ps, refEntity_t * p
 	memset(&ent, 0, sizeof(ent));
 	AxisClear(ent.axis);
 
-#ifdef XPPM
-	if(ps)
-	{
-		CG_PositionEntityOnTag(&ent, parent, parent->hModel, "tag_weapon");
-	}
-	else
-	{
-		boneIndex = trap_R_BoneIndex(parent->hModel, "tag_weapon");
-		if(boneIndex >= 0 && boneIndex < pe->torso.skeleton.numBones)
-		{
-			CG_PositionRotatedEntityOnBone(&ent, parent, parent->hModel, "tag_weapon");
-		}
-		else
-		{
-
-			boneIndex = trap_R_BoneIndex(parent->hModel, "MG_ATTACHER");
-			if(boneIndex >= 0 && boneIndex < pe->torso.skeleton.numBones)
-			{
-				CG_PositionRotatedEntityOnBone(&ent, parent, parent->hModel, "MG_ATTACHER");
-			}
-		}
-	}
-#else
-	CG_PositionEntityOnTag(&ent, parent, parent->hModel, "tag_weapon");
-#endif
+	CG_PositionEntityOnWeaponTag(&ent, parent, parent->hModel, ps, player);
 
 	if(player->currentState.number == cg.snap->ps.clientNum && !cg.renderingThirdPerson)
 	{

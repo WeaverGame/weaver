@@ -1865,6 +1865,8 @@ void            CG_NextWeapon_f(void);
 void            CG_PrevWeapon_f(void);
 void            CG_Weapon_f(void);
 
+void            CG_PositionEntityOnWeaponTag(refEntity_t *gun, const refEntity_t * parent, qhandle_t parentModel, playerState_t * ps, centity_t * cent);
+
 void            CG_RegisterWeapon(int weaponNum);
 void            CG_RegisterItemVisuals(int itemNum);
 

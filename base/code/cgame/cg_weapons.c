@@ -1652,26 +1652,27 @@ CG_PositionEntityOnWeaponTag
 Positions a refEntity on the player's weapon tag (i.e. in their hands).
 =============
 */
-void CG_PositionEntityOnWeaponTag(refEntity_t *gun, const refEntity_t * parent, qhandle_t parentModel, playerState_t * ps, centity_t * cent) {
+void CG_PositionEntityOnWeaponTag(refEntity_t *gun, const refEntity_t * parent, qhandle_t parentModel, playerState_t * ps, centity_t * cent)
+{
 #ifdef XPPM
 	int             boneIndex;
 
 	if(ps)
 	{
-		CG_PositionEntityOnTag(gun, parent, parentModel, "tag_weapon");
+		CG_PositionEntityOnTag(gun, parent, parentModel, "hand.R");
 	}
 	else
 	{
 		do
 		{
-			boneIndex = trap_R_BoneIndex(parentModel, "tag_weapon");
+			boneIndex = trap_R_BoneIndex(parentModel, "hand.R");
 			if(boneIndex >= 0 && boneIndex < cent->pe.torso.skeleton.numBones)
 			{
 				AxisClear(gun->axis);
-				CG_PositionRotatedEntityOnBone(gun, parent, parentModel, "tag_weapon");
+				CG_PositionRotatedEntityOnBone(gun, parent, parentModel, "hand.R");
 				break;
 			}
-			boneIndex = trap_R_BoneIndex(parentModel, "MG_ATTACHER");
+			boneIndex = trap_R_BoneIndex(parentModel, "hand.R");
 			if(boneIndex >= 0 && boneIndex < cent->pe.torso.skeleton.numBones)
 			{
 				// HACK: this is bone specific
@@ -1685,7 +1686,7 @@ void CG_PositionEntityOnWeaponTag(refEntity_t *gun, const refEntity_t * parent, 
 
 				AnglesToAxis(angles, gun->axis);
 
-				CG_PositionRotatedEntityOnBone(gun, parent, parentModel, "MG_ATTACHER");
+				CG_PositionRotatedEntityOnBone(gun, parent, parentModel, "hand.R");
 				break;
 			}
 		} while(0);
