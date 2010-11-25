@@ -427,9 +427,14 @@ qboolean CG_RegisterClientModel(clientInfo_t * ci, const char *modelName, const 
 
 		// FIXME add death animations
 
-		CG_RegisterPlayerAnimation(ci, modelName, BOTH_DEATH1, "die", qfalse, qfalse, qfalse);
-		//CG_RegisterPlayerAnimation(ci, modelName, BOTH_DEATH2, "death2", qfalse, qfalse, qfalse);
-		//CG_RegisterPlayerAnimation(ci, modelName, BOTH_DEATH3, "death3", qfalse, qfalse, qfalse);
+		if(!CG_RegisterPlayerAnimation(ci, modelName, BOTH_DEATH1, "die", qfalse, qfalse, qfalse))
+			ci->animations[BOTH_DEATH1] = ci->animations[LEGS_IDLE];
+
+		if(!CG_RegisterPlayerAnimation(ci, modelName, BOTH_DEATH2, "death2", qfalse, qfalse, qfalse))
+			ci->animations[BOTH_DEATH2] = ci->animations[LEGS_IDLE];
+
+		if(!CG_RegisterPlayerAnimation(ci, modelName, BOTH_DEATH3, "death3", qfalse, qfalse, qfalse))
+			ci->animations[BOTH_DEATH3] = ci->animations[LEGS_IDLE];
 
 		if(!CG_RegisterPlayerAnimation(ci, modelName, TORSO_GESTURE, "gesture", qfalse, qfalse, qfalse))
 			ci->animations[TORSO_GESTURE] = ci->animations[LEGS_IDLE];
