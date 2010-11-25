@@ -1,0 +1,22 @@
+Version 2
+// entity 0
+{
+"classname" "func_mover"
+"name" "func_mover_3"
+"luaSpawn" "UCGFlagSpawn"
+"luaTouch" "UCGFlagTouch"
+"model" "func_mover_3"
+"origin" "960 -1920 72"
+// primitive 0
+{
+brushDef3
+{
+( 0 0 1 -64 ) ( ( 0.000244140625 0 0.486328125 ) ( 0 0.000244140625 30.88671875 ) ) "textures/trak/trak8/wood1" 0 0 0
+( 0 1 0 -8 ) ( ( 0.000244140625 0 1.109375 ) ( 0 0.000244140625 0.072265625 ) ) "textures/trak/trak8/wood1" 0 0 0
+( 1 0 0 -8 ) ( ( 0.000244140625 0 0.484375 ) ( 0 0.000244140625 0.072265625 ) ) "textures/trak/trak8/wood1" 0 0 0
+( 0 0 -1 -64 ) ( ( 0.000244140625 0 0.486328125 ) ( 0 0.000244140625 1.11328125 ) ) "textures/trak/trak8/wood1" 0 0 0
+( 0 -1 0 -8 ) ( ( 0.000244140625 0 30.890625 ) ( 0 0.000244140625 0.072265625 ) ) "textures/trak/trak8/wood1" 0 0 0
+( -1 0 0 -8 ) ( ( 0.000244140625 0 31.515625 ) ( 0 0.000244140625 0.072265625 ) ) "textures/trak/trak8/wood1" 0 0 0
+}
+}
+}

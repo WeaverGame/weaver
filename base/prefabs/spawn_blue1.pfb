@@ -1,0 +1,145 @@
+Version 2
+// entity 0
+{
+"classname" "team_ctf_bluespawn"
+"name" "team_ctf_bluespawn_1"
+"angle" "-90"
+"group" "1"
+"luaSpawn" "BlueSpawn"
+"origin" "-4416 5888 -344"
+}
+// entity 1
+{
+"classname" "team_ctf_bluespawn"
+"name" "team_ctf_bluespawn_4"
+"angle" "-90"
+"group" "1"
+"luaSpawn" "BlueSpawn"
+"origin" "-4288 5888 -344"
+}
+// entity 2
+{
+"classname" "team_ctf_bluespawn"
+"name" "team_ctf_bluespawn_5"
+"angle" "-90"
+"group" "1"
+"luaSpawn" "BlueSpawn"
+"origin" "-4160 5888 -344"
+}
+// entity 3
+{
+"classname" "team_ctf_bluespawn"
+"name" "team_ctf_bluespawn_18"
+"angle" "-90"
+"group" "1"
+"luaSpawn" "BlueSpawn"
+"origin" "-4416 6016 -344"
+}
+// entity 4
+{
+"classname" "team_ctf_bluespawn"
+"name" "team_ctf_bluespawn_3"
+"angle" "-90"
+"group" "1"
+"luaSpawn" "BlueSpawn"
+"origin" "-4288 6016 -344"
+}
+// entity 5
+{
+"classname" "team_ctf_bluespawn"
+"name" "team_ctf_bluespawn_6"
+"angle" "-90"
+"group" "1"
+"luaSpawn" "BlueSpawn"
+"origin" "-4160 6016 -344"
+}
+// entity 6
+{
+"classname" "team_ctf_bluespawn"
+"name" "team_ctf_bluespawn_22"
+"angle" "-90"
+"group" "1"
+"luaSpawn" "BlueSpawn"
+"origin" "-4672 6016 -344"
+}
+// entity 7
+{
+"classname" "team_ctf_bluespawn"
+"name" "team_ctf_bluespawn_7"
+"angle" "-90"
+"group" "1"
+"luaSpawn" "BlueSpawn"
+"origin" "-4544 6016 -344"
+}
+// entity 8
+{
+"classname" "team_ctf_bluespawn"
+"name" "team_ctf_bluespawn_20"
+"angle" "-90"
+"group" "1"
+"luaSpawn" "BlueSpawn"
+"origin" "-3776 5888 -344"
+}
+// entity 9
+{
+"classname" "team_ctf_bluespawn"
+"name" "team_ctf_bluespawn_25"
+"angle" "-90"
+"group" "1"
+"luaSpawn" "BlueSpawn"
+"origin" "-3776 6016 -344"
+}
+// entity 10
+{
+"classname" "team_ctf_bluespawn"
+"name" "team_ctf_bluespawn_21"
+"angle" "-90"
+"group" "1"
+"luaSpawn" "BlueSpawn"
+"origin" "-4544 5888 -344"
+}
+// entity 11
+{
+"classname" "team_ctf_bluespawn"
+"name" "team_ctf_bluespawn_23"
+"angle" "-90"
+"group" "1"
+"luaSpawn" "BlueSpawn"
+"origin" "-4672 5888 -344"
+}
+// entity 12
+{
+"classname" "team_ctf_bluespawn"
+"name" "team_ctf_bluespawn_29"
+"angle" "-90"
+"group" "1"
+"luaSpawn" "BlueSpawn"
+"origin" "-3904 6016 -344"
+}
+// entity 13
+{
+"classname" "team_ctf_bluespawn"
+"name" "team_ctf_bluespawn_24"
+"angle" "-90"
+"group" "1"
+"luaSpawn" "BlueSpawn"
+"origin" "-4032 6016 -344"
+}
+// entity 14
+{
+"classname" "team_ctf_bluespawn"
+"name" "team_ctf_bluespawn_26"
+"angle" "-90"
+"group" "1"
+"luaSpawn" "BlueSpawn"
+"origin" "-3904 5888 -344"
+}
+// entity 15
+{
+"classname" "team_ctf_bluespawn"
+"name" "team_ctf_bluespawn_27"
+"angle" "-90"
+"group" "1"
+"luaSpawn" "BlueSpawn"
+"origin" "-4032 5888 -344"
+}

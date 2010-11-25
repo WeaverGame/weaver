@@ -1,0 +1,129 @@
+Version 2
+// entity 0
+{
+"classname" "team_ctf_redspawn"
+"name" "team_ctf_redspawn_10"
+"group" "2"
+"luaSpawn" "RedSpawn"
+"origin" "-1312 1600 256"
+}
+// entity 1
+{
+"classname" "team_ctf_redspawn"
+"name" "team_ctf_redspawn_8"
+"group" "2"
+"luaSpawn" "RedSpawn"
+"origin" "-1184 1664 256"
+}
+// entity 2
+{
+"classname" "team_ctf_redspawn"
+"name" "team_ctf_redspawn_9"
+"group" "2"
+"luaSpawn" "RedSpawn"
+"origin" "-1312 1472 256"
+}
+// entity 3
+{
+"classname" "team_ctf_redspawn"
+"name" "team_ctf_redspawn_11"
+"group" "2"
+"luaSpawn" "RedSpawn"
+"origin" "-1184 1536 256"
+}
+// entity 4
+{
+"classname" "team_ctf_redspawn"
+"name" "team_ctf_redspawn_13"
+"group" "2"
+"luaSpawn" "RedSpawn"
+"origin" "-1312 1344 256"
+}
+// entity 5
+{
+"classname" "team_ctf_redspawn"
+"name" "team_ctf_redspawn_2"
+"group" "2"
+"luaSpawn" "RedSpawn"
+"origin" "-1184 1408 256"
+}
+// entity 6
+{
+"classname" "team_ctf_redspawn"
+"name" "team_ctf_redspawn_27"
+"group" "2"
+"luaSpawn" "RedSpawn"
+"origin" "-1312 1728 256"
+}
+// entity 7
+{
+"classname" "team_ctf_redspawn"
+"name" "team_ctf_redspawn_24"
+"group" "2"
+"luaSpawn" "RedSpawn"
+"origin" "-1184 1792 256"
+}
+// entity 8
+{
+"classname" "team_ctf_redspawn"
+"name" "team_ctf_redspawn_26"
+"group" "2"
+"luaSpawn" "RedSpawn"
+"origin" "-1312 1856 256"
+}
+// entity 9
+{
+"classname" "team_ctf_redspawn"
+"name" "team_ctf_redspawn_12"
+"group" "2"
+"luaSpawn" "RedSpawn"
+"origin" "-1184 1920 256"
+}
+// entity 10
+{
+"classname" "team_ctf_redspawn"
+"name" "team_ctf_redspawn_29"
+"group" "2"
+"luaSpawn" "RedSpawn"
+"origin" "-1056 1856 256"
+}
+// entity 11
+{
+"classname" "team_ctf_redspawn"
+"name" "team_ctf_redspawn_25"
+"group" "2"
+"luaSpawn" "RedSpawn"
+"origin" "-1312 1984 256"
+}
+// entity 12
+{
+"classname" "team_ctf_redspawn"
+"name" "team_ctf_redspawn_30"
+"group" "2"
+"luaSpawn" "RedSpawn"
+"origin" "-1312 1216 256"
+}
+// entity 13
+{
+"classname" "team_ctf_redspawn"
+"name" "team_ctf_redspawn_31"
+"group" "2"
+"luaSpawn" "RedSpawn"
+"origin" "-1184 1280 256"
+}
+// entity 14
+{
+"classname" "team_ctf_redspawn"
+"name" "team_ctf_redspawn_32"
+"group" "2"
+"luaSpawn" "RedSpawn"
+"origin" "-1056 1600 256"
+}
+// entity 15
+{
+"classname" "team_ctf_redspawn"
+"name" "team_ctf_redspawn_33"
+"group" "2"
+"luaSpawn" "RedSpawn"
+"origin" "-1056 1728 256"
+}

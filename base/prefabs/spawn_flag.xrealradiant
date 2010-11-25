@@ -1,0 +1,12 @@
+XreaLRadiant Map Information File Version 2
+{
+	Layers
+	{
+		Layer 0 { Default }
+	}
+	NodeToLayerMapping
+	{
+		Node { 0 }
+		Node { 0 }
+	}
+}
