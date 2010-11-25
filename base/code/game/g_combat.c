@@ -513,7 +513,7 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 
 	ClientWeaverDie(self);
 
-	G_StatTimeAdd(STATF_LIVETIME, ent, NULL, NULL);
+	G_StatTimeAdd(STATF_LIVETIME, self, NULL, NULL);
 
 	if(attacker)
 	{
