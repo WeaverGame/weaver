@@ -157,6 +157,7 @@
 				ProgramDataBaseFileName=".\Release/"
 				WarningLevel="4"
 				SuppressStartupBanner="true"
+				DebugInformationFormat="1"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -175,6 +176,7 @@
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				ModuleDefinitionFile=".\cgame.def"
+				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\Release/cgamex86.pdb"
 				GenerateMapFile="true"
 				MapFileName=".\Release/cgamex86.map"

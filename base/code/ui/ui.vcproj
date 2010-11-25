@@ -61,6 +61,7 @@
 				ProgramDataBaseFileName=".\Release/"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
+				DebugInformationFormat="1"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -79,6 +80,7 @@
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				ModuleDefinitionFile=".\ui.def"
+				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\Release/uix86.pdb"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
