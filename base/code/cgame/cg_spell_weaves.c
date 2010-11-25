@@ -262,13 +262,8 @@ void CG_AddPlayerThreads(centity_t * player, playerState_t * ps, refEntity_t * p
 		ent.renderfx = 0;
 	}
 
-#if 1
 	ent.reType = RT_SPRITE;
 	ent.radius = 15.0f;
-#else
-	ent.reType = RT_MODEL;
-	ent.hModel = cgs.media.weaverThreadsModel;
-#endif
 
 	VectorCopy(ent.origin, pos);
 

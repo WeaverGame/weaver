@@ -8,11 +8,10 @@ It has weaver HUD.
 
 #include "cg_local.h"
 
-//WEAVER
-vec4_t          colorAir = { 0.937f, 0.902f, 0.0f, 1.0f };
+vec4_t          colorAir = { 0.937f, 0.90f, 0.00f, 1.0f };
 vec4_t          colorFire = { 0.94f, 0.16f, 0.16f, 1.0f };
-vec4_t          colorEarth = { 0.514f, 0.239f, 0.1f, 1.0f };
-vec4_t          colorWater = { 0.0f, 0.322f, 0.906f, 1.0f };
+vec4_t          colorEarth = { 0.0f, 0.00f, 0.87f, 1.0f };
+vec4_t          colorWater = { 0.0f, 0.32f, 0.906f, 1.0f };
 
 vec2_t          tutTextOffset[WVP_NUMBER] = { {0.0f, 0.0f},
 {0.0f, 1.1f}, {0.778f, 0.778f},
@@ -147,15 +146,15 @@ static void CG_DrawWeaverStatusBar(void)
 	if(cg.predictedPlayerState.stats[STAT_EARTHPROTECT] > 0)
 	{
 		CG_FillRectUp(rectx, recty, HUD_PROTECT_WIDTH,
-					  (HUD_PROTECT_HEIGHT *
-					   ((float)cg.predictedPlayerState.stats[STAT_EARTHPROTECT] / (float)WEAVE_PROTECTEARTH)), colorEarth);
+					  (HUD_PROTECT_HEIGHT * ((float)cg.predictedPlayerState.stats[STAT_EARTHPROTECT] / (float)WEAVE_PROTECTEARTH)),
+					  colorEarth);
 		rectx += HUD_PROTECT_WIDTH;
 	}
 	if(cg.predictedPlayerState.stats[STAT_WATERPROTECT] > 0)
 	{
 		CG_FillRectUp(rectx, recty, HUD_PROTECT_WIDTH,
-					  (HUD_PROTECT_HEIGHT *
-					   ((float)cg.predictedPlayerState.stats[STAT_WATERPROTECT] / (float)WEAVE_PROTECTWATER)), colorWater);
+					  (HUD_PROTECT_HEIGHT * ((float)cg.predictedPlayerState.stats[STAT_WATERPROTECT] / (float)WEAVE_PROTECTWATER)),
+					  colorWater);
 		rectx += HUD_PROTECT_WIDTH;
 	}
 

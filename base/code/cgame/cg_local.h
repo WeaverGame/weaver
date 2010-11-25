@@ -1372,7 +1372,6 @@ typedef struct
 	qhandle_t       weaverShieldInfo;
 
 	qhandle_t       weaverThreads[WVP_NUMBER][3];
-	qhandle_t       weaverThreadsModel;
 
 	qhandle_t       weaverIconHP;
 

@@ -1317,7 +1317,6 @@ static void CG_RegisterGraphics(void)
 			cgs.media.weaverThreads[j][i] = trap_R_RegisterShaderNoMip(path);
 		}
 	}
-	cgs.media.weaverThreadsModel = trap_R_RegisterModel("models/threads/threads.md5mesh", qtrue);
 
 	cgs.media.weaverStatus[PW_REGEN] = trap_R_RegisterShaderNoMip("gfx/hud/powerups/healing");
 	cgs.media.weaverStatus[PW_SHIELDED] = trap_R_RegisterShaderNoMip("gfx/hud/powerups/shielded");
