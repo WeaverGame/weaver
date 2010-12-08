@@ -1885,6 +1885,11 @@ void            CG_DrawWeaponSelect(void);
 void            CG_OutOfAmmoChange(void);	// should this be in pmove?
 
 //
+// cg_sword.c
+//
+void            CG_AddPlayerSword(refEntity_t * parent, playerState_t * ps, centity_t * cent, int team);
+
+//
 // cg_marks.c
 //
 void            CG_InitMarkPolys(void);

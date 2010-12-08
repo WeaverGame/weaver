@@ -3037,7 +3037,7 @@ void CG_Player(centity_t * cent)
 
 
 	// rotate torso
-#if 1
+#if 0
 	boneIndex = trap_R_BoneIndex(body.hModel, ci->torsoControlBoneName);
 
 	if(boneIndex >= 0 && boneIndex < cent->pe.legs.skeleton.numBones)
@@ -3049,7 +3049,7 @@ void CG_Player(centity_t * cent)
 #endif
 
 	// rotate head
-#if 1
+#if 0
 	boneIndex = trap_R_BoneIndex(body.hModel, ci->neckControlBoneName);
 
 	if(boneIndex >= 0 && boneIndex < cent->pe.legs.skeleton.numBones)
@@ -3087,8 +3087,8 @@ void CG_Player(centity_t * cent)
 	// add player protect spells
 	CG_AddPlayerProtects(cent, NULL, &body);
 
-	// add the gun / barrel / flash
-	CG_AddPlayerWeapon(&body, NULL, cent, ci->team);
+	// add the sword
+	CG_AddPlayerSword(&body, NULL, cent, ci->team);
 
 	// add powerups floating behind the player
 	CG_PlayerPowerups(cent, &body, noShadowID);
