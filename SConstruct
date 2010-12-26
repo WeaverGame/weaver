@@ -16,7 +16,6 @@ opts.Add(EnumVariable('simd', 'Choose special CPU register optimizations', 'none
 opts.Add(BoolVariable('smp', 'Set to 1 to compile engine with symmetric multiprocessor support', 0))
 opts.Add(BoolVariable('experimental', 'Set to 1 to compile engine with experimental features support', 0))
 #opts.Add(BoolVariable('purevm', 'Set to 1 to compile the engine with strict checking for vm/*.qvm modules in paks', 0))
-opts.Add(BoolVariable('radiant', 'Set to 1 to compile the XreaLRadiant level editor', 0))
 opts.Add(BoolVariable('xmap', 'Set to 1 to compile the XMap(2) map compilers', 0))
 opts.Add(BoolVariable('xmap2', 'Set to 1 to compile the XMap2 map compiler (not XMap)', 0))
 #opts.Add(BoolVariable('vectorize', 'Set to 1 to compile the engine with auto-vectorization support', 0))
@@ -110,9 +109,6 @@ if env['noclient'] == 0:
 	
 SConscript('SConscript_xrealded', build_dir='build/xrealded', duplicate=0)
 SConscript('SConscript_base_game', build_dir='build/base/game', duplicate=0)
-
-if env['radiant'] == 1:
-	SConscript('SConscript_xrealradiant', build_dir='build/xrealradiant', duplicate=0)
 
 if env['xmap'] == 1:
 	SConscript('SConscript_xmap', build_dir='build/xmap', duplicate=0)
