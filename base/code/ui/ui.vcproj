@@ -154,7 +154,7 @@
 				BrowseInformation="1"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
-				DebugInformationFormat="4"
+				DebugInformationFormat="1"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -176,7 +176,7 @@
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="../Debug/ui.pdb"
 				GenerateMapFile="true"
-				MapFileName="Debug/uix86.map"
+				MapFileName="../Debug/uix86.map"
 				BaseAddress="0x40000000"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"

@@ -308,6 +308,7 @@ extern vec4_t   color_blue;
 extern vec4_t   color_orange;
 extern vec4_t   color_red;
 extern vec4_t   color_dim;
+extern vec4_t   color_grey75;
 extern vec4_t   name_color;
 extern vec4_t   list_color;
 extern vec4_t   listbar_color;
@@ -554,16 +555,20 @@ typedef struct
 	menuframework_s *stack[MAX_MENUDEPTH];
 	glConfig_t      glconfig;
 	qboolean        debug;
+
+	// weaver main menu
+	qhandle_t       whiteBack;
+	qhandle_t       logoMain;
+	qhandle_t       titleMain;
+	qhandle_t       scanMain[2];
+	qhandle_t       playerPicMain;
+
 	qhandle_t       whiteShader;
-	qhandle_t       menuBackShader;
-	qhandle_t       menuBackNoLogoShader;
 	qhandle_t       charset;
 	qhandle_t       charsetProp1;
 	qhandle_t       charsetProp1Glow;
 	qhandle_t       charsetProp2;
 	qhandle_t       cursor;
-	//qhandle_t       rb_on;
-	//qhandle_t       rb_off;
 
 	// derived from glconfig
 	float           screenScale;
@@ -584,15 +589,6 @@ typedef struct
 	fontInfo_t      PTextFont;
 	fontInfo_t      TextFont;
 	fontInfo_t      TextBoldFont;
-
-	//single podium the playermodel is standing on in the menu
-	qhandle_t       podiumModel;
-
-	qhandle_t threadAir;
-	qhandle_t threadFire;
-	qhandle_t threadEarth;
-	qhandle_t threadWater;
-	qhandle_t threadSpirit;
 
 //  fontInfo_t      smallFont;
 //  fontInfo_t      bigFont;

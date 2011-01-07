@@ -49,13 +49,18 @@ typedef struct
 {
 	menuframework_s menu;
 
-	menutext_s      singleplayer;
+	//menutext_s      singleplayer;
 	menutext_s      multiplayer;
 	menutext_s      setup;
 	menutext_s      demos;
-	menutext_s      cinematics;
-	menutext_s      teamArena;
-	menutext_s      mods;
+	//menutext_s      cinematics;
+	//menutext_s      teamArena;
+	//menutext_s      mods;
+
+	menubitmap_s    logo;
+	menubitmap_s    title;
+	menubitmap_s    playerspic;
+
 	menutext_s      exit;
 } mainmenu_t;
 
@@ -162,7 +167,7 @@ TTimo: this function is common to the main menu and errorMessage menu
 
 static void Main_MenuDraw(void)
 {
-	vec4_t          color = { 1, 1, 1, 0.85 };
+	vec4_t          color = { 1.0f, 1.0f, 1.0f, 0.85f };
 
 	/*
 	   #if 0
@@ -227,7 +232,7 @@ static void Main_MenuDraw(void)
 	if(strlen(s_errorMessage.errorMessage))
 	{
 		UI_Text_Paint_AutoWrapped(320, 192, 0.4f, 600, va("Error: %s", s_errorMessage.errorMessage),
-								  UI_CENTER | UI_DROPSHADOW, color_red, &uis.freeSansFont);
+								  UI_CENTER, color_red, &uis.freeSansFont);
 
 	}
 	else
@@ -236,13 +241,14 @@ static void Main_MenuDraw(void)
 		Menu_Draw(&s_main.menu);
 	}
 
+	UI_DrawHandlePic(210 + 35 * sin(uis.realtime / 2000.0f), 360, 128, 2, uis.scanMain[0]);
+	UI_DrawHandlePic(225 + 40 * sin((230 + uis.realtime) / 2450.0f), 368, 128, 2, uis.scanMain[1]);
+
 	//UI_DrawString( 320, 450, "Quake III Arena(c) 1999-2000, Id Software, Inc.  All Rights Reserved", UI_CENTER|UI_SMALLFONT, color );
 	//UI_DrawString(320, 450, "XreaL(c) 2005-2008, XreaL Team - http://xreal.sourceforge.net", UI_CENTER | UI_SMALLFONT, color);
 
-	UI_Text_Paint(320, 470, 0.25f, color, "XreaL(c) 2005-2009, XreaL Team - http://xreal.sourceforge.net", 0, 0,
-				  UI_CENTER | UI_DROPSHADOW, &uis.freeSansFont);
-
-
+	//UI_Text_Paint(320, 470, 0.25f, color, "XreaL(c) 2005-2009, XreaL Team - http://xreal.sourceforge.net", 0, 0,
+	//			  UI_CENTER | UI_DROPSHADOW, &uis.freeSansFont);
 
 }
 
@@ -321,6 +327,7 @@ void UI_MainMenu(void)
 	s_main.menu.showlogo = qtrue;
 
 	y = 134;
+	/*
 	s_main.singleplayer.generic.type = MTYPE_PTEXT;
 	s_main.singleplayer.generic.flags = QMF_CENTER_JUSTIFY | QMF_PULSEIFFOCUS;
 	s_main.singleplayer.generic.x = 320;
@@ -330,6 +337,7 @@ void UI_MainMenu(void)
 	s_main.singleplayer.string = "SINGLEPLAYER";
 	s_main.singleplayer.color = color_white;
 	s_main.singleplayer.style = style;
+	*/
 
 	y += MAIN_MENU_VERTICAL_SPACING;
 	s_main.multiplayer.generic.type = MTYPE_PTEXT;
@@ -338,7 +346,7 @@ void UI_MainMenu(void)
 	s_main.multiplayer.generic.y = y;
 	s_main.multiplayer.generic.id = ID_MULTIPLAYER;
 	s_main.multiplayer.generic.callback = Main_MenuEvent;
-	s_main.multiplayer.string = "MULTIPLAYER";
+	s_main.multiplayer.string = "Play";
 	s_main.multiplayer.color = color_white;
 	s_main.multiplayer.style = style;
 
@@ -349,7 +357,7 @@ void UI_MainMenu(void)
 	s_main.setup.generic.y = y;
 	s_main.setup.generic.id = ID_SETUP;
 	s_main.setup.generic.callback = Main_MenuEvent;
-	s_main.setup.string = "SETUP";
+	s_main.setup.string = "Options";
 	s_main.setup.color = color_white;
 	s_main.setup.style = style;
 
@@ -360,7 +368,7 @@ void UI_MainMenu(void)
 	s_main.demos.generic.y = y;
 	s_main.demos.generic.id = ID_DEMOS;
 	s_main.demos.generic.callback = Main_MenuEvent;
-	s_main.demos.string = "DEMOS";
+	s_main.demos.string = "Demos";
 	s_main.demos.color = color_white;
 	s_main.demos.style = style;
 
@@ -392,6 +400,7 @@ void UI_MainMenu(void)
 
 	}
 */
+	/*
 	y += MAIN_MENU_VERTICAL_SPACING;
 	s_main.mods.generic.type = MTYPE_PTEXT;
 	s_main.mods.generic.flags = QMF_CENTER_JUSTIFY | QMF_PULSEIFFOCUS;
@@ -402,6 +411,7 @@ void UI_MainMenu(void)
 	s_main.mods.string = "MODS";
 	s_main.mods.color = color_white;
 	s_main.mods.style = style;
+	*/
 
 	y += MAIN_MENU_VERTICAL_SPACING;
 	s_main.exit.generic.type = MTYPE_PTEXT;
@@ -410,11 +420,41 @@ void UI_MainMenu(void)
 	s_main.exit.generic.y = y;
 	s_main.exit.generic.id = ID_EXIT;
 	s_main.exit.generic.callback = Main_MenuEvent;
-	s_main.exit.string = "EXIT";
+	s_main.exit.string = "Quit";
 	s_main.exit.color = color_white;
 	s_main.exit.style = style;
 
-	Menu_AddItem(&s_main.menu, &s_main.singleplayer);
+	s_main.logo.generic.name = "gfx/menu/logo";
+	s_main.logo.generic.type = MTYPE_BITMAP;
+	s_main.logo.generic.flags = QMF_LEFT_JUSTIFY | QMF_INACTIVE;
+	s_main.logo.generic.x = 100;
+	s_main.logo.generic.y = 75;
+	s_main.logo.width = 190;
+	s_main.logo.height = s_main.logo.width * 2;
+	s_main.logo.focuscolor = colorRed;
+
+	s_main.playerspic.generic.name = "gfx/menu/playerpic";
+	s_main.playerspic.generic.type = MTYPE_BITMAP;
+	s_main.playerspic.generic.flags = QMF_LEFT_JUSTIFY | QMF_INACTIVE;
+	s_main.playerspic.generic.x = 390;
+	s_main.playerspic.generic.y = 200;
+	s_main.playerspic.width = 175;
+	s_main.playerspic.height = s_main.playerspic.width;
+	s_main.playerspic.focuscolor = colorRed;
+
+	s_main.title.generic.name = "gfx/menu/title";
+	s_main.title.generic.type = MTYPE_BITMAP;
+	s_main.title.generic.flags = QMF_LEFT_JUSTIFY | QMF_INACTIVE;
+	s_main.title.generic.x = 256;
+	s_main.title.generic.y = 338;
+	s_main.title.height = 42;
+	s_main.title.width = s_main.title.height * 4;
+	s_main.title.focuscolor = colorRed;
+
+	Menu_AddItem(&s_main.menu, &s_main.logo);
+	Menu_AddItem(&s_main.menu, &s_main.playerspic);
+
+	//Menu_AddItem(&s_main.menu, &s_main.singleplayer);
 	Menu_AddItem(&s_main.menu, &s_main.multiplayer);
 	Menu_AddItem(&s_main.menu, &s_main.setup);
 	Menu_AddItem(&s_main.menu, &s_main.demos);
@@ -423,8 +463,10 @@ void UI_MainMenu(void)
 	//{
 	//  Menu_AddItem(&s_main.menu, &s_main.teamArena);
 	//}
-	Menu_AddItem(&s_main.menu, &s_main.mods);
+	//Menu_AddItem(&s_main.menu, &s_main.mods);
 	Menu_AddItem(&s_main.menu, &s_main.exit);
+
+	Menu_AddItem(&s_main.menu, &s_main.title);
 
 	trap_Key_SetCatcher(KEYCATCH_UI);
 	uis.menusp = 0;

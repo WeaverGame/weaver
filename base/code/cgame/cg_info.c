@@ -38,9 +38,12 @@ qhandle_t       load0 = 0;
 qhandle_t       load1 = 0;
 
 qhandle_t       levelshot = 0;
+qhandle_t       levelshotDefault = 0;
 qhandle_t       menuback = 0;
-qhandle_t       detail = 0;
 
+qhandle_t       black_gradient = 0;
+qhandle_t       logo_dark = 0;
+qhandle_t       title = 0;
 
 /*
 ======================
@@ -58,7 +61,7 @@ void CG_LoadingString(const char *s, qboolean strong)
 		cg.progress = NUM_PROGRESS - 1;
 
 
-#if 0
+#if 1
 	//find out how many cg.progress we made...
 	Com_Printf("Progress: %i\n", cg.progress);
 #endif
@@ -95,10 +98,8 @@ static void CG_DrawProgress(void)
 
 	for(i = 0; i < NUM_PROGRESS; i++)
 	{
-		CG_DrawPic(x + i * 16, y, 16, 16, load0);
+		CG_DrawPic(x + i * 13, y, 8, 8, load0);
 	}
-
-	CG_DrawRect(0, 440 - cg.progress * 12, 640, 1, 1, colorLines);
 
 	x = 0;
 	for(i = 0; i < cg.progress; i++)
@@ -118,14 +119,10 @@ static void CG_DrawProgress(void)
 
 		CG_Text_PaintAligned(20, 440 - i * 12, cg.progressInfo[i].info, 0.2f, style, color, &cgs.media.freeSansBoldFont);
 
-		CG_DrawPic(x + i * 16, y, 16, 16, load1);
+		CG_DrawPic(x + i * 13, y, 8, 8, load1);
 
 		if(i == cg.progress - 1)
 		{
-
-			CG_DrawRect(x + i * 16 + 8, 0, 1, 480, 1, colorLines);
-			CG_DrawRect(0, y - 4, 640, 1, 1, colorLines);
-
 			CG_Text_PaintAligned(x + i * 16 + 8, y - 8, cg.progressInfo[i].info, 0.2f, UI_RIGHT | UI_DROPSHADOW,
 								 text_color_highlight, &cgs.media.freeSansBoldFont);
 
@@ -160,42 +157,45 @@ void CG_DrawInformation(void)
 	s = Info_ValueForKey(info, "mapname");
 
 	if(!levelshot)
-		levelshot = trap_R_RegisterShaderNoMip(va("levelshots/%s.tga", s));
-	if(!levelshot)
-		levelshot = trap_R_RegisterShaderNoMip("menu/art/unknownmap");
+		levelshot = trap_R_RegisterShaderNoMip(va("levelshots/%s", s));
+	if(!levelshotDefault)
+		levelshotDefault = trap_R_RegisterShaderNoMip("gfx/menu/logo");
 
 	if(!load0)
-		load0 = trap_R_RegisterShaderNoMip("ui/load0");
+		load0 = trap_R_RegisterShaderNoMip("gfx/menu/load0");
 	if(!load1)
-		load1 = trap_R_RegisterShaderNoMip("ui/load1");
+		load1 = trap_R_RegisterShaderNoMip("gfx/menu/load1");
 
+	if(!title)
+		title = trap_R_RegisterShaderNoMip("gfx/menu/title");
+	if(!black_gradient)
+		black_gradient = trap_R_RegisterShaderNoMip("gfx/menu/black_gradient");
+	if(!logo_dark)
+		logo_dark = trap_R_RegisterShaderNoMip("gfx/menu/logo_dark");
 
 	if(!menuback)
-		menuback = trap_R_RegisterShaderNoMip("menuback");
+		menuback = trap_R_RegisterShaderNoMip("white");
 
 	CG_DrawPic(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, menuback);
-
-	//lines
-	CG_DrawRect(0, 218, 640, 20, 1, colorLines);
-	CG_DrawRect(440, 0, 20, 480, 1, colorLines);
-
-	CG_DrawRect(16, 0, 1, 480, 1, colorLines);
-
-
 
 
 	//mapshot
 	trap_R_SetColor(NULL);
-	CG_DrawPic(320, 140, 240, 160, levelshot);
+	if(levelshot)
+	{
+		CG_DrawPic(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, levelshot);
+	}
+	else
+	{
+		CG_DrawPic((SCREEN_WIDTH - CG_INFO_LOGO_WIDTH)/2, (SCREEN_HEIGHT - (CG_INFO_LOGO_WIDTH*2))/2, CG_INFO_LOGO_WIDTH, CG_INFO_LOGO_WIDTH*2, levelshotDefault);
+	}
 
-	// blend a detail texture over it
-	if(!detail)
-		detail = trap_R_RegisterShader("ui/maps_select");
-	CG_DrawPic(320, 140, 240, 160, detail);
+	// left side
+	CG_DrawPic(0, 0, CG_INFO_SIDE_GRADIENT_WIDTH, SCREEN_HEIGHT, black_gradient);
+	CG_DrawPic((CG_INFO_SIDE_GRADIENT_WIDTH - CG_INFO_SIDE_LOGO_WIDTH)/2, 0, CG_INFO_SIDE_LOGO_WIDTH, CG_INFO_SIDE_LOGO_WIDTH*2, logo_dark);
 
 	// draw the cg.progress
 	CG_DrawProgress();
-
 
 	// server-specific message of the day
 	s = CG_ConfigString(CS_MOTD);

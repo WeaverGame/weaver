@@ -49,6 +49,7 @@ vec4_t          color_lightOrange = { 1.00f, 0.68f, 0.00f, 1.00f };
 vec4_t          color_orange = { 1.00f, 0.43f, 0.00f, 1.00f };
 vec4_t          color_red = { 1.00f, 0.00f, 0.00f, 1.00f };
 vec4_t          color_dim = { 0.00f, 0.00f, 0.00f, 0.25f };
+vec4_t          color_grey75 = { 0.75f, 0.75f, 0.75f, 1.00f };
 
 // current color scheme
 vec4_t          pulse_color = { 1.00f, 1.00f, 1.00f, 1.00f };
@@ -1929,15 +1930,17 @@ void Menu_Cache(void)
 	trap_R_RegisterFont("fonts/Vera.ttf", 48, &uis.TextFont);
 	trap_R_RegisterFont("fonts/VeraBd.ttf", 48, &uis.TextBoldFont);
 
-
-//single podium the playermodel is standing on in the menu
-	uis.podiumModel = trap_R_RegisterModel("models/meshes/ppodium.md5mesh", qtrue);
+	// weaver main menu
+	uis.whiteBack = trap_R_RegisterShaderNoMip("gfx/menu/back");
+	uis.logoMain = trap_R_RegisterShaderNoMip("gfx/menu/logo");
+	uis.titleMain = trap_R_RegisterShaderNoMip("gfx/menu/title");
+	uis.scanMain[0] = trap_R_RegisterShaderNoMip("gfx/menu/scan1");
+	uis.scanMain[1] = trap_R_RegisterShaderNoMip("gfx/menu/scan2");
+	uis.playerPicMain = trap_R_RegisterShaderNoMip("gfx/menu/playerpic");
 
 	uis.cursor = trap_R_RegisterShaderNoMip("ui/cursor");
 
 	uis.whiteShader = trap_R_RegisterShaderNoMip("white");
-	uis.menuBackShader = trap_R_RegisterShaderNoMip("menuback");
-	uis.menuBackNoLogoShader = trap_R_RegisterShaderNoMip("menubacknologo");
 
 	menu_in_sound = trap_S_RegisterSound("sound/misc/menu1.wav");
 	menu_move_sound = trap_S_RegisterSound("sound/misc/menu2.wav");
@@ -1945,19 +1948,9 @@ void Menu_Cache(void)
 	menu_buzz_sound = trap_S_RegisterSound("sound/misc/menu4.wav");
 	weaponChangeSound = trap_S_RegisterSound("sound/weapons/change.ogg");
 
-
 	sliderBar = trap_R_RegisterShaderNoMip("ui/slider");
 	sliderButton_0 = trap_R_RegisterShaderNoMip("ui/sliderbutt_0");
 	sliderButton_1 = trap_R_RegisterShaderNoMip("ui/sliderbutt_1");
-
-	uis.threadAir = trap_R_RegisterShaderNoMip("models/threads/air1");
-	uis.threadFire = trap_R_RegisterShaderNoMip("models/threads/fire1");
-	uis.threadEarth = trap_R_RegisterShaderNoMip("models/threads/earth1");
-	uis.threadWater = trap_R_RegisterShaderNoMip("models/threads/water1");
-	uis.threadSpirit = trap_R_RegisterShaderNoMip("models/threads/spirit1");
-
-	//uis.rb_on = trap_R_RegisterShaderNoMip("ui/switch_on");
-	//uis.rb_off = trap_R_RegisterShaderNoMip("ui/switch_off");
 
 	// need a nonzero sound, make an empty sound for this
 	menu_null_sound = -1;

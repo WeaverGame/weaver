@@ -92,7 +92,7 @@ static void UI_DisplayDownloadInfo(const char *downloadName)
 	char            dlSizeBuf[64], totalSizeBuf[64], xferRateBuf[64], dlTimeBuf[64];
 	int             xferRate;
 	int             width, leftWidth;
-	int             style = UI_LEFT | UI_SMALLFONT | UI_DROPSHADOW;
+	int             style = UI_LEFT | UI_SMALLFONT;
 	const char     *s;
 
 	downloadSize = trap_Cvar_VariableValue("cl_downloadSize");
@@ -125,7 +125,7 @@ static void UI_DisplayDownloadInfo(const char *downloadName)
 	UI_DrawProportionalString(8, 128, dlText, style, color_white);
 	UI_DrawProportionalString(8, 160, etaText, style, color_white);
 	UI_DrawProportionalString(8, 224, xferText, style, color_white);
-*/
+	*/
 	if(downloadSize > 0)
 	{
 		s = va("%s (%d%%)", downloadName, (int)((float)downloadCount * 100.0f / downloadSize));
@@ -238,9 +238,8 @@ void UI_DrawConnectScreen(qboolean overlay)
 	{
 		// draw the dialog background
 		UI_SetColor(color_white);
-		UI_DrawHandlePic(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, uis.menuBackShader);
+		UI_DrawHandlePic(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, uis.whiteBack);
 	}
-
 
 	// see what information we should display
 	trap_GetClientState(&cstate);
@@ -248,13 +247,9 @@ void UI_DrawConnectScreen(qboolean overlay)
 	info[0] = '\0';
 	if(trap_GetConfigString(CS_SERVERINFO, info, sizeof(info)))
 	{
-
 		s = va("Loading %s", Info_ValueForKey(info, "mapname"));
-		UI_Text_Paint(320, 24, 0.6f, text_color_normal, s, 0, 0, UI_CENTER | UI_DROPSHADOW, &uis.BTextFont);
-
+		UI_Text_Paint(610, 440, 0.3f, color_white, s, 0, 0, UI_RIGHT, &uis.BTextFont);
 	}
-
-
 
 	// display global MOTD at bottom
 	//UI_DrawProportionalString(SCREEN_WIDTH / 2, SCREEN_HEIGHT - 32,                             Info_ValueForKey(cstate.updateInfoString, "motd"), UI_CENTER | UI_SMALLFONT | UI_DROPSHADOW,                            menu_text_color);
@@ -266,16 +261,12 @@ void UI_DrawConnectScreen(qboolean overlay)
 											  menu_text_color);
 
 		s = va("%s", cstate.messageString);
-		UI_Text_Paint(320, 60, 0.3f, text_color_normal, s, 0, 0, UI_CENTER | UI_DROPSHADOW, &uis.BTextFont);
-
-
+		UI_Text_Paint(320, 60, 0.3f, color_white, s, 0, 0, UI_CENTER, &uis.BTextFont);
 	}
 	else
 	{
 		s = va("Connecting to %s", cstate.servername);
-		UI_Text_Paint(320, 60, 0.3f, text_color_normal, s, 0, 0, UI_CENTER | UI_DROPSHADOW, &uis.BTextFont);
-
-
+		UI_Text_Paint(20, 20, 0.3f, color_white, s, 0, 0, UI_LEFT, &uis.BTextFont);
 	}
 
 	if(lastConnState > cstate.connState)
@@ -313,10 +304,7 @@ void UI_DrawConnectScreen(qboolean overlay)
 			return;
 	}
 
-
-	UI_Text_Paint(320, 24, 0.6f, text_color_normal, s, 0, 0, UI_CENTER | UI_DROPSHADOW, &uis.BTextFont);
-
-
+	UI_Text_Paint(20, 38, 0.3f, color_white, s, 0, 0, UI_LEFT, &uis.BTextFont);
 }
 
 

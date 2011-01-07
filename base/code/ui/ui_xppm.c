@@ -664,6 +664,7 @@ void UI_XPPM_Player(float x, float y, float w, float h, playerInfo_t * pi, int t
 	VectorCopy(legsAngles, podiumAngles);
 	AnglesToAxis(podiumAngles, podium.axis);
 
+	/*
 	// add the podium
 	VectorCopy(origin, podium.origin);
 	podium.origin[2] += 1;
@@ -684,6 +685,7 @@ void UI_XPPM_Player(float x, float y, float w, float h, playerInfo_t * pi, int t
 	podium.backlerp = 1.0f;
 	podium.frame = 1;
 	podium.oldframe = 0;
+	*/
 
 	//UI_PlayerFloatSprite(pi, origin, trap_R_RegisterShaderNoMip("sprites/balloon3"));
 	trap_R_AddRefEntityToScene(&podium);

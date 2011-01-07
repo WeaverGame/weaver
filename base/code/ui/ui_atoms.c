@@ -1577,6 +1577,9 @@ void UI_Refresh(int realtime)
 
 	UI_UpdateCvars();
 
+	UI_SetColor(color_white);
+	trap_R_DrawStretchPic(0, 0, SCREEN_WIDTH*2, SCREEN_HEIGHT*2, 0, 0, 0, 0, uis.whiteShader);
+
 	if(uis.activemenu)
 	{
 		if(uis.activemenu->fullscreen)
@@ -1585,7 +1588,7 @@ void UI_Refresh(int realtime)
 //          if(uis.activemenu->showlogo)
 //          {
 //FIXME: non 4:3 resolutions are causeing black bars
-			UI_DrawHandlePic(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, uis.menuBackShader);
+			UI_DrawHandlePic(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, uis.whiteShader);
 //          }
 //          else
 //          {
@@ -1604,15 +1607,6 @@ void UI_Refresh(int realtime)
 			uis.firstdraw = qfalse;
 		}
 	}
-
-
-	UI_SetColor(NULL);
-
-	UI_DrawRotatedPic(320 + 100*sin(uis.realtime / 1300.0f + 1234), 120 + 100*sin(uis.realtime / 2100.0f), 200, 200, uis.threadAir, uis.realtime / 7000.0f);
-	UI_DrawRotatedPic(480 + 100*sin(uis.realtime / 1400.0f), 240 + 100*sin(uis.realtime / 2300.0f + 1234), 200, 200, uis.threadFire, uis.realtime / -8000.0f);
-	UI_DrawRotatedPic(320 + 100*sin(uis.realtime / 1200.0f + 5678), 360 + 100*sin(uis.realtime / 1700.0f + 2345), 200, 200, uis.threadEarth, uis.realtime / 7300.0f);
-	UI_DrawRotatedPic(160 + 100*sin(uis.realtime / 2200.0f + 1357), 240 + 100*sin(uis.realtime / 1500.0f + 3456), 200, 200, uis.threadWater, uis.realtime / -7600.0f);
-	UI_DrawRotatedPic(320 + 100*sin(uis.realtime / 1700.0f + 1825), 240 + 100*sin(uis.realtime / 1300.0f + 4567), 200, 200, uis.threadSpirit, uis.realtime / 8500.0f);
 
 	UI_SetColor(NULL);
 
@@ -1660,6 +1654,9 @@ void UI_Refresh(int realtime)
 //draw border around screen
 	UI_DrawRect(0, 0, 640, 480, color_cursorLines);
 	*/
+
+	UI_Text_Paint(635, 5, 0.2f, color_grey75, "v0.1.0", 0, 0,
+				  UI_RIGHT, &uis.freeSansFont);
 
 #ifndef NDEBUG
 	if(uis.debug)

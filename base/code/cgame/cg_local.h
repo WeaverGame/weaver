@@ -690,8 +690,13 @@ typedef struct particle_s
 
 #define MAX_PREDICTED_EVENTS	16
 
+// Loading screen constants
+#define CG_INFO_LOGO_WIDTH 200
+#define CG_INFO_SIDE_GRADIENT_WIDTH 90
+#define CG_INFO_SIDE_LOGO_WIDTH 60
+#define CG_INFO_PERCENT_WIDTH 38
 
-#define NUM_PROGRESS 40
+#define NUM_PROGRESS ((SCREEN_WIDTH - CG_INFO_SIDE_GRADIENT_WIDTH) - CG_INFO_PERCENT_WIDTH) //40
 
 typedef struct
 {
