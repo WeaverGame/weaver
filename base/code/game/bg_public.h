@@ -620,6 +620,9 @@ typedef enum
 	LEGS_BACKCR,
 	LEGS_BACKWALK,
 
+	TORSO_WEAVING1,
+	TORSO_WEAVING2,
+
 	MAX_PLAYER_ANIMATIONS
 } playerAnimNumber_t;
 

@@ -448,14 +448,20 @@ qboolean CG_RegisterClientModel(clientInfo_t * ci, const char *modelName, const 
 		if(!CG_RegisterPlayerAnimation(ci, modelName, TORSO_STAND2, "idle", qfalse, qfalse, qfalse))
 			ci->animations[TORSO_STAND2] = ci->animations[LEGS_IDLE];
 
+		if(!CG_RegisterPlayerAnimation(ci, modelName, TORSO_WEAVING1, "weaving1", qfalse, qfalse, qfalse))
+			ci->animations[TORSO_WEAVING1] = ci->animations[LEGS_IDLE];
+
+		if(!CG_RegisterPlayerAnimation(ci, modelName, TORSO_WEAVING2, "weaving2", qfalse, qfalse, qfalse))
+			ci->animations[TORSO_WEAVING2] = ci->animations[LEGS_IDLE];
+
 		if(!CG_RegisterPlayerAnimation(ci, modelName, LEGS_IDLECR, "crouch", qtrue, qfalse, qfalse))
 			ci->animations[LEGS_IDLECR] = ci->animations[LEGS_IDLE];
 
 		if(!CG_RegisterPlayerAnimation(ci, modelName, LEGS_WALKCR, "crouch_forward", qtrue, qfalse, qtrue))
 			ci->animations[LEGS_WALKCR] = ci->animations[LEGS_IDLE];
 
-		if(!CG_RegisterPlayerAnimation(ci, modelName, LEGS_BACKCR, "crouch_forward", qtrue, qtrue, qtrue))
-			ci->animations[LEGS_BACKCR] = ci->animations[LEGS_IDLE];
+		if(!CG_RegisterPlayerAnimation(ci, modelName, LEGS_BACKCR, "crouch_backward", qtrue, qtrue, qtrue))
+			ci->animations[LEGS_BACKCR] = ci->animations[LEGS_WALKCR];
 
 		if(!CG_RegisterPlayerAnimation(ci, modelName, LEGS_WALK, "walk", qtrue, qfalse, qtrue))
 			ci->animations[LEGS_WALK] = ci->animations[LEGS_IDLE];
@@ -478,11 +484,11 @@ qboolean CG_RegisterClientModel(clientInfo_t * ci, const char *modelName, const 
 		if(!CG_RegisterPlayerAnimation(ci, modelName, LEGS_LAND, "land", qfalse, qfalse, qfalse))
 			ci->animations[LEGS_LAND] = ci->animations[LEGS_IDLE];
 
-		if(!CG_RegisterPlayerAnimation(ci, modelName, LEGS_JUMPB, "jump", qfalse, qtrue, qfalse))
-			ci->animations[LEGS_JUMPB] = ci->animations[LEGS_IDLE];
+		if(!CG_RegisterPlayerAnimation(ci, modelName, LEGS_JUMPB, "jump_backwards", qfalse, qtrue, qfalse))
+			ci->animations[LEGS_JUMPB] = ci->animations[LEGS_JUMP];
 
-		if(!CG_RegisterPlayerAnimation(ci, modelName, LEGS_LANDB, "land", qfalse, qtrue, qfalse))
-			ci->animations[LEGS_LANDB] = ci->animations[LEGS_IDLE];
+		if(!CG_RegisterPlayerAnimation(ci, modelName, LEGS_LANDB, "land_backwards", qfalse, qtrue, qfalse))
+			ci->animations[LEGS_LANDB] = ci->animations[LEGS_LAND];
 
 		if(!CG_RegisterPlayerAnimation(ci, modelName, LEGS_TURN, "step", qfalse, qfalse, qfalse))
 			ci->animations[LEGS_TURN] = ci->animations[LEGS_IDLE];
