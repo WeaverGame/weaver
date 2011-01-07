@@ -651,7 +651,7 @@ static void CG_RegisterSounds(void)
 #ifdef MISSIONPACK
 	CG_LoadVoiceChats();
 #endif
-	CG_LoadingString("feedback", qfalse);
+	CG_LoadingString("Announcements", qfalse);
 
 	cgs.media.oneMinuteSound = trap_S_RegisterSound("sound/feedback/1_minute.ogg");
 	cgs.media.fiveMinuteSound = trap_S_RegisterSound("sound/feedback/5_minute.ogg");
@@ -665,7 +665,14 @@ static void CG_RegisterSounds(void)
 	cgs.media.countFightSound = trap_S_RegisterSound("sound/feedback/fight.ogg");
 	cgs.media.countPrepareSound = trap_S_RegisterSound("sound/feedback/prepare.ogg");
 
-	CG_LoadingString("team sounds", qfalse);
+	cgs.media.voteNow = trap_S_RegisterSound("sound/feedback/vote_now.ogg");
+	cgs.media.votePassed = trap_S_RegisterSound("sound/feedback/vote_passed.ogg");
+	cgs.media.voteFailed = trap_S_RegisterSound("sound/feedback/vote_failed.ogg");
+
+	cgs.media.winnerSound = trap_S_RegisterSound("sound/feedback/youwin.ogg");
+	cgs.media.loserSound = trap_S_RegisterSound("sound/feedback/youlose.ogg");
+
+	CG_LoadingString("Orders", qfalse);
 
 	if(cgs.gametype >= GT_TEAM || cg_buildScript.integer)
 	{
@@ -715,11 +722,7 @@ static void CG_RegisterSounds(void)
 		}
 	}
 
-	CG_LoadingString("weapon sounds", qfalse);
-
-	cgs.media.tracerSound = trap_S_RegisterSound("sound/weapons/machinegun/par_shot_2.ogg");
-	cgs.media.selectSound = trap_S_RegisterSound("sound/weapons/change.ogg");
-	cgs.media.wearOffSound = trap_S_RegisterSound("sound/items/wearoff.ogg");
+	/*
 	cgs.media.useNothingSound = trap_S_RegisterSound("sound/items/use_nothing.wav");
 	cgs.media.gibSound = trap_S_RegisterSound("sound/player/gibelectro.ogg");
 	cgs.media.gibBounce1Sound = trap_S_RegisterSound("sound/player/gibimp1.ogg");
@@ -730,8 +733,9 @@ static void CG_RegisterSounds(void)
 	cgs.media.obeliskHitSound2 = trap_S_RegisterSound("sound/items/obelisk_hit_02.ogg");
 	cgs.media.obeliskHitSound3 = trap_S_RegisterSound("sound/items/obelisk_hit_03.ogg");
 	cgs.media.obeliskRespawnSound = trap_S_RegisterSound("sound/items/obelisk_respawn.ogg");
+	*/
 
-	CG_LoadingString("ambient sounds", qfalse);
+	CG_LoadingString("Ambient Sounds", qfalse);
 
 	cgs.media.teleInSound = trap_S_RegisterSound("sound/player/telein.ogg");
 	cgs.media.teleOutSound = trap_S_RegisterSound("sound/player/teleout.ogg");
@@ -743,31 +747,14 @@ static void CG_RegisterSounds(void)
 
 	cgs.media.hitSound = trap_S_RegisterSound("sound/feedback/hit.wav");
 
-	CG_LoadingString("medal sounds", qfalse);
+	CG_LoadingString("Footsteps", qfalse);
 
-	cgs.media.impressiveSound = trap_S_RegisterSound("sound/feedback/impressive.ogg");
-	cgs.media.excellentSound = trap_S_RegisterSound("sound/feedback/excellent.ogg");
-	cgs.media.deniedSound = trap_S_RegisterSound("sound/feedback/denied.ogg");
-	cgs.media.humiliationSound = trap_S_RegisterSound("sound/feedback/humiliation.ogg");
-	cgs.media.assistSound = trap_S_RegisterSound("sound/feedback/assist.ogg");
-	cgs.media.defendSound = trap_S_RegisterSound("sound/feedback/defense.ogg");
-	cgs.media.telefragSound = trap_S_RegisterSound("sound/feedback/telefrag.ogg");
-
-	cgs.media.takenLeadSound = trap_S_RegisterSound("sound/feedback/takenlead.ogg");
-	cgs.media.tiedLeadSound = trap_S_RegisterSound("sound/feedback/tiedlead.ogg");
-	cgs.media.lostLeadSound = trap_S_RegisterSound("sound/feedback/lostlead.ogg");
-
-	cgs.media.voteNow = trap_S_RegisterSound("sound/feedback/vote_now.ogg");
-	cgs.media.votePassed = trap_S_RegisterSound("sound/feedback/vote_passed.ogg");
-	cgs.media.voteFailed = trap_S_RegisterSound("sound/feedback/vote_failed.ogg");
-
+	// footstepts ...and other player movement
 	cgs.media.watrInSound = trap_S_RegisterSound("sound/player/water_in.ogg");
 	cgs.media.watrOutSound = trap_S_RegisterSound("sound/player/water_out.ogg");
 	cgs.media.watrUnSound = trap_S_RegisterSound("sound/player/water_under.ogg");
 
 	cgs.media.jumpPadSound = trap_S_RegisterSound("sound/world/jumppad.wav");
-
-	CG_LoadingString("footsteps", qfalse);
 
 	for(i = 0; i < 4; i++)
 	{
@@ -801,6 +788,7 @@ static void CG_RegisterSounds(void)
 	// a remote stack overflow. see http://www.milw0rm.com/exploits/1977
 	Q_strncpyz(items, CG_ConfigString(CS_ITEMS), sizeof(items));
 
+	/*
 	CG_LoadingString("item sounds", qfalse);
 
 	for(i = 1; i < bg_numItems; i++)
@@ -809,6 +797,7 @@ static void CG_RegisterSounds(void)
 		CG_RegisterItemSounds(i);
 //      }
 	}
+	*/
 
 	for(i = 1; i < MAX_SOUNDS; i++)
 	{
@@ -824,7 +813,7 @@ static void CG_RegisterSounds(void)
 		cgs.gameSounds[i] = trap_S_RegisterSound(soundName);
 	}
 
-	// FIXME: only needed with item
+	/*
 	cgs.media.flightSound = trap_S_RegisterSound("sound/items/flight.wav");
 	cgs.media.medkitSound = trap_S_RegisterSound("sound/items/use_medkit.wav");
 	cgs.media.quadSound = trap_S_RegisterSound("sound/items/damage.ogg");
@@ -849,17 +838,19 @@ static void CG_RegisterSounds(void)
 	cgs.media.kamikazeExplodeSound = trap_S_RegisterSound("sound/items/kam_explode.wav");
 	cgs.media.kamikazeImplodeSound = trap_S_RegisterSound("sound/items/kam_implode.wav");
 	cgs.media.kamikazeFarSound = trap_S_RegisterSound("sound/items/kam_explode_far.wav");
+	*/
 
-	cgs.media.winnerSound = trap_S_RegisterSound("sound/feedback/youwin.ogg");
-	cgs.media.loserSound = trap_S_RegisterSound("sound/feedback/youlose.ogg");
-
-	CG_LoadingString("misc sounds", qfalse);
+	CG_LoadingString("Misc Sounds", qfalse);
 
 	cgs.media.regenSound = trap_S_RegisterSound("sound/items/regen.wav");
 	cgs.media.protectSound = trap_S_RegisterSound("sound/items/protect3.wav");
 	cgs.media.n_healthSound = trap_S_RegisterSound("sound/items/n_health.wav");
 	cgs.media.hgrenb1aSound = trap_S_RegisterSound("sound/weapons/grenade/hgrenb1a.wav");
 	cgs.media.hgrenb2aSound = trap_S_RegisterSound("sound/weapons/grenade/hgrenb2a.wav");
+
+	cgs.media.tracerSound = trap_S_RegisterSound("sound/weapons/machinegun/par_shot_2.ogg");
+	cgs.media.selectSound = trap_S_RegisterSound("sound/weapons/change.ogg");
+	cgs.media.wearOffSound = trap_S_RegisterSound("sound/items/wearoff.ogg");
 }
 
 
@@ -900,7 +891,7 @@ static void CG_RegisterGraphics(void)
 
 	trap_R_LoadWorldMap(cgs.mapname);
 
-	CG_LoadingString("precaching", qfalse);
+	CG_LoadingString("Precaching", qfalse);
 
 	// precache status bar pics
 
@@ -909,8 +900,7 @@ static void CG_RegisterGraphics(void)
 		cgs.media.numberShaders[i] = trap_R_RegisterShader(sb_nums[i]);
 	}
 
-	// otty: register HUD media
-	CG_LoadingString("interface", qfalse);
+	CG_LoadingString("HUD", qfalse);
 
 	cgs.media.hud_top_team_middle = trap_R_RegisterShaderNoMip("hud/hud_top_team_middle");
 	cgs.media.hud_top_team_middle_overlay = trap_R_RegisterShaderNoMip("hud/hud_top_team_middle_overlay");
@@ -946,8 +936,6 @@ static void CG_RegisterGraphics(void)
 	cgs.media.osd_button = trap_R_RegisterShaderNoMip("ui/button");
 	cgs.media.osd_button_focus = trap_R_RegisterShaderNoMip("ui/button_focus");
 
-	CG_LoadingString("rankings", qfalse);
-
 	cgs.media.hud_scoreboard_title = trap_R_RegisterShaderNoMip("hud/scoreboard_title");
 	cgs.media.hud_scoreboard_title_overlay = trap_R_RegisterShaderNoMip("hud/scoreboard_title_overlay");
 	cgs.media.hud_scoreboard = trap_R_RegisterShaderNoMip("hud/scoreboard");
@@ -956,345 +944,12 @@ static void CG_RegisterGraphics(void)
 	cgs.media.scoreboardScore = trap_R_RegisterShaderNoMip("menu/tab/score.tga");
 	cgs.media.scoreboardTime = trap_R_RegisterShaderNoMip("menu/tab/time.tga");
 
-	CG_LoadingString("effects", qfalse);
-
-	cgs.media.viewBloodShader = trap_R_RegisterShader("viewBloodBlend");
-
-	cgs.media.deferShader = trap_R_RegisterShaderNoMip("gfx/2d/defer.tga");
-
-	cgs.media.smokePuffShader = trap_R_RegisterShader("smokePuff");
-	cgs.media.shotgunSmokePuffShader = trap_R_RegisterShader("shotgunSmokePuff");
-
-	cgs.media.nailPuffShader = trap_R_RegisterShader("nailtrail");
-
-	cgs.media.plasmaBallShader = trap_R_RegisterShader("sprites/plasma1");
-	cgs.media.bloodTrailShader = trap_R_RegisterShader("particles/blood_trail");
-	cgs.media.bloodSpurtShader = trap_R_RegisterShader("particles/blood_spurt");
-	cgs.media.bloodSpurt2Shader = trap_R_RegisterShader("particles/blood_spurt");
-	cgs.media.bloodSpurt3Shader = trap_R_RegisterShader("particles/blood_spurt");
-	cgs.media.lagometerShader = trap_R_RegisterShader("lagometer");
-	cgs.media.lagometer_lagShader = trap_R_RegisterShader("lagometer_lag");
-	cgs.media.connectionShader = trap_R_RegisterShader("disconnected");
-
-	cgs.media.waterBubbleShader = trap_R_RegisterShader("waterBubble");
-
-	cgs.media.tracerShader = trap_R_RegisterShader("gfx/misc/tracer");
-	cgs.media.selectShader = trap_R_RegisterShader("gfx/2d/select");
-	cgs.media.weaponSelectShader = trap_R_RegisterShader("gfx/2d/weapon_select");
-
-	CG_LoadingString("visuals", qfalse);
-
-	for(i = 0; i < NUM_CROSSHAIRS; i++)
-	{
-		//cgs.media.crosshairShader[i] = trap_R_RegisterShader(va("gfx/2d/crosshair%c", 'a' + i));
-
-		cgs.media.crosshairDot[i] = trap_R_RegisterShader(va("hud/crosshairs/dot%i", i + 1));
-		cgs.media.crosshairCircle[i] = trap_R_RegisterShader(va("hud/crosshairs/circle%i", i + 1));
-		cgs.media.crosshairCross[i] = trap_R_RegisterShader(va("hud/crosshairs/cross%i", i + 1));
-	}
-
-	CG_LoadingString("notifications", qfalse);
-
 	cgs.media.backTileShader = trap_R_RegisterShader("gfx/2d/backtile");
 	cgs.media.noammoShader = trap_R_RegisterShader("icons/noammo");
 
 	cgs.media.sideBarItemShader = trap_R_RegisterShaderNoMip("hud/sidebar_item");
 	cgs.media.sideBarItemSelectShader = trap_R_RegisterShaderNoMip("hud/sidebar_item_select");
 	cgs.media.sideBarPowerupShader = trap_R_RegisterShaderNoMip("hud/sidebar_powerup");
-
-	cgs.media.sparkShader = trap_R_RegisterShader("particles/glow");
-
-	// globe mapping shaders
-	cgs.media.shadowProjectedLightShader = trap_R_RegisterShaderLightAttenuation("lights/shadowProjectedLight");
-
-	CG_LoadingString("powerups", qfalse);
-
-	// powerup shaders
-	cgs.media.quadShader = trap_R_RegisterShader("powerups/quad");
-	cgs.media.quadWeaponShader = trap_R_RegisterShader("powerups/quadWeapon");
-	cgs.media.battleSuitShader = trap_R_RegisterShader("powerups/battleSuit");
-	cgs.media.battleWeaponShader = trap_R_RegisterShader("powerups/battleWeapon");
-	cgs.media.invisShader = trap_R_RegisterShader("powerups/invisibility");
-	cgs.media.regenShader = trap_R_RegisterShader("powerups/regen");
-	cgs.media.hastePuffShader = trap_R_RegisterShader("hasteSmokePuff");
-
-	// effects
-	cgs.media.unlinkEffect = trap_R_RegisterShader("player/unlink_effect");
-
-	if(cgs.gametype == GT_CTF || cgs.gametype == GT_1FCTF || cgs.gametype == GT_HARVESTER)
-	{
-		cgs.media.harvesterSkullModel = trap_R_RegisterModel("models/powerups/harvester/skull.md5mesh", qtrue);
-		cgs.media.redSkullSkin = trap_R_RegisterSkin("models/powerups/harvester/skull_red.skin");
-		cgs.media.blueSkullSkin = trap_R_RegisterSkin("models/powerups/harvester/skull_blue.skin");
-		cgs.media.redSkullIcon = trap_R_RegisterShader("icons/skull_red");
-		cgs.media.blueSkullIcon = trap_R_RegisterShader("icons/skull_blue");
-	}
-
-	CG_LoadingString("icons", qfalse);
-
-	if(cgs.gametype == GT_CTF || cgs.gametype == GT_1FCTF || cgs.gametype == GT_HARVESTER)
-	{
-		cgs.media.flagModel = trap_R_RegisterModel("models/flags/flag.md5mesh", qfalse);
-		CG_RegisterAnimation(&cgs.media.flagAnimations[FLAG_IDLE], "models/flags/flag_idle.md5anim", qtrue, qfalse, qtrue);
-		CG_RegisterAnimation(&cgs.media.flagAnimations[FLAG_RUN], "models/flags/flag_run.md5anim", qtrue, qfalse, qtrue);
-
-		cgs.media.redFlagSkin = trap_R_RegisterSkin("models/flags/flag_red.skin");
-		cgs.media.blueFlagSkin = trap_R_RegisterSkin("models/flags/flag_blue.skin");
-
-		cgs.media.redFlagShader[0] = trap_R_RegisterShaderNoMip("icons/iconf_red1");
-		cgs.media.redFlagShader[1] = trap_R_RegisterShaderNoMip("icons/iconf_red2");
-		cgs.media.redFlagShader[2] = trap_R_RegisterShaderNoMip("icons/iconf_red3");
-
-		cgs.media.blueFlagShader[0] = trap_R_RegisterShaderNoMip("icons/iconf_blu1");
-		cgs.media.blueFlagShader[1] = trap_R_RegisterShaderNoMip("icons/iconf_blu2");
-		cgs.media.blueFlagShader[2] = trap_R_RegisterShaderNoMip("icons/iconf_blu3");
-
-#ifdef MISSIONPACK
-		cgs.media.redFlagBaseModel = trap_R_RegisterModel("models/mapobjects/flagbase/red_base.md3");
-		cgs.media.blueFlagBaseModel = trap_R_RegisterModel("models/mapobjects/flagbase/blue_base.md3");
-		cgs.media.neutralFlagBaseModel = trap_R_RegisterModel("models/mapobjects/flagbase/ntrl_base.md3");
-#endif
-	}
-
-	if(cgs.gametype == GT_1FCTF)
-	{
-		cgs.media.neutralFlagSkin = trap_R_RegisterSkin("models/flags/flag_neutral.skin");
-
-		cgs.media.flagShader[0] = trap_R_RegisterShaderNoMip("icons/iconf_neutral1");
-		cgs.media.flagShader[1] = trap_R_RegisterShaderNoMip("icons/iconf_red2");
-		cgs.media.flagShader[2] = trap_R_RegisterShaderNoMip("icons/iconf_blu2");
-		cgs.media.flagShader[3] = trap_R_RegisterShaderNoMip("icons/iconf_neutral3");
-	}
-
-	if(cgs.gametype == GT_OBELISK)
-	{
-		cgs.media.overloadBaseModel = trap_R_RegisterModel("models/powerups/overload_base.md5mesh", qfalse);
-		cgs.media.overloadTargetModel = trap_R_RegisterModel("models/powerups/overload_target.md5mesh", qfalse);
-		cgs.media.overloadLightsModel = trap_R_RegisterModel("models/powerups/overload_lights.md5mesh", qfalse);
-		cgs.media.overloadEnergyModel = trap_R_RegisterModel("models/powerups/overload_energy.md5mesh", qfalse);
-	}
-
-	if(cgs.gametype == GT_HARVESTER)
-	{
-		cgs.media.harvesterModel = trap_R_RegisterModel("models/powerups/harvester/harvester.md5mesh", qtrue);
-		cgs.media.harvesterAnimation = trap_R_RegisterAnimation("models/powerups/harvester/harvester_idle.md5anim");
-		cgs.media.harvesterRedSkin = trap_R_RegisterSkin("models/powerups/harvester/red.skin");
-		cgs.media.harvesterBlueSkin = trap_R_RegisterSkin("models/powerups/harvester/blue.skin");
-		cgs.media.harvesterNeutralModel = trap_R_RegisterModel("models/powerups/obelisk/obelisk.md5mesh", qfalse);
-	}
-
-	cgs.media.redKamikazeShader = trap_R_RegisterShader("models/weaphits/kamikred");
-
-	CG_LoadingString("teams", qfalse);
-
-	if(cgs.gametype >= GT_TEAM || cg_buildScript.integer)
-	{
-		cgs.media.friendShader = trap_R_RegisterShader("sprites/friend");
-		cgs.media.redQuadShader = trap_R_RegisterShader("powerups/blueflag");
-		cgs.media.teamStatusBar = trap_R_RegisterShader("gfx/2d/colorbar.tga");
-
-		cgs.media.blueKamikazeShader = trap_R_RegisterShader("models/weaphits/kamikblu");
-	}
-
-	CG_LoadingString("model icons", qfalse);
-
-	cgs.media.armorModel = trap_R_RegisterModel("models/powerups/armor/armor_yel.md3", qtrue);
-	cgs.media.armorIcon = trap_R_RegisterShaderNoMip("icons/iconr_yellow");
-
-	cgs.media.machinegunBrassModel = trap_R_RegisterModel("models/weapons/shells/m_shell.md3", qtrue);
-	cgs.media.shotgunBrassModel = trap_R_RegisterModel("models/weapons/shells/s_shell.md3", qtrue);
-
-	cgs.media.gibAbdomen = trap_R_RegisterModel("models/gibs/abdomen.md3", qtrue);
-	cgs.media.gibArm = trap_R_RegisterModel("models/gibs/arm.md3", qtrue);
-	cgs.media.gibChest = trap_R_RegisterModel("models/gibs/chest.md3", qtrue);
-	cgs.media.gibFist = trap_R_RegisterModel("models/gibs/fist.md3", qtrue);
-	cgs.media.gibFoot = trap_R_RegisterModel("models/gibs/foot.md3", qtrue);
-	cgs.media.gibForearm = trap_R_RegisterModel("models/gibs/forearm.md3", qtrue);
-	cgs.media.gibIntestine = trap_R_RegisterModel("models/gibs/intestine.md3", qtrue);
-	cgs.media.gibLeg = trap_R_RegisterModel("models/gibs/leg.md3", qtrue);
-	cgs.media.gibSkull = trap_R_RegisterModel("models/gibs/skull.md3", qtrue);
-	cgs.media.gibBrain = trap_R_RegisterModel("models/gibs/brain.md3", qtrue);
-
-	cgs.media.smoke2 = trap_R_RegisterModel("models/weapons/shells/s_shell.md3", qtrue);
-
-	cgs.media.balloonShader = trap_R_RegisterShader("sprites/balloon3");
-
-	cgs.media.bloodExplosionShader = trap_R_RegisterShader("bloodExplosion");
-
-	cgs.media.dishFlashModel = trap_R_RegisterModel("models/weaphits/boom01.md3", qtrue);
-
-	cgs.media.teleportFlareShader = trap_R_RegisterShader("particles/flare2");
-
-	cgs.media.kamikazeEffectModel = trap_R_RegisterModel("models/powerups/kamikaze/shocksphere.md5mesh", qfalse);
-	cgs.media.kamikazeShockWave = trap_R_RegisterModel("models/powerups/kamikaze/shockwave.md5mesh", qfalse);
-	cgs.media.kamikazeHeadModel = trap_R_RegisterModel("models/powerups/kamikaze/kamikaze.md5mesh", qfalse);
-	cgs.media.kamikazeHeadTrail = trap_R_RegisterModel("models/powerups/kamikaze/trailtest.md5mesh", qfalse);
-
-	CG_LoadingString("awards", qfalse);
-
-	cgs.media.invulnerabilityPowerupModel = trap_R_RegisterModel("models/powerups/shield/shield.md3", qtrue);
-	cgs.media.medalImpressive = trap_R_RegisterShaderNoMip("medal_impressive");
-	cgs.media.medalExcellent = trap_R_RegisterShaderNoMip("medal_excellent");
-	cgs.media.medalGauntlet = trap_R_RegisterShaderNoMip("medal_gauntlet");
-	cgs.media.medalDefend = trap_R_RegisterShaderNoMip("medal_defend");
-	cgs.media.medalAssist = trap_R_RegisterShaderNoMip("medal_assist");
-	cgs.media.medalCapture = trap_R_RegisterShaderNoMip("medal_capture");
-	cgs.media.medalTelefrag = trap_R_RegisterShaderNoMip("medal_telefrag");
-
-	memset(cg_items, 0, sizeof(cg_items));
-	memset(cg_weapons, 0, sizeof(cg_weapons));
-
-	// only register the items that the server says we need
-	// raynorpat: used to be a standard strcpy, but can be exploited via
-	// a remote stack overflow. see http://www.milw0rm.com/exploits/1977
-	Q_strncpyz(items, CG_ConfigString(CS_ITEMS), sizeof(items));
-
-	CG_LoadingString("items", qfalse);
-
-	for(i = 1; i < bg_numItems; i++)
-	{
-		if(items[i] == '1' || cg_buildScript.integer)
-			CG_RegisterItemVisuals(i);
-	}
-
-	CG_LoadingString("marks", qfalse);
-
-	// wall marks
-	cgs.media.bulletMarkShader = trap_R_RegisterShader("gfx/damage/bullet_mrk");
-	cgs.media.burnMarkShader = trap_R_RegisterShader("burnMark");
-	cgs.media.holeMarkShader = trap_R_RegisterShader("gfx/damage/hole_lg_mrk");
-	cgs.media.energyMarkShader = trap_R_RegisterShader("gfx/damage/plasma_mrk");
-	cgs.media.shadowMarkShader = trap_R_RegisterShader("markShadow");
-	cgs.media.wakeMarkShader = trap_R_RegisterShader("wake");
-	cgs.media.bloodMarkShader = trap_R_RegisterShader("textures/decals/blood_splat04");
-	cgs.media.bloodMark2Shader = trap_R_RegisterShader("textures/decals/blood_splat05");
-	cgs.media.bloodMark3Shader = trap_R_RegisterShader("textures/decals/blood_splat06");
-
-	// register the inline models
-	cgs.numInlineModels = trap_CM_NumInlineModels();
-	for(i = 1; i < cgs.numInlineModels; i++)
-	{
-		char            name[10];
-		vec3_t          mins, maxs;
-		int             j;
-
-		Com_sprintf(name, sizeof(name), "*%i", i);
-		cgs.inlineDrawModel[i] = trap_R_RegisterModel(name, qtrue);
-		trap_R_ModelBounds(cgs.inlineDrawModel[i], mins, maxs);
-		for(j = 0; j < 3; j++)
-		{
-			cgs.inlineModelMidpoints[i][j] = mins[j] + 0.5 * (maxs[j] - mins[j]);
-		}
-	}
-
-	CG_LoadingString("models", qfalse);
-
-	// register all the server specified models
-	for(i = 1; i < MAX_MODELS; i++)
-	{
-		const char     *modelName;
-
-		modelName = CG_ConfigString(CS_MODELS + i);
-		if(!modelName[0])
-		{
-			break;
-		}
-		cgs.gameModels[i] = trap_R_RegisterModel(modelName, qtrue);
-	}
-
-	// debug utils
-	cgs.media.lightningShader = trap_R_RegisterShader("lightningBolt");
-	cgs.media.debugPlayerAABB = trap_R_RegisterShader("debugPlayerAABB");
-	cgs.media.debugPlayerAABB_twoSided = trap_R_RegisterShader("debugPlayerAABB_twoSided");
-
-	CG_LoadingString("debris effects", qfalse);
-
-	// Debris models
-	// Consider moving these loads into the code that initializes a func_explosive, so they are only loaded when required.
-	// Also, if theres not enough models, point some of these to others so the code still calls them fine. Eg, Gibs.
-	cgs.media.debrisModels[ENTMAT_WOOD][0][0] = trap_R_RegisterModel("models/debris/wood1a.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_WOOD][0][1] = trap_R_RegisterModel("models/debris/wood1b.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_WOOD][1][0] = trap_R_RegisterModel("models/debris/wood2a.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_WOOD][1][1] = trap_R_RegisterModel("models/debris/wood2b.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_WOOD][2][0] = trap_R_RegisterModel("models/debris/wood3a.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_WOOD][2][1] = trap_R_RegisterModel("models/debris/wood3b.md5mesh", qtrue);
-
-	cgs.media.debrisModels[ENTMAT_GLASS][0][0] = trap_R_RegisterModel("models/debris/glass1a.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_GLASS][0][1] = trap_R_RegisterModel("models/debris/glass1b.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_GLASS][1][0] = trap_R_RegisterModel("models/debris/glass2a.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_GLASS][1][1] = trap_R_RegisterModel("models/debris/glass2b.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_GLASS][2][0] = trap_R_RegisterModel("models/debris/glass3a.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_GLASS][2][1] = trap_R_RegisterModel("models/debris/glass3b.md5mesh", qtrue);
-
-	cgs.media.debrisModels[ENTMAT_METAL][0][0] = trap_R_RegisterModel("models/debris/metal1a.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_METAL][0][1] = trap_R_RegisterModel("models/debris/metal1b.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_METAL][1][0] = trap_R_RegisterModel("models/debris/metal2a.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_METAL][1][1] = trap_R_RegisterModel("models/debris/metal2b.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_METAL][2][0] = trap_R_RegisterModel("models/debris/metal3a.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_METAL][2][1] = trap_R_RegisterModel("models/debris/metal3b.md5mesh", qtrue);
-
-	cgs.media.debrisModels[ENTMAT_GIBS][0][0] = cgs.media.gibIntestine;
-	cgs.media.debrisModels[ENTMAT_GIBS][0][1] = cgs.media.gibLeg;
-	cgs.media.debrisModels[ENTMAT_GIBS][1][0] = cgs.media.gibBrain;
-	cgs.media.debrisModels[ENTMAT_GIBS][1][1] = cgs.media.gibSkull;
-	cgs.media.debrisModels[ENTMAT_GIBS][2][0] = cgs.media.gibAbdomen;
-	cgs.media.debrisModels[ENTMAT_GIBS][2][1] = cgs.media.gibChest;
-
-	cgs.media.debrisModels[ENTMAT_BODY][0][0] = trap_R_RegisterModel("models/debris/body1a.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_BODY][0][1] = trap_R_RegisterModel("models/debris/body1b.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_BODY][1][0] = trap_R_RegisterModel("models/debris/body2a.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_BODY][1][1] = trap_R_RegisterModel("models/debris/body2b.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_BODY][2][0] = trap_R_RegisterModel("models/debris/body3a.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_BODY][2][1] = trap_R_RegisterModel("models/debris/body3b.md5mesh", qtrue);
-
-	cgs.media.debrisModels[ENTMAT_BRICK][0][0] = trap_R_RegisterModel("models/debris/brick1a.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_BRICK][0][1] = trap_R_RegisterModel("models/debris/brick1b.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_BRICK][1][0] = trap_R_RegisterModel("models/debris/brick2a.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_BRICK][1][1] = trap_R_RegisterModel("models/debris/brick2b.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_BRICK][2][0] = trap_R_RegisterModel("models/debris/brick3a.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_BRICK][2][1] = trap_R_RegisterModel("models/debris/brick3b.md5mesh", qtrue);
-
-	cgs.media.debrisModels[ENTMAT_STONE][0][0] = trap_R_RegisterModel("models/debris/stone1a.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_STONE][0][1] = trap_R_RegisterModel("models/debris/stone1b.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_STONE][1][0] = trap_R_RegisterModel("models/debris/stone2a.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_STONE][1][1] = trap_R_RegisterModel("models/debris/stone2b.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_STONE][2][0] = trap_R_RegisterModel("models/debris/stone3a.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_STONE][2][1] = trap_R_RegisterModel("models/debris/stone3b.md5mesh", qtrue);
-
-	cgs.media.debrisModels[ENTMAT_TILES][0][0] = trap_R_RegisterModel("models/debris/tiles1a.md3", qtrue);
-	cgs.media.debrisModels[ENTMAT_TILES][0][1] = trap_R_RegisterModel("models/debris/tiles1b.md3", qtrue);
-	cgs.media.debrisModels[ENTMAT_TILES][1][0] = trap_R_RegisterModel("models/debris/tiles2a.md3", qtrue);
-	cgs.media.debrisModels[ENTMAT_TILES][1][1] = trap_R_RegisterModel("models/debris/tiles2b.md3", qtrue);
-	cgs.media.debrisModels[ENTMAT_TILES][2][0] = trap_R_RegisterModel("models/debris/tiles3a.md3", qtrue);
-	cgs.media.debrisModels[ENTMAT_TILES][2][1] = trap_R_RegisterModel("models/debris/tiles3b.md3", qtrue);
-
-	cgs.media.debrisModels[ENTMAT_PLASTER][0][0] = trap_R_RegisterModel("models/debris/plaster1a.md3", qtrue);
-	cgs.media.debrisModels[ENTMAT_PLASTER][0][1] = trap_R_RegisterModel("models/debris/plaster1b.md3", qtrue);
-	cgs.media.debrisModels[ENTMAT_PLASTER][1][0] = trap_R_RegisterModel("models/debris/plaster2a.md3", qtrue);
-	cgs.media.debrisModels[ENTMAT_PLASTER][1][1] = trap_R_RegisterModel("models/debris/plaster2b.md3", qtrue);
-	cgs.media.debrisModels[ENTMAT_PLASTER][2][0] = trap_R_RegisterModel("models/debris/plaster3a.md3", qtrue);
-	cgs.media.debrisModels[ENTMAT_PLASTER][2][1] = trap_R_RegisterModel("models/debris/plaster3b.md3", qtrue);
-
-	cgs.media.debrisModels[ENTMAT_FIBERS][0][0] = trap_R_RegisterModel("models/debris/fibers1a.md3", qtrue);
-	cgs.media.debrisModels[ENTMAT_FIBERS][0][1] = trap_R_RegisterModel("models/debris/fibers1b.md3", qtrue);
-	cgs.media.debrisModels[ENTMAT_FIBERS][1][0] = trap_R_RegisterModel("models/debris/fibers2a.md3", qtrue);
-	cgs.media.debrisModels[ENTMAT_FIBERS][1][1] = trap_R_RegisterModel("models/debris/fibers2b.md3", qtrue);
-	cgs.media.debrisModels[ENTMAT_FIBERS][2][0] = trap_R_RegisterModel("models/debris/fibers3a.md3", qtrue);
-	cgs.media.debrisModels[ENTMAT_FIBERS][2][1] = trap_R_RegisterModel("models/debris/fibers3b.md3", qtrue);
-
-	cgs.media.debrisBit = trap_R_RegisterShader("models/debris/debrisbit");
-	cgs.media.debrisPlaster = trap_R_RegisterShader("models/debris/plaster1");
-
-	cgs.media.fire = trap_R_RegisterShader("fire1");
-	cgs.media.fireLight = trap_R_RegisterShader("fire1/light");
-	cgs.media.flames[0] = trap_R_RegisterShader("flames0");
-	cgs.media.flames[1] = trap_R_RegisterShader("flames1");
-	cgs.media.flames[2] = trap_R_RegisterShader("flames2");
-
-	// weaver resorces
-
-	// weaver sword
-	cgs.media.swordModel = trap_R_RegisterModel("models/sword/sword.md5mesh", qtrue);
 
 	// weaver disc
 	for(i = 1; i <= NUM_WEAVERDISCS; i++)
@@ -1323,11 +978,242 @@ static void CG_RegisterGraphics(void)
 	cgs.media.weaverStatus[PW_POISONED] = trap_R_RegisterShaderNoMip("gfx/hud/powerups/poisoned1");
 	cgs.media.weaverStatus[PW_SLOWPOISONED] = trap_R_RegisterShaderNoMip("gfx/hud/powerups/poisoned2");
 
+	CG_LoadingString("Crosshairs", qfalse);
+
+	for(i = 0; i < NUM_CROSSHAIRS; i++)
+	{
+		cgs.media.crosshairDot[i] = trap_R_RegisterShader(va("hud/crosshairs/dot%i", i + 1));
+		cgs.media.crosshairCircle[i] = trap_R_RegisterShader(va("hud/crosshairs/circle%i", i + 1));
+		cgs.media.crosshairCross[i] = trap_R_RegisterShader(va("hud/crosshairs/cross%i", i + 1));
+	}
+
+	CG_LoadingString("Icons", qfalse);
+
+	cgs.media.balloonShader = trap_R_RegisterShader("sprites/balloon3");
+
+	if(cgs.gametype >= GT_TEAM || cg_buildScript.integer)
+	{
+		cgs.media.friendShader = trap_R_RegisterShader("sprites/friend");
+		cgs.media.redQuadShader = trap_R_RegisterShader("powerups/blueflag");
+		cgs.media.teamStatusBar = trap_R_RegisterShader("gfx/2d/colorbar.tga");
+	}
+
+	// only register the items that the server says we need
+	// raynorpat: used to be a standard strcpy, but can be exploited via
+	// a remote stack overflow. see http://www.milw0rm.com/exploits/1977
+	Q_strncpyz(items, CG_ConfigString(CS_ITEMS), sizeof(items));
+
+	
+	/*
+	memset(cg_items, 0, sizeof(cg_items));
+	memset(cg_weapons, 0, sizeof(cg_weapons));
+	*/
+	/*
+	CG_LoadingString("items", qfalse);
+
+	for(i = 1; i < bg_numItems; i++)
+	{
+		if(items[i] == '1' || cg_buildScript.integer)
+			CG_RegisterItemVisuals(i);
+	}
+	*/
+
+	CG_LoadingString("Effects", qfalse);
+
+	cgs.media.viewBloodShader = trap_R_RegisterShader("viewBloodBlend");
+
+	cgs.media.deferShader = trap_R_RegisterShaderNoMip("gfx/2d/defer.tga");
+
+	cgs.media.smokePuffShader = trap_R_RegisterShader("smokePuff");
+	cgs.media.shotgunSmokePuffShader = trap_R_RegisterShader("shotgunSmokePuff");
+
+	cgs.media.nailPuffShader = trap_R_RegisterShader("nailtrail");
+
+	cgs.media.plasmaBallShader = trap_R_RegisterShader("sprites/plasma1");
+	cgs.media.bloodTrailShader = trap_R_RegisterShader("particles/blood_trail");
+	cgs.media.bloodSpurtShader = trap_R_RegisterShader("particles/blood_spurt");
+	cgs.media.bloodSpurt2Shader = trap_R_RegisterShader("particles/blood_spurt");
+	cgs.media.bloodSpurt3Shader = trap_R_RegisterShader("particles/blood_spurt");
+	cgs.media.lagometerShader = trap_R_RegisterShader("lagometer");
+	cgs.media.lagometer_lagShader = trap_R_RegisterShader("lagometer_lag");
+	cgs.media.connectionShader = trap_R_RegisterShader("disconnected");
+
+	cgs.media.waterBubbleShader = trap_R_RegisterShader("waterBubble");
+
+	cgs.media.tracerShader = trap_R_RegisterShader("gfx/misc/tracer");
+	cgs.media.selectShader = trap_R_RegisterShader("gfx/2d/select");
+	cgs.media.weaponSelectShader = trap_R_RegisterShader("gfx/2d/weapon_select");
+
+	cgs.media.sparkShader = trap_R_RegisterShader("particles/glow");
+
+	cgs.media.bloodExplosionShader = trap_R_RegisterShader("bloodExplosion");
+
+	cgs.media.teleportFlareShader = trap_R_RegisterShader("particles/flare2");
+
+	// globe mapping shaders
+	cgs.media.shadowProjectedLightShader = trap_R_RegisterShaderLightAttenuation("lights/shadowProjectedLight");
+
+	CG_LoadingString("Particles", qfalse);
+	CG_InitParticles();
+
+	CG_LoadingString("Powerups", qfalse);
+
+	// powerup shaders
+	cgs.media.quadShader = trap_R_RegisterShader("powerups/quad");
+	cgs.media.quadWeaponShader = trap_R_RegisterShader("powerups/quadWeapon");
+	cgs.media.battleSuitShader = trap_R_RegisterShader("powerups/battleSuit");
+	cgs.media.battleWeaponShader = trap_R_RegisterShader("powerups/battleWeapon");
+	cgs.media.invisShader = trap_R_RegisterShader("powerups/invisibility");
+	cgs.media.regenShader = trap_R_RegisterShader("powerups/regen");
+	cgs.media.hastePuffShader = trap_R_RegisterShader("hasteSmokePuff");
+
+	// effects
+	cgs.media.unlinkEffect = trap_R_RegisterShader("player/unlink_effect");
+
+	CG_LoadingString("Decals", qfalse);
+
+	// wall marks
+	cgs.media.bulletMarkShader = trap_R_RegisterShader("gfx/damage/bullet_mrk");
+	cgs.media.burnMarkShader = trap_R_RegisterShader("burnMark");
+	cgs.media.holeMarkShader = trap_R_RegisterShader("gfx/damage/hole_lg_mrk");
+	cgs.media.energyMarkShader = trap_R_RegisterShader("gfx/damage/plasma_mrk");
+	cgs.media.shadowMarkShader = trap_R_RegisterShader("markShadow");
+	cgs.media.wakeMarkShader = trap_R_RegisterShader("wake");
+	cgs.media.bloodMarkShader = trap_R_RegisterShader("textures/decals/blood_splat04");
+	cgs.media.bloodMark2Shader = trap_R_RegisterShader("textures/decals/blood_splat05");
+	cgs.media.bloodMark3Shader = trap_R_RegisterShader("textures/decals/blood_splat06");
+
+	CG_LoadingString("Map Models", qfalse);
+
+	// register the inline models
+	cgs.numInlineModels = trap_CM_NumInlineModels();
+	for(i = 1; i < cgs.numInlineModels; i++)
+	{
+		char            name[10];
+		vec3_t          mins, maxs;
+		int             j;
+
+		Com_sprintf(name, sizeof(name), "*%i", i);
+		cgs.inlineDrawModel[i] = trap_R_RegisterModel(name, qtrue);
+		trap_R_ModelBounds(cgs.inlineDrawModel[i], mins, maxs);
+		for(j = 0; j < 3; j++)
+		{
+			cgs.inlineModelMidpoints[i][j] = mins[j] + 0.5 * (maxs[j] - mins[j]);
+		}
+	}
+
+	// register all the server specified models
+	for(i = 1; i < MAX_MODELS; i++)
+	{
+		const char     *modelName;
+
+		modelName = CG_ConfigString(CS_MODELS + i);
+		if(!modelName[0])
+		{
+			break;
+		}
+		cgs.gameModels[i] = trap_R_RegisterModel(modelName, qtrue);
+	}
+
+	CG_LoadingString("Debris", qfalse);
+
+	// Debris models
+	// Consider moving these loads into the code that initializes a func_explosive, so they are only loaded when required.
+	// Also, if theres not enough models, point some of these to others so the code still calls them fine. Eg, Gibs.
+	cgs.media.debrisModels[ENTMAT_WOOD][0][0] = trap_R_RegisterModel("models/debris/wood1a.md5mesh", qtrue);
+	cgs.media.debrisModels[ENTMAT_WOOD][0][1] = trap_R_RegisterModel("models/debris/wood1b.md5mesh", qtrue);
+	cgs.media.debrisModels[ENTMAT_WOOD][1][0] = trap_R_RegisterModel("models/debris/wood2a.md5mesh", qtrue);
+	cgs.media.debrisModels[ENTMAT_WOOD][1][1] = trap_R_RegisterModel("models/debris/wood2b.md5mesh", qtrue);
+	cgs.media.debrisModels[ENTMAT_WOOD][2][0] = trap_R_RegisterModel("models/debris/wood3a.md5mesh", qtrue);
+	cgs.media.debrisModels[ENTMAT_WOOD][2][1] = trap_R_RegisterModel("models/debris/wood3b.md5mesh", qtrue);
+
+	/*
+	cgs.media.debrisModels[ENTMAT_GLASS][0][0] = trap_R_RegisterModel("models/debris/glass1a.md5mesh", qtrue);
+	cgs.media.debrisModels[ENTMAT_GLASS][0][1] = trap_R_RegisterModel("models/debris/glass1b.md5mesh", qtrue);
+	cgs.media.debrisModels[ENTMAT_GLASS][1][0] = trap_R_RegisterModel("models/debris/glass2a.md5mesh", qtrue);
+	cgs.media.debrisModels[ENTMAT_GLASS][1][1] = trap_R_RegisterModel("models/debris/glass2b.md5mesh", qtrue);
+	cgs.media.debrisModels[ENTMAT_GLASS][2][0] = trap_R_RegisterModel("models/debris/glass3a.md5mesh", qtrue);
+	cgs.media.debrisModels[ENTMAT_GLASS][2][1] = trap_R_RegisterModel("models/debris/glass3b.md5mesh", qtrue);
+
+	cgs.media.debrisModels[ENTMAT_METAL][0][0] = trap_R_RegisterModel("models/debris/metal1a.md5mesh", qtrue);
+	cgs.media.debrisModels[ENTMAT_METAL][0][1] = trap_R_RegisterModel("models/debris/metal1b.md5mesh", qtrue);
+	cgs.media.debrisModels[ENTMAT_METAL][1][0] = trap_R_RegisterModel("models/debris/metal2a.md5mesh", qtrue);
+	cgs.media.debrisModels[ENTMAT_METAL][1][1] = trap_R_RegisterModel("models/debris/metal2b.md5mesh", qtrue);
+	cgs.media.debrisModels[ENTMAT_METAL][2][0] = trap_R_RegisterModel("models/debris/metal3a.md5mesh", qtrue);
+	cgs.media.debrisModels[ENTMAT_METAL][2][1] = trap_R_RegisterModel("models/debris/metal3b.md5mesh", qtrue);
+
+	cgs.media.debrisModels[ENTMAT_GIBS][0][0] = cgs.media.gibIntestine;
+	cgs.media.debrisModels[ENTMAT_GIBS][0][1] = cgs.media.gibLeg;
+	cgs.media.debrisModels[ENTMAT_GIBS][1][0] = cgs.media.gibBrain;
+	cgs.media.debrisModels[ENTMAT_GIBS][1][1] = cgs.media.gibSkull;
+	cgs.media.debrisModels[ENTMAT_GIBS][2][0] = cgs.media.gibAbdomen;
+	cgs.media.debrisModels[ENTMAT_GIBS][2][1] = cgs.media.gibChest;
+
+	cgs.media.debrisModels[ENTMAT_BODY][0][0] = trap_R_RegisterModel("models/debris/body1a.md5mesh", qtrue);
+	cgs.media.debrisModels[ENTMAT_BODY][0][1] = trap_R_RegisterModel("models/debris/body1b.md5mesh", qtrue);
+	cgs.media.debrisModels[ENTMAT_BODY][1][0] = trap_R_RegisterModel("models/debris/body2a.md5mesh", qtrue);
+	cgs.media.debrisModels[ENTMAT_BODY][1][1] = trap_R_RegisterModel("models/debris/body2b.md5mesh", qtrue);
+	cgs.media.debrisModels[ENTMAT_BODY][2][0] = trap_R_RegisterModel("models/debris/body3a.md5mesh", qtrue);
+	cgs.media.debrisModels[ENTMAT_BODY][2][1] = trap_R_RegisterModel("models/debris/body3b.md5mesh", qtrue);
+	*/
+
+	cgs.media.debrisModels[ENTMAT_BRICK][0][0] = trap_R_RegisterModel("models/debris/brick1a.md5mesh", qtrue);
+	cgs.media.debrisModels[ENTMAT_BRICK][0][1] = trap_R_RegisterModel("models/debris/brick1b.md5mesh", qtrue);
+	cgs.media.debrisModels[ENTMAT_BRICK][1][0] = trap_R_RegisterModel("models/debris/brick2a.md5mesh", qtrue);
+	cgs.media.debrisModels[ENTMAT_BRICK][1][1] = trap_R_RegisterModel("models/debris/brick2b.md5mesh", qtrue);
+	cgs.media.debrisModels[ENTMAT_BRICK][2][0] = trap_R_RegisterModel("models/debris/brick3a.md5mesh", qtrue);
+	cgs.media.debrisModels[ENTMAT_BRICK][2][1] = trap_R_RegisterModel("models/debris/brick3b.md5mesh", qtrue);
+
+	cgs.media.debrisModels[ENTMAT_STONE][0][0] = trap_R_RegisterModel("models/debris/stone1a.md5mesh", qtrue);
+	cgs.media.debrisModels[ENTMAT_STONE][0][1] = trap_R_RegisterModel("models/debris/stone1b.md5mesh", qtrue);
+	cgs.media.debrisModels[ENTMAT_STONE][1][0] = trap_R_RegisterModel("models/debris/stone2a.md5mesh", qtrue);
+	cgs.media.debrisModels[ENTMAT_STONE][1][1] = trap_R_RegisterModel("models/debris/stone2b.md5mesh", qtrue);
+	cgs.media.debrisModels[ENTMAT_STONE][2][0] = trap_R_RegisterModel("models/debris/stone3a.md5mesh", qtrue);
+	cgs.media.debrisModels[ENTMAT_STONE][2][1] = trap_R_RegisterModel("models/debris/stone3b.md5mesh", qtrue);
+
+	/*
+	cgs.media.debrisModels[ENTMAT_TILES][0][0] = trap_R_RegisterModel("models/debris/tiles1a.md5mesh", qtrue);
+	cgs.media.debrisModels[ENTMAT_TILES][0][1] = trap_R_RegisterModel("models/debris/tiles1b.md5mesh", qtrue);
+	cgs.media.debrisModels[ENTMAT_TILES][1][0] = trap_R_RegisterModel("models/debris/tiles2a.md5mesh", qtrue);
+	cgs.media.debrisModels[ENTMAT_TILES][1][1] = trap_R_RegisterModel("models/debris/tiles2b.md5mesh", qtrue);
+	cgs.media.debrisModels[ENTMAT_TILES][2][0] = trap_R_RegisterModel("models/debris/tiles3a.md5mesh", qtrue);
+	cgs.media.debrisModels[ENTMAT_TILES][2][1] = trap_R_RegisterModel("models/debris/tiles3b.md5mesh", qtrue);
+
+	cgs.media.debrisModels[ENTMAT_PLASTER][0][0] = trap_R_RegisterModel("models/debris/plaster1a.md5mesh", qtrue);
+	cgs.media.debrisModels[ENTMAT_PLASTER][0][1] = trap_R_RegisterModel("models/debris/plaster1b.md5mesh", qtrue);
+	cgs.media.debrisModels[ENTMAT_PLASTER][1][0] = trap_R_RegisterModel("models/debris/plaster2a.md5mesh", qtrue);
+	cgs.media.debrisModels[ENTMAT_PLASTER][1][1] = trap_R_RegisterModel("models/debris/plaster2b.md5mesh", qtrue);
+	cgs.media.debrisModels[ENTMAT_PLASTER][2][0] = trap_R_RegisterModel("models/debris/plaster3a.md5mesh", qtrue);
+	cgs.media.debrisModels[ENTMAT_PLASTER][2][1] = trap_R_RegisterModel("models/debris/plaster3b.md5mesh", qtrue);
+
+	cgs.media.debrisModels[ENTMAT_FIBERS][0][0] = trap_R_RegisterModel("models/debris/fibers1a.md5mesh", qtrue);
+	cgs.media.debrisModels[ENTMAT_FIBERS][0][1] = trap_R_RegisterModel("models/debris/fibers1b.md5mesh", qtrue);
+	cgs.media.debrisModels[ENTMAT_FIBERS][1][0] = trap_R_RegisterModel("models/debris/fibers2a.md5mesh", qtrue);
+	cgs.media.debrisModels[ENTMAT_FIBERS][1][1] = trap_R_RegisterModel("models/debris/fibers2b.md5mesh", qtrue);
+	cgs.media.debrisModels[ENTMAT_FIBERS][2][0] = trap_R_RegisterModel("models/debris/fibers3a.md5mesh", qtrue);
+	cgs.media.debrisModels[ENTMAT_FIBERS][2][1] = trap_R_RegisterModel("models/debris/fibers3b.md5mesh", qtrue);
+	*/
+
+	cgs.media.debrisBit = trap_R_RegisterShader("models/debris/debrisbit");
+	cgs.media.debrisPlaster = trap_R_RegisterShader("models/debris/plaster1");
+
+	cgs.media.fire = trap_R_RegisterShader("fire1");
+	cgs.media.fireLight = trap_R_RegisterShader("fire1/light");
+	cgs.media.flames[0] = trap_R_RegisterShader("flames0");
+	cgs.media.flames[1] = trap_R_RegisterShader("flames1");
+	cgs.media.flames[2] = trap_R_RegisterShader("flames2");
+
+	//CG_LoadingString("Misc", qfalse);
+	CG_LoadingString("Your Mother, lol", qfalse); // because no one will notice :D
+
+	// weaver sword
+	cgs.media.swordModel = trap_R_RegisterModel("models/sword/sword.md5mesh", qtrue);
 	cgs.media.weaverShieldInfo = trap_R_RegisterModel("models/entities/shield_info.md5mesh", qtrue);
 
-	CG_LoadingString("particles", qfalse);
-
-	CG_InitParticles();
+	// debug utils
+	cgs.media.lightningShader = trap_R_RegisterShader("lightningBolt");
+	cgs.media.debugPlayerAABB = trap_R_RegisterShader("debugPlayerAABB");
+	cgs.media.debugPlayerAABB_twoSided = trap_R_RegisterShader("debugPlayerAABB_twoSided");
 }
 
 /*
