@@ -1,0 +1,22 @@
+This file lists third party (i.e. not owned by Weaver Team) artwork assets used in Weaver.
+Also see XreaL media license (most of these uses have been eliminated).
+
+===============================================================
+Icons from painterly set
+
+http://opengameart.org/content/painterly-spell-icons-part-1
+
+http://jwbjerk.com/art
+By: J. W. Bjerk 
+License(s):
+
+	GNU GPL 2.0
+	GNU GPL 3.0
+
+	CC-BY 3.0
+
+	CC-BY-SA 3.0
+
+These assets are located at: base/gfx/icons/spells/
+===============================================================
+
