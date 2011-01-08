@@ -850,7 +850,7 @@ void CG_NewClientInfo(int clientNum)
 	memset(&newInfo, 0, sizeof(newInfo));
 
 	if(cg.progress != 0)
-		CG_LoadingString("info", qfalse);
+		CG_LoadingString("Info", qfalse);
 
 	// isolate the player's name
 	v = Info_ValueForKey(configstring, "n");
@@ -898,7 +898,7 @@ void CG_NewClientInfo(int clientNum)
 	Q_strncpyz(newInfo.blueTeam, v, MAX_TEAMNAME);
 
 	if(cg.progress != 0)
-		CG_LoadingString("model", qfalse);
+		CG_LoadingString("Model", qfalse);
 
 	// model
 	v = Info_ValueForKey(configstring, "model");

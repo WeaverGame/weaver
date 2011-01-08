@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "cg_local.h"
 
 vec4_t          colorLines = { 0.6f, 0.6f, 0.8f, 0.15f };	// lines color
-vec4_t          colorText = { 0.9f, 0.9f, 1.0f, 0.75f };	// text color
+vec4_t          colorText = { 1.0f, 1.0f, 1.0f, 1.0f };	// text color
 vec4_t          colorProgress = { 0.7f, 0.7f, 1.0f, 0.2f };	// progress color
 
 vec4_t          text_color_disabled = { 0.50f, 0.50f, 0.50f, 0.75f };	// light gray
@@ -81,27 +81,28 @@ static void CG_DrawProgress(void)
 	vec4_t          color;
 	int             style = 0;
 
+	x = CG_INFO_SIDE_GRADIENT_WIDTH + 4;
+	y = SCREEN_HEIGHT - 8;
+
 	if(cg.progress == 0)
 	{
-		CG_Text_PaintAligned(230, 228, "Precaching ... ", 0.3f, UI_RIGHT | UI_DROPSHADOW, colorText, &cgs.media.freeSansBoldFont);
+		//CG_Text_PaintAligned(230, 228, "Precaching ... ", 0.3f, UI_RIGHT | UI_DROPSHADOW, colorText, &cgs.media.freeSansBoldFont);
 
 	}
 	else
 	{
-		CG_Text_PaintAligned(230, 228, "Loading ", 0.3f, UI_RIGHT | UI_DROPSHADOW, colorText, &cgs.media.freeSansBoldFont);
-		CG_Text_PaintAligned(230, 228, va(" %i %% ...", (int)(100 / NUM_PROGRESS * cg.progress)), 0.3f, UI_LEFT | UI_DROPSHADOW,
-							 colorText, &cgs.media.freeSansBoldFont);
+		//CG_Text_PaintAligned(230, 228, "Loading ", 0.3f, UI_RIGHT | UI_DROPSHADOW, colorText, &cgs.media.freeSansBoldFont);
+		CG_Text_PaintAligned(SCREEN_WIDTH - 2, y - 2, va("%i%%", (int)(100 / NUM_PROGRESS * cg.progress)), 0.4f, UI_RIGHT,
+							 colorText, &cgs.media.freeSansFont);
 	}
-
-	x = 0;
-	y = 450;
 
 	for(i = 0; i < NUM_PROGRESS; i++)
 	{
-		CG_DrawPic(x + i * 13, y, 8, 8, load0);
+		CG_DrawPic(x + (i * CG_INFO_LOADTILE_WIDTH), y, 6, 6, load0);
 	}
 
-	x = 0;
+	CG_DrawPic(CG_INFO_SIDE_GRADIENT_WIDTH - 8, (y - 42) + 8, 42*4, 42, title);
+
 	for(i = 0; i < cg.progress; i++)
 	{
 		VectorCopy4(colorProgress, color);
@@ -117,16 +118,17 @@ static void CG_DrawProgress(void)
 			color[3] *= 2;
 		}
 
-		CG_Text_PaintAligned(20, 440 - i * 12, cg.progressInfo[i].info, 0.2f, style, color, &cgs.media.freeSansBoldFont);
+		CG_Text_PaintAligned(10, y - i * 12, cg.progressInfo[i].info, 0.2f, style, color, &cgs.media.freeSansBoldFont);
 
-		CG_DrawPic(x + i * 13, y, 8, 8, load1);
+		CG_DrawPic(x + i * CG_INFO_LOADTILE_WIDTH, y, 6, 6, load1);
 
+		/*
 		if(i == cg.progress - 1)
 		{
 			CG_Text_PaintAligned(x + i * 16 + 8, y - 8, cg.progressInfo[i].info, 0.2f, UI_RIGHT | UI_DROPSHADOW,
 								 text_color_highlight, &cgs.media.freeSansBoldFont);
-
 		}
+		*/
 	}
 
 
@@ -167,7 +169,7 @@ void CG_DrawInformation(void)
 		load1 = trap_R_RegisterShaderNoMip("gfx/menu/load1");
 
 	if(!title)
-		title = trap_R_RegisterShaderNoMip("gfx/menu/title");
+		title = trap_R_RegisterShaderNoMip("gfx/menu/title_white");
 	if(!black_gradient)
 		black_gradient = trap_R_RegisterShaderNoMip("gfx/menu/black_gradient");
 	if(!logo_dark)
@@ -201,13 +203,13 @@ void CG_DrawInformation(void)
 	s = CG_ConfigString(CS_MOTD);
 	if(s[0])
 	{
-		CG_Text_PaintAligned(320, 110, s, 0.2f, UI_CENTER | UI_DROPSHADOW, text_color_normal, &cgs.media.freeSansBoldFont);
+		CG_Text_PaintAligned(320, 110, s, 0.2f, UI_CENTER | UI_DROPSHADOW, text_color_normal, &cgs.media.freeSansFont);
 	}
 
 	// draw info string information
-	y = 320;
+	y = 40;
 	y_offset = 14;
-	x = 340;
+	x = 10;
 
 	// don't print server lines if playing a local game
 	trap_Cvar_VariableStringBuffer("sv_running", buf, sizeof(buf));
@@ -217,14 +219,14 @@ void CG_DrawInformation(void)
 		Q_strncpyz(buf, Info_ValueForKey(info, "sv_hostname"), 1024);
 		Q_CleanStr(buf);
 		s = va("%s", buf);
-		CG_Text_PaintAligned(x, y, s, 0.2f, UI_DROPSHADOW, text_color_normal, &cgs.media.freeSansBoldFont);
+		CG_Text_PaintAligned(x, y, s, 0.2f, UI_DROPSHADOW, text_color_normal, &cgs.media.freeSansFont);
 		y += y_offset;
 
 		// pure server
 		s = Info_ValueForKey(sysInfo, "sv_pure");
 		if(s[0] == '1')
 		{
-			CG_Text_PaintAligned(x, y, "Pure Server", 0.2f, UI_DROPSHADOW, text_color_normal, &cgs.media.freeSansBoldFont);
+			CG_Text_PaintAligned(x, y, "Pure Server", 0.2f, UI_DROPSHADOW, text_color_normal, &cgs.media.freeSansFont);
 			y += y_offset;
 		}
 
@@ -236,7 +238,7 @@ void CG_DrawInformation(void)
 	s = CG_ConfigString(CS_MESSAGE);
 	if(s[0])
 	{
-		CG_Text_PaintAligned(x, y, s, 0.2f, UI_DROPSHADOW, text_color_normal, &cgs.media.freeSansBoldFont);
+		CG_Text_PaintAligned(x, y, s, 0.2f, UI_DROPSHADOW, text_color_normal, &cgs.media.freeSansFont);
 		y += y_offset;
 	}
 
@@ -244,10 +246,10 @@ void CG_DrawInformation(void)
 	s = Info_ValueForKey(sysInfo, "sv_cheats");
 	if(s[0] == '1')
 	{
-		CG_Text_PaintAligned(x, y, "Cheats are enabled", 0.2f, UI_DROPSHADOW, text_color_normal, &cgs.media.freeSansBoldFont);
+		CG_Text_PaintAligned(x, y, "Cheats are enabled", 0.2f, UI_DROPSHADOW, text_color_normal, &cgs.media.freeSansFont);
 
-		CG_Text_PaintAligned(x - 10, y + 1, ">", 0.2f, 0, text_color_warning, &cgs.media.freeSansBoldFont);
-		CG_Text_PaintAligned(x + 110, y + 1, "<", 0.2f, 0, text_color_warning, &cgs.media.freeSansBoldFont);
+		//CG_Text_PaintAligned(x - 10, y + 1, ">", 0.2f, 0, text_color_warning, &cgs.media.freeSansFont);
+		//CG_Text_PaintAligned(x + 110, y + 1, "<", 0.2f, 0, text_color_warning, &cgs.media.freeSansFont);
 
 		y += y_offset;
 	}
@@ -289,7 +291,7 @@ void CG_DrawInformation(void)
 			s = "Unknown Gametype";
 			break;
 	}
-	CG_Text_PaintAligned(x, y, s, 0.2f, UI_DROPSHADOW, text_color_normal, &cgs.media.freeSansBoldFont);
+	CG_Text_PaintAligned(x, y, s, 0.2f, UI_DROPSHADOW, text_color_normal, &cgs.media.freeSansFont);
 	y += y_offset;
 
 	value = atoi(Info_ValueForKey(info, "timelimit"));
@@ -297,7 +299,7 @@ void CG_DrawInformation(void)
 	{
 
 		CG_Text_PaintAligned(x, y, va("Timelimit %i", value), 0.2f, UI_DROPSHADOW, text_color_normal,
-							 &cgs.media.freeSansBoldFont);
+							 &cgs.media.freeSansFont);
 		y += y_offset;
 	}
 
@@ -307,7 +309,7 @@ void CG_DrawInformation(void)
 		if(value)
 		{
 			CG_Text_PaintAligned(x, y, va("Fraglimit %i", value), 0.2f, UI_DROPSHADOW, text_color_normal,
-								 &cgs.media.freeSansBoldFont);
+								 &cgs.media.freeSansFont);
 
 			y += y_offset;
 		}
@@ -318,7 +320,7 @@ void CG_DrawInformation(void)
 		if(value)
 		{
 			CG_Text_PaintAligned(x, y, va("Capturelimit %i", value), 0.2f, UI_DROPSHADOW, text_color_normal,
-								 &cgs.media.freeSansBoldFont);
+								 &cgs.media.freeSansFont);
 			y += y_offset;
 		}
 	}

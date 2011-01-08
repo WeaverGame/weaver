@@ -887,20 +887,17 @@ static void CG_RegisterGraphics(void)
 	memset(&cg.refdef, 0, sizeof(cg.refdef));
 	trap_R_ClearScene();
 
-	CG_LoadingString(cgs.mapname, qfalse);
+	CG_LoadingString("Map BSP Data", qfalse);
 
 	trap_R_LoadWorldMap(cgs.mapname);
 
-	CG_LoadingString("Precaching", qfalse);
+	CG_LoadingString("HUD", qfalse);
 
 	// precache status bar pics
-
 	for(i = 0; i < 11; i++)
 	{
 		cgs.media.numberShaders[i] = trap_R_RegisterShader(sb_nums[i]);
 	}
-
-	CG_LoadingString("HUD", qfalse);
 
 	cgs.media.hud_top_team_middle = trap_R_RegisterShaderNoMip("hud/hud_top_team_middle");
 	cgs.media.hud_top_team_middle_overlay = trap_R_RegisterShaderNoMip("hud/hud_top_team_middle_overlay");
@@ -1203,8 +1200,7 @@ static void CG_RegisterGraphics(void)
 	cgs.media.flames[1] = trap_R_RegisterShader("flames1");
 	cgs.media.flames[2] = trap_R_RegisterShader("flames2");
 
-	//CG_LoadingString("Misc", qfalse);
-	CG_LoadingString("Your Mother, lol", qfalse); // because no one will notice :D
+	CG_LoadingString("Misc", qfalse);
 
 	// weaver sword
 	cgs.media.swordModel = trap_R_RegisterModel("models/sword/sword.md5mesh", qtrue);
@@ -1480,33 +1476,35 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 
 	cg.loading = qtrue;			// force players to load instead of defer
 
-	CG_LoadingString("sounds", qtrue);
+	CG_LoadingString("Sounds", qtrue);
 
 	CG_RegisterSounds();
 
-	CG_LoadingString("graphics", qtrue);
+	CG_LoadingString("Graphics", qtrue);
 
 	CG_RegisterGraphics();
 
-	CG_LoadingString("weaves", qtrue);
+	CG_LoadingString("Weaves", qtrue);
 
 	CG_RegisterWeaves();
 
-	CG_LoadingString("clients", qtrue);
+	CG_LoadingString("Clients", qtrue);
 
 	CG_RegisterClients();		// if low on memory, some clients will be deferred
 
+	/*
 	CG_LoadingString("osd", qtrue);
 
 	CG_RegisterOSD();
+	*/
 
 	cg.loading = qfalse;		// future players will be deferred
 
-	CG_LoadingString("entities", qtrue);
+	CG_LoadingString("Entities", qtrue);
 
 	CG_InitLocalEntities();
 
-	CG_LoadingString("polys", qtrue);
+	CG_LoadingString("Polys", qtrue);
 
 	CG_InitMarkPolys();
 
@@ -1514,7 +1512,7 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 	// Make sure we have update values (scores)
 	CG_SetConfigValues();
 
-	CG_LoadingString("music", qtrue);
+	CG_LoadingString("Music", qtrue);
 
 	CG_StartMusic();
 
@@ -1530,7 +1528,6 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 	CG_ShaderStateChanged();
 
 	trap_S_ClearLoopingSounds(qtrue);
-
 
 }
 

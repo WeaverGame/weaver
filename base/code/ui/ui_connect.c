@@ -248,7 +248,8 @@ void UI_DrawConnectScreen(qboolean overlay)
 	if(trap_GetConfigString(CS_SERVERINFO, info, sizeof(info)))
 	{
 		s = va("Loading %s", Info_ValueForKey(info, "mapname"));
-		UI_Text_Paint(610, 440, 0.3f, color_white, s, 0, 0, UI_RIGHT, &uis.BTextFont);
+		//50 = CG_INFO_PERCENT_WIDTH (cg_local.h)
+		UI_Text_Paint(SCREEN_WIDTH - 50, SCREEN_HEIGHT - 15, 0.2f, color_white, s, 0, 0, UI_RIGHT, &uis.TextFont);
 	}
 
 	// display global MOTD at bottom
@@ -261,12 +262,14 @@ void UI_DrawConnectScreen(qboolean overlay)
 											  menu_text_color);
 
 		s = va("%s", cstate.messageString);
-		UI_Text_Paint(320, 60, 0.3f, color_white, s, 0, 0, UI_CENTER, &uis.BTextFont);
+		UI_Text_Paint(320, 60, 0.25f, color_red, s, 0, 0, UI_CENTER, &uis.BTextFont);
 	}
 	else
 	{
-		s = va("Connecting to %s", cstate.servername);
-		UI_Text_Paint(20, 20, 0.3f, color_white, s, 0, 0, UI_LEFT, &uis.BTextFont);
+		//110 = CG_INFO_SIDE_GRADIENT_WIDTH (cg_local.h)
+		UI_Text_Paint(110/2, 10, 0.2f, color_white, "Connecting to", 0, 0, UI_CENTER, &uis.TextFont);
+		s = va("%s", cstate.servername);
+		UI_Text_Paint(110/2, 22, 0.2f, color_white, s, 0, 0, UI_CENTER, &uis.TextFont);
 	}
 
 	if(lastConnState > cstate.connState)
@@ -304,7 +307,7 @@ void UI_DrawConnectScreen(qboolean overlay)
 			return;
 	}
 
-	UI_Text_Paint(20, 38, 0.3f, color_white, s, 0, 0, UI_LEFT, &uis.BTextFont);
+	UI_Text_Paint(5, 10, 0.2f, color_white, s, 0, 0, UI_LEFT, &uis.TextFont);
 }
 
 
