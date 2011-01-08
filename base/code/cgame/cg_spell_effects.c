@@ -25,7 +25,7 @@ void CG_WeaveMissile_Trail(centity_t * ent)
 	entityState_t  *es;
 	vec3_t          up;
 	localEntity_t  *smoke;
-	const weaver_weaveInfo *weave;
+	const weaver_weaveCGInfo *weave;
 
 	if(cg_noProjectileTrail.integer)
 	{
@@ -88,7 +88,7 @@ void WeaveEffect_Shot(centity_t * cent)
 {
 	localEntity_t  *le;
 	refEntity_t    *re;
-	const weaver_weaveInfo *weave;
+	const weaver_weaveCGInfo *weave;
 	vec3_t          dir;
 
 	weave = &cg_weaves[cent->currentState.weapon];
@@ -140,7 +140,7 @@ void WeaveEffect_Missile(centity_t * cent)
 {
 	refEntity_t     ent;
 	entityState_t  *s1;
-	const weaver_weaveInfo *weave;
+	const weaver_weaveCGInfo *weave;
 	vec3_t          velocity;
 
 	s1 = &cent->currentState;
@@ -227,7 +227,7 @@ void WeaveEffect_Instance(centity_t * cent)
 {
 	refEntity_t     ent;
 	entityState_t  *s1;
-	const weaver_weaveInfo *weave;
+	const weaver_weaveCGInfo *weave;
 
 	s1 = &cent->currentState;
 	if(s1->weapon > WVW_NUM_WEAVES)
@@ -299,7 +299,7 @@ void WeaveEffect_Earthquake(centity_t * cent)
 {
 	refEntity_t     ent[4];
 	entityState_t  *s1;
-	const weaver_weaveInfo *weave;
+	const weaver_weaveCGInfo *weave;
 	vec3_t          normalaxis[3];
 	int             k;
 	refLight_t      light;
@@ -423,7 +423,7 @@ void CG_WeaveEffect_Link(centity_t * cent)
 {
 	refEntity_t     beam;
 	entityState_t  *s1;
-	const weaver_weaveInfo *weave;
+	const weaver_weaveCGInfo *weave;
 
 	//vec3_t          velocity;
 
@@ -458,7 +458,7 @@ void WeaveEffect_Light(centity_t * cent)
 	centity_t      *player;
 	refEntity_t     ent;
 	entityState_t  *s1;
-	const weaver_weaveInfo *weave;
+	const weaver_weaveCGInfo *weave;
 	vec3_t          offset = { 0, 0, 50 };
 
 	s1 = &cent->currentState;
@@ -676,7 +676,7 @@ void CG_WeaveMissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir
 	vec3_t          partOrigin;
 	vec3_t          partVel;
 	qboolean        isSprite;
-	const weaver_weaveInfo *weave;
+	const weaver_weaveCGInfo *weave;
 
 	weave = &cg_weaves[weapon];
 

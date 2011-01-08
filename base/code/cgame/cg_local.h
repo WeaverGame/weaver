@@ -518,21 +518,12 @@ typedef struct weaponInfo_s
 #define MAX_WEAVE_INSTANCE_MODELS 4
 
 //Client weave info
-typedef struct weaver_weaveInfo_s
+typedef struct weaver_weaveCGInfo_s
 {
 	qboolean        registered;
 
 	//weave info
-	qboolean        holdable;
-	int             holdPowerCharge;
-	int             holdMaxTime;
-	int             castCharges;
-	int             castDelay;
-	weaver_powers   primaryPower;
-	weaver_effectType effectType;
-	weaver_tiers    tier;
-	weaver_group    group;
-	char           *name;
+	weaver_weaveInfo_t info;
 
 	//misc resources
 	qhandle_t       icon;
@@ -579,7 +570,7 @@ typedef struct weaver_weaveInfo_s
 	int             instanceRenderfx;
 	sfxHandle_t     instanceSound;
 	qhandle_t       instanceShader[1];
-} weaver_weaveInfo;
+} weaver_weaveCGInfo;
 
 // each IT_* item has an associated itemInfo_t
 // that constains media references necessary to present the
@@ -1486,7 +1477,7 @@ extern cgs_t    cgs;
 extern cg_t     cg;
 extern centity_t cg_entities[MAX_GENTITIES];
 extern weaponInfo_t cg_weapons[MAX_WEAPONS];
-extern weaver_weaveInfo cg_weaves[WVW_NUM_WEAVES];
+extern weaver_weaveCGInfo cg_weaves[WVW_NUM_WEAVES];
 extern itemInfo_t cg_items[MAX_ITEMS];
 extern markPoly_t cg_markPolys[MAX_MARK_POLYS];
 

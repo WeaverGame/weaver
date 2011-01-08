@@ -240,95 +240,59 @@ typedef enum
 
 typedef enum
 {
-	WVT_PLAYER_SELF = BIT(0),
+	WVT_NONE = 0,
+	WVT_SELF = BIT(0),
 	WVT_PLAYER_ALLY = BIT(1),
 	WVT_PLAYER_ENEMY = BIT(2),
 	WVT_AI_ALLY = BIT(3),
 	WVT_AI_ENEMY = BIT(4),
 	WVT_SHOT = BIT(5),
-	WVT_SPAWN_ENTITY = BIT(6),
+	WVT_ENTITY = BIT(6),
 	WVT_SURFACE = BIT(7),
 	WVT_OBJECT = BIT(8),
 	WVT_SPECIAL = BIT(9)
 } weaver_effectType;
 
+#define WVT_PLAYER_OTHER (WVT_PLAYER_ENEMY | WVT_PLAYER_ALLY)
+#define WVT_AI_OTHER (WVT_AI_ALLY | WVT_AI_ENEMY)
+
+#define WVT_PL_AI_ALLY (WVT_PLAYER_ALLY | WVT_AI_ALLY)
+#define WVT_PL_AI_ENEMY (WVT_PLAYER_ALLY | WVT_AI_ENEMY)
+#define WVT_PL_AI_OTHER (WVT_PLAYER_OTHER | WVT_AI_OTHER)
+
 typedef enum
 {
-	WTIER_1,
-	WTIER_2,
-	WTIER_3,
-	WTIER_4,
-	WTIER_5,
-	WTIER_6
+	WTIER_NONE = 0,
+	WTIER_1 = 1,
+	WTIER_2 = 2,
+	WTIER_3 = 3,
+	WTIER_4 = 3,
+	WTIER_5 = 5,
+	WTIER_6 = 6
 } weaver_tiers;
 
+#define WEAVEINFO(id,holdable,holdPowerCharge,holdMaxTime,castCharges,castDelay,primaryPower,effectType,tier,group,name,nameP) id,
 typedef enum
 {
 	WVW_NONE,
-	WVW_A_AIRFIRE_SWORD,
-	WVW_D_AIR_PROTECT,
-	WVW_D_AIR_GRAB,
-	WVW_A_AIR_BLAST,
-	WVW_A_AIR_GRABPLAYER,
-	WVW_A_AIR_BINDPLAYER,
-	WVW_D_EARTH_PROTECT,
-	WVW_D_EARTH_UNLOCK,
-	WVW_A_EARTH_QUAKE_S,
-	WVW_A_EARTH_QUAKE_M,
-	WVW_A_EARTH_QUAKE_L,
-	WVW_D_FIRE_PROTECT,
-	WVW_A_FIRE_DARTS,
-	WVW_A_FIRE_BALL,
-	WVW_A_FIRE_MULTIDARTS,
-	WVW_A_FIRE_BLOSSOMS,
-	WVW_D_WATER_HEAL_S,
-	WVW_D_WATER_CURE,
-	WVW_D_WATER_HEAL_M,
-	WVW_D_WATER_PROTECT,
-	WVW_A_WATER_ICESHARDS_S,
-	WVW_A_WATER_ICESHARDS_M,
-	WVW_D_AIRFIRE_LIGHT,
-	WVW_D_AIRFIRE_WALL,
-	WVW_D_AIRFIRE_INVIS,
-	WVW_A_AIRFIRE_LIGHTNING,
-	WVW_A_AIRWATER_DARTS_S,
-	WVW_D_AIRWATER_FOG,
-	WVW_A_AIRWATER_DARTS_M,
-	WVW_A_AIRWATER_RIP,
-	WVW_A_EARTHWATER_SLOW,
-	WVW_A_EARTHWATER_POISON,
-	WVW_A_EARTHFIRE_IGNITE,
-	WVW_D_EARTHFIRE_EXPLOSIVE_S,
-	WVW_D_EARTHFIRE_EXPLOSIVE_M,
-	WVW_D_SPIRIT_LINK,
-	WVW_D_SPIRIT_STAMINA,
-	WVW_A_SPIRIT_SLICE_S,
-	WVW_A_SPIRIT_SLICE_M,
-	WVW_A_SPIRIT_SHIELD,
-	WVW_A_SPIRIT_SLICE_L,
-	WVW_D_SPIRIT_TRAVEL,
-	WVW_A_SPIRIT_BALEFIRE,
-	WVW_A_SPIRIT_STILL,
-	WVW_A_SPIRIT_DEATHGATE,
-
+#include "spell_info.def"
 	WVW_NUM_WEAVES
 } weaver_weaves;
 
-typedef struct weaver_weaveGInfo_s
+typedef struct weaver_weaveInfo_s
 {
-	qboolean        holdable;
-	int             holdPowerCharge;
-	int             holdMaxTime;
-	int             castCharges;
-	int             castDelay;
-	weaver_powers   primaryPower;
-	weaver_effectType effectType;
-	weaver_tiers    tier;
-	weaver_group    group;
-
-	char            name;
-	char            obituary;
-} weaver_weaveGInfo_t;
+	qboolean        holdable;			// qfalse if the spell must be cast instantly
+	int             holdPowerCharge;	// amount of power used while holding it
+	int             holdMaxTime;		// maximum amount of time it can be held
+	int             castCharges;		// number of charges available to cast
+	int             castDelay;			// minmum time between casting charges
+	weaver_powers   primaryPower;		// primary power
+	weaver_effectType effectType;		// effect type
+	weaver_tiers    tier;				// tier
+	weaver_group    group;				// aggressive or defensive
+	char           *name;				// internal name, used for loading resources. [a-z]+
+	char           *nameP;				// presentable name, used for showing players. [a-zA-Z ]*
+} weaver_weaveInfo_t;
 
 typedef struct weaver_threadsMap_s weaver_threadsMap_t;
 

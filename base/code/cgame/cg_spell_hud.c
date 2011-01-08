@@ -10,7 +10,7 @@ It has weaver HUD.
 
 vec4_t          colorAir = { 0.937f, 0.90f, 0.00f, 1.0f };
 vec4_t          colorFire = { 0.94f, 0.16f, 0.16f, 1.0f };
-vec4_t          colorEarth = { 0.0f, 0.00f, 0.87f, 1.0f };
+vec4_t          colorEarth = { 0.0f, 0.87f, 0.00f, 1.0f };
 vec4_t          colorWater = { 0.0f, 0.32f, 0.906f, 1.0f };
 
 vec2_t          tutTextOffset[WVP_NUMBER] = { {0.0f, 0.0f},
@@ -258,7 +258,7 @@ Adds tutorial infromation to the weaver disk.
 */
 static void CG_DrawWeaverTutorialWeave(float x, float y, float size, int weaveID, int element, int elementCount, int depth)
 {
-	weaver_weaveInfo *weaveInfo;
+	weaver_weaveCGInfo *weaveInfo;
 	float           xo, yo;
 	int             offset;
 	int             offsetCount;
@@ -271,9 +271,9 @@ static void CG_DrawWeaverTutorialWeave(float x, float y, float size, int weaveID
 	{
 		//Display name of possible spells
 		weaveInfo = &cg_weaves[weaveID];
-		if(weaveInfo && weaveInfo->name)
+		if(weaveInfo && weaveInfo->info.nameP)
 		{
-			str = va("(%d) %s", depth, weaveInfo->name);
+			str = va("(%d) %s", depth, weaveInfo->info.nameP);
 			//half length * char width
 			offset = CG_DrawStrlen(str) * 0.5 * 4;
 			offsetCount = elementCount * 8;
@@ -342,7 +342,7 @@ Adds tutorial infromation to the weaver disk.
 */
 static void CG_DrawWeaverTutorial(float x, float y, float size)
 {
-	weaver_weaveInfo *weaveInfo;
+	weaver_weaveCGInfo *weaveInfo;
 	weaver_threadsMap_t *current;
 	int             offset;
 	char           *str;
@@ -353,9 +353,9 @@ static void CG_DrawWeaverTutorial(float x, float y, float size)
 	{
 		//Display name of current spell
 		weaveInfo = &cg_weaves[current->weaveA];
-		if(weaveInfo && weaveInfo->name)
+		if(weaveInfo && weaveInfo->info.nameP)
 		{
-			str = va("Release +weave for %s", weaveInfo->name);
+			str = va("Release +weave for %s", weaveInfo->info.nameP);
 			//half length * char width
 			offset = CG_DrawStrlen(str) * 0.5 * 6;
 			CG_DrawStringExt((320 - offset), 400, str, colorWhite, qtrue, qfalse, 6, 8, 0);
@@ -438,7 +438,7 @@ static void CG_DrawWeaverHeld(void)
 	int             i;
 	char           *thread;
 	centity_t      *cent;
-	weaver_weaveInfo *weaveInfo;
+	weaver_weaveCGInfo *weaveInfo;
 	float           x, y;
 	float           xi, yi;
 	int             count;
@@ -467,7 +467,7 @@ static void CG_DrawWeaverHeld(void)
 
 			thread =
 				va("%i: ent=%i w=%d ammo=%d/%d", i, cg.predictedPlayerState.ammo[i], cent->currentState.weapon,
-				   cent->currentState.torsoAnim, weaveInfo->castCharges);
+				   cent->currentState.torsoAnim, weaveInfo->info.castCharges);
 			CG_DrawStringExt(x + 10, y + 27, thread, colorWhite, qtrue, qfalse, 6, 8, 0);
 
 			y += 7;

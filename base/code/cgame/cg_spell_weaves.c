@@ -158,7 +158,7 @@ void CG_AddPlayerProtects(centity_t * player, playerState_t * ps, refEntity_t * 
 	refEntity_t     ent;
 	playerEntity_t *pe;
 	centity_t      *protectWeave;
-	const weaver_weaveInfo *weave;
+	const weaver_weaveCGInfo *weave;
 
 	pe = &player->pe;
 
@@ -311,7 +311,7 @@ void CG_AddPlayerHeldWeave(centity_t * player, playerState_t * ps, refEntity_t *
 	playerEntity_t *pe;
 	int             boneIndex;
 	int             i;
-	weaver_weaveInfo *weaveInfo;
+	weaver_weaveCGInfo *weaveInfo;
 	centity_t      *heldWeave;
 	vec3_t          origin;
 	int             rf;
@@ -574,8 +574,9 @@ The server says this item is used on this level
 */
 void CG_RegisterWeave(int weaveNum)
 {
-	weaver_weaveInfo *weaveInfo;
+	weaver_weaveCGInfo *weaveInfo;
 	int             num;
+	char           *s = NULL;
 
 	//gitem_t        *item, *ammo;
 	//char            path[MAX_QPATH];
@@ -595,15 +596,7 @@ void CG_RegisterWeave(int weaveNum)
 	memset(weaveInfo, 0, sizeof(*weaveInfo));
 	weaveInfo->registered = qtrue;
 
-	/*
-	if(!weaveInfo->handsModel)
-	{
-		weaveInfo->handsModel = trap_R_RegisterModel("models/weapons/shotgun/shotgun_hand.md3");
-	}
-	*/
-
 	//Defaults
-	//weaveInfo->loopFireSound = qfalse;
 	weaveInfo->exploLight = 0;
 	weaveInfo->exploMarkAlphaFade = qfalse;
 	weaveInfo->exploDuration = 0;
@@ -611,29 +604,21 @@ void CG_RegisterWeave(int weaveNum)
 
 	weaveInfo->missileTrailStep = 50;
 
-	//Set calculatable stuff
-	weaveInfo->castCharges = WeaveCharges(weaveNum);
-	weaveInfo->tier = WeaveTier(weaveNum);
+	//Set defined info
+	LoadWeaveInfo(&weaveInfo->info, weaveNum);
+
+	//Register Icon
+	s = va("gfx/icons/spells/%s", weaveInfo->info.name);
+	weaveInfo->icon = trap_R_RegisterShader(s);
 
 	switch (weaveNum)
 	{
 		case WVW_NONE:
-			weaveInfo->name = "";
 			break;
 
 		case WVW_A_AIR_BLAST:
-			//weave info
-			weaveInfo->holdable = qtrue;
-			weaveInfo->holdPowerCharge = 200;
-			weaveInfo->holdMaxTime = 0;
-			weaveInfo->castDelay = 0;
-			weaveInfo->primaryPower = WVP_AIR;
-			weaveInfo->effectType = WVT_SHOT;
-			weaveInfo->group = WVG_AGRESSIVE;
-			weaveInfo->name = "Air Blast";
 
 			//misc resources
-			weaveInfo->icon = trap_R_RegisterShader("rocketExplosion");
 			weaveInfo->firingSound = trap_S_RegisterSound("sound/weaves/airblast/cast.ogg");
 
 			//missiles
@@ -666,18 +651,8 @@ void CG_RegisterWeave(int weaveNum)
 			//weaveInfo->instanceSound;
 			break;
 		case WVW_A_FIRE_MULTIDARTS:
-			//weave info
-			weaveInfo->holdable = qtrue;
-			weaveInfo->holdPowerCharge = 200;
-			weaveInfo->holdMaxTime = 0;
-			weaveInfo->castDelay = 0;
-			weaveInfo->primaryPower = WVP_FIRE;
-			weaveInfo->effectType = WVT_SHOT;
-			weaveInfo->group = WVG_AGRESSIVE;
-			weaveInfo->name = "Fire Multidarts";
 
 			//misc resources
-			weaveInfo->icon = trap_R_RegisterShader("rocketExplosion");
 			weaveInfo->firingSound = trap_S_RegisterSound("sound/weaves/firedart/cast.ogg");
 
 			//missiles
@@ -708,18 +683,8 @@ void CG_RegisterWeave(int weaveNum)
 			//weaveInfo->instanceSound;
 			break;
 		case WVW_A_FIRE_DARTS:
-			//weave info
-			weaveInfo->holdable = qtrue;
-			weaveInfo->holdPowerCharge = 200;
-			weaveInfo->holdMaxTime = 0;
-			weaveInfo->castDelay = 0;
-			weaveInfo->primaryPower = WVP_FIRE;
-			weaveInfo->effectType = WVT_SHOT;
-			weaveInfo->group = WVG_AGRESSIVE;
-			weaveInfo->name = "Fire Darts";
 
 			//misc resources
-			weaveInfo->icon = trap_R_RegisterShader("rocketExplosion");
 			weaveInfo->firingSound = trap_S_RegisterSound("sound/weaves/firedart/cast.ogg");
 
 			//missiles
@@ -748,18 +713,8 @@ void CG_RegisterWeave(int weaveNum)
 			//weaveInfo->instanceSound;
 			break;
 		case WVW_D_AIR_PROTECT:
-			//weave info
-			weaveInfo->holdable = qtrue;
-			weaveInfo->holdPowerCharge = 200;
-			weaveInfo->holdMaxTime = 0;
-			weaveInfo->castDelay = 0;
-			weaveInfo->primaryPower = WVP_AIR;
-			weaveInfo->effectType = WVT_PLAYER_SELF;
-			weaveInfo->group = WVG_DEFENSIVE;
-			weaveInfo->name = "Air Protect";
 
 			//misc resources
-			weaveInfo->icon = trap_R_RegisterShader("rocketExplosion");
 			//weaveInfo->firingSound = trap_S_RegisterSound("sound/weapons/machinegun/par_shot_1.ogg");
 
 			//missiles
@@ -778,18 +733,8 @@ void CG_RegisterWeave(int weaveNum)
 			//weaveInfo->instanceSound;
 			break;
 		case WVW_D_FIRE_PROTECT:
-			//weave info
-			weaveInfo->holdable = qtrue;
-			weaveInfo->holdPowerCharge = 200;
-			weaveInfo->holdMaxTime = 0;
-			weaveInfo->castDelay = 0;
-			weaveInfo->primaryPower = WVP_FIRE;
-			weaveInfo->effectType = WVT_PLAYER_SELF;
-			weaveInfo->group = WVG_DEFENSIVE;
-			weaveInfo->name = "Fire Protect";
 
 			//misc resources
-			weaveInfo->icon = trap_R_RegisterShader("rocketExplosion");
 			//weaveInfo->firingSound = trap_S_RegisterSound("sound/weapons/machinegun/par_shot_1.ogg");
 
 			//missiles
@@ -809,18 +754,8 @@ void CG_RegisterWeave(int weaveNum)
 			//weaveInfo->instanceSound;
 			break;
 		case WVW_D_EARTH_PROTECT:
-			//weave info
-			weaveInfo->holdable = qtrue;
-			weaveInfo->holdPowerCharge = 200;
-			weaveInfo->holdMaxTime = 0;
-			weaveInfo->castDelay = 0;
-			weaveInfo->primaryPower = WVP_EARTH;
-			weaveInfo->effectType = WVT_PLAYER_SELF;
-			weaveInfo->group = WVG_DEFENSIVE;
-			weaveInfo->name = "Earth Protect";
 
 			//misc resources
-			weaveInfo->icon = trap_R_RegisterShader("rocketExplosion");
 			//weaveInfo->firingSound = trap_S_RegisterSound("sound/weapons/machinegun/par_shot_1.ogg");
 
 			//missiles
@@ -840,18 +775,8 @@ void CG_RegisterWeave(int weaveNum)
 			//weaveInfo->instanceSound;
 			break;
 		case WVW_D_WATER_PROTECT:
-			//weave info
-			weaveInfo->holdable = qtrue;
-			weaveInfo->holdPowerCharge = 200;
-			weaveInfo->holdMaxTime = 0;
-			weaveInfo->castDelay = 0;
-			weaveInfo->primaryPower = WVP_WATER;
-			weaveInfo->effectType = WVT_PLAYER_SELF;
-			weaveInfo->group = WVG_DEFENSIVE;
-			weaveInfo->name = "Water Protect";
 
 			//misc resources
-			weaveInfo->icon = trap_R_RegisterShader("rocketExplosion");
 			//weaveInfo->firingSound = trap_S_RegisterSound("sound/weapons/machinegun/par_shot_1.ogg");
 
 			//missiles
@@ -871,18 +796,8 @@ void CG_RegisterWeave(int weaveNum)
 			//weaveInfo->instanceSound;
 			break;
 		case WVW_A_FIRE_BALL:
-			//weave info
-			weaveInfo->holdable = qtrue;
-			weaveInfo->holdPowerCharge = 200;
-			weaveInfo->holdMaxTime = 0;
-			weaveInfo->castDelay = 0;
-			weaveInfo->primaryPower = WVP_FIRE;
-			weaveInfo->effectType = WVT_SHOT;
-			weaveInfo->group = WVG_AGRESSIVE;
-			weaveInfo->name = "Fireball";
 
 			//misc resources
-			weaveInfo->icon = trap_R_RegisterShader("rocketExplosion");
 			weaveInfo->firingSound = trap_S_RegisterSound("sound/weapons/machinegun/par_shot_1.ogg");
 
 			//missiles
@@ -918,18 +833,8 @@ void CG_RegisterWeave(int weaveNum)
 			//weaveInfo->instanceSound;
 			break;
 		case WVW_A_EARTH_QUAKE_S:
-			//weave info
-			weaveInfo->holdable = qtrue;
-			weaveInfo->holdPowerCharge = 200;
-			weaveInfo->holdMaxTime = 0;
-			weaveInfo->castDelay = 0;
-			weaveInfo->primaryPower = WVP_EARTH;
-			weaveInfo->effectType = WVT_SHOT;
-			weaveInfo->group = WVG_AGRESSIVE;
-			weaveInfo->name = "Earthquake Small";
 
 			//misc resources
-			weaveInfo->icon = trap_R_RegisterShader("rocketExplosion");
 			weaveInfo->firingSound = trap_S_RegisterSound("sound/weapons/machinegun/par_shot_1.ogg");
 
 			//missiles
@@ -962,18 +867,8 @@ void CG_RegisterWeave(int weaveNum)
 			//weaveInfo->instanceSound;
 			break;
 		case WVW_A_EARTH_QUAKE_M:
-			//weave info
-			weaveInfo->holdable = qtrue;
-			weaveInfo->holdPowerCharge = 630;
-			weaveInfo->holdMaxTime = 0;
-			weaveInfo->castDelay = 0;
-			weaveInfo->primaryPower = WVP_EARTH;
-			weaveInfo->effectType = WVT_SHOT;
-			weaveInfo->group = WVG_AGRESSIVE;
-			weaveInfo->name = "Earthquake Medium";
 
 			//misc resources
-			weaveInfo->icon = trap_R_RegisterShader("rocketExplosion");
 			weaveInfo->firingSound = trap_S_RegisterSound("sound/weapons/machinegun/par_shot_1.ogg");
 
 			//missiles
@@ -1006,18 +901,8 @@ void CG_RegisterWeave(int weaveNum)
 			//weaveInfo->instanceSound;
 			break;
 		case WVW_A_EARTH_QUAKE_L:
-			//weave info
-			weaveInfo->holdable = qtrue;
-			weaveInfo->holdPowerCharge = 840;
-			weaveInfo->holdMaxTime = 0;
-			weaveInfo->castDelay = 0;
-			weaveInfo->primaryPower = WVP_EARTH;
-			weaveInfo->effectType = WVT_SHOT;
-			weaveInfo->group = WVG_AGRESSIVE;
-			weaveInfo->name = "Earthquake Medium";
 
 			//misc resources
-			weaveInfo->icon = trap_R_RegisterShader("rocketExplosion");
 			weaveInfo->firingSound = trap_S_RegisterSound("sound/weapons/machinegun/par_shot_1.ogg");
 
 			//missiles
@@ -1050,17 +935,8 @@ void CG_RegisterWeave(int weaveNum)
 			//weaveInfo->instanceSound;
 			break;
 		case WVW_A_SPIRIT_SLICE_S:
-			weaveInfo->holdable = qtrue;
-			weaveInfo->holdPowerCharge = 200;
-			weaveInfo->holdMaxTime = 3000;
-			weaveInfo->castDelay = 0;
-			weaveInfo->primaryPower = WVP_SPIRIT;
-			weaveInfo->effectType = WVT_SHOT;
-			weaveInfo->group = WVG_AGRESSIVE;
-			weaveInfo->name = "Small Slice";
 
 			//misc resources
-			weaveInfo->icon = trap_R_RegisterShader("models/weaves/slice/icon_slice1");
 			weaveInfo->firingSound = trap_S_RegisterSound("sound/weapons/machinegun/par_shot_1.ogg");
 
 			//missiles
@@ -1079,17 +955,8 @@ void CG_RegisterWeave(int weaveNum)
 			//weaveInfo->instanceSound;
 			break;
 		case WVW_A_SPIRIT_SLICE_M:
-			weaveInfo->holdable = qtrue;
-			weaveInfo->holdPowerCharge = 200;
-			weaveInfo->holdMaxTime = 3000;
-			weaveInfo->castDelay = 0;
-			weaveInfo->primaryPower = WVP_SPIRIT;
-			weaveInfo->effectType = WVT_SHOT;
-			weaveInfo->group = WVG_AGRESSIVE;
-			weaveInfo->name = "Medium Slice";
 
 			//misc resources
-			weaveInfo->icon = trap_R_RegisterShader("models/weaves/slice/icon_slice1");
 			weaveInfo->firingSound = trap_S_RegisterSound("sound/weapons/machinegun/par_shot_1.ogg");
 
 			//missiles
@@ -1108,17 +975,8 @@ void CG_RegisterWeave(int weaveNum)
 			//weaveInfo->instanceSound;
 			break;
 		case WVW_A_SPIRIT_SLICE_L:
-			weaveInfo->holdable = qtrue;
-			weaveInfo->holdPowerCharge = 200;
-			weaveInfo->holdMaxTime = 3000;
-			weaveInfo->castDelay = 0;
-			weaveInfo->primaryPower = WVP_SPIRIT;
-			weaveInfo->effectType = WVT_SHOT;
-			weaveInfo->group = WVG_AGRESSIVE;
-			weaveInfo->name = "Large Slice";
 
 			//misc resources
-			weaveInfo->icon = trap_R_RegisterShader("models/weaves/slice/icon_slice1");
 			weaveInfo->firingSound = trap_S_RegisterSound("sound/weapons/machinegun/par_shot_1.ogg");
 
 			//missiles
@@ -1137,17 +995,8 @@ void CG_RegisterWeave(int weaveNum)
 			//weaveInfo->instanceSound;
 			break;
 		case WVW_A_SPIRIT_SHIELD:
-			weaveInfo->holdable = qtrue;
-			weaveInfo->holdPowerCharge = 200;
-			weaveInfo->holdMaxTime = 20000;
-			weaveInfo->castDelay = 0;
-			weaveInfo->primaryPower = WVP_SPIRIT;
-			weaveInfo->effectType = WVT_PLAYER_ENEMY;
-			weaveInfo->group = WVG_AGRESSIVE;
-			weaveInfo->name = "Shield";
 
 			//misc resources
-			weaveInfo->icon = trap_R_RegisterShader("rocketExplosion");
 			weaveInfo->firingSound = trap_S_RegisterSound("sound/weapons/machinegun/par_shot_1.ogg");
 
 			//missiles
@@ -1166,17 +1015,8 @@ void CG_RegisterWeave(int weaveNum)
 			//weaveInfo->instanceSound;
 			break;
 		case WVW_D_SPIRIT_LINK:
-			weaveInfo->holdable = qtrue;
-			weaveInfo->holdPowerCharge = 200;
-			weaveInfo->holdMaxTime = 3000;
-			weaveInfo->castDelay = 0;
-			weaveInfo->primaryPower = WVP_SPIRIT;
-			weaveInfo->effectType = WVT_PLAYER_ALLY;
-			weaveInfo->group = WVG_DEFENSIVE;
-			weaveInfo->name = "Link";
 
 			//misc resources
-			weaveInfo->icon = trap_R_RegisterShader("rocketExplosion");
 			weaveInfo->firingSound = trap_S_RegisterSound("sound/weapons/machinegun/par_shot_1.ogg");
 
 			//missiles
@@ -1196,18 +1036,8 @@ void CG_RegisterWeave(int weaveNum)
 			weaveInfo->instanceShader[0] = trap_R_RegisterShader("railCore");
 			break;
 		case WVW_A_WATER_ICESHARDS_S:
-			//weave info
-			weaveInfo->holdable = qtrue;
-			weaveInfo->holdPowerCharge = 200;
-			weaveInfo->holdMaxTime = 0;
-			weaveInfo->castDelay = 0;
-			weaveInfo->primaryPower = WVP_WATER;
-			weaveInfo->effectType = WVT_SHOT;
-			weaveInfo->group = WVG_AGRESSIVE;
-			weaveInfo->name = "Ice Shards";
 
 			//misc resources
-			weaveInfo->icon = trap_R_RegisterShader("rocketExplosion");
 			weaveInfo->firingSound = trap_S_RegisterSound("sound/weaves/iceshards/cast.ogg");
 
 			//missiles
@@ -1239,18 +1069,8 @@ void CG_RegisterWeave(int weaveNum)
 			//weaveInfo->instanceSound;
 			break;
 		case WVW_A_WATER_ICESHARDS_M:
-			//weave info
-			weaveInfo->holdable = qtrue;
-			weaveInfo->holdPowerCharge = 200;
-			weaveInfo->holdMaxTime = 0;
-			weaveInfo->castDelay = 0;
-			weaveInfo->primaryPower = WVP_WATER;
-			weaveInfo->effectType = WVT_SHOT;
-			weaveInfo->group = WVG_AGRESSIVE;
-			weaveInfo->name = "Multi Ice Shards";
 
 			//misc resources
-			weaveInfo->icon = trap_R_RegisterShader("rocketExplosion");
 			weaveInfo->firingSound = trap_S_RegisterSound("sound/weaves/iceshards/cast.ogg");
 
 			//missiles
@@ -1282,18 +1102,8 @@ void CG_RegisterWeave(int weaveNum)
 			//weaveInfo->instanceSound;
 			break;
 		case WVW_D_AIRFIRE_LIGHT:
-			//weave info
-			weaveInfo->holdable = qtrue;
-			weaveInfo->holdPowerCharge = 200;
-			weaveInfo->holdMaxTime = 0;
-			weaveInfo->castDelay = 0;
-			weaveInfo->primaryPower = WVP_AIRFIRE;
-			weaveInfo->effectType = WVT_PLAYER_SELF;
-			weaveInfo->group = WVG_DEFENSIVE;
-			weaveInfo->name = "Light Source";
 
 			//misc resources
-			weaveInfo->icon = trap_R_RegisterShader("rocketExplosion");
 			weaveInfo->firingSound = trap_S_RegisterSound("sound/weapons/machinegun/par_shot_1.ogg");
 
 			weaveInfo->instanceShader[0] = trap_R_RegisterShader("lightningBolt");;
@@ -1303,18 +1113,8 @@ void CG_RegisterWeave(int weaveNum)
 
 			break;
 		case WVW_D_AIRWATER_FOG:
-			//weave info
-			weaveInfo->holdable = qtrue;
-			weaveInfo->holdPowerCharge = 200;
-			weaveInfo->holdMaxTime = 0;
-			weaveInfo->castDelay = 0;
-			weaveInfo->primaryPower = WVP_AIRWATER;
-			weaveInfo->effectType = WVT_SPAWN_ENTITY;
-			weaveInfo->group = WVG_DEFENSIVE;
-			weaveInfo->name = "Fog";
 
 			//misc resources
-			weaveInfo->icon = trap_R_RegisterShader("rocketExplosion");
 			weaveInfo->firingSound = trap_S_RegisterSound("sound/weapons/machinegun/par_shot_1.ogg");
 
 			//weaveInfo->instanceShader[0] = trap_R_RegisterShader("lightningBolt");;
@@ -1324,18 +1124,8 @@ void CG_RegisterWeave(int weaveNum)
 
 			break;
 		case WVW_A_EARTHWATER_SLOW:
-			//weave info
-			weaveInfo->holdable = qtrue;
-			weaveInfo->holdPowerCharge = 200;
-			weaveInfo->holdMaxTime = 0;
-			weaveInfo->castDelay = 0;
-			weaveInfo->primaryPower = WVP_EARTHWATER;
-			weaveInfo->effectType = WVT_SHOT;
-			weaveInfo->group = WVG_AGRESSIVE;
-			weaveInfo->name = "Slow Poison";
 
 			//misc resources
-			weaveInfo->icon = trap_R_RegisterShader("rocketExplosion");
 			weaveInfo->firingSound = trap_S_RegisterSound("sound/weapons/machinegun/par_shot_1.ogg");
 
 			//missiles
@@ -1365,18 +1155,8 @@ void CG_RegisterWeave(int weaveNum)
 
 			break;
 		case WVW_A_EARTHWATER_POISON:
-			//weave info
-			weaveInfo->holdable = qtrue;
-			weaveInfo->holdPowerCharge = 200;
-			weaveInfo->holdMaxTime = 0;
-			weaveInfo->castDelay = 0;
-			weaveInfo->primaryPower = WVP_EARTHWATER;
-			weaveInfo->effectType = WVT_SHOT;
-			weaveInfo->group = WVG_AGRESSIVE;
-			weaveInfo->name = "Poison";
 
 			//misc resources
-			weaveInfo->icon = trap_R_RegisterShader("rocketExplosion");
 			weaveInfo->firingSound = trap_S_RegisterSound("sound/weapons/machinegun/par_shot_1.ogg");
 
 			//missiles
@@ -1406,87 +1186,24 @@ void CG_RegisterWeave(int weaveNum)
 			break;
 
 		case WVW_D_WATER_CURE:
-			//weave info
-			weaveInfo->holdable = qtrue;
-			weaveInfo->holdPowerCharge = 200;
-			weaveInfo->holdMaxTime = 0;
-			weaveInfo->castDelay = 0;
-			weaveInfo->primaryPower = WVP_WATER;
-			weaveInfo->effectType = WVT_PLAYER_ALLY;
-			weaveInfo->group = WVG_DEFENSIVE;
-			weaveInfo->name = "Cure";
 			break;
 
 		case WVW_A_AIRWATER_RIP:
-			//weave.info
-			weaveInfo->holdable = qtrue;
-			weaveInfo->holdPowerCharge = 200;
-			weaveInfo->holdMaxTime = 3000;
-			weaveInfo->castDelay = 0;
-			weaveInfo->primaryPower = WVP_AIRWATER;
-			weaveInfo->effectType = WVT_PLAYER_ENEMY;
-			weaveInfo->group = WVG_AGRESSIVE;
-			weaveInfo->name = "Air Rip";
 			break;
 
 		case WVW_A_AIR_GRABPLAYER:
-			//weave.info
-			weaveInfo->holdable = qtrue;
-			weaveInfo->holdPowerCharge = 200;
-			weaveInfo->holdMaxTime = 0;
-			weaveInfo->castDelay = 0;
-			weaveInfo->primaryPower = WVP_AIR;
-			weaveInfo->effectType = (WVT_PLAYER_ENEMY | WVT_PLAYER_ALLY);
-			weaveInfo->group = WVG_AGRESSIVE;
-			weaveInfo->name = "Grab Player";
 			break;
 
 		case WVW_D_WATER_HEAL_S:
-			//weave.info
-			weaveInfo->holdable = qtrue;
-			weaveInfo->holdPowerCharge = 200;
-			weaveInfo->holdMaxTime = 0;
-			weaveInfo->castDelay = 0;
-			weaveInfo->primaryPower = WVP_WATER;
-			weaveInfo->effectType = WVT_PLAYER_ALLY;
-			weaveInfo->group = WVG_DEFENSIVE;
-			weaveInfo->name = "Minor Heal";
 			break;
 
 		case WVW_D_WATER_HEAL_M:
-			//weave.info
-			weaveInfo->holdable = qtrue;
-			weaveInfo->holdPowerCharge = 200;
-			weaveInfo->holdMaxTime = 0;
-			weaveInfo->castDelay = 0;
-			weaveInfo->primaryPower = WVP_WATER;
-			weaveInfo->effectType = WVT_PLAYER_ALLY;
-			weaveInfo->group = WVG_DEFENSIVE;
-			weaveInfo->name = "Heal";
 			break;
 
 		case WVW_D_SPIRIT_STAMINA:
-			//weave.info
-			weaveInfo->holdable = qtrue;
-			weaveInfo->holdPowerCharge = 200;
-			weaveInfo->holdMaxTime = 3000;
-			weaveInfo->castDelay = 0;
-			weaveInfo->primaryPower = WVP_SPIRIT;
-			weaveInfo->effectType = WVT_PLAYER_ALLY;
-			weaveInfo->group = WVG_DEFENSIVE;
-			weaveInfo->name = "Stamina";
 			break;
 
 		case WVW_A_AIRFIRE_LIGHTNING:
-			//weave.info
-			weaveInfo->holdable = qtrue;
-			weaveInfo->holdPowerCharge = 200;
-			weaveInfo->holdMaxTime = 0;
-			weaveInfo->castDelay = 1000;
-			weaveInfo->primaryPower = WVP_AIRFIRE;
-			weaveInfo->effectType = WVT_SHOT;
-			weaveInfo->group = WVG_AGRESSIVE;
-			weaveInfo->name = "Lightning";
 
 			weaveInfo->instanceLight = 600;
 			MAKERGB(weaveInfo->instanceLightColor, 0.8f, 0.8f, 1.0f);
@@ -1502,15 +1219,6 @@ void CG_RegisterWeave(int weaveNum)
 			break;
 
 		case WVW_D_EARTHFIRE_EXPLOSIVE_S:
-			//weave.info
-			weaveInfo->holdable = qtrue;
-			weaveInfo->holdPowerCharge = 200;
-			weaveInfo->holdMaxTime = 0;
-			weaveInfo->castDelay = 1000;
-			weaveInfo->primaryPower = WVP_EARTHFIRE;
-			weaveInfo->effectType = WVT_SPAWN_ENTITY;
-			weaveInfo->group = WVG_DEFENSIVE;
-			weaveInfo->name = "Small Explosive";
 
 			weaveInfo->instanceModel[0] = trap_R_RegisterModel("models/projectiles/rocket/rocket.md3", qtrue);
 			weaveInfo->instanceLight = 70;
@@ -1528,15 +1236,6 @@ void CG_RegisterWeave(int weaveNum)
 			break;
 
 		case WVW_D_EARTHFIRE_EXPLOSIVE_M:
-			//weave.info
-			weaveInfo->holdable = qtrue;
-			weaveInfo->holdPowerCharge = 200;
-			weaveInfo->holdMaxTime = 0;
-			weaveInfo->castDelay = 1000;
-			weaveInfo->primaryPower = WVP_EARTHFIRE;
-			weaveInfo->effectType = WVT_SHOT;
-			weaveInfo->group = WVG_DEFENSIVE;
-			weaveInfo->name = "Medium Explosive";
 
 			weaveInfo->instanceModel[0] = trap_R_RegisterModel("models/projectiles/rocket/rocket.md3", qtrue);
 			weaveInfo->instanceLight = 100;

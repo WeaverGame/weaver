@@ -17,7 +17,7 @@ generic sound (if available)
 */
 void WeaveCast(centity_t * cent)
 {
-	const weaver_weaveInfo *weave;
+	const weaver_weaveCGInfo *weave;
 
 	weave = &cg_weaves[cent->currentState.eventParm];
 

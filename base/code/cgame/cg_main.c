@@ -91,7 +91,7 @@ cg_t            cg;
 cgs_t           cgs;
 centity_t       cg_entities[MAX_GENTITIES];
 weaponInfo_t    cg_weapons[MAX_WEAPONS];
-weaver_weaveInfo cg_weaves[WVW_NUM_WEAVES];
+weaver_weaveCGInfo cg_weaves[WVW_NUM_WEAVES];
 itemInfo_t      cg_items[MAX_ITEMS];
 
 

@@ -978,6 +978,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\spell_info.def"
+				>
+			</File>
+			<File
 				RelativePath=".\spell_shared.h"
 				>
 			</File>

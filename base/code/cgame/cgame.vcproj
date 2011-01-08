@@ -865,6 +865,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\game\spell_info.def"
+				>
+			</File>
+			<File
 				RelativePath="..\game\spell_shared.h"
 				>
 			</File>

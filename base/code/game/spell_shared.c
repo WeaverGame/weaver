@@ -323,67 +323,25 @@ void WeaveProtectScales(int weavenum, float *airprotect, float *fireprotect, flo
 	}
 }
 
-/*
-=================
-WeaveTier
-
-Returns the tier of a weave.
-=================
-*/
-int WeaveTier(int weaveID)
+#define WEAVEINFO(id,holdable,holdPowerCharge,holdMaxTime,castCharges,castDelay,primaryPower,effectType,tier,group,name,nameP) case (id): return (holdable);
+qboolean WeaveHoldable(int weaveID)
 {
-	switch (weaveID)
+	switch(weaveID)
 	{
-		case WVW_A_AIRFIRE_SWORD:
-		case WVW_D_AIRFIRE_LIGHT:
-		case WVW_D_AIR_PROTECT:
-		case WVW_D_FIRE_PROTECT:
-		case WVW_D_SPIRIT_LINK:
-		case WVW_D_EARTH_UNLOCK:
-		case WVW_A_EARTHFIRE_IGNITE:
-		case WVW_D_EARTHFIRE_EXPLOSIVE_S:
-		case WVW_A_SPIRIT_SLICE_S:
-		case WVW_D_WATER_HEAL_S:
-		case WVW_D_SPIRIT_STAMINA:
-		case WVW_D_AIR_GRAB:
-		case WVW_A_AIR_BLAST:
-		case WVW_A_EARTH_QUAKE_S:
-		case WVW_A_FIRE_DARTS:
-		case WVW_A_AIRWATER_DARTS_S:
-		case WVW_A_EARTHWATER_SLOW:
-			return 1;
-		case WVW_D_AIRWATER_FOG:
-		case WVW_D_AIRFIRE_WALL:
-		case WVW_D_EARTHFIRE_EXPLOSIVE_M:
-		case WVW_A_SPIRIT_SLICE_M:
-		case WVW_D_WATER_HEAL_M:
-		case WVW_D_WATER_CURE:
-		case WVW_A_AIR_GRABPLAYER:
-		case WVW_A_EARTH_QUAKE_M:
-		case WVW_A_FIRE_BALL:
-		case WVW_A_AIRWATER_DARTS_M:
-		case WVW_A_EARTHWATER_POISON:
-		case WVW_A_SPIRIT_SHIELD:
-		case WVW_A_WATER_ICESHARDS_S:
-			return 2;
-		case WVW_D_AIRFIRE_INVIS:
-		case WVW_A_AIR_BINDPLAYER:
-		case WVW_A_EARTH_QUAKE_L:
-		case WVW_A_FIRE_MULTIDARTS:
-		case WVW_A_WATER_ICESHARDS_M:
-		case WVW_A_AIRWATER_RIP:
-			return 3;
-		case WVW_A_SPIRIT_SLICE_L:
-		case WVW_A_AIRFIRE_LIGHTNING:
-			return 4;
-		case WVW_D_SPIRIT_TRAVEL:
-		case WVW_A_FIRE_BLOSSOMS:
-			return 5;
-		case WVW_A_SPIRIT_STILL:
-		case WVW_A_SPIRIT_BALEFIRE:
-		case WVW_A_SPIRIT_DEATHGATE:
-			return 6;
-			//anything else is an error.
+#include "spell_info.def"
+		case WVW_NONE:
+		case -1:
+		default:
+			return qfalse;
+	}
+}
+
+#define WEAVEINFO(id,holdable,holdPowerCharge,holdMaxTime,castCharges,castDelay,primaryPower,effectType,tier,group,name,nameP) case (id): return (holdPowerCharge);
+int WeaveHoldPower(int weaveID)
+{
+	switch(weaveID)
+	{
+#include "spell_info.def"
 		case WVW_NONE:
 		case -1:
 		default:
@@ -391,33 +349,134 @@ int WeaveTier(int weaveID)
 	}
 }
 
-/*
-=================
-WeaveCharges
+#define WEAVEINFO(id,holdable,holdPowerCharge,holdMaxTime,castCharges,castDelay,primaryPower,effectType,tier,group,name,nameP) case (id): return (tier);
+weaver_tiers WeaveTier(int weaveID)
+{
+	switch(weaveID)
+	{
+#include "spell_info.def"
+		case WVW_NONE:
+		case -1:
+		default:
+			return WTIER_NONE;
+	}
+}
 
-Returns the maximum number of charges for a given type of weave.
-=================
-*/
+#define WEAVEINFO(id,holdable,holdPowerCharge,holdMaxTime,castCharges,castDelay,primaryPower,effectType,tier,group,name,nameP) case (id): return (primaryPower);
+weaver_powers WeavePrimaryPower(int weaveID)
+{
+	switch(weaveID)
+	{
+#include "spell_info.def"
+		case WVW_NONE:
+		case -1:
+		default:
+			return WVP_NONE;
+	}
+}
+
+#define WEAVEINFO(id,holdable,holdPowerCharge,holdMaxTime,castCharges,castDelay,primaryPower,effectType,tier,group,name,nameP) case (id): return (name);
+char *WeaveName(int weaveID)
+{
+	switch(weaveID)
+	{
+#include "spell_info.def"
+		case WVW_NONE:
+		case -1:
+		default:
+			return "";
+	}
+}
+
+#define WEAVEINFO(id,holdable,holdPowerCharge,holdMaxTime,castCharges,castDelay,primaryPower,effectType,tier,group,name,nameP) case (id): return (nameP);
+char *WeaveNameP(int weaveID)
+{
+	switch(weaveID)
+	{
+#include "spell_info.def"
+		case WVW_NONE:
+		case -1:
+		default:
+			return "";
+	}
+}
+
+#define WEAVEINFO(id,holdable,holdPowerCharge,holdMaxTime,castCharges,castDelay,primaryPower,effectType,tier,group,name,nameP) case (id): return (effectType);
+int WeaveEffectType(int weaveID)
+{
+	switch(weaveID)
+	{
+#include "spell_info.def"
+		case WVW_NONE:
+		case -1:
+		default:
+			return 0;
+	}
+}
+
+#define WEAVEINFO(id,holdable,holdPowerCharge,holdMaxTime,castCharges,castDelay,primaryPower,effectType,tier,group,name,nameP) case (id): return (holdMaxTime);
+int WeaveHoldMaxTime(int weaveID)
+{
+	switch(weaveID)
+	{
+#include "spell_info.def"
+		case WVW_NONE:
+		case -1:
+		default:
+			return 0;
+	}
+}
+
+#define WEAVEINFO(id,holdable,holdPowerCharge,holdMaxTime,castCharges,castDelay,primaryPower,effectType,tier,group,name,nameP) case (id): return (castDelay);
+int WeaveCastDelay(int weaveID)
+{
+	switch(weaveID)
+	{
+#include "spell_info.def"
+		case WVW_NONE:
+		case -1:
+		default:
+			return 0;
+	}
+}
+
+#define WEAVEINFO(id,holdable,holdPowerCharge,holdMaxTime,castCharges,castDelay,primaryPower,effectType,tier,group,name,nameP) case (id): return (group);
+weaver_group WeaveADGroup(int weaveID)
+{
+	switch(weaveID)
+	{
+#include "spell_info.def"
+		case WVW_NONE:
+		case -1:
+		default:
+			return WVG_AGRESSIVE; // whatever
+	}
+}
+
+#define WEAVEINFO(id,holdable,holdPowerCharge,holdMaxTime,castCharges,castDelay,primaryPower,effectType,tier,group,name,nameP) case (id): return (castCharges);
 int WeaveCharges(int weaveID)
 {
-	switch (weaveID)
+	switch(weaveID)
 	{
-		case WVW_A_FIRE_MULTIDARTS:
-			return 20;
-		case WVW_A_FIRE_DARTS:
-			return 16;
-		case WVW_A_AIRWATER_DARTS_S:
-		case WVW_A_AIRWATER_DARTS_M:
-		case WVW_A_WATER_ICESHARDS_S:
-		case WVW_A_WATER_ICESHARDS_M:
-			return 3;
-		case WVW_A_FIRE_BALL:
-		case WVW_A_AIR_BLAST:
-		case WVW_A_SPIRIT_SLICE_S:
-		case WVW_A_SPIRIT_SLICE_M:
-		case WVW_A_SPIRIT_SLICE_L:
-			return 2;
+#include "spell_info.def"
+		case WVW_NONE:
+		case -1:
 		default:
 			return 1;
 	}
+}
+
+void LoadWeaveInfo(weaver_weaveInfo_t *info, int weaveID)
+{
+	info->holdable = WeaveHoldable(weaveID);
+	info->holdPowerCharge = WeaveHoldPower(weaveID);
+	info->holdMaxTime = WeaveHoldMaxTime(weaveID);
+	info->castCharges = WeaveCharges(weaveID);
+	info->castDelay = WeaveCastDelay(weaveID);
+	info->primaryPower = WeavePrimaryPower(weaveID);
+	info->effectType = WeaveEffectType(weaveID);
+	info->tier = WeaveTier(weaveID);
+	info->group = WeaveADGroup(weaveID);
+	info->name = WeaveName(weaveID);
+	info->nameP = WeaveNameP(weaveID);
 }
