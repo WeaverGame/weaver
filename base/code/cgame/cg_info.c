@@ -26,10 +26,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 vec4_t          colorLines = { 0.6f, 0.6f, 0.8f, 0.15f };	// lines color
 vec4_t          colorText = { 1.0f, 1.0f, 1.0f, 1.0f };	// text color
+vec4_t          colorTextGrey = { 0.7f, 0.7f, 0.7f, 1.0f };	// text color grey
 vec4_t          colorProgress = { 0.7f, 0.7f, 1.0f, 0.2f };	// progress color
 
 vec4_t          text_color_disabled = { 0.50f, 0.50f, 0.50f, 0.75f };	// light gray
-vec4_t          text_color_normal = { 0.9f, 0.9f, 1.0f, 0.5f };	// light blue/gray
+vec4_t          text_color_normal = { 0.9f, 0.9f, 1.0f, 0.8f };	// light blue/gray
 vec4_t          text_color_highlight = { 0.90f, 0.90f, 1.00f, 0.95f };	// bright white
 
 vec4_t          text_color_warning = { 0.90f, 0.10f, 0.10f, 0.75f };	// bright white
@@ -44,6 +45,7 @@ qhandle_t       menuback = 0;
 qhandle_t       black_gradient = 0;
 qhandle_t       logo_dark = 0;
 qhandle_t       title = 0;
+qhandle_t       title_white = 0;
 
 /*
 ======================
@@ -93,15 +95,13 @@ static void CG_DrawProgress(void)
 	{
 		//CG_Text_PaintAligned(230, 228, "Loading ", 0.3f, UI_RIGHT | UI_DROPSHADOW, colorText, &cgs.media.freeSansBoldFont);
 		CG_Text_PaintAligned(SCREEN_WIDTH - 2, y - 2, va("%i%%", (int)(100 / NUM_PROGRESS * cg.progress)), 0.4f, UI_RIGHT,
-							 colorText, &cgs.media.freeSansFont);
+			(levelshot ? colorText : colorTextGrey), &cgs.media.freeSansFont);
 	}
 
 	for(i = 0; i < NUM_PROGRESS; i++)
 	{
 		CG_DrawPic(x + (i * CG_INFO_LOADTILE_WIDTH), y, 6, 6, load0);
 	}
-
-	CG_DrawPic(CG_INFO_SIDE_GRADIENT_WIDTH - 8, (y - 42) + 8, 42*4, 42, title);
 
 	for(i = 0; i < cg.progress; i++)
 	{
@@ -144,6 +144,7 @@ Draw all the status / pacifier stuff during level loading
 void CG_DrawInformation(void)
 {
 	const char     *s = NULL;
+	const char     *loadingmap = NULL;
 	const char     *info;
 	const char     *sysInfo;
 	int             x, y;
@@ -169,7 +170,9 @@ void CG_DrawInformation(void)
 		load1 = trap_R_RegisterShaderNoMip("gfx/menu/load1");
 
 	if(!title)
-		title = trap_R_RegisterShaderNoMip("gfx/menu/title_white");
+		title = trap_R_RegisterShaderNoMip("gfx/menu/title");
+	if(!title_white)
+		title_white = trap_R_RegisterShaderNoMip("gfx/menu/title_white");
 	if(!black_gradient)
 		black_gradient = trap_R_RegisterShaderNoMip("gfx/menu/black_gradient");
 	if(!logo_dark)
@@ -183,13 +186,18 @@ void CG_DrawInformation(void)
 
 	//mapshot
 	trap_R_SetColor(NULL);
+	loadingmap = va("Loading %s", s);
 	if(levelshot)
 	{
 		CG_DrawPic(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, levelshot);
+		CG_DrawPic(CG_INFO_SIDE_GRADIENT_WIDTH - 9, (SCREEN_HEIGHT - 50) + 8, 42*4, 42, title_white);
+		CG_Text_PaintAligned(SCREEN_WIDTH - CG_INFO_PERCENT_WIDTH, SCREEN_HEIGHT - 15, loadingmap, 0.2f, UI_RIGHT, colorText, &cgs.media.freeSansFont);
 	}
 	else
 	{
 		CG_DrawPic((SCREEN_WIDTH - CG_INFO_LOGO_WIDTH)/2, (SCREEN_HEIGHT - (CG_INFO_LOGO_WIDTH*2))/2, CG_INFO_LOGO_WIDTH, CG_INFO_LOGO_WIDTH*2, levelshotDefault);
+		CG_DrawPic(CG_INFO_SIDE_GRADIENT_WIDTH - 9, (SCREEN_HEIGHT - 50) + 8, 42*4, 42, title);
+		CG_Text_PaintAligned(SCREEN_WIDTH - CG_INFO_PERCENT_WIDTH, SCREEN_HEIGHT - 15, loadingmap, 0.2f, UI_RIGHT, colorTextGrey, &cgs.media.freeSansFont);
 	}
 
 	// left side
@@ -209,7 +217,7 @@ void CG_DrawInformation(void)
 	// draw info string information
 	y = 40;
 	y_offset = 14;
-	x = 10;
+	x = 6;
 
 	// don't print server lines if playing a local game
 	trap_Cvar_VariableStringBuffer("sv_running", buf, sizeof(buf));

@@ -244,6 +244,8 @@ void UI_DrawConnectScreen(qboolean overlay)
 	// see what information we should display
 	trap_GetClientState(&cstate);
 
+	/*
+	// now drawn in cg_info.c
 	info[0] = '\0';
 	if(trap_GetConfigString(CS_SERVERINFO, info, sizeof(info)))
 	{
@@ -251,6 +253,7 @@ void UI_DrawConnectScreen(qboolean overlay)
 		//50 = CG_INFO_PERCENT_WIDTH (cg_local.h)
 		UI_Text_Paint(SCREEN_WIDTH - 50, SCREEN_HEIGHT - 15, 0.2f, color_white, s, 0, 0, UI_RIGHT, &uis.TextFont);
 	}
+	*/
 
 	// display global MOTD at bottom
 	//UI_DrawProportionalString(SCREEN_WIDTH / 2, SCREEN_HEIGHT - 32,                             Info_ValueForKey(cstate.updateInfoString, "motd"), UI_CENTER | UI_SMALLFONT | UI_DROPSHADOW,                            menu_text_color);
