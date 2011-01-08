@@ -374,12 +374,6 @@ void WeaveEffect_Protect(centity_t * cent)
 	playerEntity_t *pe;
 	int             slot;
 
-	if(cg.clientNum == cent->currentState.generic1 && !cg.renderingThirdPerson)
-	{
-		//Threads belong to this player, first person
-		return;
-	}
-
 	if(cg.predictedPlayerState.clientNum == cent->currentState.generic1)
 	{
 		//Heldweave belong to this client.

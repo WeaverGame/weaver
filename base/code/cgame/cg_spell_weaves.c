@@ -160,6 +160,12 @@ void CG_AddPlayerProtects(centity_t * player, playerState_t * ps, refEntity_t * 
 	centity_t      *protectWeave;
 	const weaver_weaveCGInfo *weave;
 
+	if(cg.clientNum == player->currentState.clientNum && !cg.renderingThirdPerson)
+	{
+		//Threads belong to this player, first person
+		return;
+	}
+
 	pe = &player->pe;
 
 	memset(&ent, 0, sizeof(ent));
