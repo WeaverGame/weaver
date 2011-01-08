@@ -1624,8 +1624,8 @@ void UI_Refresh(int realtime)
 
 	UI_SetColor(NULL);
 
-// draw cursor
-	UI_DrawHandlePic(uis.cursorx - 24, uis.cursory - 24, 46, 46, uis.cursor);
+	// draw cursor
+	UI_DrawHandlePic(uis.cursorx, uis.cursory, 24, 24, uis.cursor);
 
 
 	/*

@@ -1938,7 +1938,7 @@ void Menu_Cache(void)
 	uis.scanMain[1] = trap_R_RegisterShaderNoMip("gfx/menu/scan2");
 	uis.playerPicMain = trap_R_RegisterShaderNoMip("gfx/menu/playerpic");
 
-	uis.cursor = trap_R_RegisterShaderNoMip("ui/cursor");
+	uis.cursor = trap_R_RegisterShaderNoMip("gfx/menu/cursor");
 
 	uis.whiteShader = trap_R_RegisterShaderNoMip("white");
 
