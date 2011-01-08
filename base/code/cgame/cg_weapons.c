@@ -1922,10 +1922,12 @@ void CG_AddViewWeapon(playerState_t * ps)
 
 		if(cg.predictedPlayerState.eFlags & EF_FIRING)
 		{
+			/*
 			// special hack for lightning gun...
 			VectorCopy(cg.refdef.vieworg, origin);
 			VectorMA(origin, -8, cg.refdef.viewaxis[2], origin);
 			CG_LightningBolt(&cg_entities[ps->clientNum], origin);
+			*/
 		}
 		return;
 	}
