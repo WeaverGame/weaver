@@ -899,6 +899,7 @@ static void CG_RegisterGraphics(void)
 		cgs.media.numberShaders[i] = trap_R_RegisterShader(sb_nums[i]);
 	}
 
+	/*
 	cgs.media.hud_top_team_middle = trap_R_RegisterShaderNoMip("hud/hud_top_team_middle");
 	cgs.media.hud_top_team_middle_overlay = trap_R_RegisterShaderNoMip("hud/hud_top_team_middle_overlay");
 	cgs.media.hud_top_team_left = trap_R_RegisterShaderNoMip("hud/hud_top_team_left");
@@ -929,6 +930,7 @@ static void CG_RegisterGraphics(void)
 
 	cgs.media.hud_icon_health = trap_R_RegisterShaderNoMip("hud/hud_icon_health");
 	cgs.media.hud_icon_armor = trap_R_RegisterShaderNoMip("hud/hud_icon_armor");
+	*/
 
 	cgs.media.osd_button = trap_R_RegisterShaderNoMip("ui/button");
 	cgs.media.osd_button_focus = trap_R_RegisterShaderNoMip("ui/button_focus");
@@ -941,12 +943,16 @@ static void CG_RegisterGraphics(void)
 	cgs.media.scoreboardScore = trap_R_RegisterShaderNoMip("menu/tab/score.tga");
 	cgs.media.scoreboardTime = trap_R_RegisterShaderNoMip("menu/tab/time.tga");
 
+	/*
 	cgs.media.backTileShader = trap_R_RegisterShader("gfx/2d/backtile");
 	cgs.media.noammoShader = trap_R_RegisterShader("icons/noammo");
+	*/
 
+	/*
 	cgs.media.sideBarItemShader = trap_R_RegisterShaderNoMip("hud/sidebar_item");
 	cgs.media.sideBarItemSelectShader = trap_R_RegisterShaderNoMip("hud/sidebar_item_select");
 	cgs.media.sideBarPowerupShader = trap_R_RegisterShaderNoMip("hud/sidebar_powerup");
+	*/
 
 	// weaver disc
 	for(i = 1; i <= NUM_WEAVERDISCS; i++)
