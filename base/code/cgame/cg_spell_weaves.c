@@ -237,7 +237,6 @@ void CG_AddPlayerThreads(centity_t * player, playerState_t * ps, refEntity_t * p
 	int             i;
 	refEntity_t     ent;
 	playerEntity_t *pe;
-	int             boneIndex;
 	vec3_t          pos;
 	float           d;
 

@@ -19,7 +19,6 @@ sound should only be done on the world model case.
 void CG_AddPlayerSword(refEntity_t * parent, playerState_t * ps, centity_t * cent, int team)
 {
 	refEntity_t     sword;
-	vec3_t          angles;
 	int             boneIndex;
 	weapon_t        weaponNum;
 	centity_t      *nonPredictedCent;
