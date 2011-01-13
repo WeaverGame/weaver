@@ -203,7 +203,7 @@ static void Demos_MenuInit(void)
 	s_demos.back.width = 128;
 	s_demos.back.height = 64;
 	s_demos.back.focuspic = UI_ART_BUTTON_FOCUS;
-	s_demos.back.generic.caption.text = "back";
+	s_demos.back.generic.caption.text = "Back";
 	s_demos.back.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	s_demos.back.generic.caption.fontsize = 0.6f;
 	s_demos.back.generic.caption.font = &uis.buttonFont;
@@ -221,7 +221,7 @@ static void Demos_MenuInit(void)
 	s_demos.go.width = 128;
 	s_demos.go.height = 64;
 	s_demos.go.focuspic = UI_ART_BUTTON_FOCUS;
-	s_demos.go.generic.caption.text = "go";
+	s_demos.go.generic.caption.text = "Go";
 	s_demos.go.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	s_demos.go.generic.caption.fontsize = 0.6f;
 	s_demos.go.generic.caption.font = &uis.buttonFont;

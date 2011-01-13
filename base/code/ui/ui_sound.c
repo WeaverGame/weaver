@@ -178,7 +178,7 @@ static void UI_SoundOptionsMenu_Init(void)
 	soundOptionsInfo.graphics.width = 128;
 	soundOptionsInfo.graphics.height = 64;
 	soundOptionsInfo.graphics.focuspic = UI_ART_BUTTON_FOCUS;
-	soundOptionsInfo.graphics.generic.caption.text = "graphics";
+	soundOptionsInfo.graphics.generic.caption.text = "Graphics";
 	soundOptionsInfo.graphics.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	soundOptionsInfo.graphics.generic.caption.fontsize = 0.6f;
 	soundOptionsInfo.graphics.generic.caption.font = &uis.buttonFont;
@@ -196,7 +196,7 @@ static void UI_SoundOptionsMenu_Init(void)
 	soundOptionsInfo.sound.width = 128;
 	soundOptionsInfo.sound.height = 64;
 	soundOptionsInfo.sound.focuspic = UI_ART_BUTTON_FOCUS;
-	soundOptionsInfo.sound.generic.caption.text = "sound";
+	soundOptionsInfo.sound.generic.caption.text = "Sound";
 	soundOptionsInfo.sound.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	soundOptionsInfo.sound.generic.caption.fontsize = 0.6f;
 	soundOptionsInfo.sound.generic.caption.font = &uis.buttonFont;
@@ -213,7 +213,7 @@ static void UI_SoundOptionsMenu_Init(void)
 	soundOptionsInfo.network.width = 128;
 	soundOptionsInfo.network.height = 64;
 	soundOptionsInfo.network.focuspic = UI_ART_BUTTON_FOCUS;
-	soundOptionsInfo.network.generic.caption.text = "network";
+	soundOptionsInfo.network.generic.caption.text = "Network";
 	soundOptionsInfo.network.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	soundOptionsInfo.network.generic.caption.fontsize = 0.6f;
 	soundOptionsInfo.network.generic.caption.font = &uis.buttonFont;
@@ -272,7 +272,7 @@ static void UI_SoundOptionsMenu_Init(void)
 	soundOptionsInfo.back.width = 128;
 	soundOptionsInfo.back.height = 64;
 	soundOptionsInfo.back.focuspic = UI_ART_BUTTON_FOCUS;
-	soundOptionsInfo.back.generic.caption.text = "back";
+	soundOptionsInfo.back.generic.caption.text = "Back";
 	soundOptionsInfo.back.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	soundOptionsInfo.back.generic.caption.fontsize = 0.6f;
 	soundOptionsInfo.back.generic.caption.font = &uis.buttonFont;

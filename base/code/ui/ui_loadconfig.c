@@ -189,7 +189,7 @@ static void LoadConfig_MenuInit(void)
 	s_configs.back.width = 128;
 	s_configs.back.height = 64;
 	s_configs.back.focuspic = UI_ART_BUTTON_FOCUS;
-	s_configs.back.generic.caption.text = "back";
+	s_configs.back.generic.caption.text = "Back";
 	s_configs.back.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	s_configs.back.generic.caption.fontsize = 0.6f;
 	s_configs.back.generic.caption.font = &uis.buttonFont;
@@ -207,7 +207,7 @@ static void LoadConfig_MenuInit(void)
 	s_configs.go.width = 128;
 	s_configs.go.height = 64;
 	s_configs.go.focuspic = UI_ART_BUTTON_FOCUS;
-	s_configs.go.generic.caption.text = "fight";
+	s_configs.go.generic.caption.text = "Fight";
 	s_configs.go.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	s_configs.go.generic.caption.fontsize = 0.6f;
 	s_configs.go.generic.caption.font = &uis.buttonFont;

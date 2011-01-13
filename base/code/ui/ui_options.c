@@ -212,7 +212,7 @@ void Options_MenuInit(void)
 	s_options.back.width = 128;
 	s_options.back.height = 64;
 	s_options.back.focuspic = UI_ART_BUTTON_FOCUS;
-	s_options.back.generic.caption.text = "back";
+	s_options.back.generic.caption.text = "Back";
 	s_options.back.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	s_options.back.generic.caption.fontsize = 0.6f;
 	s_options.back.generic.caption.font = &uis.buttonFont;

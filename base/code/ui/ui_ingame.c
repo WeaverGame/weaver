@@ -216,6 +216,7 @@ void InGame_MenuInit(void)
 	s_ingame.team.color = color_white;
 	s_ingame.team.style = UI_CENTER | UI_DROPSHADOW;
 
+	/*
 	y += INGAME_MENU_VERTICAL_SPACING;
 	s_ingame.addbots.generic.type = MTYPE_PTEXT;
 	s_ingame.addbots.generic.flags = QMF_CENTER_JUSTIFY | QMF_PULSEIFFOCUS;
@@ -245,6 +246,7 @@ void InGame_MenuInit(void)
 	{
 		s_ingame.removebots.generic.flags |= QMF_GRAYED;
 	}
+	*/
 
 	if((trap_Cvar_VariableValue("g_gametype") >= GT_TEAM))
 	{
@@ -301,7 +303,7 @@ void InGame_MenuInit(void)
 	s_ingame.restart.width = 128;
 	s_ingame.restart.height = 64;
 	s_ingame.restart.focuspic = UI_ART_BUTTON_FOCUS;
-	s_ingame.restart.generic.caption.text = "RESTART";
+	s_ingame.restart.generic.caption.text = "Restart";
 	s_ingame.restart.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	s_ingame.restart.generic.caption.fontsize = 0.6f;
 	s_ingame.restart.generic.caption.font = &uis.buttonFont;
@@ -341,7 +343,7 @@ void InGame_MenuInit(void)
 	s_ingame.leave.width = 128;
 	s_ingame.leave.height = 64;
 	s_ingame.leave.focuspic = UI_ART_BUTTON_FOCUS;
-	s_ingame.leave.generic.caption.text = "leave";
+	s_ingame.leave.generic.caption.text = "Leave";
 	s_ingame.leave.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	s_ingame.leave.generic.caption.fontsize = 0.6f;
 	s_ingame.leave.generic.caption.font = &uis.buttonFont;
@@ -359,7 +361,7 @@ void InGame_MenuInit(void)
 	s_ingame.resume.width = 128;
 	s_ingame.resume.height = 64;
 	s_ingame.resume.focuspic = UI_ART_BUTTON_FOCUS;
-	s_ingame.resume.generic.caption.text = "back";
+	s_ingame.resume.generic.caption.text = "Back";
 	s_ingame.resume.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	s_ingame.resume.generic.caption.fontsize = 0.6f;
 	s_ingame.resume.generic.caption.font = &uis.buttonFont;
@@ -369,8 +371,8 @@ void InGame_MenuInit(void)
 
 	Menu_AddItem(&s_ingame.menu, &s_ingame.banner);
 	Menu_AddItem(&s_ingame.menu, &s_ingame.team);
-	Menu_AddItem(&s_ingame.menu, &s_ingame.addbots);
-	Menu_AddItem(&s_ingame.menu, &s_ingame.removebots);
+	//Menu_AddItem(&s_ingame.menu, &s_ingame.addbots);
+	//Menu_AddItem(&s_ingame.menu, &s_ingame.removebots);
 
 	if((trap_Cvar_VariableValue("g_gametype") >= GT_TEAM))
 		Menu_AddItem(&s_ingame.menu, &s_ingame.teamorders);

@@ -305,7 +305,7 @@ static void UI_CinematicsMenu_Init(void)
 	cinematicsMenuInfo.back.width = 128;
 	cinematicsMenuInfo.back.height = 64;
 	cinematicsMenuInfo.back.focuspic = UI_ART_BUTTON_FOCUS;
-	cinematicsMenuInfo.back.generic.caption.text = "back";
+	cinematicsMenuInfo.back.generic.caption.text = "Back";
 	cinematicsMenuInfo.back.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	cinematicsMenuInfo.back.generic.caption.fontsize = 0.6f;
 	cinematicsMenuInfo.back.generic.caption.font = &uis.buttonFont;

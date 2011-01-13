@@ -380,7 +380,7 @@ static void UI_AddBotsMenu_Init(void)
 	addBotsMenuInfo.go.width = 128;
 	addBotsMenuInfo.go.height = 64;
 	addBotsMenuInfo.go.focuspic = UI_ART_BUTTON_FOCUS;
-	addBotsMenuInfo.go.generic.caption.text = "add";
+	addBotsMenuInfo.go.generic.caption.text = "Add";
 	addBotsMenuInfo.go.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	addBotsMenuInfo.go.generic.caption.fontsize = 0.6f;
 	addBotsMenuInfo.go.generic.caption.font = &uis.buttonFont;
@@ -397,7 +397,7 @@ static void UI_AddBotsMenu_Init(void)
 	addBotsMenuInfo.back.width = 128;
 	addBotsMenuInfo.back.height = 64;
 	addBotsMenuInfo.back.focuspic = UI_ART_BUTTON_FOCUS;
-	addBotsMenuInfo.back.generic.caption.text = "back";
+	addBotsMenuInfo.back.generic.caption.text = "Back";
 	addBotsMenuInfo.back.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	addBotsMenuInfo.back.generic.caption.fontsize = 0.6f;
 	addBotsMenuInfo.back.generic.caption.font = &uis.buttonFont;

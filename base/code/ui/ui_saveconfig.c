@@ -176,7 +176,7 @@ static void UI_SaveConfigMenu_Init(void)
 	saveConfig.back.width = 128;
 	saveConfig.back.height = 64;
 	saveConfig.back.focuspic = UI_ART_BUTTON_FOCUS;
-	saveConfig.back.generic.caption.text = "back";
+	saveConfig.back.generic.caption.text = "Back";
 	saveConfig.back.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	saveConfig.back.generic.caption.fontsize = 0.6f;
 	saveConfig.back.generic.caption.font = &uis.buttonFont;
@@ -193,7 +193,7 @@ static void UI_SaveConfigMenu_Init(void)
 	saveConfig.save.width = 128;
 	saveConfig.save.height = 64;
 	saveConfig.save.focuspic = UI_ART_BUTTON_FOCUS;
-	saveConfig.save.generic.caption.text = "save";
+	saveConfig.save.generic.caption.text = "Save";
 	saveConfig.save.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	saveConfig.save.generic.caption.fontsize = 0.6f;
 	saveConfig.save.generic.caption.font = &uis.buttonFont;

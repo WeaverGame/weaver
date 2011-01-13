@@ -686,7 +686,7 @@ static void PlayerSettings_MenuInit(void)
 	s_playersettings.model.width = 128;
 	s_playersettings.model.height = 64;
 	s_playersettings.model.focuspic = UI_ART_BUTTON_FOCUS;
-	s_playersettings.model.generic.caption.text = "model";
+	s_playersettings.model.generic.caption.text = "Model";
 	s_playersettings.model.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	s_playersettings.model.generic.caption.fontsize = 0.6f;
 	s_playersettings.model.generic.caption.font = &uis.buttonFont;
@@ -711,7 +711,7 @@ static void PlayerSettings_MenuInit(void)
 	s_playersettings.back.width = 128;
 	s_playersettings.back.height = 64;
 	s_playersettings.back.focuspic = UI_ART_BUTTON_FOCUS;
-	s_playersettings.back.generic.caption.text = "back";
+	s_playersettings.back.generic.caption.text = "Back";
 	s_playersettings.back.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	s_playersettings.back.generic.caption.fontsize = 0.6f;
 	s_playersettings.back.generic.caption.font = &uis.buttonFont;

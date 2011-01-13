@@ -283,7 +283,7 @@ static void UI_SetupMenu_Init(void)
 	setupMenuInfo.back.width = 128;
 	setupMenuInfo.back.height = 64;
 	setupMenuInfo.back.focuspic = UI_ART_BUTTON_FOCUS;
-	setupMenuInfo.back.generic.caption.text = "back";
+	setupMenuInfo.back.generic.caption.text = "Back";
 	setupMenuInfo.back.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	setupMenuInfo.back.generic.caption.fontsize = 0.6f;
 	setupMenuInfo.back.generic.caption.font = &uis.buttonFont;

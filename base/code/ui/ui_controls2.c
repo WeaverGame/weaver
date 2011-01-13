@@ -67,63 +67,62 @@ typedef struct
 #define C_MISC			3
 #define C_MAX			4
 
-#define ID_MOVEMENT		100
-#define ID_LOOKING		101
-#define ID_WEAPONS		102
-#define ID_MISC			103
-#define ID_DEFAULTS		104
-#define ID_BACK			105
-#define ID_SAVEANDEXIT	106
-#define ID_EXIT			107
+typedef enum
+{
+	ID_MOVEMENT		= 100,
+	ID_LOOKING		= 101,
+	ID_WEAPONS		= 102,
+	ID_MISC			= 103,
+	ID_DEFAULTS		= 104,
+	ID_BACK			= 105,
+	ID_SAVEANDEXIT	= 106,
+	ID_EXIT			= 107,
 
 // bindable actions
-#define ID_SHOWSCORES	0
-#define ID_USEITEM		1
-#define ID_SPEED		2
-#define ID_FORWARD		3
-#define ID_BACKPEDAL	4
-#define ID_MOVELEFT		5
-#define ID_MOVERIGHT	6
-#define ID_MOVEUP		7
-#define ID_MOVEDOWN		8
-#define ID_LEFT			9
-#define ID_RIGHT		10
-#define ID_STRAFE		11
-#define ID_LOOKUP		12
-#define ID_LOOKDOWN		13
-#define ID_MOUSELOOK	14
-#define ID_CENTERVIEW	15
-#define ID_ZOOMVIEW		16
-#define ID_WEAPON1		17
-#define ID_SPELL1		18
-#define ID_SPELL2		19
-#define ID_SPELL3		20
-#define ID_SPELL4		21
-#define ID_SPELLWEAVE	22
-#define ID_SPELLTHREAD	23
-//#define ID_WEAPON6		22
-//#define ID_WEAPON7		23
-//#define ID_WEAPON8		24
-//#define ID_WEAPON9		25
-#define ID_ATTACK		26
-#define ID_ATTACK2		27
-#define ID_SPELLPREV	28
-#define ID_SPELLNEXT	29
-#define ID_GESTURE		30
-#define ID_CHAT			31
-#define ID_CHAT2		32
-#define ID_CHAT3		33
-#define ID_CHAT4		34
+	ID_SHOWSCORES	= 0,
+	ID_USEITEM,
+	ID_SPEED,
+	ID_FORWARD,
+	ID_BACKPEDAL,
+	ID_MOVELEFT,
+	ID_MOVERIGHT,
+	ID_MOVEUP,
+	ID_MOVEDOWN,
+	ID_LEFT,
+	ID_RIGHT,
+	ID_STRAFE,
+	ID_LOOKUP,
+	ID_LOOKDOWN,
+	ID_MOUSELOOK,
+	ID_CENTERVIEW,
+	ID_ZOOMVIEW,
+	ID_WEAPON1,
+	ID_SPELL1,
+	ID_SPELL2,
+	ID_SPELL3,
+	ID_SPELL4,
+	ID_SPELLWEAVE,
+	ID_SPELLTHREAD,
+	ID_ATTACK,
+	ID_ATTACK2,
+	ID_SPELLPREV,
+	ID_SPELLNEXT,
+	ID_GESTURE,
+	ID_CHAT,
+	ID_CHAT2,
+	ID_CHAT3,
+	ID_CHAT4,
 
 // all others
-#define ID_FREELOOK		35
-#define ID_INVERTMOUSE	36
-#define ID_ALWAYSRUN	37
-#define ID_AUTOSWITCH	38
-#define ID_MOUSESPEED	39
-#define ID_JOYENABLE	40
-#define ID_JOYTHRESHOLD	41
-#define ID_SMOOTHMOUSE	42
+	ID_FREELOOK,
+	ID_INVERTMOUSE,
+	ID_ALWAYSRUN,
+	ID_AUTOSWITCH,
+	ID_MOUSESPEED,
+	ID_JOYENABLE,
+	ID_JOYTHRESHOLD,
+	ID_SMOOTHMOUSE
+} UIObjectIDs_t;
 
 #define ANIM_IDLE		0
 #define ANIM_RUN		1
@@ -1264,7 +1263,7 @@ static void Controls_MenuInit(void)
 	s_controls.looking.width = 128;
 	s_controls.looking.height = 64;
 	s_controls.looking.focuspic = UI_ART_BUTTON_FOCUS;
-	s_controls.looking.generic.caption.text = "LOOK";
+	s_controls.looking.generic.caption.text = "Look";
 	s_controls.looking.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	s_controls.looking.generic.caption.fontsize = 0.6f;
 	s_controls.looking.generic.caption.font = &uis.buttonFont;
@@ -1282,7 +1281,7 @@ static void Controls_MenuInit(void)
 	s_controls.movement.width = 128;
 	s_controls.movement.height = 64;
 	s_controls.movement.focuspic = UI_ART_BUTTON_FOCUS;
-	s_controls.movement.generic.caption.text = "MOVE";
+	s_controls.movement.generic.caption.text = "Move";
 	s_controls.movement.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	s_controls.movement.generic.caption.fontsize = 0.6f;
 	s_controls.movement.generic.caption.font = &uis.buttonFont;
@@ -1302,7 +1301,7 @@ static void Controls_MenuInit(void)
 	s_controls.weapons.width = 128;
 	s_controls.weapons.height = 64;
 	s_controls.weapons.focuspic = UI_ART_BUTTON_FOCUS;
-	s_controls.weapons.generic.caption.text = "SHOOT";
+	s_controls.weapons.generic.caption.text = "Attack";
 	s_controls.weapons.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	s_controls.weapons.generic.caption.fontsize = 0.6f;
 	s_controls.weapons.generic.caption.font = &uis.buttonFont;
@@ -1320,7 +1319,7 @@ static void Controls_MenuInit(void)
 	s_controls.misc.width = 128;
 	s_controls.misc.height = 64;
 	s_controls.misc.focuspic = UI_ART_BUTTON_FOCUS;
-	s_controls.misc.generic.caption.text = "misc";
+	s_controls.misc.generic.caption.text = "Misc";
 	s_controls.misc.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	s_controls.misc.generic.caption.fontsize = 0.6f;
 	s_controls.misc.generic.caption.font = &uis.buttonFont;
@@ -1338,7 +1337,7 @@ static void Controls_MenuInit(void)
 	s_controls.back.width = 128;
 	s_controls.back.height = 64;
 	s_controls.back.focuspic = UI_ART_BUTTON_FOCUS;
-	s_controls.back.generic.caption.text = "back";
+	s_controls.back.generic.caption.text = "Back";
 	s_controls.back.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	s_controls.back.generic.caption.fontsize = 0.6f;
 	s_controls.back.generic.caption.font = &uis.buttonFont;

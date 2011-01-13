@@ -260,7 +260,7 @@ void UI_ConfirmMenu_Style(const char *question, int style, void (*draw) (void), 
 	s_confirm.yes.width = 128;
 	s_confirm.yes.height = 64;
 	s_confirm.yes.focuspic = UI_ART_BUTTON_FOCUS;
-	s_confirm.yes.generic.caption.text = "YES";
+	s_confirm.yes.generic.caption.text = "Yes";
 	s_confirm.yes.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	s_confirm.yes.generic.caption.fontsize = 0.6f;
 	s_confirm.yes.generic.caption.font = &uis.buttonFont;
@@ -278,7 +278,7 @@ void UI_ConfirmMenu_Style(const char *question, int style, void (*draw) (void), 
 	s_confirm.no.width = 128;
 	s_confirm.no.height = 64;
 	s_confirm.no.focuspic = UI_ART_BUTTON_FOCUS;
-	s_confirm.no.generic.caption.text = "NO";
+	s_confirm.no.generic.caption.text = "No";
 	s_confirm.no.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	s_confirm.no.generic.caption.fontsize = 0.6f;
 	s_confirm.no.generic.caption.font = &uis.buttonFont;
@@ -362,7 +362,7 @@ void UI_Message(const char **lines)
 	s_confirm.yes.width = 128;
 	s_confirm.yes.height = 64;
 	s_confirm.yes.focuspic = UI_ART_BUTTON_FOCUS;
-	s_confirm.yes.generic.caption.text = "OK";
+	s_confirm.yes.generic.caption.text = "Ok";
 	s_confirm.yes.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	s_confirm.yes.generic.caption.fontsize = 0.6f;
 	s_confirm.yes.generic.caption.font = &uis.buttonFont;

@@ -311,7 +311,7 @@ static void UI_RemoveBotsMenu_Init(void)
 	removeBotsMenuInfo.delete.width = 128;
 	removeBotsMenuInfo.delete.height = 64;
 	removeBotsMenuInfo.delete.focuspic = UI_ART_BUTTON_FOCUS;
-	removeBotsMenuInfo.delete.generic.caption.text = "remove";
+	removeBotsMenuInfo.delete.generic.caption.text = "Remove";
 	removeBotsMenuInfo.delete.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	removeBotsMenuInfo.delete.generic.caption.fontsize = 0.6f;
 	removeBotsMenuInfo.delete.generic.caption.font = &uis.buttonFont;
@@ -328,7 +328,7 @@ static void UI_RemoveBotsMenu_Init(void)
 	removeBotsMenuInfo.back.width = 128;
 	removeBotsMenuInfo.back.height = 64;
 	removeBotsMenuInfo.back.focuspic = UI_ART_BUTTON_FOCUS;
-	removeBotsMenuInfo.back.generic.caption.text = "back";
+	removeBotsMenuInfo.back.generic.caption.text = "Back";
 	removeBotsMenuInfo.back.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	removeBotsMenuInfo.back.generic.caption.fontsize = 0.6f;
 	removeBotsMenuInfo.back.generic.caption.font = &uis.buttonFont;

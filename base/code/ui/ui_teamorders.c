@@ -415,7 +415,7 @@ static void UI_TeamOrdersMenu_Init(void)
 	teamOrdersMenuInfo.back.width = 128;
 	teamOrdersMenuInfo.back.height = 64;
 	teamOrdersMenuInfo.back.focuspic = UI_ART_BUTTON_FOCUS;
-	teamOrdersMenuInfo.back.generic.caption.text = "back";
+	teamOrdersMenuInfo.back.generic.caption.text = "Back";
 	teamOrdersMenuInfo.back.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	teamOrdersMenuInfo.back.generic.caption.fontsize = 0.6f;
 	teamOrdersMenuInfo.back.generic.caption.font = &uis.buttonFont;

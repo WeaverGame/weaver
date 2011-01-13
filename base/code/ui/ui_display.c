@@ -230,7 +230,7 @@ static void UI_DisplayOptionsMenu_Init(void)
 	displayOptionsInfo.back.width = 128;
 	displayOptionsInfo.back.height = 64;
 	displayOptionsInfo.back.focuspic = UI_ART_BUTTON_FOCUS;
-	displayOptionsInfo.back.generic.caption.text = "back";
+	displayOptionsInfo.back.generic.caption.text = "Back";
 	displayOptionsInfo.back.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	displayOptionsInfo.back.generic.caption.fontsize = 0.6f;
 	displayOptionsInfo.back.generic.caption.font = &uis.buttonFont;

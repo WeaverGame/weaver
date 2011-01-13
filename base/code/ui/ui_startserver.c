@@ -581,7 +581,7 @@ static void StartServer_MenuInit(void)
 	s_startserver.back.width = 128;
 	s_startserver.back.height = 64;
 	s_startserver.back.focuspic = UI_ART_BUTTON_FOCUS;
-	s_startserver.back.generic.caption.text = "back";
+	s_startserver.back.generic.caption.text = "Back";
 	s_startserver.back.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	s_startserver.back.generic.caption.fontsize = 0.6f;
 	s_startserver.back.generic.caption.font = &uis.buttonFont;
@@ -599,7 +599,7 @@ static void StartServer_MenuInit(void)
 	s_startserver.next.width = 128;
 	s_startserver.next.height = 64;
 	s_startserver.next.focuspic = UI_ART_BUTTON_FOCUS;
-	s_startserver.next.generic.caption.text = "next";
+	s_startserver.next.generic.caption.text = "Next";
 	s_startserver.next.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	s_startserver.next.generic.caption.fontsize = 0.6f;
 	s_startserver.next.generic.caption.font = &uis.buttonFont;
@@ -1705,7 +1705,7 @@ static void ServerOptions_MenuInit(qboolean multiplayer)
 	s_serveroptions.back.width = 128;
 	s_serveroptions.back.height = 64;
 	s_serveroptions.back.focuspic = UI_ART_BUTTON_FOCUS;
-	s_serveroptions.back.generic.caption.text = "back";
+	s_serveroptions.back.generic.caption.text = "Back";
 	s_serveroptions.back.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	s_serveroptions.back.generic.caption.fontsize = 0.6f;
 	s_serveroptions.back.generic.caption.font = &uis.buttonFont;
@@ -1734,7 +1734,7 @@ static void ServerOptions_MenuInit(qboolean multiplayer)
 	s_serveroptions.go.width = 128;
 	s_serveroptions.go.height = 64;
 	s_serveroptions.go.focuspic = UI_ART_BUTTON_FOCUS;
-	s_serveroptions.go.generic.caption.text = "fight";
+	s_serveroptions.go.generic.caption.text = "Fight";
 	s_serveroptions.go.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	s_serveroptions.go.generic.caption.fontsize = 0.6f;
 	s_serveroptions.go.generic.caption.font = &uis.buttonFont;
@@ -2298,7 +2298,7 @@ static void UI_BotSelectMenu_Init(char *bot)
 	botSelectInfo.back.width = 128;
 	botSelectInfo.back.height = 64;
 	botSelectInfo.back.focuspic = UI_ART_BUTTON_FOCUS;
-	botSelectInfo.back.generic.caption.text = "back";
+	botSelectInfo.back.generic.caption.text = "Back";
 	botSelectInfo.back.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	botSelectInfo.back.generic.caption.fontsize = 0.6f;
 	botSelectInfo.back.generic.caption.font = &uis.buttonFont;
@@ -2314,7 +2314,7 @@ static void UI_BotSelectMenu_Init(char *bot)
 	botSelectInfo.go.width = 128;
 	botSelectInfo.go.height = 64;
 	botSelectInfo.go.focuspic = UI_ART_BUTTON_FOCUS;
-	botSelectInfo.go.generic.caption.text = "add";
+	botSelectInfo.go.generic.caption.text = "Add";
 	botSelectInfo.go.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	botSelectInfo.go.generic.caption.fontsize = 0.6f;
 	botSelectInfo.go.generic.caption.font = &uis.buttonFont;

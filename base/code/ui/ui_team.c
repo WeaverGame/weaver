@@ -178,7 +178,7 @@ void TeamMain_MenuInit(void)
 	s_teammain.back.width = 128;
 	s_teammain.back.height = 64;
 	s_teammain.back.focuspic = UI_ART_BUTTON_FOCUS;
-	s_teammain.back.generic.caption.text = "back";
+	s_teammain.back.generic.caption.text = "Back";
 	s_teammain.back.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	s_teammain.back.generic.caption.fontsize = 0.6f;
 	s_teammain.back.generic.caption.font = &uis.buttonFont;

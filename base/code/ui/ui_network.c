@@ -221,7 +221,7 @@ static void UI_NetworkOptionsMenu_Init(void)
 	networkOptionsInfo.graphics.width = 128;
 	networkOptionsInfo.graphics.height = 64;
 	networkOptionsInfo.graphics.focuspic = UI_ART_BUTTON_FOCUS;
-	networkOptionsInfo.graphics.generic.caption.text = "graphics";
+	networkOptionsInfo.graphics.generic.caption.text = "Graphics";
 	networkOptionsInfo.graphics.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	networkOptionsInfo.graphics.generic.caption.fontsize = 0.6f;
 	networkOptionsInfo.graphics.generic.caption.font = &uis.buttonFont;
@@ -239,7 +239,7 @@ static void UI_NetworkOptionsMenu_Init(void)
 	networkOptionsInfo.sound.width = 128;
 	networkOptionsInfo.sound.height = 64;
 	networkOptionsInfo.sound.focuspic = UI_ART_BUTTON_FOCUS;
-	networkOptionsInfo.sound.generic.caption.text = "sound";
+	networkOptionsInfo.sound.generic.caption.text = "Sound";
 	networkOptionsInfo.sound.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	networkOptionsInfo.sound.generic.caption.fontsize = 0.6f;
 	networkOptionsInfo.sound.generic.caption.font = &uis.buttonFont;
@@ -256,7 +256,7 @@ static void UI_NetworkOptionsMenu_Init(void)
 	networkOptionsInfo.network.width = 128;
 	networkOptionsInfo.network.height = 64;
 	networkOptionsInfo.network.focuspic = UI_ART_BUTTON_FOCUS;
-	networkOptionsInfo.network.generic.caption.text = "network";
+	networkOptionsInfo.network.generic.caption.text = "Network";
 	networkOptionsInfo.network.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	networkOptionsInfo.network.generic.caption.fontsize = 0.6f;
 	networkOptionsInfo.network.generic.caption.font = &uis.buttonFont;
@@ -306,7 +306,7 @@ static void UI_NetworkOptionsMenu_Init(void)
 	networkOptionsInfo.back.width = 128;
 	networkOptionsInfo.back.height = 64;
 	networkOptionsInfo.back.focuspic = UI_ART_BUTTON_FOCUS;
-	networkOptionsInfo.back.generic.caption.text = "back";
+	networkOptionsInfo.back.generic.caption.text = "Back";
 	networkOptionsInfo.back.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	networkOptionsInfo.back.generic.caption.fontsize = 0.6f;
 	networkOptionsInfo.back.generic.caption.font = &uis.buttonFont;

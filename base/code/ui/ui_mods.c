@@ -237,7 +237,7 @@ static void UI_Mods_MenuInit(void)
 	s_mods.back.width = 128;
 	s_mods.back.height = 64;
 	s_mods.back.focuspic = UI_ART_BUTTON_FOCUS;
-	s_mods.back.generic.caption.text = "back";
+	s_mods.back.generic.caption.text = "Back";
 	s_mods.back.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	s_mods.back.generic.caption.fontsize = 0.6f;
 	s_mods.back.generic.caption.font = &uis.buttonFont;
@@ -254,7 +254,7 @@ static void UI_Mods_MenuInit(void)
 	s_mods.go.width = 128;
 	s_mods.go.height = 64;
 	s_mods.go.focuspic = UI_ART_BUTTON_FOCUS;
-	s_mods.go.generic.caption.text = "load";
+	s_mods.go.generic.caption.text = "Load";
 	s_mods.go.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	s_mods.go.generic.caption.fontsize = 0.6f;
 	s_mods.go.generic.caption.font = &uis.buttonFont;

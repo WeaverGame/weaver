@@ -192,7 +192,7 @@ static void UI_DriverInfo_Menu(void)
 	s_driverinfo.back.width = 128;
 	s_driverinfo.back.height = 64;
 	s_driverinfo.back.focuspic = UI_ART_BUTTON_FOCUS;
-	s_driverinfo.back.generic.caption.text = "back";
+	s_driverinfo.back.generic.caption.text = "Back";
 	s_driverinfo.back.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	s_driverinfo.back.generic.caption.fontsize = 0.6f;
 	s_driverinfo.back.generic.caption.font = &uis.buttonFont;
@@ -1364,7 +1364,7 @@ void GraphicsOptions_MenuInit(void)
 	s_graphicsoptions.back.width = 128;
 	s_graphicsoptions.back.height = 64;
 	s_graphicsoptions.back.focuspic = UI_ART_BUTTON_FOCUS;
-	s_graphicsoptions.back.generic.caption.text = "back";
+	s_graphicsoptions.back.generic.caption.text = "Back";
 	s_graphicsoptions.back.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	s_graphicsoptions.back.generic.caption.fontsize = 0.6f;
 	s_graphicsoptions.back.generic.caption.font = &uis.buttonFont;
@@ -1381,7 +1381,7 @@ void GraphicsOptions_MenuInit(void)
 	s_graphicsoptions.graphics.width = 128;
 	s_graphicsoptions.graphics.height = 64;
 	s_graphicsoptions.graphics.focuspic = UI_ART_BUTTON_FOCUS;
-	s_graphicsoptions.graphics.generic.caption.text = "graphics";
+	s_graphicsoptions.graphics.generic.caption.text = "Graphics";
 	s_graphicsoptions.graphics.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	s_graphicsoptions.graphics.generic.caption.fontsize = 0.6f;
 	s_graphicsoptions.graphics.generic.caption.font = &uis.buttonFont;
@@ -1399,7 +1399,7 @@ void GraphicsOptions_MenuInit(void)
 	s_graphicsoptions.sound.width = 128;
 	s_graphicsoptions.sound.height = 64;
 	s_graphicsoptions.sound.focuspic = UI_ART_BUTTON_FOCUS;
-	s_graphicsoptions.sound.generic.caption.text = "sound";
+	s_graphicsoptions.sound.generic.caption.text = "Sound";
 	s_graphicsoptions.sound.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	s_graphicsoptions.sound.generic.caption.fontsize = 0.6f;
 	s_graphicsoptions.sound.generic.caption.font = &uis.buttonFont;
@@ -1416,7 +1416,7 @@ void GraphicsOptions_MenuInit(void)
 	s_graphicsoptions.network.width = 128;
 	s_graphicsoptions.network.height = 64;
 	s_graphicsoptions.network.focuspic = UI_ART_BUTTON_FOCUS;
-	s_graphicsoptions.network.generic.caption.text = "network";
+	s_graphicsoptions.network.generic.caption.text = "Network";
 	s_graphicsoptions.network.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	s_graphicsoptions.network.generic.caption.fontsize = 0.6f;
 	s_graphicsoptions.network.generic.caption.font = &uis.buttonFont;
@@ -1432,7 +1432,7 @@ void GraphicsOptions_MenuInit(void)
 	s_graphicsoptions.apply.width = 128;
 	s_graphicsoptions.apply.height = 64;
 	s_graphicsoptions.apply.focuspic = UI_ART_BUTTON_FOCUS;
-	s_graphicsoptions.apply.generic.caption.text = "apply";
+	s_graphicsoptions.apply.generic.caption.text = "Apply";
 	s_graphicsoptions.apply.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	s_graphicsoptions.apply.generic.caption.fontsize = 0.6f;
 	s_graphicsoptions.apply.generic.caption.font = &uis.buttonFont;
