@@ -95,18 +95,20 @@ typedef struct
 #define ID_CENTERVIEW	15
 #define ID_ZOOMVIEW		16
 #define ID_WEAPON1		17
-#define ID_WEAPON2		18
-#define ID_WEAPON3		19
-#define ID_WEAPON4		20
-#define ID_WEAPON5		21
-#define ID_WEAPON6		22
-#define ID_WEAPON7		23
-#define ID_WEAPON8		24
-#define ID_WEAPON9		25
+#define ID_SPELL1		18
+#define ID_SPELL2		19
+#define ID_SPELL3		20
+#define ID_SPELL4		21
+#define ID_SPELLWEAVE	22
+#define ID_SPELLTHREAD	23
+//#define ID_WEAPON6		22
+//#define ID_WEAPON7		23
+//#define ID_WEAPON8		24
+//#define ID_WEAPON9		25
 #define ID_ATTACK		26
 #define ID_ATTACK2		27
-#define ID_WEAPPREV		28
-#define ID_WEAPNEXT		29
+#define ID_SPELLPREV	28
+#define ID_SPELLNEXT	29
 #define ID_GESTURE		30
 #define ID_CHAT			31
 #define ID_CHAT2		32
@@ -172,19 +174,17 @@ typedef struct
 	menuaction_s    turnright;
 	menuaction_s    sidestep;
 	menuaction_s    run;
-	menuaction_s    machinegun;
-	menuaction_s    chainsaw;
-	menuaction_s    shotgun;
-	menuaction_s    grenadelauncher;
-	menuaction_s    rocketlauncher;
-	menuaction_s    lightning;
-	menuaction_s    railgun;
-	menuaction_s    plasma;
-	menuaction_s    bfg;
+	menuaction_s    sword;
+	menuaction_s    spell1;
+	menuaction_s    spell2;
+	menuaction_s    spell3;
+	menuaction_s    spell4;
+	menuaction_s    spellweave;
+	menuaction_s    spellthread;
 	menuaction_s    attack;
 	menuaction_s    attack2;
-	menuaction_s    prevweapon;
-	menuaction_s    nextweapon;
+	menuaction_s    spellprev;
+	menuaction_s    spellnext;
 	menuaction_s    lookup;
 	menuaction_s    lookdown;
 	menuaction_s    mouselook;
@@ -245,20 +245,18 @@ static bind_t g_bindings[] =
 	{"+mlook", 			"mouse look",		ID_MOUSELOOK,	ANIM_IDLE,		'/',			-1,		-1, -1},
 	{"centerview", 		"center view",		ID_CENTERVIEW,	ANIM_IDLE,		K_END,			-1,		-1, -1},
 	{"+zoom", 			"zoom view",		ID_ZOOMVIEW,	ANIM_IDLE,		-1,				-1,		-1, -1},
-	{"weapon 1",		"gauntlet",			ID_WEAPON1,		ANIM_WEAPON1,	'1',			-1,		-1, -1},
-	{"weapon 2",		"machinegun",		ID_WEAPON2,		ANIM_WEAPON2,	'2',			-1,		-1, -1},
-	{"weapon 3",		"shotgun",			ID_WEAPON3,		ANIM_WEAPON3,	'3',			-1,		-1, -1},
-	{"weapon 4",		"grenade launcher",	ID_WEAPON4,		ANIM_WEAPON4,	'4',			-1,		-1, -1},
-	{"weapon 5",		"rocket launcher",	ID_WEAPON5,		ANIM_WEAPON5,	'5',			-1,		-1, -1},
-	{"weapon 6",		"lightning",		ID_WEAPON6,		ANIM_WEAPON6,	'6',			-1,		-1, -1},
-	{"weapon 7",		"railgun",			ID_WEAPON7,		ANIM_WEAPON7,	'7',			-1,		-1, -1},
-	{"weapon 8",		"plasma gun",		ID_WEAPON8,		ANIM_WEAPON8,	'8',			-1,		-1, -1},
-	{"weapon 9",		"BFG",				ID_WEAPON9,		ANIM_WEAPON9,	'9',			-1,		-1, -1},
+	{"weapon 1",		"sword",			ID_WEAPON1,		ANIM_WEAPON1,	'1',			-1,		-1, -1},
+	{"spell 1",			"spell 1",			ID_SPELL1,		ANIM_WEAPON2,	'2',			-1,		-1, -1},
+	{"spell 2",			"spell 2",			ID_SPELL2,		ANIM_WEAPON3,	'3',			-1,		-1, -1},
+	{"spell 3",			"spell 3",			ID_SPELL3,		ANIM_WEAPON4,	'4',			-1,		-1, -1},
+	{"spell 4",			"spell 4",			ID_SPELL4,		ANIM_WEAPON5,	'5',			-1,		-1, -1},
+	{"+weave",			"weave",			ID_SPELLWEAVE,	ANIM_ATTACK,	K_MOUSE4,		-1,		-1, -1},
+	{"+thread", 		"thread",			ID_SPELLTHREAD,	ANIM_ATTACK,	K_MOUSE2,		-1,		-1, -1},
 	{"+attack", 		"primary attack",	ID_ATTACK,		ANIM_ATTACK,	K_MOUSE1,		-1,		-1, -1},
-	{"+attack2", 		"secondary attack",	ID_ATTACK2,		ANIM_ATTACK,	K_MOUSE2,		-1,		-1, -1},
-	{"weapprev",		"prev weapon",		ID_WEAPPREV,	ANIM_IDLE,		'[',			-1,		-1, -1},
-	{"weapnext", 		"next weapon",		ID_WEAPNEXT,	ANIM_IDLE,		']',			-1,		-1, -1},
-	{"+button3", 		"gesture",			ID_GESTURE,		ANIM_GESTURE,	K_MOUSE3,		-1,		-1, -1},
+	{"+attack2", 		"secondary attack",	ID_ATTACK2,		ANIM_ATTACK,	K_MOUSE3,		-1,		-1, -1},
+	{"spellprev",		"prev spell",		ID_SPELLPREV,	ANIM_IDLE,		'[',			-1,		-1, -1},
+	{"spellnext", 		"next spell",		ID_SPELLNEXT,	ANIM_IDLE,		']',			-1,		-1, -1},
+	{"+button3", 		"gesture",			ID_GESTURE,		ANIM_GESTURE,	-1,				-1,		-1, -1},
 	{"messagemode", 	"chat",				ID_CHAT,		ANIM_CHAT,		't',			-1,		-1, -1},
 	{"messagemode2", 	"chat - team",		ID_CHAT2,		ANIM_CHAT,		-1,				-1,		-1, -1},
 	{"messagemode3", 	"chat - target",	ID_CHAT3,		ANIM_CHAT,		-1,				-1,		-1, -1},
@@ -298,18 +296,16 @@ static menucommon_s *g_movement_controls[] =
 static menucommon_s *g_weapons_controls[] = {
 	(menucommon_s *)&s_controls.attack,
 	(menucommon_s *)&s_controls.attack2,
-	(menucommon_s *)&s_controls.nextweapon,
-	(menucommon_s *)&s_controls.prevweapon,
+	(menucommon_s *)&s_controls.spellweave,
+	(menucommon_s *)&s_controls.spellthread,
+	(menucommon_s *)&s_controls.spellnext,
+	(menucommon_s *)&s_controls.spellprev,
 	(menucommon_s *)&s_controls.autoswitch,
-	(menucommon_s *)&s_controls.chainsaw,
-	(menucommon_s *)&s_controls.machinegun,
-	(menucommon_s *)&s_controls.shotgun,
-	(menucommon_s *)&s_controls.grenadelauncher,
-	(menucommon_s *)&s_controls.rocketlauncher,
-	(menucommon_s *)&s_controls.lightning,
-	(menucommon_s *)&s_controls.railgun,
-	(menucommon_s *)&s_controls.plasma,
-	(menucommon_s *)&s_controls.bfg,
+	(menucommon_s *)&s_controls.sword,
+	(menucommon_s *)&s_controls.spell1,
+	(menucommon_s *)&s_controls.spell2,
+	(menucommon_s *)&s_controls.spell3,
+	(menucommon_s *)&s_controls.spell4,
 	NULL,
 };
 
@@ -1409,59 +1405,47 @@ static void Controls_MenuInit(void)
 	s_controls.run.generic.ownerdraw = Controls_DrawKeyBinding;
 	s_controls.run.generic.id = ID_SPEED;
 
-	s_controls.chainsaw.generic.type = MTYPE_ACTION;
-	s_controls.chainsaw.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS | QMF_GRAYED | QMF_HIDDEN;
-	s_controls.chainsaw.generic.callback = Controls_ActionEvent;
-	s_controls.chainsaw.generic.ownerdraw = Controls_DrawKeyBinding;
-	s_controls.chainsaw.generic.id = ID_WEAPON1;
+	s_controls.sword.generic.type = MTYPE_ACTION;
+	s_controls.sword.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS | QMF_GRAYED | QMF_HIDDEN;
+	s_controls.sword.generic.callback = Controls_ActionEvent;
+	s_controls.sword.generic.ownerdraw = Controls_DrawKeyBinding;
+	s_controls.sword.generic.id = ID_WEAPON1;
 
-	s_controls.machinegun.generic.type = MTYPE_ACTION;
-	s_controls.machinegun.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS | QMF_GRAYED | QMF_HIDDEN;
-	s_controls.machinegun.generic.callback = Controls_ActionEvent;
-	s_controls.machinegun.generic.ownerdraw = Controls_DrawKeyBinding;
-	s_controls.machinegun.generic.id = ID_WEAPON2;
+	s_controls.spell1.generic.type = MTYPE_ACTION;
+	s_controls.spell1.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS | QMF_GRAYED | QMF_HIDDEN;
+	s_controls.spell1.generic.callback = Controls_ActionEvent;
+	s_controls.spell1.generic.ownerdraw = Controls_DrawKeyBinding;
+	s_controls.spell1.generic.id = ID_SPELL1;
 
-	s_controls.shotgun.generic.type = MTYPE_ACTION;
-	s_controls.shotgun.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS | QMF_GRAYED | QMF_HIDDEN;
-	s_controls.shotgun.generic.callback = Controls_ActionEvent;
-	s_controls.shotgun.generic.ownerdraw = Controls_DrawKeyBinding;
-	s_controls.shotgun.generic.id = ID_WEAPON3;
+	s_controls.spell2.generic.type = MTYPE_ACTION;
+	s_controls.spell2.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS | QMF_GRAYED | QMF_HIDDEN;
+	s_controls.spell2.generic.callback = Controls_ActionEvent;
+	s_controls.spell2.generic.ownerdraw = Controls_DrawKeyBinding;
+	s_controls.spell2.generic.id = ID_SPELL2;
 
-	s_controls.grenadelauncher.generic.type = MTYPE_ACTION;
-	s_controls.grenadelauncher.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS | QMF_GRAYED | QMF_HIDDEN;
-	s_controls.grenadelauncher.generic.callback = Controls_ActionEvent;
-	s_controls.grenadelauncher.generic.ownerdraw = Controls_DrawKeyBinding;
-	s_controls.grenadelauncher.generic.id = ID_WEAPON4;
+	s_controls.spell3.generic.type = MTYPE_ACTION;
+	s_controls.spell3.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS | QMF_GRAYED | QMF_HIDDEN;
+	s_controls.spell3.generic.callback = Controls_ActionEvent;
+	s_controls.spell3.generic.ownerdraw = Controls_DrawKeyBinding;
+	s_controls.spell3.generic.id = ID_SPELL3;
 
-	s_controls.rocketlauncher.generic.type = MTYPE_ACTION;
-	s_controls.rocketlauncher.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS | QMF_GRAYED | QMF_HIDDEN;
-	s_controls.rocketlauncher.generic.callback = Controls_ActionEvent;
-	s_controls.rocketlauncher.generic.ownerdraw = Controls_DrawKeyBinding;
-	s_controls.rocketlauncher.generic.id = ID_WEAPON5;
+	s_controls.spell4.generic.type = MTYPE_ACTION;
+	s_controls.spell4.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS | QMF_GRAYED | QMF_HIDDEN;
+	s_controls.spell4.generic.callback = Controls_ActionEvent;
+	s_controls.spell4.generic.ownerdraw = Controls_DrawKeyBinding;
+	s_controls.spell4.generic.id = ID_SPELL4;
 
-	s_controls.lightning.generic.type = MTYPE_ACTION;
-	s_controls.lightning.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS | QMF_GRAYED | QMF_HIDDEN;
-	s_controls.lightning.generic.callback = Controls_ActionEvent;
-	s_controls.lightning.generic.ownerdraw = Controls_DrawKeyBinding;
-	s_controls.lightning.generic.id = ID_WEAPON6;
+	s_controls.spellweave.generic.type = MTYPE_ACTION;
+	s_controls.spellweave.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS | QMF_GRAYED | QMF_HIDDEN;
+	s_controls.spellweave.generic.callback = Controls_ActionEvent;
+	s_controls.spellweave.generic.ownerdraw = Controls_DrawKeyBinding;
+	s_controls.spellweave.generic.id = ID_SPELLWEAVE;
 
-	s_controls.railgun.generic.type = MTYPE_ACTION;
-	s_controls.railgun.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS | QMF_GRAYED | QMF_HIDDEN;
-	s_controls.railgun.generic.callback = Controls_ActionEvent;
-	s_controls.railgun.generic.ownerdraw = Controls_DrawKeyBinding;
-	s_controls.railgun.generic.id = ID_WEAPON7;
-
-	s_controls.plasma.generic.type = MTYPE_ACTION;
-	s_controls.plasma.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS | QMF_GRAYED | QMF_HIDDEN;
-	s_controls.plasma.generic.callback = Controls_ActionEvent;
-	s_controls.plasma.generic.ownerdraw = Controls_DrawKeyBinding;
-	s_controls.plasma.generic.id = ID_WEAPON8;
-
-	s_controls.bfg.generic.type = MTYPE_ACTION;
-	s_controls.bfg.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS | QMF_GRAYED | QMF_HIDDEN;
-	s_controls.bfg.generic.callback = Controls_ActionEvent;
-	s_controls.bfg.generic.ownerdraw = Controls_DrawKeyBinding;
-	s_controls.bfg.generic.id = ID_WEAPON9;
+	s_controls.spellthread.generic.type = MTYPE_ACTION;
+	s_controls.spellthread.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS | QMF_GRAYED | QMF_HIDDEN;
+	s_controls.spellthread.generic.callback = Controls_ActionEvent;
+	s_controls.spellthread.generic.ownerdraw = Controls_DrawKeyBinding;
+	s_controls.spellthread.generic.id = ID_SPELLTHREAD;
 
 	s_controls.attack.generic.type = MTYPE_ACTION;
 	s_controls.attack.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS | QMF_GRAYED | QMF_HIDDEN;
@@ -1475,17 +1459,17 @@ static void Controls_MenuInit(void)
 	s_controls.attack2.generic.ownerdraw = Controls_DrawKeyBinding;
 	s_controls.attack2.generic.id = ID_ATTACK2;
 
-	s_controls.prevweapon.generic.type = MTYPE_ACTION;
-	s_controls.prevweapon.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS | QMF_GRAYED | QMF_HIDDEN;
-	s_controls.prevweapon.generic.callback = Controls_ActionEvent;
-	s_controls.prevweapon.generic.ownerdraw = Controls_DrawKeyBinding;
-	s_controls.prevweapon.generic.id = ID_WEAPPREV;
+	s_controls.spellprev.generic.type = MTYPE_ACTION;
+	s_controls.spellprev.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS | QMF_GRAYED | QMF_HIDDEN;
+	s_controls.spellprev.generic.callback = Controls_ActionEvent;
+	s_controls.spellprev.generic.ownerdraw = Controls_DrawKeyBinding;
+	s_controls.spellprev.generic.id = ID_SPELLPREV;
 
-	s_controls.nextweapon.generic.type = MTYPE_ACTION;
-	s_controls.nextweapon.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS | QMF_GRAYED | QMF_HIDDEN;
-	s_controls.nextweapon.generic.callback = Controls_ActionEvent;
-	s_controls.nextweapon.generic.ownerdraw = Controls_DrawKeyBinding;
-	s_controls.nextweapon.generic.id = ID_WEAPNEXT;
+	s_controls.spellnext.generic.type = MTYPE_ACTION;
+	s_controls.spellnext.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS | QMF_GRAYED | QMF_HIDDEN;
+	s_controls.spellnext.generic.callback = Controls_ActionEvent;
+	s_controls.spellnext.generic.ownerdraw = Controls_DrawKeyBinding;
+	s_controls.spellnext.generic.id = ID_SPELLNEXT;
 
 	s_controls.lookup.generic.type = MTYPE_ACTION;
 	s_controls.lookup.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS | QMF_GRAYED | QMF_HIDDEN;
@@ -1672,18 +1656,16 @@ static void Controls_MenuInit(void)
 
 	Menu_AddItem(&s_controls.menu, &s_controls.attack);
 	Menu_AddItem(&s_controls.menu, &s_controls.attack2);
-	Menu_AddItem(&s_controls.menu, &s_controls.nextweapon);
-	Menu_AddItem(&s_controls.menu, &s_controls.prevweapon);
+	Menu_AddItem(&s_controls.menu, &s_controls.spellweave);
+	Menu_AddItem(&s_controls.menu, &s_controls.spellthread);
+	Menu_AddItem(&s_controls.menu, &s_controls.spellnext);
+	Menu_AddItem(&s_controls.menu, &s_controls.spellprev);
 	Menu_AddItem(&s_controls.menu, &s_controls.autoswitch);
-	Menu_AddItem(&s_controls.menu, &s_controls.chainsaw);
-	Menu_AddItem(&s_controls.menu, &s_controls.machinegun);
-	Menu_AddItem(&s_controls.menu, &s_controls.shotgun);
-	Menu_AddItem(&s_controls.menu, &s_controls.grenadelauncher);
-	Menu_AddItem(&s_controls.menu, &s_controls.rocketlauncher);
-	Menu_AddItem(&s_controls.menu, &s_controls.lightning);
-	Menu_AddItem(&s_controls.menu, &s_controls.railgun);
-	Menu_AddItem(&s_controls.menu, &s_controls.plasma);
-	Menu_AddItem(&s_controls.menu, &s_controls.bfg);
+	Menu_AddItem(&s_controls.menu, &s_controls.sword);
+	Menu_AddItem(&s_controls.menu, &s_controls.spell1);
+	Menu_AddItem(&s_controls.menu, &s_controls.spell2);
+	Menu_AddItem(&s_controls.menu, &s_controls.spell3);
+	Menu_AddItem(&s_controls.menu, &s_controls.spell4);
 
 	Menu_AddItem(&s_controls.menu, &s_controls.showscores);
 	Menu_AddItem(&s_controls.menu, &s_controls.useitem);
