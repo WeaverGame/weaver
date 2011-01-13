@@ -25,5 +25,13 @@ http://www.zfight.com/
 By: Jochum "Hipshot" Skoglund
 License(s):
 	"do whatever you want"
-These assets re located at: base/cubemaps/hipshot/
+These assets are located at: base/cubemaps/hipshot/
+===============================================================
+Aaargh Font
+http://www.fontsquirrel.com/fonts/Aaargh
+http://www.tupwanders.nl/
+By: Tup Wanders
+License(s):
+	Licensed with a Creative Commons attribution license.
+These assets are located at: base/fonts/
 ===============================================================
