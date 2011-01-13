@@ -76,7 +76,6 @@ cr_line         credits[] = {
 	{"'ryguy_1617' - 3D Props Artist", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"'leekenn' - Sound effects", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"'dutchmeat' - Programmer", UI_CENTER | UI_SMALLFONT, colorWhite},
-	{"'Kaffeewunder' - Environment Artist", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"Patrick Delmastro - Character Artist", UI_CENTER | UI_SMALLFONT, colorWhite},
 	{"", UI_CENTER | UI_SMALLFONT, colorWhite},
 
