@@ -19,4 +19,11 @@ License(s):
 
 These assets are located at: base/gfx/icons/spells/
 ===============================================================
-
+Miramar Skybox
+http://www.quake3world.com/forum/viewtopic.php?t=9242
+http://www.zfight.com/
+By: Jochum "Hipshot" Skoglund
+License(s):
+	"do whatever you want"
+These assets re located at: base/cubemaps/hipshot/
+===============================================================
