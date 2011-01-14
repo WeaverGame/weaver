@@ -17,7 +17,7 @@ License(s):
 
 	CC-BY-SA 3.0
 
-These assets are located at: base/gfx/icons/spells/
+These assets are located at:	base/gfx/icons/spells/
 ===============================================================
 Miramar Skybox
 http://www.quake3world.com/forum/viewtopic.php?t=9242
@@ -25,7 +25,7 @@ http://www.zfight.com/
 By: Jochum "Hipshot" Skoglund
 License(s):
 	"do whatever you want"
-These assets are located at: base/cubemaps/hipshot/
+These assets are located at:	base/cubemaps/hipshot/
 ===============================================================
 Aaargh Font
 http://www.fontsquirrel.com/fonts/Aaargh
@@ -33,5 +33,14 @@ http://www.tupwanders.nl/
 By: Tup Wanders
 License(s):
 	Licensed with a Creative Commons attribution license.
-These assets are located at: base/fonts/
+These assets are located at:	base/fonts/
+===============================================================
+Feedback announcements
+http://www.mancubus.net/svn/openarena/sound/feedback/
+http://openarena.ws/
+By: OpenArean Project
+License(s):
+	GPL
+These assets are located at:	base/sound/feedback/
+								base/sound/teamplay/
 ===============================================================
