@@ -392,10 +392,10 @@ static void CG_DrawWeaverDisc(void)
 	}
 
 	da = cg_drawWeaverDisc.integer;
+	w = h = cg_weaverDiscSize.integer;
 
 	if(da >= 1 && da <= NUM_WEAVERDISCS)
 	{
-		w = h = cg_weaverDiscSize.integer;
 		//TODO: reimplement move scale
 		//moveScale = (float)cg_weaverDiscMoveScale.value * 1.0;
 

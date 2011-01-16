@@ -536,7 +536,6 @@ void WeaveEffect_Fog(centity_t * cent)
 {
 	vec3_t          maxs = { 368.0f, 368.0f, 96.0f };
 	int             i;
-	refEntity_t     beam;
 	vec3_t          vel;
 	vec3_t          org;
 	localEntity_t  *smoke;

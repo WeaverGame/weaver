@@ -1426,7 +1426,7 @@ void ClientSpawn(gentity_t * ent)
 		//create threads entity for this player
 		CreateThreads(ent);
 
-		G_StatTimeStart(STATF_LIVETIME, ent, NULL, NULL);
+		G_StatTimeStart(STATF_LIVETIME, ent, NULL, 0);
 	}
 
 	// don't allow full run speed for a bit

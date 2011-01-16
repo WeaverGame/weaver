@@ -180,7 +180,7 @@ set muzzle location relative to pivoting eye
 void CalcMuzzlePoint(gentity_t * ent, vec3_t forward, vec3_t right, vec3_t up, vec3_t muzzlePoint, int weapon, qboolean secondary)
 {
 	vec3_t          surfNormal;
-	vec3_t          offset;
+	//vec3_t          offset;
 	vec3_t          end;
 
 	if(ent->client)

@@ -213,7 +213,7 @@ Draw the normal in-game scoreboard
 void CG_DrawScoreboardTitlebarNew(vec4_t color, qboolean team)
 {
 	const char     *s;
-	const char     *status;
+	const char     *status = "";
 	int             msec;
 	int             mins, seconds, tens;
 

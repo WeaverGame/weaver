@@ -1918,17 +1918,17 @@ void CG_AddViewWeapon(playerState_t * ps)
 	// allow the gun to be completely removed
 	if(!cg_drawGun.integer)
 	{
+		/*
 		vec3_t          origin;
 
 		if(cg.predictedPlayerState.eFlags & EF_FIRING)
 		{
-			/*
 			// special hack for lightning gun...
 			VectorCopy(cg.refdef.vieworg, origin);
 			VectorMA(origin, -8, cg.refdef.viewaxis[2], origin);
 			CG_LightningBolt(&cg_entities[ps->clientNum], origin);
-			*/
 		}
+		*/
 		return;
 	}
 
@@ -2844,12 +2844,10 @@ void CG_MissileHitWall(int weapon, int entityType, int clientNum, vec3_t origin,
 	float           light;
 	vec3_t          lightColor;
 	localEntity_t  *le;
-	int             r;
 	qboolean        alphaFade;
 	qboolean        isSprite;
 	int             duration;
 	vec3_t          partOrigin;
-	vec3_t          partVel;
 
 	mark = 0;
 	radius = 32;

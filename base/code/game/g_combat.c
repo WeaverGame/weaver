@@ -513,7 +513,7 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 
 	ClientWeaverDie(self);
 
-	G_StatTimeAdd(STATF_LIVETIME, self, NULL, NULL);
+	G_StatTimeAdd(STATF_LIVETIME, self, NULL, 0);
 
 	if(attacker)
 	{
@@ -522,11 +522,12 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 		{
 			if(inflictor->s.eType == ET_WEAVE_EFFECT || inflictor->s.eType == ET_WEAVE_MISSILE)
 			{
-				G_StatTimeAdd(STATF_KILLS, attacker, attacker->parent, inflictor->s.weapon);
+				//TODO:
+				//G_StatCountAdd(STATF_KILLS, attacker, attacker, inflictor->s.weapon);
 			}
 			else
 			{
-				G_StatTimeAdd(STATF_KILLS, attacker, ent, 0);
+				//G_StatCountAdd(STATF_KILLS, attacker, attacker, 0);
 			}
 			killerName = attacker->client->pers.netname;
 		}
