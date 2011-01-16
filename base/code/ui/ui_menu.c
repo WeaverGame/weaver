@@ -468,6 +468,8 @@ void UI_MainMenu(void)
 
 	Menu_AddItem(&s_main.menu, &s_main.title);
 
+	trap_Cmd_ExecuteText(EXEC_APPEND, "music music/theme.ogg\n");
+
 	trap_Key_SetCatcher(KEYCATCH_UI);
 	uis.menusp = 0;
 	UI_PushMenu(&s_main.menu);
