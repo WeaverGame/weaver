@@ -57,67 +57,68 @@ typedef struct
 cr_line         credits[] = {
 	{"Weaver Team", UI_CENTER | UI_GIANTFONT, colorRed},
 	{"http://www.dersaidin.net/weaver/forum/", UI_CENTER | UI_SMALLFONT, colorBlue},
-	{"", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"", UI_CENTER | UI_SMALLFONT, colorBlack},
 
 	{"Core Team:", UI_CENTER | UI_BIGFONT, colorRed},
-	{"Andrew 'DerSaidin' Browne - Project Lead, Programming Lead, Map Design", UI_CENTER | UI_SMALLFONT, colorRed},
-	{"'TRaK' - Artistic Lead, Environment Artist, Texture Artist", UI_CENTER | UI_SMALLFONT, colorRed},
-	{"'10percentmachine' - Concept Artist", UI_CENTER | UI_SMALLFONT, colorRed},
-	{"'Endoperez' - Animator", UI_CENTER | UI_SMALLFONT, colorRed},
-	{"Jani - Graphics Artist", UI_CENTER | UI_SMALLFONT, colorRed},
-	{"'Karvajalka' - 3D Props Artist", UI_CENTER | UI_SMALLFONT, colorRed},
-	{"'mikeplus64' - Environment Artist", UI_CENTER | UI_SMALLFONT, colorRed},
+	{"                   Andrew 'DerSaidin' Browne (AU) - Project Lead, Programming Lead, Map Design       ", UI_CENTER | UI_SMALLFONT, colorRed},
+	{"                      Georges 'TRaK' Grondin (CA) - Artistic Lead, Environment Artist, Texture Artist", UI_CENTER | UI_SMALLFONT, colorRed},
+	{"                          '10percentmachine' (CA) - Concept Artist                                   ", UI_CENTER | UI_SMALLFONT, colorRed},
+	{"                                 'Endoperez' (CA) - Animator                                         ", UI_CENTER | UI_SMALLFONT, colorRed},
+	{"                               Jani Reijonen (FI) - Graphics Artist                                  ", UI_CENTER | UI_SMALLFONT, colorRed},
+	{"               Tuomas 'Bright Side' Kallinen (FI) - Audio Producer                                   ", UI_CENTER | UI_SMALLFONT, colorRed},
+	{"                                'Karvajalka' (CA) - 3D Props Artist                                  ", UI_CENTER | UI_SMALLFONT, colorRed},
+	{"                                'mikeplus64' (AU) - Environment Artist                               ", UI_CENTER | UI_SMALLFONT, colorRed},
 	{"", UI_CENTER | UI_SMALLFONT, colorWhite},
 
-	{"Past members:", UI_CENTER | UI_BIGFONT, colorWhite},
-	{"'eiM' - Programmer", UI_CENTER | UI_SMALLFONT, colorWhite},
-	{"'MadMonki' - Programmer", UI_CENTER | UI_SMALLFONT, colorRed},
-	{"'ratty redemption' - Environment Artist, Texture Artist", UI_CENTER | UI_SMALLFONT, colorRed},
-	{"'ryguy_1617' - 3D Props Artist", UI_CENTER | UI_SMALLFONT, colorWhite},
-	{"'leekenn' - Sound effects", UI_CENTER | UI_SMALLFONT, colorWhite},
-	{"'dutchmeat' - Programmer", UI_CENTER | UI_SMALLFONT, colorWhite},
-	{"Patrick Delmastro - Character Artist", UI_CENTER | UI_SMALLFONT, colorWhite},
-	{"", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"Past members:", UI_CENTER | UI_BIGFONT, colorBlack},
+	{"                                       'eiM' (DE) - Programmer                                       ", UI_CENTER | UI_SMALLFONT, colorBlack},
+	{"                       Ben 'MadMonki' Barham (AU) - Programmer                                       ", UI_CENTER | UI_SMALLFONT, colorRed},
+	{"                               'ratty redemption' - Environment Artist, Texture Artist               ", UI_CENTER | UI_SMALLFONT, colorRed},
+	{"                   Ryan 'ryguy_1617' Berkani (US) - 3D Props Artist                                  ", UI_CENTER | UI_SMALLFONT, colorBlack},
+	{"                                        'leekenn' - Sound effects                                    ", UI_CENTER | UI_SMALLFONT, colorBlack},
+	{"                                 'dutchmeat' (NL) - Programmer                                       ", UI_CENTER | UI_SMALLFONT, colorBlack},
+	{"                           Patrick Delmastro (AU) - Character Artist                                 ", UI_CENTER | UI_SMALLFONT, colorBlack},
+	{"", UI_CENTER | UI_SMALLFONT, colorBlack},
 
-	{"", UI_CENTER | UI_SMALLFONT, colorWhite},
-	{"", UI_CENTER | UI_SMALLFONT, colorWhite},
-	{"", UI_CENTER | UI_SMALLFONT, colorWhite},
-	{"", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"", UI_CENTER | UI_SMALLFONT, colorBlack},
+	{"", UI_CENTER | UI_SMALLFONT, colorBlack},
+	{"", UI_CENTER | UI_SMALLFONT, colorBlack},
+	{"", UI_CENTER | UI_SMALLFONT, colorBlack},
 
 	{"XreaL - http://xreal-project.net/", UI_CENTER | UI_BIGFONT, colorRed},
 	{"Robert 'Tr3B' Beckebans", UI_CENTER | UI_SMALLFONT, colorRed},
-	{"Pat 'raynorpat' Raynor", UI_CENTER | UI_SMALLFONT, colorWhite},
-//  {"Josef 'cnuke' Soentgen", UI_CENTER | UI_SMALLFONT, colorWhite},
-	{"Adrian 'otty' Fuhrmann", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"Pat 'raynorpat' Raynor", UI_CENTER | UI_SMALLFONT, colorBlack},
+//  {"Josef 'cnuke' Soentgen", UI_CENTER | UI_SMALLFONT, colorBlack},
+	{"Adrian 'otty' Fuhrmann", UI_CENTER | UI_SMALLFONT, colorBlack},
 	{"", UI_CENTER | UI_SMALLFONT, colorWhite},
 
 	{"IOQuake 3 - http://www.ioquake3.org/", UI_CENTER | UI_BIGFONT, colorRed},
-	{"Tim 'Timbo' Angus", UI_CENTER | UI_SMALLFONT, colorWhite},
-	{"Vincent Cojot", UI_CENTER | UI_SMALLFONT, colorWhite},
-	{"Ryan C. 'icculus' Gordon", UI_CENTER | UI_SMALLFONT, colorWhite},
-	{"Aaron Gyes", UI_CENTER | UI_SMALLFONT, colorWhite},
-	{"Ludwig Nussel", UI_CENTER | UI_SMALLFONT, colorWhite},
-	{"Julian Priestley", UI_CENTER | UI_SMALLFONT, colorWhite},
-	{"Scirocco Six", UI_CENTER | UI_SMALLFONT, colorWhite},
-	{"Zachary J. Slater", UI_CENTER | UI_SMALLFONT, colorWhite},
-	{"Tony J. White", UI_CENTER | UI_SMALLFONT, colorWhite},
-	{"", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"Tim 'Timbo' Angus", UI_CENTER | UI_SMALLFONT, colorBlack},
+	{"Vincent Cojot", UI_CENTER | UI_SMALLFONT, colorBlack},
+	{"Ryan C. 'icculus' Gordon", UI_CENTER | UI_SMALLFONT, colorBlack},
+	{"Aaron Gyes", UI_CENTER | UI_SMALLFONT, colorBlack},
+	{"Ludwig Nussel", UI_CENTER | UI_SMALLFONT, colorBlack},
+	{"Julian Priestley", UI_CENTER | UI_SMALLFONT, colorBlack},
+	{"Scirocco Six", UI_CENTER | UI_SMALLFONT, colorBlack},
+	{"Zachary J. Slater", UI_CENTER | UI_SMALLFONT, colorBlack},
+	{"Tony J. White", UI_CENTER | UI_SMALLFONT, colorBlack},
+	{"", UI_CENTER | UI_SMALLFONT, colorBlack},
 
 	{"Unlagged - http://www.ra.is/unlagged/", UI_CENTER | UI_BIGFONT, colorRed},
-	{"Neil 'haste' Toronto", UI_CENTER | UI_SMALLFONT, colorWhite},
-	{"", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"Neil 'haste' Toronto", UI_CENTER | UI_SMALLFONT, colorBlack},
+	{"", UI_CENTER | UI_SMALLFONT, colorBlack},
 
 	{"Darkradiant - http://darkradiant.sourceforge.net/", UI_CENTER | UI_BIGFONT, colorRed},
-	{"", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"", UI_CENTER | UI_SMALLFONT, colorBlack},
 
 	{"Special Thanks To:", UI_CENTER | UI_BIGFONT, colorMdGrey},
-	{"id Software", UI_CENTER | UI_SMALLFONT, colorWhite},
-	{"", UI_CENTER | UI_SMALLFONT, colorBlue},
+	{"id Software", UI_CENTER | UI_SMALLFONT, colorBlack},
+	{"", UI_CENTER | UI_SMALLFONT, colorBlack},
 
 	{"Other Contributors", UI_CENTER | UI_BIGFONT, colorMdGrey},
-	{"For a detailed list of contributors see the accompanying;", UI_CENTER | UI_SMALLFONT, colorWhite},
-	{"ASSET_LICENSE.txt and XREAL_CONTRIBUTORS.txt", UI_CENTER | UI_SMALLFONT, colorWhite},
-	{"", UI_CENTER | UI_SMALLFONT, colorWhite},
+	{"For a detailed list of contributors see the accompanying;", UI_CENTER | UI_SMALLFONT, colorBlack},
+	{"ASSET_LICENSE.txt and XREAL_CONTRIBUTORS.txt", UI_CENTER | UI_SMALLFONT, colorBlack},
+	{"", UI_CENTER | UI_SMALLFONT, colorBlack},
 
 	{"Weaver(c) 2008-2011, Weaver Team and Contributors", UI_CENTER | UI_SMALLFONT, colorRed},
 	{"XreaL(c) 2005-2009, XreaL Team and Contributors", UI_CENTER | UI_SMALLFONT, colorRed},
@@ -209,16 +210,17 @@ static void ScrollingCredits_Draw(void)
 
 		textScale = textZoom;
 
+		/*
 		if(credits[n].style & UI_GIANTFONT)
-			UI_DrawRect(0, y - color[3] * 20 + (sin(uis.realtime / 100.0f) * 10 * (1.0f - color[3])), 640, 3 + color[3] * 40,
+			UI_DrawRect(0, y - color[3] * 20, 640, 3 + color[3] * 40,
 						color_cursorLines);
 		else if(credits[n].style & UI_BIGFONT)
-			UI_DrawRect(0, y - color[3] * 10 + (sin(uis.realtime / 100.0f) * 10 * (1.0f - color[3])), 640, 1 + color[3] * 20,
+			UI_DrawRect(0, y - color[3] * 10, 640, 1 + color[3] * 20,
 						color_cursorLines);
+		*/
 
 
-
-		UI_Text_Paint(x, y, textScale, color, credits[n].string, 0, 0, credits[n].style | UI_DROPSHADOW, &uis.freeSansBoldFont);
+		UI_Text_Paint(x, y, textScale, color, credits[n].string, 0, 0, credits[n].style, &uis.freeSansBoldFont);
 
 		y += SMALLCHAR_HEIGHT + 4;
 
