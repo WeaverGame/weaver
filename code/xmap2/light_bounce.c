@@ -842,6 +842,9 @@ void RadLight(int num)
 	contentFlags = surfaceFlags = compileFlags = 0;
 	ApplySurfaceParm("nodraw", &contentFlags, &surfaceFlags, &compileFlags);
 
+	// jal : avoid bouncing on trans surfaces
+	ApplySurfaceParm("trans", &contentFlags, &surfaceFlags, &compileFlags);
+
 	/* early outs? */
 	if(scale <= 0.0f || (si->compileFlags & C_SKY) || si->autosprite ||
 	   (bspShaders[ds->shaderNum].contentFlags & contentFlags) || (bspShaders[ds->shaderNum].surfaceFlags & surfaceFlags) ||

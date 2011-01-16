@@ -286,6 +286,9 @@ constants
 #define SUPER_FLOODLIGHT( x, y )	(lm->superFloodLight + ((((y) * lm->sw) + (x)) * SUPER_FLOODLIGHT_SIZE) )
 
 
+#define	RGBTOGRAY(v)		( (v)[0] * 0.3f + (v)[1] * 0.59f + (v)[2] * 0.11f)
+#define	RGBTOLUMINANCE(v)	( (v)[0] * 0.2125f + (v)[1] * 0.7154f + (v)[2] * 0.0721f)
+
 
 /* -------------------------------------------------------------------------------
 
@@ -307,7 +310,7 @@ abstracted bsp file
 #define MAX_LIGHTMAP_SHADERS	256
 
 /* ok to increase these at the expense of more memory */
-#define	MAX_MAP_ENTITIES		0x1000		//%	0x800	/* ydnar */
+#define	MAX_MAP_ENTITIES		0x3000		// Tr3B: old 0x1000 //%	0x800	/* ydnar */
 #define	MAX_MAP_ENTSTRING		0x80000		//%	0x40000	/* ydnar */
 
 #define	MAX_MAP_AREAS			0x100		/* MAX_MAP_AREA_BYTES in q_shared must match! */
@@ -565,6 +568,7 @@ typedef struct game_s
 	float           lightmapCompensate;	/* default lightmap compensate value */
 	float           gridScale;	/* vortex: default lightgrid scale (affects both directional and ambient spectres) */
 	float           gridAmbientScale;	/* vortex: default lightgrid ambient spectre scale */
+	qboolean        lightAngleHL;	/* jal: use half-lambert curve for light angle attenuation */
 	qboolean        noStyles;	/* use lightstyles hack or not */
 	qboolean        keepLights;	/* keep light entities on bsp */
 	int             patchSubdivisions;	/* default patch subdivisions tolerance */
@@ -752,6 +756,7 @@ typedef struct shaderInfo_s
 	qb_t            noFog;		/* ydnar: supress fogging */
 	qb_t            clipModel;	/* ydnar: solid model hack */
 	qb_t            noVertexLight;	/* ydnar: leave vertex color alone */
+	qb_t            noDirty;	/* jal: do not apply the dirty pass to this surface */
 
 	byte            styleMarker;	/* ydnar: light styles hack */
 
@@ -794,6 +799,7 @@ typedef struct shaderInfo_s
 
 	vec3_t          fogDir;		/* ydnar */
 
+	char           *shaderText;	/* ydnar */
 	qb_t            explicit;	/* Tr3B: .mtr material was found */
 	qb_t            custom;
 	qb_t            finished;
@@ -909,7 +915,11 @@ typedef struct brush_s
 	vec3_t          mins, maxs;
 	int             numsides;
 
+	qboolean		generatedClipBrush;	// Tr3B: created by a custom model and clipModel 1
+
 	side_t          sides[6];	/* variably sized */
+
+	// Tr3B: don't add anything below sides
 }
 brush_t;
 
@@ -955,6 +965,10 @@ typedef struct parseMesh_s
 	qboolean        grouped;
 	float           longestCurve;
 	int             maxIterations;
+
+	// Tr3B: Doom 3 mods
+	qboolean        patchDef3;
+	vec_t           info[7];
 }
 parseMesh_t;
 
@@ -1017,7 +1031,7 @@ typedef struct mapDrawSurface_s
 
 	qboolean        fur;		/* ydnar: this is kind of a hack, but hey... */
 	qboolean        skybox;		/* ydnar: yet another fun hack */
-	qboolean        backSide;	/* ydnar: xmap_backShader support */
+	qboolean        backSide;	/* ydnar: q3map_backShader support */
 
 	struct mapDrawSurface_s *parent;	/* ydnar: for cloned (skybox) surfaces to share lighting data */
 	struct mapDrawSurface_s *clone;	/* ydnar: for cloned surfaces */
@@ -1307,6 +1321,7 @@ typedef struct light_s
 	float           radiusByDist;	/* for spotlights */
 	float           fade;		/* ydnar: from wolf, for linear lights */
 	float           angleScale;	/* ydnar: stolen from vlight for K */
+	float           extraDist;	/* "extra dimension" distance of the light, to kill hot spots */
 
 	float           add;		/* ydnar: used for area lights */
 	float           envelope;	/* ydnar: units until falloff < tolerance */
@@ -1353,6 +1368,7 @@ typedef struct
 	/* input and output */
 	vec3_t          color;		/* starts out at full color, may be reduced if transparent surfaces are crossed */
 	vec3_t          colorNoShadow;	/* result color with no shadow casting */
+	vec3_t          directionContribution;	/* result contribution to the deluxe map */
 
 	/* output */
 	vec3_t          hit;
@@ -1515,6 +1531,22 @@ int             ConvertBSPToMap(char *bspName);
 
 /* convert_ase.c */
 int             ConvertBSPToASE(char *bspName);
+
+/**
+Tr3B: convertType_t is used for .map to .map conversions
+*/
+typedef enum
+{
+	CONVERT_NOTHING,
+//  CONVERT_QUAKE1,
+//  CONVERT_QUAKE2,
+	CONVERT_QUAKE3,
+	CONVERT_QUAKE4,
+//	CONVERT_DOOM3,
+//  CONVERT_PREY
+} convertType_t;
+
+extern convertType_t convertType;
 
 
 /* brush.c */
@@ -1900,6 +1932,13 @@ void            WriteXBSPFile(const char *filename);
 
 
 
+/* gldraw.c */
+void            Draw_Winding(winding_t * w);
+void            Draw_AuxWinding(winding_t * w);
+void            Draw_Scene(void (*drawFunc) (void));
+void            Draw_AuxWinding(winding_t * w);
+void			Draw_AABB(const vec3_t origin, const vec3_t mins, const vec3_t maxs, vec4_t color);
+
 /* -------------------------------------------------------------------------------
 
 bsp/general global variables
@@ -1974,7 +2013,9 @@ Q_EXTERN qboolean			noHint Q_ASSIGN( qfalse );				/* ydnar */
 Q_EXTERN qboolean			renameModelShaders Q_ASSIGN( qfalse );	/* ydnar */
 Q_EXTERN qboolean			skyFixHack Q_ASSIGN( qfalse );			/* ydnar */
 Q_EXTERN qboolean			bspAlternateSplitWeights Q_ASSIGN( qfalse );			/* 27 */
-Q_EXTERN qboolean			deepBSP Q_ASSIGN( qfalse );			/* div0 */
+Q_EXTERN qboolean			deepBSP Q_ASSIGN( qfalse );				/* div0 */
+Q_EXTERN qboolean			inlineEntityModels Q_ASSIGN( qfalse );	/* Tr3B */
+Q_EXTERN qboolean			drawBSP Q_ASSIGN( qfalse );				/* Tr3B */
 
 Q_EXTERN int				patchSubdivisions Q_ASSIGN( 8 );		/* ydnar: -patchmeta subdivisions */
 
@@ -2137,6 +2178,7 @@ light global variables
 
 /* commandline arguments */
 Q_EXTERN qboolean			wolfLight Q_ASSIGN( qfalse );
+Q_EXTERN float				extraDist Q_ASSIGN( 0.0f );
 Q_EXTERN qboolean			loMem Q_ASSIGN( qfalse );
 Q_EXTERN qboolean			noStyles Q_ASSIGN( qfalse );
 
@@ -2214,9 +2256,15 @@ Q_EXTERN float				areaScale Q_ASSIGN( 0.25f );
 Q_EXTERN float				skyScale Q_ASSIGN( 1.0f );
 Q_EXTERN float				bounceScale Q_ASSIGN( 0.25f );
 
+/* jal: alternative angle attenuation curve */
+Q_EXTERN qboolean			lightAngleHL Q_ASSIGN( qfalse );
+ 
 /* vortex: gridscale and gridambientscale */
 Q_EXTERN float				gridScale Q_ASSIGN( 1.0f );
 Q_EXTERN float				gridAmbientScale Q_ASSIGN( 1.0f );
+Q_EXTERN float				gridDirectionality Q_ASSIGN( 1.0f );
+Q_EXTERN float				gridAmbientDirectionality Q_ASSIGN( 0.0f );
+Q_EXTERN qboolean			inGrid Q_ASSIGN(0);
 
 /* ydnar: lightmap gamma/compensation */
 Q_EXTERN float				lightmapGamma Q_ASSIGN( 1.0f );

@@ -2471,7 +2471,8 @@ void IlluminateRawLightmap(int rawLightmapNum)
 	FreeTraceLights(&trace);
 
 	/* floodlight pass */
-	FloodlightIlluminateLightmap(lm);
+	if(floodlighty)
+		FloodlightIlluminateLightmap(lm);
 
 	if(debugnormals)
 	{
@@ -2569,6 +2570,7 @@ void IlluminateRawLightmap(int rawLightmapNum)
 				   (lm->splotchFix &&
 					(luxel[0] <= ambientColor[0] || luxel[1] <= ambientColor[1] || luxel[2] <= ambientColor[2])))
 					filterColor = qtrue;
+
 				if(deluxemap && lightmapNum == 0 && (*cluster < 0 || filter))
 					filterDir = qtrue;
 
@@ -2695,6 +2697,8 @@ void IlluminateVertexes(int num)
 	rawLightmap_t  *lm;
 	bspDrawVert_t  *verts;
 	trace_t         trace;
+	float           floodLightAmount;
+	vec3_t          floodColor;
 
 
 	/* get surface, info, and raw lightmap */
@@ -2781,6 +2785,16 @@ void IlluminateVertexes(int num)
 					else
 						dirt = 1.0f;
 
+					/* jal: floodlight */
+					floodLightAmount = 0.0f;
+					VectorClear(floodColor);
+					if(floodlighty && !bouncing)
+					{
+						floodLightAmount =
+							floodlightIntensity * FloodLightForSample(&trace, floodlightDistance, floodlight_lowquality);
+						VectorScale(floodlightRGB, floodLightAmount, floodColor);
+					}
+
 					/* trace */
 					LightingAtSample(&trace, ds->vertexStyles, colors);
 
@@ -2789,6 +2803,9 @@ void IlluminateVertexes(int num)
 					{
 						/* r7 dirt */
 						VectorScale(colors[lightmapNum], dirt, colors[lightmapNum]);
+
+						/* jal: floodlight */
+						VectorAdd(colors[lightmapNum], floodColor, colors[lightmapNum]);
 
 						/* store */
 						radVertLuxel = RAD_VERTEX_LUXEL(lightmapNum, ds->firstVert + i);
@@ -2838,6 +2855,9 @@ void IlluminateVertexes(int num)
 								{
 									/* r7 dirt */
 									VectorScale(colors[lightmapNum], dirt, colors[lightmapNum]);
+
+									/* jal: floodlight */
+									VectorAdd(colors[lightmapNum], floodColor, colors[lightmapNum]);
 
 									/* store */
 									radVertLuxel = RAD_VERTEX_LUXEL(lightmapNum, ds->firstVert + i);
@@ -4281,7 +4301,7 @@ void FloodLightRawLightmap(int rawLightmapNum)
 
 	/* global pass */
 	if(floodlighty && floodlightIntensity)
-		FloodLightRawLightmapPass(lm, floodlightRGB, floodlightIntensity, floodlightDistance, floodlight_lowquality, 0);
+		FloodLightRawLightmapPass(lm, floodlightRGB, floodlightIntensity, floodlightDistance, floodlight_lowquality, 1.0f);
 
 	/* custom pass */
 	if(lm->floodlightIntensity)
@@ -4310,7 +4330,6 @@ void FloodlightIlluminateLightmap(rawLightmap_t * lm)
 	float          *luxel, *floodlight, *deluxel, *normal;
 	int            *cluster;
 	float           brightness;
-	vec3_t          lightvector;
 	int             x, y, lightmapNum;
 
 	/* walk lightmaps */
@@ -4352,9 +4371,15 @@ void FloodlightIlluminateLightmap(rawLightmap_t * lm)
 				/* add to deluxemap */
 				if(deluxemap && floodlight[3] > 0)
 				{
+					vec3_t          lightvector;
+
 					normal = SUPER_NORMAL(x, y);
-					brightness = floodlight[0] * 0.3f + floodlight[1] * 0.59f + floodlight[2] * 0.11f;
-					brightness *= (1.0f / 255.0f) * floodlight[3];
+					brightness = RGBTOGRAY(floodlight) * (1.0f / 255.0f) * floodlight[3];
+
+					// use AT LEAST this amount of contribution from ambient for the deluxemap, fixes points that receive ZERO light
+					if(brightness < 0.00390625f)
+						brightness = 0.00390625f;
+
 					VectorScale(normal, brightness, lightvector);
 					VectorAdd(deluxel, lightvector, deluxel);
 				}
