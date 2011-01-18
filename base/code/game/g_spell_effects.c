@@ -533,6 +533,15 @@ gentity_t      *EndWeave_ProtectWater(gentity_t * self, vec3_t start, vec3_t dir
 	return heldWeave;
 }
 
+void checkProtectEndWeave(gentity_t * heldWeave)
+{
+	if(heldWeave != NULL)
+	{
+		EndWeave(heldWeave);
+		ClearHeldWeave(heldWeave);
+	}
+}
+
 /*
 =================
 FireWeave
@@ -571,25 +580,31 @@ qboolean FireWeave_Protect(gentity_t * self, vec3_t start, vec3_t dir, int heldW
 	bolt->target_ent = self;
 	bolt->freeAfterEvent = qfalse;
 
-	if(weaveID == WVW_D_AIR_PROTECT)
+	switch(weaveID)
 	{
-		self->client->ps.stats[STAT_AIRPROTECT] = WEAVE_PROTECTAIR;
-		self->client->protectHeldAir = heldWeave;
-	}
-	if(weaveID == WVW_D_FIRE_PROTECT)
-	{
-		self->client->ps.stats[STAT_FIREPROTECT] = WEAVE_PROTECTFIRE;
-		self->client->protectHeldFire = heldWeave;
-	}
-	if(weaveID == WVW_D_EARTH_PROTECT)
-	{
-		self->client->ps.stats[STAT_EARTHPROTECT] = WEAVE_PROTECTEARTH;
-		self->client->protectHeldEarth = heldWeave;
-	}
-	if(weaveID == WVW_D_WATER_PROTECT)
-	{
-		self->client->ps.stats[STAT_WATERPROTECT] = WEAVE_PROTECTWATER;
-		self->client->protectHeldWater = heldWeave;
+		case WVW_D_AIR_PROTECT:
+			checkProtectEndWeave(self->client->protectHeldAir);
+			self->client->ps.stats[STAT_AIRPROTECT] = WEAVE_PROTECTAIR;
+			self->client->protectHeldAir = heldWeave;
+			break;
+		case WVW_D_FIRE_PROTECT:
+			checkProtectEndWeave(self->client->protectHeldFire);
+			self->client->ps.stats[STAT_FIREPROTECT] = WEAVE_PROTECTFIRE;
+			self->client->protectHeldFire = heldWeave;
+			break;
+		case WVW_D_EARTH_PROTECT:
+			checkProtectEndWeave(self->client->protectHeldEarth);
+			self->client->ps.stats[STAT_EARTHPROTECT] = WEAVE_PROTECTEARTH;
+			self->client->protectHeldEarth = heldWeave;
+			break;
+		case WVW_D_WATER_PROTECT:
+			checkProtectEndWeave(self->client->protectHeldWater);
+			self->client->ps.stats[STAT_WATERPROTECT] = WEAVE_PROTECTWATER;
+			self->client->protectHeldWater = heldWeave;
+			break;
+		default:
+			// never happen
+			return qfalse;
 	}
 
 	trap_LinkEntity(bolt);
