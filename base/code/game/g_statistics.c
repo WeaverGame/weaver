@@ -85,6 +85,8 @@ void G_StatCountAdd(statField_t f, gentity_t * ent, gentity_t * other, int weapo
 		return;
 	}
 
+	Com_Printf("Stats: %s ent1=%d ent2=%d, weap=%d, inc=%d\n", statFieldDefs[f].name1, ent->s.number, other->s.number, weapon, val);
+
 	stat->c += val;
 }
 
@@ -182,6 +184,80 @@ void StatDumpP(statField_t f)
 	}
 }
 
+void StatDumpPW(statField_t f)
+{
+	int i, j;
+
+	for(i = 0; i < MAX_CLIENTS; i++)
+	{
+		if(g_entities[i].client == NULL)
+		{
+			break;
+		}
+		Com_Printf("p%02d: ", i);
+		for(j = 0; j < STEL_WEAPON_LENGTH; j++)
+		{
+			StatDumpValue(f, &(game_stats.p[i].pw[j].stat[f - STEL_P_FIRST]));
+			Com_Printf(" ");
+		}
+		Com_Printf("\n");
+	}
+}
+
+void StatDumpPP(statField_t f)
+{
+	int i, j;
+
+	for(i = 0; i < MAX_CLIENTS; i++)
+	{
+		if(g_entities[i].client == NULL)
+		{
+			break;
+		}
+		Com_Printf("p%02d: ==\n", i);
+		for(j = 0; j < MAX_CLIENTS; j++)
+		{
+			if(g_entities[j].client == NULL)
+			{
+				break;
+			}
+			Com_Printf("p%02d: ", j);
+			StatDumpValue(f, &(game_stats.p[i].pp[j].stat[f - STEL_P_FIRST]));
+			Com_Printf(" ");
+		}
+		Com_Printf("\n");
+	}
+}
+
+void StatDumpPPW(statField_t f)
+{
+	int i, j, k;
+
+	for(i = 0; i < MAX_CLIENTS; i++)
+	{
+		if(g_entities[i].client == NULL)
+		{
+			break;
+		}
+		Com_Printf("p%02d: ==\n", i);
+		for(j = 0; j < MAX_CLIENTS; j++)
+		{
+			if(g_entities[j].client == NULL)
+			{
+				break;
+			}
+			Com_Printf("p%02d: ", j);
+			for(k = 0; k < STEL_WEAPON_LENGTH; k++)
+			{
+				StatDumpValue(f, &(game_stats.p[i].pp[j].ppw[k].stat[f - STEL_P_FIRST]));
+				Com_Printf(" ");
+			}
+			Com_Printf("\n");
+		}
+		Com_Printf("\n");
+	}
+}
+
 void G_StatDump(void)
 {
 	int i;
@@ -196,10 +272,13 @@ void G_StatDump(void)
 				StatDumpP(i);
 				break;
 			case SVET_PW:
+				StatDumpPW(i);
 				break;
 			case SVET_PP:
+				StatDumpPP(i);
 				break;
 			case SVET_PPW:
+				StatDumpPPW(i);
 				break;
 			default:
 				break;

@@ -520,26 +520,27 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 		killer = attacker->s.number;
 		if(attacker->client)
 		{
-			if(inflictor->s.eType == ET_WEAVE_EFFECT || inflictor->s.eType == ET_WEAVE_MISSILE)
+			if(inflictor && (inflictor->s.eType == ET_WEAVE_EFFECT || inflictor->s.eType == ET_WEAVE_MISSILE))
 			{
-				//TODO:
-				//G_StatCountAdd(STATF_KILLS, attacker, attacker, inflictor->s.weapon);
+				G_StatCountAdd(STATF_KILLS, attacker, self, inflictor->s.weapon, 1);
 			}
 			else
 			{
-				//G_StatCountAdd(STATF_KILLS, attacker, attacker, 0);
+				G_StatCountAdd(STATF_KILLS, attacker, self, WVW_NONE, 1);
 			}
 			killerName = attacker->client->pers.netname;
 		}
 		else
 		{
 			killerName = "<non-client>";
+			G_StatCountAdd(STATF_KILLS, self, self, WVW_NONE, 1);
 		}
 	}
 	else
 	{
 		killer = ENTITYNUM_WORLD;
 		killerName = "<world>";
+		G_StatCountAdd(STATF_KILLS, self, self, WVW_NONE, 1);
 	}
 
 	if(killer < 0 || killer >= MAX_CLIENTS)
