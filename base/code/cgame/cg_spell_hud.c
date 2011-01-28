@@ -125,7 +125,7 @@ static void CG_DrawWeaverStatusBar(void)
 	CG_DrawPic(rectx, recty + 2, 12, 12, cgs.media.weaverIconHP);
 
 	hpString = va("%ihp", currentHealth);
-	CG_DrawStringExt(rectx - 4, recty + 17, hpString, colorWhite, qtrue, qfalse, 6, 8, 0);
+	CG_Text_PaintAligned(rectx - 4, recty + 17, hpString, 0.125f, UI_LEFT, colorWhite, &cgs.media.freeSansBoldFont);
 
 	rectx += HUD_HEALTH_WIDTH;
 
@@ -163,25 +163,25 @@ static void CG_DrawWeaverStatusBar(void)
 	if(cg.predictedPlayerState.stats[STAT_AIRPROTECT] > 0)
 	{
 		protectString = va("%d", cg.predictedPlayerState.stats[STAT_AIRPROTECT]);
-		CG_DrawStringExt(rectx, recty, protectString, colorAir, qtrue, qfalse, 6, 8, 0);
+		CG_Text_PaintAligned(rectx, recty, protectString, 0.125f, UI_LEFT, colorAir, &cgs.media.freeSansBoldFont);
 		recty += 7;
 	}
 	if(cg.predictedPlayerState.stats[STAT_FIREPROTECT] > 0)
 	{
 		protectString = va("%d", cg.predictedPlayerState.stats[STAT_FIREPROTECT]);
-		CG_DrawStringExt(rectx, recty, protectString, colorFire, qtrue, qfalse, 6, 8, 0);
+		CG_Text_PaintAligned(rectx, recty, protectString, 0.125f, UI_LEFT, colorFire, &cgs.media.freeSansBoldFont);
 		recty += 7;
 	}
 	if(cg.predictedPlayerState.stats[STAT_EARTHPROTECT] > 0)
 	{
 		protectString = va("%d", cg.predictedPlayerState.stats[STAT_EARTHPROTECT]);
-		CG_DrawStringExt(rectx, recty, protectString, colorEarth, qtrue, qfalse, 6, 8, 0);
+		CG_Text_PaintAligned(rectx, recty, protectString, 0.125f, UI_LEFT, colorEarth, &cgs.media.freeSansBoldFont);
 		recty += 7;
 	}
 	if(cg.predictedPlayerState.stats[STAT_WATERPROTECT] > 0)
 	{
 		protectString = va("%d", cg.predictedPlayerState.stats[STAT_WATERPROTECT]);
-		CG_DrawStringExt(rectx, recty, protectString, colorWater, qtrue, qfalse, 6, 8, 0);
+		CG_Text_PaintAligned(rectx, recty, protectString, 0.125f, UI_LEFT, colorWater, &cgs.media.freeSansBoldFont);
 		recty += 7;
 	}
 
@@ -206,7 +206,7 @@ static void CG_DrawWeaverStatusBar(void)
 	CG_FillRectUp(rectx, recty, rectw, recth * pFraction, colorFull);
 
 	pString = va("%i", currentPower);
-	CG_DrawStringExt(rectx - 14, recty + 17, pString, colorWhite, qtrue, qfalse, 6, 8, 0);
+	CG_Text_PaintAligned(rectx - 14, recty + 17, pString, 0.125f, UI_LEFT, colorWater, &cgs.media.freeSansBoldFont);
 }
 
 /*
@@ -275,17 +275,16 @@ static void CG_DrawWeaverTutorialWeave(float x, float y, float size, int weaveID
 		{
 			str = va("(%d) %s", depth, weaveInfo->info.nameP);
 			//half length * char width
-			offset = CG_DrawStrlen(str) * 0.5 * 4;
 			offsetCount = elementCount * 8;
 			if(depth == 1)
 			{
 				// Green
-				CG_DrawStringExt((320 + xo - offset), (240 - yo - offsetCount), str, colorGreen, qtrue, qfalse, 4, 6, 0);
+				CG_Text_PaintAligned((320 + xo), (240 - yo - offsetCount), str, 0.125f, UI_CENTER, colorGreen, &cgs.media.freeSansBoldFont);
 			}
 			else
 			{
 				// White
-				CG_DrawStringExt((320 + xo - offset), (240 - yo - offsetCount), str, colorWhite, qtrue, qfalse, 4, 6, 0);
+				CG_Text_PaintAligned((320 + xo), (240 - yo - offsetCount), str, 0.125f, UI_CENTER, colorWhite, &cgs.media.freeSansBoldFont);
 			}
 		}
 	}
@@ -356,9 +355,7 @@ static void CG_DrawWeaverTutorial(float x, float y, float size)
 		if(weaveInfo && weaveInfo->info.nameP)
 		{
 			str = va("Release +weave for %s", weaveInfo->info.nameP);
-			//half length * char width
-			offset = CG_DrawStrlen(str) * 0.5 * 6;
-			CG_DrawStringExt((320 - offset), 400, str, colorWhite, qtrue, qfalse, 6, 8, 0);
+			CG_Text_PaintAligned(320, 400, str, 0.25f, UI_CENTER, colorWhite, &cgs.media.freeSansBoldFont);
 		}
 	}
 
@@ -403,7 +400,7 @@ static void CG_DrawWeaverDisc(void)
 
 		//thread = va("%i x, %i y ", cg.snap->ps.stats[STAT_THREADX], cg.snap->ps.stats[STAT_THREADY]);
 		thread = va("%i x, %i y", cg.predictedPlayerState.stats[STAT_THREADX], cg.predictedPlayerState.stats[STAT_THREADY]);
-		CG_DrawStringExt(8, 17, thread, colorWhite, qtrue, qfalse, 6, 8, 0);
+		CG_Text_PaintAligned(8, 17, thread, 0.25f, UI_LEFT, colorWhite, &cgs.media.freeSansBoldFont);
 
 		//x += cg.predictedPlayerState.stats[STAT_THREADX] * moveScale;
 		//y -= cg.predictedPlayerState.stats[STAT_THREADY] * moveScale;
@@ -468,7 +465,7 @@ static void CG_DrawWeaverHeld(void)
 			thread =
 				va("%i: ent=%i w=%d ammo=%d/%d", i, cg.predictedPlayerState.ammo[i], cent->currentState.weapon,
 				   cent->currentState.torsoAnim, weaveInfo->info.castCharges);
-			CG_DrawStringExt(x + 10, y + 27, thread, colorWhite, qtrue, qfalse, 6, 8, 0);
+			CG_Text_PaintAligned(x + 10, y + 27, thread, 0.125f, UI_LEFT, colorWhite, &cgs.media.freeSansBoldFont);
 
 			y += 7;
 
@@ -481,14 +478,6 @@ static void CG_DrawWeaverHeld(void)
 			}
 
 			xi += 40;
-
-			/*
-			if(cg.heldWeaves[i] != NULL)
-			{
-				thread = va("%i power, %i weaveid", cg.heldWeaves[i]->currentState.generic1, cg.heldWeaves[i]->currentState.weapon);
-				CG_DrawStringExt(x + 10, y + 27 + (7 * i), thread, colorWhite, qtrue, qfalse, 6, 8, 0);
-			}
-			*/
 		}
 	}
 }
@@ -536,7 +525,7 @@ static void CG_DrawWeaverPowerups(void)
 		if(t < 999000)
 		{
 			timeRemaining = va("%d", t / 1000 + 1);
-			CG_DrawStringExt(x + HUD_STATUS_WIDTH, y + 11, timeRemaining, colorWhite, qtrue, qfalse, 8, 10, 0);
+			CG_Text_PaintAligned(x + HUD_STATUS_WIDTH, y + 11, timeRemaining, 0.125f, UI_LEFT, colorWhite, &cgs.media.freeSansBoldFont);
 		}
 		CG_DrawPic(x, y, HUD_STATUS_WIDTH, HUD_STATUS_HEIGHT, cgs.media.weaverStatus[i]);
 
