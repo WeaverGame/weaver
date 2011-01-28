@@ -1815,7 +1815,6 @@ static float CG_DrawSpawnTimer(float y)
 	}
 
 	time = va("%d", ((cg.teamSpawnPeriod / 1000) - (((cg.time - cg.teamSpawnPrevious) % cg.teamSpawnPeriod) / 1000)));
-	//CG_DrawStringExt(320, 12, time, colorWhite, qtrue, qfalse, 6, 8, 3);
 	CG_Text_PaintAligned(635, y, time, 0.25f, UI_RIGHT | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
 
 	return y + 16;
@@ -3806,7 +3805,7 @@ void CG_DrawWoundedInfo(void)
 	char           *info;
 
 	info = va("You are Wounded.");
-	CG_DrawStringExt(300, 380, info, colorWhite, qtrue, qfalse, 6, 8, 0);
+	CG_Text_PaintAligned(300, 380, info, 0.125f, UI_LEFT, colorWhite, &cgs.media.freeSansBoldFont);
 
 	//TODO: replace key names dynamically with binds.
 	if(cg.snap->ps.eFlags & EF_TAPOUT)
@@ -3817,7 +3816,7 @@ void CG_DrawWoundedInfo(void)
 	{
 		info = va("Press SPACE to respawn with the next wave.");
 	}
-	CG_DrawStringExt(300, 396, info, colorWhite, qtrue, qfalse, 6, 8, 0);
+	CG_Text_PaintAligned(300, 396, info, 0.125f, UI_LEFT, colorWhite, &cgs.media.freeSansBoldFont);
 }
 
 /*

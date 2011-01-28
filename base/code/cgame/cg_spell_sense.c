@@ -57,9 +57,9 @@ void CG_DrawWeaveSense(void)
 		y -= radius * sin(DEG2RAD((float)dotAngles[i]));
 
 		thread = va("c=%i p=%i", i, dotPowers[i]);
-		CG_DrawStringExt(100, (10 + 10 * i), thread, colorWhite, qtrue, qfalse, 6, 8, 0);
+		CG_Text_PaintAligned(100, (10 + 10 * i), thread, 0.125f, UI_LEFT, colorWhite, &cgs.media.freeSansBoldFont);
 
-		CG_DrawStringExt(x, y, "*", colorWhite, qtrue, qfalse, 6, 8, 0);
+		CG_Text_PaintAligned(x, y, "*", 0.125f, UI_LEFT, colorWhite, &cgs.media.freeSansBoldFont);
 
 		if(dotPowers[i] >= POWER_LEVEL_3)
 		{
