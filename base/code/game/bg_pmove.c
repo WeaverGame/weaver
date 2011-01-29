@@ -103,7 +103,6 @@ void PM_AddTouchEnt(int entityNum)
 	{
 		return;
 	}
-
 	if(pm->numtouch == MAXTOUCH)
 	{
 		return;
@@ -3256,6 +3255,7 @@ void PmoveSingle(pmove_t * pmove)
 		PM_GrappleMove();
 
 		// we can wiggle a bit
+
 		PM_AirMove();
 	}
 	else if(pm->ps->pm_flags & PMF_TIME_WATERJUMP)

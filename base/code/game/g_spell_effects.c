@@ -328,10 +328,10 @@ qboolean FireWeave_AirBlast(gentity_t * self, vec3_t start, vec3_t dir, int held
 	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
 	bolt->s.weapon = WVW_A_AIR_BLAST;
 	bolt->r.ownerNum = self->s.number;
-	//unlagged - projectile nudge
+//unlagged - projectile nudge
 	// we'll need this for nudging projectiles later
-	//bolt->s.otherEntityNum = self->s.number;
-	//unlagged - projectile nudge
+	bolt->s.otherEntityNum = self->s.number;
+//unlagged - projectile nudge
 	bolt->s.otherEntityNum2 = heldWeaveNum;
 	bolt->parent = self;
 	bolt->damage = WEAVE_AIRBLAST_DAMAGE;
@@ -381,7 +381,7 @@ qboolean FireWeave_Fireball(gentity_t * self, vec3_t start, vec3_t dir, int held
 	bolt->r.ownerNum = self->s.number;
 //unlagged - projectile nudge
 	// we'll need this for nudging projectiles later
-	//bolt->s.otherEntityNum = self->s.number;
+	bolt->s.otherEntityNum = self->s.number;
 //unlagged - projectile nudge
 	bolt->s.otherEntityNum2 = heldWeaveNum;
 	bolt->parent = self;
@@ -419,7 +419,17 @@ qboolean FireWeave_FireDartsBase(gentity_t * self, vec3_t start, vec3_t dir, int
 
 	VectorMA(start, 8192 * 16, dir, end);
 
+//unlagged - backward reconciliation #2
+	// backward-reconcile the other clients
+	G_DoTimeShiftFor(self);
+//unlagged - backward reconciliation #2
+
 	trap_Trace(&tr, start, NULL, NULL, end, self->s.number, MASK_SHOT);
+
+//unlagged - backward reconciliation #2
+	// put them back
+	G_UndoTimeShiftFor(self);
+//unlagged - backward reconciliation #2
 
 	traceEnt = &g_entities[tr.entityNum];
 
@@ -565,10 +575,7 @@ qboolean FireWeave_Protect(gentity_t * self, vec3_t start, vec3_t dir, int heldW
 	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
 	bolt->s.weapon = weaveID;
 	bolt->r.ownerNum = self->s.number;
-//unlagged - projectile nudge
-	// we'll need this for nudging projectiles later
 	bolt->s.generic1 = self->client->ps.clientNum;
-//unlagged - projectile nudge
 	bolt->s.otherEntityNum2 = heldWeaveNum;
 	bolt->parent = self;
 	bolt->damage = 0;
@@ -665,7 +672,7 @@ qboolean FireWeave_Slice(gentity_t * self, vec3_t start, vec3_t dir, int heldWea
 	bolt->r.ownerNum = self->s.number;
 //unlagged - projectile nudge
 	// we'll need this for nudging projectiles later
-	//bolt->s.otherEntityNum = self->s.number;
+	bolt->s.otherEntityNum = self->s.number;
 //unlagged - projectile nudge
 	bolt->s.torsoAnim = self->s.number;	//player just hit (skip this player)
 	bolt->s.otherEntityNum2 = heldWeaveNum;
@@ -1384,7 +1391,7 @@ qboolean FireWeave_EarthQuake(gentity_t * self, vec3_t start, vec3_t dir, int he
 	bolt->r.ownerNum = self->s.number;
 //unlagged - projectile nudge
 	// we'll need this for nudging projectiles later
-	//bolt->s.otherEntityNum = self->s.number;
+	bolt->s.otherEntityNum = self->s.number;
 //unlagged - projectile nudge
 	bolt->s.otherEntityNum2 = heldWeaveNum;
 	bolt->parent = self;
@@ -1566,7 +1573,7 @@ void RunWeave_EarthQuake_Impact(gentity_t * ent, trace_t * trace)
 	bolt->r.ownerNum = ent->r.ownerNum;
 //unlagged - projectile nudge
 	// we'll need this for nudging projectiles later
-	//bolt->s.otherEntityNum = ent->s.otherEntityNum;
+	bolt->s.otherEntityNum = ent->s.otherEntityNum;
 //unlagged - projectile nudge
 	bolt->s.otherEntityNum2 = ent->s.otherEntityNum2;
 	bolt->parent = ent->parent;
@@ -1806,10 +1813,10 @@ qboolean FireWeave_IceShardsBase(gentity_t * self, vec3_t start, vec3_t dir, int
 		bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
 		bolt->s.weapon = weaveID;
 		bolt->r.ownerNum = self->s.number;
-		//unlagged - projectile nudge
+//unlagged - projectile nudge
 		// we'll need this for nudging projectiles later
-		//bolt->s.otherEntityNum = self->s.number;
-		//unlagged - projectile nudge
+		bolt->s.otherEntityNum = self->s.number;
+//unlagged - projectile nudge
 		bolt->s.otherEntityNum2 = heldWeaveNum;
 		bolt->parent = self;
 		bolt->damage = WEAVE_ICESHARDS_DAMAGE;
@@ -1951,7 +1958,7 @@ qboolean FireWeave_Slow(gentity_t * self, vec3_t start, vec3_t dir, int heldWeav
 	bolt->r.ownerNum = self->s.number;
 //unlagged - projectile nudge
 	// we'll need this for nudging projectiles later
-	//bolt->s.otherEntityNum = self->s.number;
+	bolt->s.otherEntityNum = self->s.number;
 //unlagged - projectile nudge
 	bolt->s.otherEntityNum2 = heldWeaveNum;
 	bolt->parent = self;
@@ -2056,7 +2063,7 @@ qboolean FireWeave_Poison(gentity_t * self, vec3_t start, vec3_t dir, int heldWe
 	bolt->r.ownerNum = self->s.number;
 //unlagged - projectile nudge
 	// we'll need this for nudging projectiles later
-	//bolt->s.otherEntityNum = self->s.number;
+	bolt->s.otherEntityNum = self->s.number;
 //unlagged - projectile nudge
 	bolt->s.otherEntityNum2 = heldWeaveNum;
 	bolt->parent = self;
@@ -2342,7 +2349,6 @@ qboolean FireWeave_Stamina(gentity_t * self, vec3_t start, vec3_t dir, int heldW
 	//prevent held weave expiring
 	heldWeave->nextthink = 0;
 
-	//Com_Printf("STAMINAFIRE: stamina spawned, EffectEnt = %d\n", bolt->s.number, bolt->s.otherEntityNum);
 	RunWeave_Stamina(bolt);
 
 	//weave = bolt;

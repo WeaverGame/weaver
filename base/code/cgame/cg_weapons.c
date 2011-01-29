@@ -1418,6 +1418,17 @@ static void CG_LightningBolt(centity_t * cent, vec3_t origin)
 
 	memset(&beam, 0, sizeof(beam));
 
+//unlagged - attack prediction #1
+	// if the entity is us, unlagged is on server-side, and we've got it on for the lightning gun
+	if((cent->currentState.number == cg.predictedPlayerState.clientNum) && cgs.delagHitscan &&
+	   (cg_delag.integer & 1 || cg_delag.integer & 8))
+	{
+		// always shoot straight forward from our current position
+		AngleVectors(cg.predictedPlayerState.viewangles, forward, NULL, NULL);
+		VectorCopy(cg.predictedPlayerState.origin, muzzlePoint);
+	}
+	else
+//unlagged - attack prediction #1
 	// CPMA  "true" lightning
 #if 0
 	if((cent->currentState.number == cg.predictedPlayerState.clientNum) && (cg_trueLightning.value != 0))
@@ -1425,9 +1436,16 @@ static void CG_LightningBolt(centity_t * cent, vec3_t origin)
 		vec3_t          angle;
 		int             i;
 
+//unlagged - true lightning
+		// might as well fix up true lightning while we're at it
+		vec3_t          viewangles;
+
+		VectorCopy(cg.predictedPlayerState.viewangles, viewangles);
+//unlagged - true lightning
+
 		for(i = 0; i < 3; i++)
 		{
-			float           a = cent->lerpAngles[i] - cg.refdefViewAngles[i];
+			float           a = cent->lerpAngles[i] - viewangles[i];	//unlagged: was cg.refdefViewAngles[i];
 
 			if(a > 180)
 			{
@@ -1438,7 +1456,7 @@ static void CG_LightningBolt(centity_t * cent, vec3_t origin)
 				a += 360;
 			}
 
-			angle[i] = cg.refdefViewAngles[i] + a * (1.0 - cg_trueLightning.value);
+			angle[i] = viewangles[i] /*unlagged: was cg.refdefViewAngles[i] */  + a * (1.0 - cg_trueLightning.value);
 			if(angle[i] < 0)
 			{
 				angle[i] += 360;
@@ -1450,8 +1468,12 @@ static void CG_LightningBolt(centity_t * cent, vec3_t origin)
 		}
 
 		AngleVectors(angle, forward, NULL, NULL);
-		VectorCopy(cent->lerpOrigin, muzzlePoint);
+//unlagged - true lightning
+//      VectorCopy(cent->lerpOrigin, muzzlePoint );
 //      VectorCopy(cg.refdef.vieworg, muzzlePoint );
+		// *this* is the correct origin for true lightning
+		VectorCopy(cg.predictedPlayerState.origin, muzzlePoint);
+//unlagged - true lightning
 	}
 	else
 #endif
@@ -2699,6 +2721,10 @@ void CG_FireWeapon(centity_t * cent)
 	{
 		weap->ejectBrassFunc(cent);
 	}
+
+//unlagged - attack prediction #1
+	CG_PredictWeaponEffects(cent);
+//unlagged - attack prediction #1
 }
 
 /*
@@ -2779,6 +2805,10 @@ void CG_FireWeapon2(centity_t * cent)
 	{
 		weap->ejectBrassFunc2(cent);
 	}
+
+//unlagged - attack prediction #1
+// TODO	CG_PredictWeaponEffects2(cent);
+//unlagged - attack prediction #1
 }
 
 /*
@@ -2844,10 +2874,12 @@ void CG_MissileHitWall(int weapon, int entityType, int clientNum, vec3_t origin,
 	float           light;
 	vec3_t          lightColor;
 	localEntity_t  *le;
+	int             r;
 	qboolean        alphaFade;
 	qboolean        isSprite;
 	int             duration;
 	vec3_t          partOrigin;
+	vec3_t          partVel;
 
 	mark = 0;
 	radius = 32;
@@ -2866,10 +2898,55 @@ void CG_MissileHitWall(int weapon, int entityType, int clientNum, vec3_t origin,
 
 	switch (weapon)
 	{
-		default:
 		case WP_GAUNTLET:
 			sfx = cgs.media.hookImpactSound;
 			alphaFade = qtrue;
+			break;
+
+		default:
+			mark = cgs.media.bulletMarkShader;
+
+			if(soundType == IMPACTSOUND_FLESH)
+			{
+				r = rand() & 3;
+				if(r == 0)
+					sfx = cgs.media.impactFlesh1Sound;
+				else if(r == 1)
+					sfx = cgs.media.impactFlesh2Sound;
+				else
+					sfx = cgs.media.impactFlesh3Sound;
+			}
+			else if(soundType == IMPACTSOUND_METAL)
+			{
+				r = rand() & 4;
+				if(r == 0)
+					sfx = cgs.media.impactMetal1Sound;
+				else if(r == 1)
+					sfx = cgs.media.impactMetal2Sound;
+				else if(r == 2)
+					sfx = cgs.media.impactMetal3Sound;
+				else
+					sfx = cgs.media.impactMetal4Sound;
+			}
+			else
+			{
+				r = rand() & 2;
+				if(r == 0)
+					sfx = cgs.media.impactWall1Sound;
+				else
+					sfx = cgs.media.impactWall2Sound;
+			}
+
+			radius = 8;
+
+			// some debris particles
+			//CG_ParticleImpactSmokePuff(cgs.media.smokePuffShader, partOrigin);
+			CG_ParticleRick(origin, dir);
+			//CG_ParticleSparks2(
+
+			//CG_AddBulletParticles(origin, dir, 20, 800, 3 + rand() % 6, 1.0);
+			//if(sfx && (rand() % 3 == 0))
+			//  CG_AddSparks(origin, dir, 450, 300, 3 + rand() % 3, 0.5);
 			break;
 	}
 
@@ -2996,7 +3073,9 @@ Perform the same traces the server did to locate the
 hit splashes
 ================
 */
-static void CG_ShotgunPattern(vec3_t origin, vec3_t origin2, int seed, int otherEntNum)
+//unlagged - attack prediction
+// made this non-static for access from cg_unlagged.c
+void CG_ShotgunPattern(vec3_t origin, vec3_t origin2, int seed, int otherEntNum)
 {
 	int             i;
 	float           r, u;

@@ -766,6 +766,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\cg_unlagged.c"
+				>
+			</File>
+			<File
 				RelativePath="cg_view.c"
 				>
 				<FileConfiguration

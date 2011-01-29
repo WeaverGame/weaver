@@ -61,6 +61,7 @@ vmCvar_t        g_knockbackZ;
 vmCvar_t        g_quadfactor;
 vmCvar_t        g_forcerespawn;
 vmCvar_t        g_inactivity;
+vmCvar_t        g_debugMove;
 vmCvar_t        g_debugDamage;
 vmCvar_t        g_debugAlloc;
 vmCvar_t        g_debugLua;
@@ -102,6 +103,15 @@ vmCvar_t        g_enableBreath;
 vmCvar_t        g_proxMineTimeout;
 #endif
 
+//unlagged - server options
+vmCvar_t        g_delagHitscan;
+vmCvar_t        g_unlaggedVersion;
+vmCvar_t        g_truePing;
+vmCvar_t        g_lightningDamage;
+vmCvar_t        sv_fps;
+
+//unlagged - server options
+
 vmCvar_t        g_rocketAcceleration;
 vmCvar_t        g_rocketVelocity;
 
@@ -121,7 +131,6 @@ vmCvar_t        g_scoreB;
 vmCvar_t        g_woundedHealth;
 
 // these cvars are shared accross both games
-vmCvar_t        pm_debugMove;
 vmCvar_t        pm_airControl;
 vmCvar_t        pm_fastWeaponSwitches;
 vmCvar_t        pm_fixedPmove;
@@ -250,14 +259,23 @@ static cvarTable_t gameCvarTable[] = {
 	{&g_woundedHealth, "g_woundedHealth", "-50", CVAR_SERVERINFO | CVAR_USERINFO, 0, qfalse},
 
 	// these cvars are shared accross both games
-	{&pm_debugMove, "pm_debugMove", "0", 0, 0, qfalse},
 	{&pm_airControl, "pm_airControl", "0", CVAR_SYSTEMINFO, 0, qfalse},
 	{&pm_fastWeaponSwitches, "pm_fastWeaponSwitches", "0", CVAR_SYSTEMINFO, 0, qfalse},
-	{&pm_fixedPmove, "pm_fixedPmove", "1", CVAR_SYSTEMINFO, 0, qfalse},
+	{&pm_fixedPmove, "pm_fixedPmove", "0", CVAR_SYSTEMINFO, 0, qfalse},
 	{&pm_fixedPmoveFPS, "pm_fixedPmoveFPS", "125", CVAR_SYSTEMINFO, 0, qfalse},
 
 	{&lua_allowedModules, "lua_allowedModules", "", 0, 0, qfalse},
 	{&lua_modules, "lua_modules", "", 0, 0, qfalse},
+
+
+//unlagged - server options
+	{&g_delagHitscan, "g_delagHitscan", "1", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue},
+	{&g_unlaggedVersion, "g_unlaggedVersion", "2.0", CVAR_ROM | CVAR_SERVERINFO, 0, qfalse},
+	{&g_truePing, "g_truePing", "1", CVAR_ARCHIVE, 0, qtrue},
+	{&g_lightningDamage, "g_lightningDamage", "8", 0, 0, qtrue},
+	// it's CVAR_SYSTEMINFO so the client's sv_fps will be automagically set to its value
+	{&sv_fps, "sv_fps", "20", CVAR_SYSTEMINFO | CVAR_ARCHIVE, 0, qfalse},
+//unlagged - server options
 
 #if defined(ACEBOT)
 	{&ace_debug, "ace_debug", "0", 0, 0, qfalse},
@@ -2501,11 +2519,16 @@ void G_RunFrame(int levelTime)
 			continue;
 		}
 
+//unlagged - backward reconciliation #2
+		// we'll run missiles separately to save CPU in backward reconciliation
+/*
 		if(ent->s.eType == ET_PROJECTILE || ent->s.eType == ET_PROJECTILE2)
 		{
 			G_RunMissile(ent);
 			continue;
 		}
+*/
+//unlagged - backward reconciliation #2
 
 		if(ent->s.eType == ET_ITEM || ent->physicsObject)
 		{
@@ -2549,6 +2572,35 @@ void G_RunFrame(int levelTime)
 
 		G_RunThink(ent);
 	}
+
+//unlagged - backward reconciliation #2
+	// NOW run the missiles, with all players backward-reconciled
+	// to the positions they were in exactly 50ms ago, at the end
+	// of the last server frame
+	G_TimeShiftAllClients(level.previousTime, NULL);
+
+	ent = &g_entities[0];
+	for(i = 0; i < level.numEntities; i++, ent++)
+	{
+		if(!ent->inuse)
+		{
+			continue;
+		}
+
+		// temporary entities don't think
+		if(ent->freeAfterEvent)
+		{
+			continue;
+		}
+
+		if(ent->s.eType == ET_PROJECTILE || ent->s.eType == ET_PROJECTILE2)
+		{
+			G_RunMissile(ent);
+		}
+	}
+
+	G_UnTimeShiftAllClients(NULL);
+//unlagged - backward reconciliation #2
 
 	//WEAVER do threads think after entities, 
 	//since threads need heldWeaves to have throught first
@@ -2606,4 +2658,10 @@ void G_RunFrame(int levelTime)
 	G_LuaHook_RunFrame(levelTime);
 #endif
 
+//unlagged - backward reconciliation #4
+	// record the time at the end of this frame - it should be about
+	// the time the next frame begins - when the server starts
+	// accepting commands from connected clients
+	level.frameStartTime = trap_Milliseconds();
+//unlagged - backward reconciliation #4
 }

@@ -78,12 +78,6 @@ qboolean PM_SlideMove(qboolean gravity)
 			PM_ClipVelocity(pm->ps->velocity, pml.groundTrace.plane.normal, pm->ps->velocity, OVERCLIP);
 		}
 	}
-#if 0
-	else
-	{
-		VectorClear(endVelocity);
-	}
-#endif
 
 	time_left = pml.frametime;
 

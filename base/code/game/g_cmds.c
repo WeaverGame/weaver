@@ -59,7 +59,10 @@ void DeathmatchScoreboardMessage(gentity_t * ent)
 		}
 		else
 		{
-			ping = cl->ps.ping < 999 ? cl->ps.ping : 999;
+//unlagged - true ping
+			//ping = cl->ps.ping < 999 ? cl->ps.ping : 999;
+			ping = cl->pers.realPing < 999 ? cl->pers.realPing : 999;
+//unlagged - true ping
 		}
 
 		if(cl->accuracy_shots)

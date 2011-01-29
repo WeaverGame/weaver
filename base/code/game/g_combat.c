@@ -493,6 +493,11 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 		return;
 	}
 
+//unlagged - backward reconciliation #2
+	// make sure the body shows up in the client's current position
+	G_UnTimeShiftClient(self);
+//unlagged - backward reconciliation #2
+
 	// check for an almost capture
 	CheckAlmostCapture(self, attacker);
 	// check for a player that almost brought in cubes

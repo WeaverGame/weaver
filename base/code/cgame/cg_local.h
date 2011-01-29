@@ -681,6 +681,10 @@ typedef struct particle_s
 
 #define MAX_PREDICTED_EVENTS	16
 
+//unlagged - optimized prediction
+#define NUM_SAVED_STATES (CMD_BACKUP + 2)
+//unlagged - optimized prediction
+
 // Loading screen constants
 #define CG_INFO_LOGO_WIDTH 200
 #define CG_INFO_SIDE_GRADIENT_WIDTH 110
@@ -963,6 +967,13 @@ typedef struct
 
 	int             teamSpawnPrevious;
 	int             teamSpawnPeriod;
+
+//unlagged - optimized prediction
+	int             lastPredictedCommand;
+	int             lastServerTime;
+	playerState_t   savedPmoveStates[NUM_SAVED_STATES];
+	int             stateHead, stateTail;
+//unlagged - optimized prediction
 
 	// hud variables
 
@@ -1469,6 +1480,10 @@ typedef struct
 	// media
 	cgMedia_t       media;
 
+//unlagged - client options
+	// this will be set to the server's g_delagHitscan
+	int             delagHitscan;
+//unlagged - client options
 } cgs_t;
 
 //==============================================================================
@@ -1574,7 +1589,11 @@ extern vmCvar_t cg_teamChatsOnly;
 extern vmCvar_t cg_noVoiceChats;
 extern vmCvar_t cg_noVoiceText;
 extern vmCvar_t cg_scorePlum;
-extern vmCvar_t cg_smoothClients;
+
+//unlagged - smooth clients #2
+// this is done server-side now
+//extern    vmCvar_t        cg_smoothClients;
+//unlagged - smooth clients #2
 extern vmCvar_t cg_cameraOrbit;
 extern vmCvar_t cg_cameraOrbitDelay;
 extern vmCvar_t cg_timescaleFadeEnd;
@@ -1623,8 +1642,29 @@ extern vec4_t   redTeamColor;
 extern vec4_t   blueTeamColor;
 extern vec4_t   baseTeamColor;
 
-extern vmCvar_t cg_drawPlayerCollision;
 extern vmCvar_t cg_wallWalkSmoothTime;
+extern vmCvar_t cg_drawPlayerCollision;
+
+//unlagged - client options
+extern vmCvar_t cg_delag;
+extern vmCvar_t cg_debugDelag;
+extern vmCvar_t cg_drawBBox;
+extern vmCvar_t cg_cmdTimeNudge;
+extern vmCvar_t sv_fps;
+extern vmCvar_t cg_projectileNudge;
+extern vmCvar_t cg_optimizePrediction;
+extern vmCvar_t cl_timeNudge;
+extern vmCvar_t cg_latentSnaps;
+extern vmCvar_t cg_latentCmds;
+extern vmCvar_t cg_plOut;
+//unlagged - client options
+
+//unlagged - cg_unlagged.c
+void            CG_PredictWeaponEffects(centity_t * cent);
+void            CG_AddBoundingBox(centity_t * cent);
+qboolean        CG_Cvar_ClampInt(const char *name, vmCvar_t * vmCvar, int min, int max);
+
+//unlagged - cg_unlagged.c
 
 //
 // cg_main.c
@@ -1647,7 +1687,8 @@ void            CG_MouseEvent(int x, int y);
 void            CG_EventHandling(int type);
 void            CG_RankRunFrame(void);
 void            CG_SetScoreSelection(void *menu);
-void            CG_BuildSpectatorString(void);
+score_t        *CG_GetSelectedScore();
+void            CG_BuildSpectatorString();
 
 
 //
@@ -1942,6 +1983,11 @@ localEntity_t  *CG_MakeExplosion(vec3_t origin, vec3_t dir, qhandle_t hModel, qh
 // cg_snapshot.c
 //
 void            CG_ProcessSnapshots(void);
+
+//unlagged - early transitioning
+void            CG_TransitionEntity(centity_t * cent);
+
+//unlagged - early transitioning
 
 //
 // cg_info.c

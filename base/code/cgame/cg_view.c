@@ -1613,6 +1613,12 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, qboolean demoP
 	int             inwater;
 
 	cg.time = serverTime;
+
+//unlagged - lag simulation #1
+	// adjust the clock to reflect latent snaps
+	cg.time -= cg_latentSnaps.integer * (1000 / sv_fps.integer);
+//unlagged - lag simulation #1
+
 	cg.demoPlayback = demoPlayback;
 
 	// update cvars
