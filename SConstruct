@@ -61,7 +61,7 @@ if env['arch'] == 'linux-x86_64':
 env.Append(CCFLAGS = '-pipe -fsigned-char')
 
 if env['warnings'] == '1':
-	env.Append(CCFLAGS = '-Wall -Wno-unused-parameter')
+	env.Append(CCFLAGS = '-Wall -Wno-unused-parameter -Wno-unused-function')
 elif env['warnings'] == '2':
 	env.Append(CCFLAGS = '-Wall -Werror')
 

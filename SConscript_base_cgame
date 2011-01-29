@@ -29,7 +29,7 @@ cgame_src = [
 'base/code/cgame/cg_servercmds.c',
 'base/code/cgame/cg_snapshot.c',
 'base/code/cgame/cg_view.c',
-#'base/code/cgame/cg_unlagged.c',
+'base/code/cgame/cg_unlagged.c',
 'base/code/cgame/cg_weapons.c',
 'base/code/cgame/cg_spell_casts.c',
 'base/code/cgame/cg_spell_effects.c',
