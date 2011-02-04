@@ -2,12 +2,12 @@
 ===========================================================================
 This file is part of the weaver game.
 
-It has misc weaver functions.
+It has misc weaver power functions, including linking functions.
 ===========================================================================
 */
 #include "../../../code/qcommon/q_shared.h"
 #include "g_local.h"
-
+#include "g_spell_util.h"
 
 /*
 =================
@@ -316,7 +316,7 @@ void ClientLink(gclient_t * leadClient, gclient_t * followClient)
 	//reference this from held
 	followClient->linkHeld->target_ent = bolt;
 	//held weave is now in progress
-	followClient->linkHeld->s.frame = WST_INPROCESS;
+	G_HeldWeave_SetState(followClient->linkHeld, WST_INPROCESS);
 	//prevent held weave expiring
 	followClient->linkHeld->nextthink = 0;
 

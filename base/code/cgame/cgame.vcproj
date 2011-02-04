@@ -861,6 +861,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\cg_spell_util.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\code\qcommon\q_shared.h"
 				>
 			</File>

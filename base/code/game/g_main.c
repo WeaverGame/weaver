@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "g_local.h"
 #include "g_lua.h"
+#include "g_spell_util.h"
 
 level_locals_t  level;
 
@@ -2555,7 +2556,7 @@ void G_RunFrame(int levelTime)
 		//count power for each client
 		if(ent->s.eType == ET_WEAVE_HELD)
 		{
-			ClientPowerHeldConsume(&g_clients[ent->s.otherEntityNum2], ent->s.generic1);
+			ClientPowerHeldConsume(&g_clients[ent->s.otherEntityNum2], G_HeldWeave_GetPower(ent));
 		}
 
 		//WEAVER

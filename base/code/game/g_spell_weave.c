@@ -8,6 +8,7 @@ It runs weaves
 //
 #include "g_local.h"
 #include "g_spell_effects.h"
+#include "g_spell_util.h"
 
 void CreateThreads(gentity_t * player)
 {
@@ -165,13 +166,13 @@ gentity_t      *MakeWeaveHeld(gentity_t * self, int weaveID, int holdTime, int h
 	//owner client num
 	weave->s.otherEntityNum2 = self->s.number;
 	//amount of power being used to hold this
-	weave->s.generic1 = holdPower;
+	G_HeldWeave_SetPower(weave, holdPower);
 	//1 is switchable
 	weave->s.legsAnim = switchable;
 	//charges
-	weave->s.torsoAnim = WeaveCharges(weaveID);
+	G_HeldWeave_SetCharges(weave, WeaveCharges(weaveID));
 	//weave state
-	weave->s.frame = WST_HELD;
+	G_HeldWeave_SetState(weave, WST_HELD);
 
 	weave->parent = self;
 
@@ -191,7 +192,7 @@ gentity_t      *MakeWeaveHeld(gentity_t * self, int weaveID, int holdTime, int h
 
 	if(DEBUGWEAVEING_TST(1))
 	{
-		Com_Printf("Weave ent num = %i, holdPower=%d\n", weave->s.number, weave->s.generic1);
+		Com_Printf("Weave ent num = %i, holdPower=%d\n", weave->s.number, G_HeldWeave_GetPower(weave));
 	}
 	trap_LinkEntity(weave);
 
@@ -403,19 +404,19 @@ Expires a given weave
 ent is a ET_HELD_WEAVE
 =================
 */
-void ExpireHeldWeave(gentity_t * ent)
+void ExpireHeldWeave(gentity_t * heldWeave)
 {
-	if(!ent)
+	if(!heldWeave)
 	{
 		DEBUGWEAVEING("ExpireHeldWeave: no ent");
 		return;
 	}
 
 	DEBUGWEAVEING("ExpireHeldWeave: start");
-	if(ent->s.frame == WST_HELD)
+	if(G_HeldWeave_GetState(heldWeave) == WST_HELD)
 	{
-		ent->s.frame = WST_EXPIRED;
-		UseHeldWeave(ent);
+		G_HeldWeave_SetState(heldWeave, WST_EXPIRED);
+		UseHeldWeave(heldWeave);
 	}
 	DEBUGWEAVEING("ExpireHeldWeave: end");
 }
@@ -445,23 +446,24 @@ void UseHeldWeave(gentity_t * heldWeave)
 	heldWeave->parent->client->ps.weaponTime = WeaveTime(heldWeave->s.weapon);
 
 	DEBUGWEAVEING("UseHeldWeave: start");
-	Com_Printf("Using held weave %i charges %i of %i\n", heldWeave->s.number, heldWeave->s.torsoAnim,
+	Com_Printf("Using held weave %i charges %i of %i\n", heldWeave->s.number, G_HeldWeave_GetCharges(heldWeave),
 			   WeaveCharges(heldWeave->s.weapon));
 
 	//check if weave is being held, held weaves will be ended, not execed
-	if(heldWeave->s.frame == WST_INPROCESS || heldWeave->s.frame == WST_INPROCESSRELEASED)
+	if(G_HeldWeave_GetState(heldWeave) == WST_INPROCESS || G_HeldWeave_GetState(heldWeave) == WST_INPROCESSRELEASED)
 	{
 		//weave is being held, this use should end it
 		EndWeave(heldWeave);
-		heldWeave->s.torsoAnim--;
+		//use a shot
+		G_HeldWeave_SetCharges(heldWeave, G_HeldWeave_GetCharges(heldWeave)-1);
 	}
 	//if weave is being released
-	else if(heldWeave->s.frame == WST_RELEASED || heldWeave->s.frame == WST_INPROCESSRELEASED)
+	else if(G_HeldWeave_GetState(heldWeave) == WST_RELEASED || G_HeldWeave_GetState(heldWeave) == WST_INPROCESSRELEASED)
 	{
 		//Do not fire, releasing
 	}
 	//if weave has charges
-	else if(heldWeave->s.torsoAnim > 0)
+	else if(G_HeldWeave_GetCharges(heldWeave) > 0)
 	{
 		//execute the weave
 		if(!ExecuteWeave(heldWeave))
@@ -473,34 +475,36 @@ void UseHeldWeave(gentity_t * heldWeave)
 		//held weave now consumes less power    
 		if(DEBUGWEAVEING_TST(1))
 		{
-			Com_Printf("UseHeldWeave: previous power consumed = %d\n", heldWeave->s.generic1);
+			Com_Printf("UseHeldWeave: previous power consumed = %d\n", G_HeldWeave_GetPower(heldWeave));
 		}
 		maxCharges = (WeaveCharges(heldWeave->s.weapon) >> 1) + 1;
-		newPower = heldWeave->s.generic1;
-		newPower /= (float)(heldWeave->s.torsoAnim + maxCharges);
+		newPower = G_HeldWeave_GetPower(heldWeave);
+		newPower /= (float)(G_HeldWeave_GetCharges(heldWeave) + maxCharges);
 
 		//if weave does not go in process
-		if(heldWeave->s.frame != WST_INPROCESS)
+		if(G_HeldWeave_GetState(heldWeave) != WST_INPROCESS)
 		{
 			//use a shot
-			heldWeave->s.torsoAnim--;
+			G_HeldWeave_SetCharges(heldWeave, G_HeldWeave_GetCharges(heldWeave)-1);
 			if(DEBUGWEAVEING_TST(1))
 			{
-				Com_Printf("UseHeldWeave: shot expended %d remain\n", heldWeave->s.torsoAnim);
+				Com_Printf("UseHeldWeave: shot expended %d remain\n", G_HeldWeave_GetCharges(heldWeave));
 			}
 		}
 
 		//set new power consumption
-		heldWeave->s.generic1 = newPower * (float)(heldWeave->s.torsoAnim + maxCharges);
+		newPower *= (float)(G_HeldWeave_GetCharges(heldWeave) + maxCharges);
+		G_HeldWeave_SetPower(heldWeave, newPower);
+
 		if(DEBUGWEAVEING_TST(1))
 		{
-			Com_Printf("UseHeldWeave: new power consumed = %d\n", heldWeave->s.generic1);
+			Com_Printf("UseHeldWeave: new power consumed = %d\n", G_HeldWeave_GetPower(heldWeave));
 		}
 	}
 
 	//if no shots remaining or expired
-	if(heldWeave->s.torsoAnim <= 0 || heldWeave->s.frame == WST_EXPIRED || heldWeave->s.frame == WST_RELEASED ||
-	   heldWeave->s.frame == WST_INPROCESSRELEASED)
+	if(G_HeldWeave_GetCharges(heldWeave) <= 0 || G_HeldWeave_GetState(heldWeave) == WST_EXPIRED ||
+	   G_HeldWeave_GetState(heldWeave) == WST_RELEASED || G_HeldWeave_GetState(heldWeave) == WST_INPROCESSRELEASED)
 	{
 		//then the weave should be removed
 		ClearHeldWeave(heldWeave);
@@ -535,14 +539,14 @@ void ReleaseHeldWeave(gentity_t * ent)
 		if(pstate->ammo[pstate->weapon])
 		{
 			heldWeave = &g_entities[pstate->ammo[pstate->weapon]];
-			switch (heldWeave->s.frame)
+			switch (G_HeldWeave_GetState(heldWeave))
 			{
 				case WST_HELD:
 				case WST_EXPIRED:
-					heldWeave->s.frame = WST_RELEASED;
+					G_HeldWeave_SetState(heldWeave, WST_RELEASED);
 					break;
 				case WST_INPROCESS:
-					heldWeave->s.frame = WST_INPROCESSRELEASED;
+					G_HeldWeave_SetState(heldWeave, WST_INPROCESSRELEASED);
 					break;
 				case WST_RELEASED:
 				case WST_INPROCESSRELEASED:

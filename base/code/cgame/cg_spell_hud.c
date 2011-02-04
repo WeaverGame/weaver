@@ -7,6 +7,7 @@ It has weaver HUD.
 */
 
 #include "cg_local.h"
+#include "cg_spell_util.h"
 
 vec4_t          colorAir = { 0.937f, 0.90f, 0.00f, 1.0f };
 vec4_t          colorFire = { 0.94f, 0.16f, 0.16f, 1.0f };
@@ -45,9 +46,7 @@ static void CG_DrawWeaverStatusBar(void)
 {
 	int             currentHealth = cg.snap->ps.stats[STAT_HEALTH];
 	int             currentStamina = cg.snap->ps.stats[STAT_STAMINA];
-	int             currentPower = cg.snap->ps.stats[STAT_POWER];
 	float           hpFraction = currentHealth / 100.0;
-	//float         pFraction = currentPower / FULL_POWER;
 
 	const float     health_offset_x = 51.0f;
 	const float     health_offset_y = 130.0f;
@@ -446,10 +445,15 @@ static void CG_DrawWeaverHeld(void)
 	float           x, y;
 	float           xc;
 
+	vec4_t          colorEmpty = { 1.0f, 1.0f, 1.0f, 0.3f };
+
 	const float     spellicon_w = 80.0f;
 
 	float           power_spell_w;
 	const float     power_spell_h = 20.0f;
+
+	const float     power_div_w = 16.0f;
+	const float     power_div_h = 64.0f;
 
 	const float     power_offset_left_w = 180.0f;
 	const float     power_offset_right_w = 80.0f;
@@ -457,8 +461,19 @@ static void CG_DrawWeaverHeld(void)
 	const float     power_offset_x = 180.0f;
 	const float     power_offset_y = 8.0f;
 
+	float           y_div = cgs.screenYSize - power_div_h;
+	float           y_text = cgs.screenYSize - (power_div_h + 20);
+
+	float power_full_w = cg.snap->ps.stats[STAT_MAX_POWER];
+	float power_avil_w = cg.snap->ps.stats[STAT_POWER];
+	float power_used_w = (power_full_w - power_avil_w) / 2;
+
 	x = cgs.screenXSize - power_offset_x;
 	y = cgs.screenYSize - power_offset_y - power_spell_h;
+
+	trap_R_SetColor(colorEmpty);
+	trap_R_DrawStretchPic(x - power_used_w, y, power_used_w, power_spell_h, 0, 0, 0, 0, cgs.media.whiteShader);
+	trap_R_SetColor(NULL);
 
 	for(i = MIN_WEAPON_WEAVE; i < MAX_WEAPONS; i++)
 	{
@@ -468,7 +483,7 @@ static void CG_DrawWeaverHeld(void)
 			weaveInfo = &cg_weaves[cent->currentState.weapon];
 
 			// Width of bar for this spell
-			power_spell_w = cent->currentState.generic1 / 2;
+			power_spell_w = CG_HeldWeave_GetPower(cent) / 2;
 
 			x -= power_spell_w;
 			xc = x + (power_spell_w/2);
@@ -477,21 +492,21 @@ static void CG_DrawWeaverHeld(void)
 			trap_R_DrawStretchPic(x, y, power_spell_w, power_spell_h, 0, 0, 0, 0, cgs.media.whiteShader);
 			trap_R_SetColor(NULL);
 
+			trap_R_DrawStretchPic(x - (power_div_w / 2), y_div, power_div_w, power_div_h, 0, 0, 1, 1, cgs.media.weaverBarDiv);
+
 			trap_R_DrawStretchPic(xc - (spellicon_w / 2), y - (50 + spellicon_w), spellicon_w, spellicon_w, 0, 0, 1, 1, weaveInfo->icon);
 
-			/*
 			thread =
 				va("%i: e=%i w=%d p=%d a=%d/%d", i, cg.predictedPlayerState.ammo[i], cent->currentState.weapon,
 				   cent->currentState.generic1, cent->currentState.torsoAnim, weaveInfo->info.castCharges);
-			CG_Text_PaintAligned(xc, y - (200 + (10*i)), thread, 0.20f, UI_RIGHT, colorWhite, &cgs.media.freeSansBoldFont);
-			*/
+			CG_Text_PaintAligned(xc, y - (200), thread, 0.20f, UI_RIGHT, colorWhite, &cgs.media.freeSansBoldFont);
 
 			//CG_DrawPic(xi, yi, 32, 32, weaveInfo->icon);
 
 			// draw selection marker
 			if(i == cg.weaponSelect)
 			{
-				//CG_DrawPic(xi - 4, yi - 4, 40, 40, cgs.media.weaponSelectShader);
+				CG_DrawPic(xc - 20, y_text, 40, 40, cgs.media.weaponSelectShader);
 			}
 		}
 	}

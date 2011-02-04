@@ -946,6 +946,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\g_spell_util.h"
+				>
+			</File>
+			<File
 				RelativePath=".\g_statfields.def"
 				>
 			</File>

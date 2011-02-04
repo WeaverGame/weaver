@@ -7,6 +7,7 @@ It creates projectiles for weaves and other weave effects.
 */
 #include "g_local.h"
 #include "g_spell_effects.h"
+#include "g_spell_util.h"
 
 qboolean G_IsTeamGame(void)
 {
@@ -619,7 +620,7 @@ qboolean FireWeave_Protect(gentity_t * self, vec3_t start, vec3_t dir, int heldW
 	//reference this from held
 	heldWeave->target_ent = bolt;
 	//held weave is now in progress
-	heldWeave->s.frame = WST_INPROCESS;
+	G_HeldWeave_SetState(heldWeave, WST_INPROCESS);
 	//prevent held weave expiring
 	heldWeave->nextthink = 0;
 
@@ -799,7 +800,7 @@ void RunWeave_Slice(gentity_t * ent)
 				{
 					heldWeave = &g_entities[hit->client->ps.ammo[j]];
 					//Must be: valid weave, in process, slice high enough to defeat this heldweave
-					if(heldWeave && heldWeave->s.frame == WST_INPROCESS)
+					if(heldWeave && (G_HeldWeave_GetState(heldWeave) == WST_INPROCESS))
 					{
 						if(ent->damage >= WeaveTier(heldWeave->s.weapon))
 						{
@@ -950,7 +951,7 @@ qboolean FireWeave_Shield(gentity_t * self, vec3_t start, vec3_t dir, int heldWe
 	//reference this from held
 	heldWeave->target_ent = bolt;
 	//held weave is now in progress
-	heldWeave->s.frame = WST_INPROCESS;
+	G_HeldWeave_SetState(heldWeave, WST_INPROCESS);
 	//prevent held weave expiring
 	heldWeave->nextthink = 0;
 
@@ -1119,7 +1120,7 @@ qboolean FireWeave_GrabPlayer(gentity_t * self, vec3_t start, vec3_t dir, int he
 	//reference this from held
 	heldWeave->target_ent = bolt;
 	//held weave is now in progress
-	heldWeave->s.frame = WST_INPROCESS;
+	G_HeldWeave_SetState(heldWeave, WST_INPROCESS);
 	//prevent held weave expiring
 	heldWeave->nextthink = 0;
 
@@ -1261,7 +1262,7 @@ qboolean FireWeave_Heal(gentity_t * self, vec3_t start, vec3_t dir, int heldWeav
 	//reference this from held
 	heldWeave->target_ent = bolt;
 	//held weave is now in progress
-	heldWeave->s.frame = WST_INPROCESS;
+	G_HeldWeave_SetState(heldWeave, WST_INPROCESS);
 	//prevent held weave expiring
 	heldWeave->nextthink = 0;
 
@@ -1430,7 +1431,7 @@ qboolean FireWeave_EarthQuake(gentity_t * self, vec3_t start, vec3_t dir, int he
 	//reference this from held
 	heldWeave->target_ent = bolt;
 	//held weave is now in progress
-	heldWeave->s.frame = WST_INPROCESS;
+	G_HeldWeave_SetState(heldWeave, WST_INPROCESS);
 	//prevent held weave expiring
 	heldWeave->nextthink = 0;
 
@@ -1930,7 +1931,7 @@ qboolean FireWeave_LightSource(gentity_t * self, vec3_t start, vec3_t dir, int h
 	//reference this from held
 	heldWeave->target_ent = bolt;
 	//held weave is now in progress
-	heldWeave->s.frame = WST_INPROCESS;
+	G_HeldWeave_SetState(heldWeave, WST_INPROCESS);
 	//prevent held weave expiring
 	heldWeave->nextthink = 0;
 
@@ -2345,7 +2346,7 @@ qboolean FireWeave_Stamina(gentity_t * self, vec3_t start, vec3_t dir, int heldW
 	//reference this from held
 	heldWeave->target_ent = bolt;
 	//held weave is now in progress
-	heldWeave->s.frame = WST_INPROCESS;
+	G_HeldWeave_SetState(heldWeave, WST_INPROCESS);
 	//prevent held weave expiring
 	heldWeave->nextthink = 0;
 
@@ -2469,7 +2470,7 @@ qboolean FireWeave_Lightning(gentity_t * self, vec3_t start, vec3_t dir, int hel
 	//reference this from held
 	heldWeave->target_ent = bolt;
 	//held weave is now in progress
-	heldWeave->s.frame = WST_INPROCESS;
+	G_HeldWeave_SetState(heldWeave, WST_INPROCESS);
 	//prevent held weave expiring
 	heldWeave->nextthink = 0;
 
@@ -2524,7 +2525,7 @@ gentity_t      *EndWeave_Explosive(gentity_t * self, vec3_t start, vec3_t dir, i
 	heldWeave = &g_entities[heldWeaveNum];
 
 	ent = heldWeave->target_ent;
-	if(heldWeave->s.frame == WST_INPROCESS)
+	if(G_HeldWeave_GetState(heldWeave) == WST_INPROCESS)
 	{
 		G_RadiusDamage(ent->r.currentOrigin, ent->parent, ent->splashDamage, ent->splashRadius, ent, ent->splashMethodOfDeath);
 		G_AddEvent(ent, EV_WEAVEMISSILE_MISS, ent->s.generic1);
@@ -2579,7 +2580,7 @@ qboolean FireWeave_ExplosiveBase(gentity_t * self, vec3_t start, vec3_t dir, int
 //unlagged - projectile nudge
 	bolt->s.otherEntityNum2 = heldWeaveNum;
 	bolt->parent = self;
-	bolt->s.generic1 = DirToByte(trace.plane.normal);
+	VectorCopy(trace.plane.normal, bolt->s.angles);
 	switch (bolt->s.weapon)
 	{
 		case WVW_D_EARTHFIRE_EXPLOSIVE_S:
@@ -2609,7 +2610,7 @@ qboolean FireWeave_ExplosiveBase(gentity_t * self, vec3_t start, vec3_t dir, int
 	//reference this from held
 	heldWeave->target_ent = bolt;
 	//held weave is now in progress
-	heldWeave->s.frame = WST_INPROCESS;
+	G_HeldWeave_SetState(heldWeave, WST_INPROCESS);
 	//prevent held weave expiring
 	heldWeave->nextthink = 0;
 
@@ -2672,7 +2673,7 @@ qboolean FireWeave_Fog(gentity_t * self, vec3_t start, vec3_t dir, int heldWeave
 	//reference this from held
 	heldWeave->target_ent = bolt;
 	//held weave is now in progress
-	heldWeave->s.frame = WST_INPROCESS;
+	G_HeldWeave_SetState(heldWeave, WST_INPROCESS);
 	//prevent held weave expiring
 	heldWeave->nextthink = 0;
 
