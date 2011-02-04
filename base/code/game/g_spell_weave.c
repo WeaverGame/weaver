@@ -191,7 +191,7 @@ gentity_t      *MakeWeaveHeld(gentity_t * self, int weaveID, int holdTime, int h
 
 	if(DEBUGWEAVEING_TST(1))
 	{
-		Com_Printf("Weave ent num = %i", weave->s.number);
+		Com_Printf("Weave ent num = %i, holdPower=%d\n", weave->s.number, weave->s.generic1);
 	}
 	trap_LinkEntity(weave);
 
@@ -434,6 +434,7 @@ ent is a ET_HELD_WEAVE
 void UseHeldWeave(gentity_t * heldWeave)
 {
 	float           newPower;
+	int             maxCharges;
 
 	if(!heldWeave)
 	{
@@ -470,19 +471,31 @@ void UseHeldWeave(gentity_t * heldWeave)
 		}
 
 		//held weave now consumes less power    
+		if(DEBUGWEAVEING_TST(1))
+		{
+			Com_Printf("UseHeldWeave: previous power consumed = %d\n", heldWeave->s.generic1);
+		}
+		maxCharges = (WeaveCharges(heldWeave->s.weapon) >> 1) + 1;
 		newPower = heldWeave->s.generic1;
-		newPower /= (float)(heldWeave->s.torsoAnim + (WeaveCharges(heldWeave->s.weapon) >> 1));
+		newPower /= (float)(heldWeave->s.torsoAnim + maxCharges);
 
 		//if weave does not go in process
 		if(heldWeave->s.frame != WST_INPROCESS)
 		{
 			//use a shot
 			heldWeave->s.torsoAnim--;
-			DEBUGWEAVEING("UseHeldWeave: shot expended");
+			if(DEBUGWEAVEING_TST(1))
+			{
+				Com_Printf("UseHeldWeave: shot expended %d remain\n", heldWeave->s.torsoAnim);
+			}
 		}
 
 		//set new power consumption
-		heldWeave->s.generic1 = newPower * (float)(heldWeave->s.torsoAnim + (WeaveCharges(heldWeave->s.weapon) >> 1));
+		heldWeave->s.generic1 = newPower * (float)(heldWeave->s.torsoAnim + maxCharges);
+		if(DEBUGWEAVEING_TST(1))
+		{
+			Com_Printf("UseHeldWeave: new power consumed = %d\n", heldWeave->s.generic1);
+		}
 	}
 
 	//if no shots remaining or expired

@@ -43,6 +43,31 @@ CG_DrawStatusBarWeaver
 */
 static void CG_DrawWeaverStatusBar(void)
 {
+	int             currentHealth = cg.snap->ps.stats[STAT_HEALTH];
+	int             currentStamina = cg.snap->ps.stats[STAT_STAMINA];
+	int             currentPower = cg.snap->ps.stats[STAT_POWER];
+	float           hpFraction = currentHealth / 100.0;
+	//float         pFraction = currentPower / FULL_POWER;
+
+	const float     health_offset_x = 51.0f;
+	const float     health_offset_y = 130.0f;
+	float     health_w = 36.0f;
+	float     health_h = 270.0f * hpFraction;
+
+	const float     health_val_offset_x = 5.0f;
+	const float     health_val_offset_y = 20.0f;
+
+	const float     stamina_offset_x = 11.0f;
+	const float     stamina_offset_y = 135.0f;
+	float     stamina_w = 10.0f;
+	float     stamina_h = 235.0f * (currentStamina / MAX_STAMINA);
+
+	const float     power_offset_left_w = 180.0f;
+	const float     power_offset_right_w = 80.0f;
+
+	const vec4_t    colorTeamBlue = { 0.0f, 0.0f, 1.0f, 0.5f };	// blue
+	const vec4_t    colorTeamRed = { 1.0f, 0.0f, 0.0f, 0.5f };	// red
+
 	int             rectx, recty, rectw, recth;
 	char           *hpString;
 	char           *pString;
@@ -53,11 +78,9 @@ static void CG_DrawWeaverStatusBar(void)
 	vec4_t          colorFull = { 1.0f, 1.0f, 1.0f, 1.0f };
 	vec4_t          colorEmpty = { 1.0f, 1.0f, 1.0f, 0.3f };
 
-	int             currentHealth = cg.snap->ps.stats[STAT_HEALTH];
-	int             currentStamina = cg.snap->ps.stats[STAT_STAMINA];
-	int             currentPower = cg.snap->ps.stats[STAT_POWER];
-	float           hpFraction = currentHealth / 100.0;
-	float           pFraction = currentPower / FULL_POWER;
+	float power_full_w = cg.snap->ps.stats[STAT_MAX_POWER] / 2;
+	float power_avil_w = cg.snap->ps.stats[STAT_POWER] / 2;
+	float power_full_mid_w = power_full_w - (power_offset_left_w + power_offset_right_w);
 
 	colorHealth[3] = 1.0f;
 
@@ -80,21 +103,13 @@ static void CG_DrawWeaverStatusBar(void)
 
 	currentHealth = cg.snap->ps.stats[STAT_HEALTH];
 
-	if(hpFraction < 0)
+	if(hpFraction < 0.0f)
 	{
-		hpFraction = 0;
+		hpFraction = 0.0f;
 	}
 
+#if 0
 	/*
-	if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE)
-	{
-		colorItem = &colorTeamBlue;
-	}
-	else if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED)
-	{
-		colorItem = &colorTeamRed;
-	}
-
 	//cent = &cg_entities[cg.snap->ps.clientNum];
 	//ps = &cg.snap->ps;
 
@@ -113,20 +128,18 @@ static void CG_DrawWeaverStatusBar(void)
 		CG_DrawStatusBarFlag(185 + CHAR_WIDTH * 3 + TEXT_ICON_SPACE + ICON_SIZE, TEAM_FREE);
 	}
 	*/
+#endif
 
-	//Health
-	rectx = 24;
-	recty = 480 - 28;
+	hpString = va("%iHP", currentHealth);
+	CG_Text_PaintAligned(cgs.screenXSize - health_val_offset_x, cgs.screenYSize - health_val_offset_y, hpString, 0.2f, UI_RIGHT, colorWhite, &cgs.media.freeSansBoldFont);
 
-	//CG_DrawRect(float x, float y, float width, float height, float size, const float *color);
-	CG_FillRectUp(rectx, recty, HUD_HEALTH_WIDTH, HUD_HEALTH_HEIGHT, colorEmpty);
-	CG_FillRectUp(rectx, recty, HUD_HEALTH_WIDTH, HUD_HEALTH_HEIGHT * hpFraction, colorHealth);
+	trap_R_SetColor(colorHealth);
+	trap_R_DrawStretchPic(cgs.screenXSize - health_offset_x, cgs.screenYSize - (health_offset_y + health_h), health_w, health_h, 0, 0, 0, 0, cgs.media.whiteShader);
 
-	CG_DrawPic(rectx, recty + 2, 12, 12, cgs.media.weaverIconHP);
+	trap_R_SetColor(colorFull);
+	trap_R_DrawStretchPic(cgs.screenXSize - stamina_offset_x, cgs.screenYSize - (stamina_offset_y + stamina_h), stamina_w, stamina_h, 0, 0, 0, 0, cgs.media.whiteShader);
 
-	hpString = va("%ihp", currentHealth);
-	CG_Text_PaintAligned(rectx - 4, recty + 17, hpString, 0.125f, UI_LEFT, colorWhite, &cgs.media.freeSansBoldFont);
-
+#if 0
 	rectx += HUD_HEALTH_WIDTH;
 
 	if(cg.predictedPlayerState.stats[STAT_AIRPROTECT] > 0)
@@ -184,29 +197,23 @@ static void CG_DrawWeaverStatusBar(void)
 		CG_Text_PaintAligned(rectx, recty, protectString, 0.125f, UI_LEFT, colorWater, &cgs.media.freeSansBoldFont);
 		recty += 7;
 	}
+#endif
 
-	//Stamina
-	rectx = 4;
-	recty = 480 - 28;
-	rectw = 12;
-	recth = 90;
+	// Hud Decoration
+	if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE)
+	{
+		trap_R_SetColor(colorTeamBlue);
+	}
+	else if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED)
+	{
+		trap_R_SetColor(colorTeamRed);
+	}
 
-	//CG_DrawRect(float x, float y, float width, float height, float size, const float *color);
-	CG_FillRectUp(rectx, recty, rectw, recth, colorEmpty);
-	CG_FillRectUp(rectx, recty, rectw, recth * (currentStamina / MAX_STAMINA), colorFull);
+	trap_R_DrawStretchPic(cgs.screenXSize-256, cgs.screenYSize-512, 256, 512, 0, 0, 1, 1, cgs.media.weaverCorner);
+	trap_R_DrawStretchPic(cgs.screenXSize-(256+power_full_mid_w), cgs.screenYSize-32, power_full_mid_w, 32, 0, 0, 1, 1, cgs.media.weaverBarExt);
+	trap_R_DrawStretchPic(cgs.screenXSize-(256+power_full_mid_w+256), cgs.screenYSize-64, 256, 64, 0, 0, 1, 1, cgs.media.weaverBarEnd);
 
-	//Power
-	rectx = 640 - 16;
-	recty = 480 - 28;
-	rectw = 12;
-	recth = 90;
-
-	//CG_DrawRect(float x, float y, float width, float height, float size, const float *color);
-	CG_FillRectUp(rectx, recty, rectw, recth * (cg.snap->ps.stats[STAT_MAX_POWER] / FULL_POWER), colorEmpty);
-	CG_FillRectUp(rectx, recty, rectw, recth * pFraction, colorFull);
-
-	pString = va("%i", currentPower);
-	CG_Text_PaintAligned(rectx - 14, recty + 17, pString, 0.125f, UI_LEFT, colorWater, &cgs.media.freeSansBoldFont);
+	trap_R_SetColor(NULL);
 }
 
 /*
@@ -437,23 +444,21 @@ static void CG_DrawWeaverHeld(void)
 	centity_t      *cent;
 	weaver_weaveCGInfo *weaveInfo;
 	float           x, y;
-	float           xi, yi;
-	int             count;
+	float           xc;
 
-	count = 0;
-	x = 0.0f;
-	y = 20.0f;
+	const float     spellicon_w = 80.0f;
 
-	for(i = MIN_WEAPON_WEAVE; i < MAX_WEAPONS; i++)
-	{
-		if(cg.predictedPlayerState.ammo[i] > 0)
-		{
-			count++;
-		}
-	}
+	float           power_spell_w;
+	const float     power_spell_h = 20.0f;
 
-	xi = 324 - count * 20;		// 640/2-(count*20)+4
-	yi = 440;					//480 - 40 = 40 up from bottom
+	const float     power_offset_left_w = 180.0f;
+	const float     power_offset_right_w = 80.0f;
+
+	const float     power_offset_x = 180.0f;
+	const float     power_offset_y = 8.0f;
+
+	x = cgs.screenXSize - power_offset_x;
+	y = cgs.screenYSize - power_offset_y - power_spell_h;
 
 	for(i = MIN_WEAPON_WEAVE; i < MAX_WEAPONS; i++)
 	{
@@ -462,22 +467,32 @@ static void CG_DrawWeaverHeld(void)
 			cent = &cg_entities[cg.predictedPlayerState.ammo[i]];
 			weaveInfo = &cg_weaves[cent->currentState.weapon];
 
+			// Width of bar for this spell
+			power_spell_w = cent->currentState.generic1 / 2;
+
+			x -= power_spell_w;
+			xc = x + (power_spell_w/2);
+
+			trap_R_SetColor(colorWhite);
+			trap_R_DrawStretchPic(x, y, power_spell_w, power_spell_h, 0, 0, 0, 0, cgs.media.whiteShader);
+			trap_R_SetColor(NULL);
+
+			trap_R_DrawStretchPic(xc - (spellicon_w / 2), y - (50 + spellicon_w), spellicon_w, spellicon_w, 0, 0, 1, 1, weaveInfo->icon);
+
+			/*
 			thread =
-				va("%i: ent=%i w=%d ammo=%d/%d", i, cg.predictedPlayerState.ammo[i], cent->currentState.weapon,
-				   cent->currentState.torsoAnim, weaveInfo->info.castCharges);
-			CG_Text_PaintAligned(x + 10, y + 27, thread, 0.125f, UI_LEFT, colorWhite, &cgs.media.freeSansBoldFont);
+				va("%i: e=%i w=%d p=%d a=%d/%d", i, cg.predictedPlayerState.ammo[i], cent->currentState.weapon,
+				   cent->currentState.generic1, cent->currentState.torsoAnim, weaveInfo->info.castCharges);
+			CG_Text_PaintAligned(xc, y - (200 + (10*i)), thread, 0.20f, UI_RIGHT, colorWhite, &cgs.media.freeSansBoldFont);
+			*/
 
-			y += 7;
-
-			CG_DrawPic(xi, yi, 32, 32, weaveInfo->icon);
+			//CG_DrawPic(xi, yi, 32, 32, weaveInfo->icon);
 
 			// draw selection marker
 			if(i == cg.weaponSelect)
 			{
-				CG_DrawPic(xi - 4, yi - 4, 40, 40, cgs.media.weaponSelectShader);
+				//CG_DrawPic(xi - 4, yi - 4, 40, 40, cgs.media.weaponSelectShader);
 			}
-
-			xi += 40;
 		}
 	}
 }
@@ -544,6 +559,9 @@ Calls all HUD drawing for players.
 */
 void CG_DrawWeaverHUD(void)
 {
+	//Held Weaves
+	CG_DrawWeaverHeld();
+
 	//Health and Power
 	CG_DrawWeaverStatusBar();
 
@@ -552,9 +570,6 @@ void CG_DrawWeaverHUD(void)
 
 	//Weaver Sense
 	CG_DrawWeaveSense();
-
-	//Held Weaves
-	CG_DrawWeaverHeld();
 
 	//Powerups
 	CG_DrawWeaverPowerups();

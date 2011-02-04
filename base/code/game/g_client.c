@@ -1457,8 +1457,7 @@ void ClientSpawn(gentity_t * ent)
 	client->ps.ammo[WP_GAUNTLET] = -1;
 
 	// health will count down towards max_health
-	ent->health = client->ps.stats[STAT_HEALTH] = client->ps.stats[STAT_MAX_HEALTH] + 25;
-	//client->ps.stats[STAT_ARMOR] = client->ps.stats[STAT_MAX_HEALTH];
+	ent->health = client->ps.stats[STAT_HEALTH] = client->ps.stats[STAT_MAX_HEALTH];
 
 	G_SetOrigin(ent, spawn_origin);
 	VectorCopy(spawn_origin, client->ps.origin);

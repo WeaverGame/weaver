@@ -1381,9 +1381,12 @@ typedef struct
 
 	qhandle_t       weaverThreads[WVP_NUMBER][3];
 
-	qhandle_t       weaverIconHP;
-
 	qhandle_t       weaverStatus[PW_NUM_POWERUPS];
+
+	qhandle_t       weaverCorner;
+	qhandle_t       weaverBarEnd;
+	qhandle_t       weaverBarExt;
+	qhandle_t       weaverBarDiv;
 
 } cgMedia_t;
 
@@ -1400,6 +1403,8 @@ typedef struct
 	float           screenYBias;
 	float           screenXScale;
 	float           screenYScale;
+	float           screenXSize;
+	float           screenYSize;
 
 	int             serverCommandSequence;	// reliable command stream counter
 	int             processedSnapshotNum;	// the number of snapshots cgame has requested

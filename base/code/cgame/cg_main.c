@@ -1036,7 +1036,10 @@ static void CG_RegisterGraphics(void)
 	cgs.media.weaverSenseDot2 = trap_R_RegisterShaderNoMip("gfx/hud/sensedot2");
 	cgs.media.weaverSenseDot3 = trap_R_RegisterShaderNoMip("gfx/hud/sensedot3");
 
-	cgs.media.weaverIconHP = trap_R_RegisterShaderNoMip("gfx/hud/icon_hp");
+	cgs.media.weaverCorner = trap_R_RegisterShaderNoMip("gfx/hud/corner");
+	cgs.media.weaverBarExt = trap_R_RegisterShaderNoMip("gfx/hud/bar_ext");
+	cgs.media.weaverBarEnd = trap_R_RegisterShaderNoMip("gfx/hud/bar_end");
+	cgs.media.weaverBarDiv = trap_R_RegisterShaderNoMip("gfx/hud/bar_div");
 
 	for(i = 0; i < 3; i++)
 	{
@@ -1506,6 +1509,8 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 
 	// get the rendering configuration from the client system
 	trap_GetGlconfig(&cgs.glconfig);
+	cgs.screenXSize = cgs.glconfig.vidWidth;
+	cgs.screenYSize = cgs.glconfig.vidHeight;
 	cgs.screenXScale = cgs.glconfig.vidWidth / 640.0;
 	cgs.screenYScale = cgs.glconfig.vidHeight / 480.0;
 	cgs.screenScale = cgs.glconfig.vidHeight * (1.0f / 480.0f);
