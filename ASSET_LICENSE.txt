@@ -20,6 +20,14 @@ These assets are located at:	base/gfx/icons/spells/cure.png
 								base/gfx/icons/spells/protectfire.png
 								base/gfx/icons/spells/protectwater.png
 ===============================================================
+Grass models by Nobiax
+http://nobiax.deviantart.com/art/Free-Grass-Pack-2-179149133
+http://nobiax.deviantart.com/art/Free-Grass-Pack-179052021?
+By: Nobiax
+License(s):
+	CC-BY-SA 3.0 (by correspondence with author)
+These assets are located at:	base/models/mapobjects/nobiax/*
+===============================================================
 Miramar Skybox
 http://www.quake3world.com/forum/viewtopic.php?t=9242
 http://www.zfight.com/
