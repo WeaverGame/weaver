@@ -1050,8 +1050,8 @@ void CG_RegisterWeave(int weaveNum)
 			weaveInfo->missileModel[1] = trap_R_RegisterModel("models/weaves/iceshards/iceshard02.md5mesh", qtrue);
 			weaveInfo->missileModel[2] = trap_R_RegisterModel("models/weaves/iceshards/iceshard03.md5mesh", qtrue);
 			weaveInfo->missileModel[3] = trap_R_RegisterModel("models/weaves/iceshards/iceshard04.md5mesh", qtrue);
-			weaveInfo->missileLight = 50;
-			MAKERGB(weaveInfo->missileLightColor, 0.1f, 0.1f, 0.3f);
+			//weaveInfo->missileLight = 50;
+			//MAKERGB(weaveInfo->missileLightColor, 0.1f, 0.1f, 0.3f);
 			//weaveInfo->missileRenderfx;
 			weaveInfo->missileSound = trap_S_RegisterSound("sound/weaves/iceshards/fly.ogg");
 			//weaveInfo->missileTrailFunc;
@@ -1083,8 +1083,8 @@ void CG_RegisterWeave(int weaveNum)
 			weaveInfo->missileModel[1] = trap_R_RegisterModel("models/weaves/iceshards/iceshard02.md5mesh", qtrue);
 			weaveInfo->missileModel[2] = trap_R_RegisterModel("models/weaves/iceshards/iceshard03.md5mesh", qtrue);
 			weaveInfo->missileModel[3] = trap_R_RegisterModel("models/weaves/iceshards/iceshard04.md5mesh", qtrue);
-			weaveInfo->missileLight = 50;
-			MAKERGB(weaveInfo->missileLightColor, 0.1f, 0.1f, 0.3f);
+			//weaveInfo->missileLight = 50;
+			//MAKERGB(weaveInfo->missileLightColor, 0.1f, 0.1f, 0.3f);
 			//weaveInfo->missileRenderfx;
 			weaveInfo->missileSound = trap_S_RegisterSound("sound/weaves/iceshards/fly.ogg");
 			//weaveInfo->missileTrailFunc;
