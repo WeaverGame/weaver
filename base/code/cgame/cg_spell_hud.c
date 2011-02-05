@@ -9,10 +9,10 @@ It has weaver HUD.
 #include "cg_local.h"
 #include "cg_spell_util.h"
 
-vec4_t          colorAir = { 0.937f, 0.90f, 0.00f, 1.0f };
-vec4_t          colorFire = { 0.94f, 0.16f, 0.16f, 1.0f };
-vec4_t          colorEarth = { 0.0f, 0.87f, 0.00f, 1.0f };
-vec4_t          colorWater = { 0.0f, 0.32f, 0.906f, 1.0f };
+vec4_t          colorAir = { 0.937f, 0.90f, 0.00f, 0.7f };
+vec4_t          colorFire = { 0.94f, 0.16f, 0.16f, 0.7f };
+vec4_t          colorEarth = { 0.0f, 0.87f, 0.00f, 0.7f };
+vec4_t          colorWater = { 0.0f, 0.32f, 0.906f, 0.7f };
 
 vec2_t          tutTextOffset[WVP_NUMBER] = { {0.0f, 0.0f},
 {0.0f, 1.1f}, {0.778f, 0.778f},
@@ -24,17 +24,44 @@ vec2_t          tutTextOffset[WVP_NUMBER] = { {0.0f, 0.0f},
 
 int             powerCount[WVP_NUMBER];
 
+typedef enum
+{
+	DRFD_DOWN,
+	DRFD_UP,
+	DRFD_LEFT,
+	DRFD_RIGHT
+} DrawRectFillDir;
+
 /*
 ================
 CG_FillRectUp
 
 Utility method.
-Coordinates are 640*480 virtual values
 =================
 */
-void CG_FillRectUp(float x, float y, float width, float height, float *color)
+void CG_DrawFillRect(float x, float y, float width, float height, float *color, DrawRectFillDir dir)
 {
-	CG_FillRect(x, y - height, width, height, color);
+	const float s1 = 0;
+	const float t1 = 0;
+	const float s2 = 0;
+	const float t2 = 0;
+
+	trap_R_SetColor(color);
+	switch(dir)
+	{
+		case DRFD_UP:
+			trap_R_DrawStretchPic(x, y-height, width, height, s1, t1, s2, t2, cgs.media.whiteShader);
+			break;
+		case DRFD_LEFT:
+			trap_R_DrawStretchPic(x-width, y, width, height, s1, t1, s2, t2, cgs.media.whiteShader);
+			break;
+		default:
+		case DRFD_DOWN:
+		case DRFD_RIGHT:
+			trap_R_DrawStretchPic(x, y, width, height, s1, t1, s2, t2, cgs.media.whiteShader);
+			break;
+	}
+	trap_R_SetColor(NULL);
 }
 
 /*
@@ -71,6 +98,10 @@ static void CG_DrawWeaverStatusBar(void)
 	char           *hpString;
 	char           *pString;
 	char           *protectString;
+
+	float           protect_x = cgs.screenXSize - health_offset_x;
+	float           protect_y = cgs.screenYSize - (health_offset_y + 10);
+	const float     protect_h = 180.0f;
 
 	vec4_t          colorHealth;
 	vec4_t          colorWhite = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -130,44 +161,40 @@ static void CG_DrawWeaverStatusBar(void)
 #endif
 
 	hpString = va("%iHP", currentHealth);
-	CG_Text_PaintAligned(cgs.screenXSize - health_val_offset_x, cgs.screenYSize - health_val_offset_y, hpString, 0.2f, UI_RIGHT, colorWhite, &cgs.media.freeSansBoldFont);
+	CG_Text_PaintAligned(cgs.screenXSize - health_val_offset_x, cgs.screenYSize - health_val_offset_y, hpString, 0.5f, UI_RIGHT, colorWhite, &cgs.media.freeSansBoldFont);
 
-	trap_R_SetColor(colorHealth);
-	trap_R_DrawStretchPic(cgs.screenXSize - health_offset_x, cgs.screenYSize - (health_offset_y + health_h), health_w, health_h, 0, 0, 0, 0, cgs.media.whiteShader);
+	CG_DrawFillRect(cgs.screenXSize - health_offset_x, cgs.screenYSize - health_offset_y, health_w, health_h, colorHealth, DRFD_UP);
 
-	trap_R_SetColor(colorFull);
-	trap_R_DrawStretchPic(cgs.screenXSize - stamina_offset_x, cgs.screenYSize - (stamina_offset_y + stamina_h), stamina_w, stamina_h, 0, 0, 0, 0, cgs.media.whiteShader);
+	CG_DrawFillRect(cgs.screenXSize - stamina_offset_x, cgs.screenYSize - stamina_offset_y, stamina_w, stamina_h, colorFull, DRFD_UP);
 
-#if 0
-	rectx += HUD_HEALTH_WIDTH;
-
+#if 1
 	if(cg.predictedPlayerState.stats[STAT_AIRPROTECT] > 0)
 	{
-		CG_FillRectUp(rectx, recty, HUD_PROTECT_WIDTH,
-					  (HUD_PROTECT_HEIGHT * ((float)cg.predictedPlayerState.stats[STAT_AIRPROTECT] / (float)WEAVE_PROTECTAIR)),
-					  colorAir);
-		rectx += HUD_PROTECT_WIDTH;
+		CG_DrawFillRect(protect_x, protect_y, HUD_PROTECT_WIDTH,
+					  (protect_h * ((float)cg.predictedPlayerState.stats[STAT_AIRPROTECT] / (float)WEAVE_PROTECTAIR)),
+					  colorAir, DRFD_UP);
+		protect_x += HUD_PROTECT_WIDTH;
 	}
 	if(cg.predictedPlayerState.stats[STAT_FIREPROTECT] > 0)
 	{
-		CG_FillRectUp(rectx, recty, HUD_PROTECT_WIDTH,
-					  (HUD_PROTECT_HEIGHT * ((float)cg.predictedPlayerState.stats[STAT_FIREPROTECT] / (float)WEAVE_PROTECTFIRE)),
-					  colorFire);
-		rectx += HUD_PROTECT_WIDTH;
+		CG_DrawFillRect(protect_x, protect_y, HUD_PROTECT_WIDTH,
+					  (protect_h * ((float)cg.predictedPlayerState.stats[STAT_FIREPROTECT] / (float)WEAVE_PROTECTFIRE)),
+					  colorFire, DRFD_UP);
+		protect_x += HUD_PROTECT_WIDTH;
 	}
 	if(cg.predictedPlayerState.stats[STAT_EARTHPROTECT] > 0)
 	{
-		CG_FillRectUp(rectx, recty, HUD_PROTECT_WIDTH,
-					  (HUD_PROTECT_HEIGHT * ((float)cg.predictedPlayerState.stats[STAT_EARTHPROTECT] / (float)WEAVE_PROTECTEARTH)),
-					  colorEarth);
-		rectx += HUD_PROTECT_WIDTH;
+		CG_DrawFillRect(protect_x, protect_y, HUD_PROTECT_WIDTH,
+					  (protect_h * ((float)cg.predictedPlayerState.stats[STAT_EARTHPROTECT] / (float)WEAVE_PROTECTEARTH)),
+					  colorEarth, DRFD_UP);
+		protect_x += HUD_PROTECT_WIDTH;
 	}
 	if(cg.predictedPlayerState.stats[STAT_WATERPROTECT] > 0)
 	{
-		CG_FillRectUp(rectx, recty, HUD_PROTECT_WIDTH,
-					  (HUD_PROTECT_HEIGHT * ((float)cg.predictedPlayerState.stats[STAT_WATERPROTECT] / (float)WEAVE_PROTECTWATER)),
-					  colorWater);
-		rectx += HUD_PROTECT_WIDTH;
+		CG_DrawFillRect(protect_x, protect_y, HUD_PROTECT_WIDTH,
+					  (protect_h * ((float)cg.predictedPlayerState.stats[STAT_WATERPROTECT] / (float)WEAVE_PROTECTWATER)),
+					  colorWater, DRFD_UP);
+		protect_x += HUD_PROTECT_WIDTH;
 	}
 
 	recty -= HUD_PROTECT_HEIGHT;
@@ -244,8 +271,6 @@ static void CG_DrawWeaverStroke(float x, float y)
 
 	moveScale = (float)cg_weaverThreadMoveScale.value * 1.0;
 
-	//CG_AdjustFrom640(&h, &h, &w, &h);
-
 	xo = cg.predictedPlayerState.stats[STAT_THREADX] * moveScale;
 	yo = cg.predictedPlayerState.stats[STAT_THREADY] * moveScale;
 
@@ -285,12 +310,12 @@ static void CG_DrawWeaverTutorialWeave(float x, float y, float size, int weaveID
 			if(depth == 1)
 			{
 				// Green
-				CG_Text_PaintAligned((320 + xo), (240 - yo - offsetCount), str, 0.125f, UI_CENTER, colorGreen, &cgs.media.freeSansBoldFont);
+				CG_Text_PaintAligned(x + xo, y - (yo + offsetCount), str, 0.20f, UI_CENTER, colorGreen, &cgs.media.freeSansBoldFont);
 			}
 			else
 			{
 				// White
-				CG_Text_PaintAligned((320 + xo), (240 - yo - offsetCount), str, 0.125f, UI_CENTER, colorWhite, &cgs.media.freeSansBoldFont);
+				CG_Text_PaintAligned(x + xo, y - (yo + offsetCount), str, 0.20f, UI_CENTER, colorWhite, &cgs.media.freeSansBoldFont);
 			}
 		}
 	}
@@ -361,7 +386,7 @@ static void CG_DrawWeaverTutorial(float x, float y, float size)
 		if(weaveInfo && weaveInfo->info.nameP)
 		{
 			str = va("Release +weave for %s", weaveInfo->info.nameP);
-			CG_Text_PaintAligned(320, 400, str, 0.25f, UI_CENTER, colorWhite, &cgs.media.freeSansBoldFont);
+			CG_Text_PaintAligned(cg.refdef.width/2, 80, str, 0.4f, UI_CENTER, colorWhite, &cgs.media.freeSansBoldFont);
 		}
 	}
 
@@ -395,16 +420,13 @@ static void CG_DrawWeaverDisc(void)
 	}
 
 	da = cg_drawWeaverDisc.integer;
-	w = h = cg_weaverDiscSize.integer;
+	w = h = cg_weaverDiscSize.integer * (cgs.screenMinSize / 100);
 
 	if(da >= 1 && da <= NUM_WEAVERDISCS)
 	{
 		//TODO: reimplement move scale
 		//moveScale = (float)cg_weaverDiscMoveScale.value * 1.0;
 
-		CG_AdjustFrom640(&x, &y, &w, &h);
-
-		//thread = va("%i x, %i y ", cg.snap->ps.stats[STAT_THREADX], cg.snap->ps.stats[STAT_THREADY]);
 		thread = va("%i x, %i y", cg.predictedPlayerState.stats[STAT_THREADX], cg.predictedPlayerState.stats[STAT_THREADY]);
 		CG_Text_PaintAligned(8, 17, thread, 0.25f, UI_LEFT, colorWhite, &cgs.media.freeSansBoldFont);
 
@@ -426,7 +448,7 @@ static void CG_DrawWeaverDisc(void)
 
 	CG_DrawWeaverStroke(x, y);
 
-	CG_DrawWeaverTutorial(x, y, (0.5 * w));
+	CG_DrawWeaverTutorial(x, y, (0.25 * cgs.screenMinSize));
 }
 
 /*
@@ -463,6 +485,7 @@ static void CG_DrawWeaverHeld(void)
 
 	float           y_div = cgs.screenYSize - power_div_h;
 	float           y_text = cgs.screenYSize - (power_div_h + 20);
+	float           y_icon = cgs.screenYSize - 60;
 
 	float power_full_w = cg.snap->ps.stats[STAT_MAX_POWER];
 	float power_avil_w = cg.snap->ps.stats[STAT_POWER];
@@ -471,43 +494,48 @@ static void CG_DrawWeaverHeld(void)
 	x = cgs.screenXSize - power_offset_x;
 	y = cgs.screenYSize - power_offset_y - power_spell_h;
 
-	trap_R_SetColor(colorEmpty);
-	trap_R_DrawStretchPic(x - power_used_w, y, power_used_w, power_spell_h, 0, 0, 0, 0, cgs.media.whiteShader);
-	trap_R_SetColor(NULL);
+	// Draw bar used (including current casting)
+	CG_DrawFillRect(x, y, power_used_w, power_spell_h, colorEmpty, DRFD_LEFT);
 
+	// Draw each held weave
 	for(i = MIN_WEAPON_WEAVE; i < MAX_WEAPONS; i++)
 	{
 		if(cg.predictedPlayerState.ammo[i] > 0)
 		{
+			// Aquire heldWeave entity
 			cent = &cg_entities[cg.predictedPlayerState.ammo[i]];
 			weaveInfo = &cg_weaves[cent->currentState.weapon];
 
 			// Width of bar for this spell
 			power_spell_w = CG_HeldWeave_GetPower(cent) / 2;
 
-			x -= power_spell_w;
-			xc = x + (power_spell_w/2);
+			// Draw power bar
+			CG_DrawFillRect(x, y, power_spell_w, power_spell_h, colorWhite, DRFD_LEFT);
 
-			trap_R_SetColor(colorWhite);
-			trap_R_DrawStretchPic(x, y, power_spell_w, power_spell_h, 0, 0, 0, 0, cgs.media.whiteShader);
-			trap_R_SetColor(NULL);
+			// Draw Spell Icon
+			trap_R_DrawStretchPic(x - spellicon_w, y_icon - spellicon_w, spellicon_w, spellicon_w, 0, 0, 1, 1, weaveInfo->icon);
 
-			trap_R_DrawStretchPic(x - (power_div_w / 2), y_div, power_div_w, power_div_h, 0, 0, 1, 1, cgs.media.weaverBarDiv);
-
-			trap_R_DrawStretchPic(xc - (spellicon_w / 2), y - (50 + spellicon_w), spellicon_w, spellicon_w, 0, 0, 1, 1, weaveInfo->icon);
-
+			/*
 			thread =
 				va("%i: e=%i w=%d p=%d a=%d/%d", i, cg.predictedPlayerState.ammo[i], cent->currentState.weapon,
 				   cent->currentState.generic1, cent->currentState.torsoAnim, weaveInfo->info.castCharges);
-			CG_Text_PaintAligned(xc, y - (200), thread, 0.20f, UI_RIGHT, colorWhite, &cgs.media.freeSansBoldFont);
+			CG_Text_PaintAligned(x, y_icon + 8, thread, 0.20f, UI_RIGHT, colorWhite, &cgs.media.freeSansBoldFont);
+			*/
 
-			//CG_DrawPic(xi, yi, 32, 32, weaveInfo->icon);
+			thread = va("%d/%d", cent->currentState.torsoAnim, weaveInfo->info.castCharges);
+			CG_Text_PaintAligned(x - (spellicon_w/2), y_icon + 9, thread, 0.22f, UI_CENTER, colorWhite, &cgs.media.freeSansBoldFont);
 
-			// draw selection marker
+			// Draw selection marker
 			if(i == cg.weaponSelect)
 			{
-				CG_DrawPic(xc - 20, y_text, 40, 40, cgs.media.weaponSelectShader);
+				trap_R_DrawStretchPic(x - spellicon_w, y_icon - spellicon_w, spellicon_w, spellicon_w, 0, 0, 1, 1, cgs.media.weaponSelectShader);
 			}
+
+			// Move left
+			x -= power_spell_w;
+
+			// Division marker
+			trap_R_DrawStretchPic(x - (power_div_w / 2), y_div, power_div_w, power_div_h, 0, 0, 1, 1, cgs.media.weaverBarDiv);
 		}
 	}
 }

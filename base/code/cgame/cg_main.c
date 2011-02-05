@@ -1511,6 +1511,7 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 	trap_GetGlconfig(&cgs.glconfig);
 	cgs.screenXSize = cgs.glconfig.vidWidth;
 	cgs.screenYSize = cgs.glconfig.vidHeight;
+	cgs.screenMinSize = (cgs.screenXSize > cgs.screenYSize) ? cgs.screenYSize : cgs.screenXSize;
 	cgs.screenXScale = cgs.glconfig.vidWidth / 640.0;
 	cgs.screenYScale = cgs.glconfig.vidHeight / 480.0;
 	cgs.screenScale = cgs.glconfig.vidHeight * (1.0f / 480.0f);
@@ -1532,6 +1533,9 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 		// no wide screen
 		cgs.screenXBias = cgs.screenYBias = 0;
 	}
+
+	// Scape hud for new screen size;
+	CG_ScoreboardNewScale();
 
 	// get the gamestate from the client system
 	trap_GetGameState(&cgs.gameState);

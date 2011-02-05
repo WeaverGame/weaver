@@ -36,7 +36,7 @@ It contains global weaver definitions.
 #define HUD_HEALTH_HEIGHT   90
 #define HUD_HEALTH_WIDTH    12
 #define HUD_PROTECT_HEIGHT  90
-#define HUD_PROTECT_WIDTH   5
+#define HUD_PROTECT_WIDTH   9
 #define HUD_POWER_HEIGHT    90
 #define HUD_POWER_WIDTH     12
 #define HUD_STATUS_HEIGHT   32

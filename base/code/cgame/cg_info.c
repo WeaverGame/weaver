@@ -82,19 +82,20 @@ static void CG_DrawProgress(void)
 	int             i;
 	vec4_t          color;
 	int             style = 0;
+	char           *s;
+	int             pc_h;
 
 	x = CG_INFO_SIDE_GRADIENT_WIDTH + 4;
-	y = SCREEN_HEIGHT - 8;
+	y = 480 - 8;
 
 	if(cg.progress == 0)
 	{
-		//CG_Text_PaintAligned(230, 228, "Precaching ... ", 0.3f, UI_RIGHT | UI_DROPSHADOW, colorText, &cgs.media.freeSansBoldFont);
-
 	}
 	else
 	{
-		//CG_Text_PaintAligned(230, 228, "Loading ", 0.3f, UI_RIGHT | UI_DROPSHADOW, colorText, &cgs.media.freeSansBoldFont);
-		CG_Text_PaintAligned(SCREEN_WIDTH - 2, y - 2, va("%i%%", (int)(100 / NUM_PROGRESS * cg.progress)), 0.4f, UI_RIGHT,
+		s = va("%i%%", (int)(100 / NUM_PROGRESS * cg.progress));
+		pc_h = CG_Text_Height(s, 0.8f, 0, &cgs.media.freeSansFont);
+		CG_Text_PaintAligned(cgs.screenXSize - 2, cgs.screenYSize - 2 - pc_h, s, 0.85f, UI_RIGHT,
 			(levelshot ? colorText : colorTextGrey), &cgs.media.freeSansFont);
 	}
 
@@ -118,9 +119,9 @@ static void CG_DrawProgress(void)
 			color[3] *= 2;
 		}
 
-		CG_Text_PaintAligned(10, y - i * 12, cg.progressInfo[i].info, 0.2f, style, color, &cgs.media.freeSansBoldFont);
+		CG_Text_PaintAligned(10, cgs.screenYSize - 10 - (i * 16), cg.progressInfo[i].info, 0.3f, style, color, &cgs.media.freeSansBoldFont);
 
-		CG_DrawPic(x + i * CG_INFO_LOADTILE_WIDTH, y, 6, 6, load1);
+		CG_DrawPic(x + (i * CG_INFO_LOADTILE_WIDTH), y, 6, 6, load1);
 
 		/*
 		if(i == cg.progress - 1)
@@ -153,6 +154,11 @@ void CG_DrawInformation(void)
 	char            buf[1024];
 
 	int             y_offset;
+
+	const int       title_h = 64;
+	int             loading_h;
+
+	const float     infoScale = 0.35f;
 
 	info = CG_ConfigString(CS_SERVERINFO);
 	sysInfo = CG_ConfigString(CS_SYSTEMINFO);
@@ -187,22 +193,21 @@ void CG_DrawInformation(void)
 	//mapshot
 	trap_R_SetColor(NULL);
 	loadingmap = va("Loading %s", s);
+	loading_h = CG_Text_Height(loadingmap, 0.4f, 0, &cgs.media.freeSansFont);
 	if(levelshot)
 	{
-		CG_DrawPic(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, levelshot);
-		CG_DrawPic(CG_INFO_SIDE_GRADIENT_WIDTH - 9, (SCREEN_HEIGHT - 50) + 8, 42*4, 42, title_white);
-		CG_Text_PaintAligned(SCREEN_WIDTH - CG_INFO_PERCENT_WIDTH, SCREEN_HEIGHT - 15, loadingmap, 0.2f, UI_RIGHT, colorText, &cgs.media.freeSansFont);
+		trap_R_DrawStretchPic(0, 0, cgs.screenXSize, cgs.screenYSize, 0, 0, 1, 1, levelshot);
 	}
 	else
 	{
-		CG_DrawPic((SCREEN_WIDTH - CG_INFO_LOGO_WIDTH)/2, (SCREEN_HEIGHT - (CG_INFO_LOGO_WIDTH*2))/2, CG_INFO_LOGO_WIDTH, CG_INFO_LOGO_WIDTH*2, levelshotDefault);
-		CG_DrawPic(CG_INFO_SIDE_GRADIENT_WIDTH - 9, (SCREEN_HEIGHT - 50) + 8, 42*4, 42, title);
-		CG_Text_PaintAligned(SCREEN_WIDTH - CG_INFO_PERCENT_WIDTH, SCREEN_HEIGHT - 15, loadingmap, 0.2f, UI_RIGHT, colorTextGrey, &cgs.media.freeSansFont);
+		trap_R_DrawStretchPic((cgs.screenXSize - CG_INFO_LOGO_WIDTH)/2, cgs.screenYSize/2 - CG_INFO_LOGO_WIDTH, CG_INFO_LOGO_WIDTH, CG_INFO_LOGO_WIDTH*2, 0, 0, 1, 1, levelshotDefault);
 	}
+	trap_R_DrawStretchPic((CG_INFO_SIDE_GRADIENT_WIDTH * cgs.screenXScale) - 9, cgs.screenYSize - title_h - (8 * cgs.screenYScale), title_h*4, title_h, 0, 0, 1, 1, (levelshot ? title_white : title));
+	CG_Text_PaintAligned(cgs.screenXSize - CG_INFO_PERCENT_WIDTH, cgs.screenYSize - loading_h - (8 * cgs.screenYScale), loadingmap, 0.2f, UI_RIGHT, (levelshot ? colorText : colorTextGrey), &cgs.media.freeSansFont);
 
 	// left side
-	CG_DrawPic(0, 0, CG_INFO_SIDE_GRADIENT_WIDTH, SCREEN_HEIGHT, black_gradient);
-	CG_DrawPic((CG_INFO_SIDE_GRADIENT_WIDTH - CG_INFO_SIDE_LOGO_WIDTH)/2, 0, CG_INFO_SIDE_LOGO_WIDTH, CG_INFO_SIDE_LOGO_WIDTH*2, logo_dark);
+	trap_R_DrawStretchPic(0, 0, CG_INFO_SIDE_GRADIENT_WIDTH * cgs.screenXScale, cgs.screenYSize, 0, 0, 1, 1, black_gradient);
+	trap_R_DrawStretchPic(((CG_INFO_SIDE_GRADIENT_WIDTH * cgs.screenXScale) - CG_INFO_SIDE_LOGO_WIDTH)/2, 0, CG_INFO_SIDE_LOGO_WIDTH, CG_INFO_SIDE_LOGO_WIDTH*2, 0, 0, 1, 1, logo_dark);
 
 	// draw the cg.progress
 	CG_DrawProgress();
@@ -211,12 +216,12 @@ void CG_DrawInformation(void)
 	s = CG_ConfigString(CS_MOTD);
 	if(s[0])
 	{
-		CG_Text_PaintAligned(320, 110, s, 0.2f, UI_CENTER | UI_DROPSHADOW, text_color_normal, &cgs.media.freeSansFont);
+		CG_Text_PaintAligned(cgs.screenXSize/2, 110, s, 0.5f, UI_CENTER | UI_DROPSHADOW, text_color_normal, &cgs.media.freeSansFont);
 	}
 
 	// draw info string information
-	y = 40;
-	y_offset = 14;
+	y = 50;
+	y_offset = 24;
 	x = 6;
 
 	// don't print server lines if playing a local game
@@ -227,26 +232,23 @@ void CG_DrawInformation(void)
 		Q_strncpyz(buf, Info_ValueForKey(info, "sv_hostname"), 1024);
 		Q_CleanStr(buf);
 		s = va("%s", buf);
-		CG_Text_PaintAligned(x, y, s, 0.2f, UI_DROPSHADOW, text_color_normal, &cgs.media.freeSansFont);
+		CG_Text_PaintAligned(x, y, s, infoScale, UI_DROPSHADOW, text_color_normal, &cgs.media.freeSansFont);
 		y += y_offset;
 
 		// pure server
 		s = Info_ValueForKey(sysInfo, "sv_pure");
 		if(s[0] == '1')
 		{
-			CG_Text_PaintAligned(x, y, "Pure Server", 0.2f, UI_DROPSHADOW, text_color_normal, &cgs.media.freeSansFont);
+			CG_Text_PaintAligned(x, y, "Pure Server", infoScale, UI_DROPSHADOW, text_color_normal, &cgs.media.freeSansFont);
 			y += y_offset;
 		}
-
-
-
 	}
 
 	// map-specific message (long map name)
 	s = CG_ConfigString(CS_MESSAGE);
 	if(s[0])
 	{
-		CG_Text_PaintAligned(x, y, s, 0.2f, UI_DROPSHADOW, text_color_normal, &cgs.media.freeSansFont);
+		CG_Text_PaintAligned(x, y, s, infoScale, UI_DROPSHADOW, text_color_normal, &cgs.media.freeSansFont);
 		y += y_offset;
 	}
 
@@ -254,7 +256,7 @@ void CG_DrawInformation(void)
 	s = Info_ValueForKey(sysInfo, "sv_cheats");
 	if(s[0] == '1')
 	{
-		CG_Text_PaintAligned(x, y, "Cheats are enabled", 0.2f, UI_DROPSHADOW, text_color_normal, &cgs.media.freeSansFont);
+		CG_Text_PaintAligned(x, y, "Cheats enabled", infoScale, UI_DROPSHADOW, text_color_normal, &cgs.media.freeSansFont);
 
 		//CG_Text_PaintAligned(x - 10, y + 1, ">", 0.2f, 0, text_color_warning, &cgs.media.freeSansFont);
 		//CG_Text_PaintAligned(x + 110, y + 1, "<", 0.2f, 0, text_color_warning, &cgs.media.freeSansFont);
@@ -299,14 +301,14 @@ void CG_DrawInformation(void)
 			s = "Unknown Gametype";
 			break;
 	}
-	CG_Text_PaintAligned(x, y, s, 0.2f, UI_DROPSHADOW, text_color_normal, &cgs.media.freeSansFont);
+	CG_Text_PaintAligned(x, y, s, infoScale, UI_DROPSHADOW, text_color_normal, &cgs.media.freeSansFont);
 	y += y_offset;
 
 	value = atoi(Info_ValueForKey(info, "timelimit"));
 	if(value)
 	{
 
-		CG_Text_PaintAligned(x, y, va("Timelimit %i", value), 0.2f, UI_DROPSHADOW, text_color_normal,
+		CG_Text_PaintAligned(x, y, va("Timelimit %i", value), infoScale, UI_DROPSHADOW, text_color_normal,
 							 &cgs.media.freeSansFont);
 		y += y_offset;
 	}
@@ -316,7 +318,7 @@ void CG_DrawInformation(void)
 		value = atoi(Info_ValueForKey(info, "fraglimit"));
 		if(value)
 		{
-			CG_Text_PaintAligned(x, y, va("Fraglimit %i", value), 0.2f, UI_DROPSHADOW, text_color_normal,
+			CG_Text_PaintAligned(x, y, va("Fraglimit %i", value), infoScale, UI_DROPSHADOW, text_color_normal,
 								 &cgs.media.freeSansFont);
 
 			y += y_offset;
@@ -327,7 +329,7 @@ void CG_DrawInformation(void)
 		value = atoi(Info_ValueForKey(info, "capturelimit"));
 		if(value)
 		{
-			CG_Text_PaintAligned(x, y, va("Capturelimit %i", value), 0.2f, UI_DROPSHADOW, text_color_normal,
+			CG_Text_PaintAligned(x, y, va("Capturelimit %i", value), infoScale, UI_DROPSHADOW, text_color_normal,
 								 &cgs.media.freeSansFont);
 			y += y_offset;
 		}

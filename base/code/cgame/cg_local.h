@@ -686,9 +686,9 @@ typedef struct particle_s
 //unlagged - optimized prediction
 
 // Loading screen constants
-#define CG_INFO_LOGO_WIDTH 200
-#define CG_INFO_SIDE_GRADIENT_WIDTH 110
-#define CG_INFO_SIDE_LOGO_WIDTH 60
+#define CG_INFO_LOGO_WIDTH 256
+#define CG_INFO_SIDE_GRADIENT_WIDTH 150
+#define CG_INFO_SIDE_LOGO_WIDTH 100
 #define CG_INFO_PERCENT_WIDTH 50
 #define CG_INFO_LOADTILE_WIDTH 10
 
@@ -1403,8 +1403,9 @@ typedef struct
 	float           screenYBias;
 	float           screenXScale;
 	float           screenYScale;
-	float           screenXSize;
-	float           screenYSize;
+	float           screenXSize;	// screen width
+	float           screenYSize;	// screen height
+	float           screenMinSize;	// screen minimum of width/height
 
 	int             serverCommandSequence;	// reliable command stream counter
 	int             processedSnapshotNum;	// the number of snapshots cgame has requested
@@ -2006,6 +2007,7 @@ void            CG_DrawInformation(void);
 qboolean        CG_DrawOldScoreboard(void);
 void            CG_DrawOldTourneyScoreboard(void);
 qboolean        CG_DrawScoreboardNew(void);
+void            CG_ScoreboardNewScale(void);
 
 //
 // cg_consolecmds.c
