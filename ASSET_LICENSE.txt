@@ -52,8 +52,12 @@ License(s):
 	GPL
 These assets are located at:	base/sound/feedback/*
 								base/sound/teamplay/*
+								base/sound/player/gibimp1.ogg
+								base/sound/player/gibimp2.ogg
+								base/sound/player/gibimp3.ogg
+								base/sound/player/gibsplt1.ogg
 ===============================================================
-Footsteps sounds
+Sounds
 http://www.moddb.com/mods/sapphire-scar
 http://sscar.musicexplosion.net/ (now dead link)
 http://www.doom3world.org/phpbb2/viewtopic.php?p=167097#p167097
@@ -63,4 +67,28 @@ License(s):
 These assets are located at:	base/sound/player/footsteps/*
 								base/sound/player/water_in.ogg
 								base/sound/player/water_out.ogg
+								base/sound/world/ambient/windloop.ogg
+								base/sound/weapons/cast/par_shot_*.ogg
+===============================================================
+Rocket Explosion Sound
+http://www.flashkit.com/soundfx/Mayhem/Explosives/Explode-eRco_Inc-7833/index.php
+By: eRco Inc.
+License(s):
+	Freeware "anyone to download and use as they please"
+These assets are located at:	base/sound/weapons/rocket/rocklx1a.ogg
+===============================================================
+Weapon Impact Sounds
+By: Alone Team - MacBeth
+License(s):
+	CC-BY-NC 3.0 Unported
+These assets are located at:	base/sound/weapons/impact*.ogg
+===============================================================
+Sounds
+By: Michael Denno
+License(s):
+	CC-BY-NC-SA 3.0 Unported
+These assets are located at:	base/sound/player/telein.ogg
+								base/sound/player/teleout.ogg
+								base/sound/weapons/rocket/rockfly.ogg
+								base/sound/weapons/rocket/rocklf1a.ogg
 ===============================================================
