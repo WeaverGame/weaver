@@ -306,16 +306,16 @@ static void CG_DrawWeaverTutorialWeave(float x, float y, float size, int weaveID
 		{
 			str = va("(%d) %s", depth, weaveInfo->info.nameP);
 			//half length * char width
-			offsetCount = elementCount * 8;
+			offsetCount = elementCount * CG_Text_Height("(", 0.36f, 0, &cgs.media.freeSansBoldFont);
 			if(depth == 1)
 			{
 				// Green
-				CG_Text_PaintAligned(x + xo, y - (yo + offsetCount), str, 0.20f, UI_CENTER, colorGreen, &cgs.media.freeSansBoldFont);
+				CG_Text_PaintAligned(x + xo, y - (yo + offsetCount), str, 0.34f, UI_CENTER, colorGreen, &cgs.media.freeSansBoldFont);
 			}
 			else
 			{
 				// White
-				CG_Text_PaintAligned(x + xo, y - (yo + offsetCount), str, 0.20f, UI_CENTER, colorWhite, &cgs.media.freeSansBoldFont);
+				CG_Text_PaintAligned(x + xo, y - (yo + offsetCount), str, 0.34f, UI_CENTER, colorWhite, &cgs.media.freeSansBoldFont);
 			}
 		}
 	}

@@ -378,6 +378,8 @@ void CG_DrawScoreboardUnderlineNew(void)
 	const char     *info;
 	char           *mapname;
 
+	const float     fontsize = 0.4f;
+
 	info = CG_ConfigString(CS_SERVERINFO);
 	mapname = Info_ValueForKey(info, "mapname");
 
@@ -410,12 +412,12 @@ void CG_DrawScoreboardUnderlineNew(void)
 		// current players
 		s = va("Players: %i/%i", cg.numScores, cgs.maxclients);
 
-		CG_Text_PaintAligned((cgs.screenXSize/2) - 20, cgs.screenYSize - 80, s, 0.2f, UI_RIGHT | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
+		CG_Text_PaintAligned((cgs.screenXSize/2) - 20, cgs.screenYSize - 40, s, fontsize, UI_RIGHT | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
 
 		// time left
 		if(cgs.timelimit > 0)
 		{
-			CG_Text_PaintAligned((cgs.screenXSize/2) + 20, cgs.screenYSize - 80, ts, 0.2f, UI_LEFT | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
+			CG_Text_PaintAligned((cgs.screenXSize/2) + 20, cgs.screenYSize - 40, ts, fontsize, UI_LEFT | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
 		}
 
 		if(cgs.gametype == GT_OBJECTIVE || cgs.gametype == GT_OBJECTIVE_SW)
@@ -429,7 +431,7 @@ void CG_DrawScoreboardUnderlineNew(void)
 				s = va("Objective on %s", mapname);
 			}
 
-			CG_Text_PaintAligned((cgs.screenXSize/2) + 20, cgs.screenYSize - 50, s, 0.2f, UI_LEFT | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
+			CG_Text_PaintAligned((cgs.screenXSize/2) + 20, cgs.screenYSize - 30, s, fontsize, UI_LEFT | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
 		}
 		else if(cgs.gametype >= GT_CTF)
 		{
@@ -449,18 +451,18 @@ void CG_DrawScoreboardUnderlineNew(void)
 			{
 				s = va("CTF on %s", mapname);
 			}
-			CG_Text_PaintAligned((cgs.screenXSize/2) - 20, cgs.screenYSize - 80, s, 0.35f, UI_LEFT | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
+			CG_Text_PaintAligned((cgs.screenXSize/2) - 20, cgs.screenYSize - 40, s, fontsize, UI_LEFT | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
 
 			s = va("Capturelimit: %i", cgs.capturelimit);
-			CG_Text_PaintAligned((cgs.screenXSize/2) + 20, cgs.screenYSize - 80, s, 0.35f, UI_RIGHT | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
+			CG_Text_PaintAligned((cgs.screenXSize/2) + 20, cgs.screenYSize - 40, s, fontsize, UI_RIGHT | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
 		}
 		else
 		{
 			s = va("TDM on %s", mapname);
-			CG_Text_PaintAligned((cgs.screenXSize/2) - 20, cgs.screenYSize - 80, s, 0.35f, UI_LEFT | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
+			CG_Text_PaintAligned((cgs.screenXSize/2) - 20, cgs.screenYSize - 40, s, fontsize, UI_LEFT | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
 
 			s = va("Fraglimit: %i", cgs.fraglimit);
-			CG_Text_PaintAligned((cgs.screenXSize/2) + 20, cgs.screenYSize - 80, s, 0.35f, UI_RIGHT | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
+			CG_Text_PaintAligned((cgs.screenXSize/2) + 20, cgs.screenYSize - 40, s, fontsize, UI_RIGHT | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
 		}
 
 	}
@@ -469,14 +471,14 @@ void CG_DrawScoreboardUnderlineNew(void)
 		// time left
 		if(cgs.timelimit > 0)
 		{
-			CG_Text_PaintAligned(cgs.screenXSize/2, cgs.screenYSize - 80, ts, 0.2f, UI_CENTER | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
+			CG_Text_PaintAligned(cgs.screenXSize/2, cgs.screenYSize - 40, ts, fontsize, UI_CENTER | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
 		}
 
 		s = va("FFA on %s", mapname);
-		CG_Text_PaintAligned(SCOREBOARD_FFA + 15, cgs.screenYSize - 80, s, 0.2f, UI_LEFT | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
+		CG_Text_PaintAligned(SCOREBOARD_FFA + 15, cgs.screenYSize - 40, s, fontsize, UI_LEFT | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
 
 		s = va("Fraglimit: %i", cgs.fraglimit);
-		CG_Text_PaintAligned(cgs.screenXSize - SCOREBOARD_FFA - 15, cgs.screenYSize - 80, s, 0.2f, UI_RIGHT | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
+		CG_Text_PaintAligned(cgs.screenXSize - SCOREBOARD_FFA - 15, cgs.screenYSize - 40, s, fontsize, UI_RIGHT | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
 	}
 
 
@@ -509,7 +511,7 @@ void CG_DrawScoreboardStatNew(clientInfo_t * ci, score_t * score, int count, int
 	}
 
 	trap_R_SetColor(bgcolor);
-	CG_DrawPic(pos[0], 150 + num * height, 310, height, cgs.media.whiteShader);
+	trap_R_DrawStretchPic(pos[0], 150 + num * height, 310, height, 0, 0, 0, 0, cgs.media.whiteShader);
 	trap_R_SetColor(NULL);
 
 	if(score->ping == -1)
@@ -593,6 +595,7 @@ void CG_ScoreboardNewScale(void)
 
 	for(i = 0; i < 5; i++)
 	{
+		headline_ffa[i] = board_blue_x + (headline_scales[i] * board_w);
 		headline_red[i] = board_red_x + (headline_scales[i] * board_w);
 		headline_blue[i] = board_blue_x + (headline_scales[i] * board_w);
 	}
@@ -761,9 +764,14 @@ qboolean CG_DrawScoreboardNew(void)
 		// Titlebar
 		CG_DrawScoreboardTitlebarNew(basecolor, qfalse);
 
+		board_w = (cgs.screenXSize / 16) * 7;
+		board_h = (cgs.screenYSize / 4) * 3;
+
+		board_blue_x = (cgs.screenXSize/2) - SCOREBOARD_SEP - board_w;
+
 		// scoreboard
 		trap_R_SetColor(basecolor);
-		CG_DrawPic(SCOREBOARD_FFA, 120, 340, 300, cgs.media.hud_scoreboard);
+		trap_R_DrawStretchPic(board_blue_x, 120, board_w, board_h, 0, 0, 1, 1, cgs.media.hud_scoreboard);
 		trap_R_SetColor(NULL);
 
 		// top line:
@@ -795,7 +803,7 @@ qboolean CG_DrawScoreboardNew(void)
 				tm.tm_sec, tm.tm_mday, monthStr2[tm.tm_mon], 1900 + tm.tm_year);
 
 
-	CG_Text_PaintAligned(cgs.screenXSize/2, cgs.screenYSize - 18, st, 0.35f, UI_CENTER | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
+	CG_Text_PaintAligned(cgs.screenXSize/2, cgs.screenYSize - 18, st, 0.45f, UI_CENTER | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
 
 	return qtrue;
 }

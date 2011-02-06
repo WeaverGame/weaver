@@ -193,7 +193,7 @@ void CG_DrawInformation(void)
 	//mapshot
 	trap_R_SetColor(NULL);
 	loadingmap = va("Loading %s", s);
-	loading_h = CG_Text_Height(loadingmap, 0.4f, 0, &cgs.media.freeSansFont);
+	loading_h = CG_Text_Height(loadingmap, 0.41f, 0, &cgs.media.freeSansFont);
 	if(levelshot)
 	{
 		trap_R_DrawStretchPic(0, 0, cgs.screenXSize, cgs.screenYSize, 0, 0, 1, 1, levelshot);
@@ -203,7 +203,7 @@ void CG_DrawInformation(void)
 		trap_R_DrawStretchPic((cgs.screenXSize - CG_INFO_LOGO_WIDTH)/2, cgs.screenYSize/2 - CG_INFO_LOGO_WIDTH, CG_INFO_LOGO_WIDTH, CG_INFO_LOGO_WIDTH*2, 0, 0, 1, 1, levelshotDefault);
 	}
 	trap_R_DrawStretchPic((CG_INFO_SIDE_GRADIENT_WIDTH * cgs.screenXScale) - 9, cgs.screenYSize - title_h - (8 * cgs.screenYScale), title_h*4, title_h, 0, 0, 1, 1, (levelshot ? title_white : title));
-	CG_Text_PaintAligned(cgs.screenXSize - CG_INFO_PERCENT_WIDTH, cgs.screenYSize - loading_h - (8 * cgs.screenYScale), loadingmap, 0.2f, UI_RIGHT, (levelshot ? colorText : colorTextGrey), &cgs.media.freeSansFont);
+	CG_Text_PaintAligned(cgs.screenXSize - (CG_INFO_PERCENT_WIDTH * cgs.screenXScale) - 2, cgs.screenYSize - (8 * cgs.screenYScale) - loading_h, loadingmap, 0.4f, UI_RIGHT, (levelshot ? colorText : colorTextGrey), &cgs.media.freeSansFont);
 
 	// left side
 	trap_R_DrawStretchPic(0, 0, CG_INFO_SIDE_GRADIENT_WIDTH * cgs.screenXScale, cgs.screenYSize, 0, 0, 1, 1, black_gradient);
@@ -220,7 +220,7 @@ void CG_DrawInformation(void)
 	}
 
 	// draw info string information
-	y = 50;
+	y = 100;
 	y_offset = 24;
 	x = 6;
 

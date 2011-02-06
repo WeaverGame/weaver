@@ -271,7 +271,7 @@ void UI_DrawConnectScreen(qboolean overlay)
 	{
 		//110 = CG_INFO_SIDE_GRADIENT_WIDTH (cg_local.h)
 		s = va("Connecting to %s", cstate.servername);
-		UI_Text_Paint(110/2, 10, 0.2f, color_white, s, 0, 0, UI_CENTER, &uis.TextFont);
+		UI_Text_Paint(10, 10, 0.2f, color_white, s, 0, 0, UI_LEFT, &uis.TextFont);
 	}
 
 	if(lastConnState > cstate.connState)
@@ -309,7 +309,7 @@ void UI_DrawConnectScreen(qboolean overlay)
 			return;
 	}
 
-	UI_Text_Paint(5, 20, 0.2f, color_white, s, 0, 0, UI_LEFT, &uis.TextFont);
+	UI_Text_Paint(10, 25, 0.2f, color_white, s, 0, 0, UI_LEFT, &uis.TextFont);
 }
 
 
