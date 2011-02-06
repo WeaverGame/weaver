@@ -44,6 +44,24 @@ License(s):
 	Licensed with a Creative Commons attribution license.
 These assets are located at:	base/fonts/Aaargh.ttf
 ===============================================================
+Free Fonts
+http://savannah.gnu.org/projects/freefont
+By: Steve White
+License(s):
+	GPL
+These assets are located at:	base/fonts/FreeMono.ttf
+								base/fonts/FreeMonoBold.ttf
+								base/fonts/FreeMonoBoldOblique.ttf
+								base/fonts/FreeMonoOblique.ttf
+								base/fonts/FreeSans.ttf
+								base/fonts/FreeSansBold.ttf
+								base/fonts/FreeSansBoldOblique.ttf
+								base/fonts/FreeSansOblique.ttf
+								base/fonts/FreeSerif.ttf
+								base/fonts/FreeSerifBold.ttf
+								base/fonts/FreeSerifBoldItalic.ttf
+								base/fonts/FreeSerifItalic.ttf
+===============================================================
 Feedback announcements
 http://www.mancubus.net/svn/openarena/sound/feedback/
 http://openarena.ws/
