@@ -4,6 +4,7 @@ Also see XreaL media license (most of these uses have been eliminated).
 ===============================================================
 Icons from painterly set
 http://opengameart.org/content/painterly-spell-icons-part-1
+http://opengameart.org/content/painterly-spell-icons-part-2
 http://jwbjerk.com/art
 By: J. W. Bjerk 
 License(s):
@@ -19,6 +20,12 @@ These assets are located at:	base/gfx/icons/spells/cure.png
 								base/gfx/icons/spells/protectearth.png
 								base/gfx/icons/spells/protectfire.png
 								base/gfx/icons/spells/protectwater.png
+								base/gfx/icons/spells/equake1.png
+								base/gfx/icons/spells/equake2.png
+								base/gfx/icons/spells/equake3.png
+								base/gfx/icons/spells/iceshards2.png
+								base/gfx/icons/spells/iceshards3.png
+								base/gfx/icons/spells/lightning.png
 ===============================================================
 Grass models by Nobiax
 http://nobiax.deviantart.com/art/Free-Grass-Pack-2-179149133
@@ -109,4 +116,11 @@ These assets are located at:	base/sound/player/telein.ogg
 								base/sound/player/teleout.ogg
 								base/sound/weapons/rocket/rockfly.ogg
 								base/sound/weapons/rocket/rocklf1a.ogg
+===============================================================
+Sprites
+By: Adrian Fuhrmann
+License(s):
+	CC-BY-NC-SA 3.0
+These assets are located at:	base/sprites/balloon4.png
+								base/sprites/friend.png
 ===============================================================
