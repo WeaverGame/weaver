@@ -1038,6 +1038,7 @@ static void CG_RegisterGraphics(void)
 
 	cgs.media.weaverCorner = trap_R_RegisterShaderNoMip("gfx/hud/corner");
 	cgs.media.weaverBarExt = trap_R_RegisterShaderNoMip("gfx/hud/bar_ext");
+	cgs.media.weaverBarExt0 = trap_R_RegisterShaderNoMip("gfx/hud/bar_ext0");
 	cgs.media.weaverBarEnd = trap_R_RegisterShaderNoMip("gfx/hud/bar_end");
 	cgs.media.weaverBarDiv = trap_R_RegisterShaderNoMip("gfx/hud/bar_div");
 

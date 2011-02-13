@@ -1386,6 +1386,7 @@ typedef struct
 	qhandle_t       weaverCorner;
 	qhandle_t       weaverBarEnd;
 	qhandle_t       weaverBarExt;
+	qhandle_t       weaverBarExt0;
 	qhandle_t       weaverBarDiv;
 
 } cgMedia_t;

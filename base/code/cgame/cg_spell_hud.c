@@ -75,21 +75,21 @@ static void CG_DrawWeaverStatusBar(void)
 	int             currentStamina = cg.snap->ps.stats[STAT_STAMINA];
 	float           hpFraction = currentHealth / 100.0;
 
-	const float     health_offset_x = 51.0f;
+	const float     health_offset_x = 50.0f;
 	const float     health_offset_y = 130.0f;
-	float     health_w = 36.0f;
-	float     health_h = 270.0f * hpFraction;
+	float           health_w = 27.0f;
+	float           health_h = 270.0f * hpFraction;
 
 	const float     health_val_offset_x = 5.0f;
 	const float     health_val_offset_y = 20.0f;
 
-	const float     stamina_offset_x = 11.0f;
-	const float     stamina_offset_y = 135.0f;
-	float     stamina_w = 10.0f;
-	float     stamina_h = 235.0f * (currentStamina / MAX_STAMINA);
+	const float     stamina_offset_x = 62.0f;
+	const float     stamina_offset_y = 116.0f;
+	float           stamina_w = 9.0f;
+	float           stamina_h = 232.0f * (currentStamina / MAX_STAMINA);
 
 	const float     power_offset_left_w = 180.0f;
-	const float     power_offset_right_w = 80.0f;
+	const float     power_offset_right_w = 105.0f;
 
 	const vec4_t    colorTeamBlue = { 0.0f, 0.0f, 1.0f, 0.5f };	// blue
 	const vec4_t    colorTeamRed = { 1.0f, 0.0f, 0.0f, 0.5f };	// red
@@ -99,9 +99,16 @@ static void CG_DrawWeaverStatusBar(void)
 	char           *pString;
 	char           *protectString;
 
-	float           protect_x = cgs.screenXSize - health_offset_x;
-	float           protect_y = cgs.screenYSize - (health_offset_y + 10);
-	const float     protect_h = 180.0f;
+	const float     protect_1_offset_x = 21.0f;
+	const float     protect_1_offset_y = 135.0f;
+	const float     protect_2_offset_x = 16.0f;
+	const float     protect_2_offset_y = 136.0f;
+	const float     protect_3_offset_x = 11.0f;
+	const float     protect_3_offset_y = 137.0f;
+	const float     protect_4_offset_x = 6.0f;
+	const float     protect_4_offset_y = 138.0f;
+	const float     protect_w = 5.0f;
+	const float     protect_h = 235.0f;
 
 	vec4_t          colorHealth;
 	vec4_t          colorWhite = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -170,31 +177,27 @@ static void CG_DrawWeaverStatusBar(void)
 #if 1
 	if(cg.predictedPlayerState.stats[STAT_AIRPROTECT] > 0)
 	{
-		CG_DrawFillRect(protect_x, protect_y, HUD_PROTECT_WIDTH,
+		CG_DrawFillRect(cgs.screenXSize - protect_1_offset_x, cgs.screenYSize - protect_1_offset_y, protect_w,
 					  (protect_h * ((float)cg.predictedPlayerState.stats[STAT_AIRPROTECT] / (float)WEAVE_PROTECTAIR)),
 					  colorAir, DRFD_UP);
-		protect_x += HUD_PROTECT_WIDTH;
 	}
 	if(cg.predictedPlayerState.stats[STAT_FIREPROTECT] > 0)
 	{
-		CG_DrawFillRect(protect_x, protect_y, HUD_PROTECT_WIDTH,
+		CG_DrawFillRect(cgs.screenXSize - protect_2_offset_x, cgs.screenYSize - protect_2_offset_y, protect_w,
 					  (protect_h * ((float)cg.predictedPlayerState.stats[STAT_FIREPROTECT] / (float)WEAVE_PROTECTFIRE)),
 					  colorFire, DRFD_UP);
-		protect_x += HUD_PROTECT_WIDTH;
 	}
 	if(cg.predictedPlayerState.stats[STAT_EARTHPROTECT] > 0)
 	{
-		CG_DrawFillRect(protect_x, protect_y, HUD_PROTECT_WIDTH,
+		CG_DrawFillRect(cgs.screenXSize - protect_3_offset_x, cgs.screenYSize - protect_3_offset_y, protect_w,
 					  (protect_h * ((float)cg.predictedPlayerState.stats[STAT_EARTHPROTECT] / (float)WEAVE_PROTECTEARTH)),
 					  colorEarth, DRFD_UP);
-		protect_x += HUD_PROTECT_WIDTH;
 	}
 	if(cg.predictedPlayerState.stats[STAT_WATERPROTECT] > 0)
 	{
-		CG_DrawFillRect(protect_x, protect_y, HUD_PROTECT_WIDTH,
+		CG_DrawFillRect(cgs.screenXSize - protect_4_offset_x, cgs.screenYSize - protect_4_offset_y, protect_w,
 					  (protect_h * ((float)cg.predictedPlayerState.stats[STAT_WATERPROTECT] / (float)WEAVE_PROTECTWATER)),
 					  colorWater, DRFD_UP);
-		protect_x += HUD_PROTECT_WIDTH;
 	}
 
 	recty -= HUD_PROTECT_HEIGHT;
@@ -236,7 +239,8 @@ static void CG_DrawWeaverStatusBar(void)
 	}
 
 	trap_R_DrawStretchPic(cgs.screenXSize-256, cgs.screenYSize-512, 256, 512, 0, 0, 1, 1, cgs.media.weaverCorner);
-	trap_R_DrawStretchPic(cgs.screenXSize-(256+power_full_mid_w), cgs.screenYSize-32, power_full_mid_w, 32, 0, 0, 1, 1, cgs.media.weaverBarExt);
+	trap_R_DrawStretchPic(cgs.screenXSize-(256+128), cgs.screenYSize-32, 128, 32, 0, 0, 1, 1, cgs.media.weaverBarExt0);
+	trap_R_DrawStretchPic(cgs.screenXSize-(256+(power_full_mid_w)), cgs.screenYSize-32, (power_full_mid_w-128), 32, 0, 0, 1, 1, cgs.media.weaverBarExt);
 	trap_R_DrawStretchPic(cgs.screenXSize-(256+power_full_mid_w+256), cgs.screenYSize-64, 256, 64, 0, 0, 1, 1, cgs.media.weaverBarEnd);
 
 	trap_R_SetColor(NULL);
@@ -472,15 +476,15 @@ static void CG_DrawWeaverHeld(void)
 	const float     spellicon_w = 80.0f;
 
 	float           power_spell_w;
-	const float     power_spell_h = 20.0f;
+	const float     power_spell_h = 18.0f;
 
 	const float     power_div_w = 16.0f;
 	const float     power_div_h = 64.0f;
 
 	const float     power_offset_left_w = 180.0f;
-	const float     power_offset_right_w = 80.0f;
+	const float     power_offset_right_w = 105.0f;
 
-	const float     power_offset_x = 180.0f;
+	const float     power_offset_x = 151.0f;
 	const float     power_offset_y = 8.0f;
 
 	float           y_div = cgs.screenYSize - power_div_h;
