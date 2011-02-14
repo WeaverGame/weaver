@@ -436,6 +436,7 @@ void UseHeldWeave(gentity_t * heldWeave)
 {
 	float           newPower;
 	int             maxCharges;
+	int             cast = 0;
 
 	if(!heldWeave)
 	{
@@ -472,6 +473,8 @@ void UseHeldWeave(gentity_t * heldWeave)
 			return;
 		}
 
+		cast = heldWeave->s.weapon;
+
 		//held weave now consumes less power    
 		if(DEBUGWEAVEING_TST(1))
 		{
@@ -507,7 +510,7 @@ void UseHeldWeave(gentity_t * heldWeave)
 	   G_HeldWeave_GetState(heldWeave) == WST_RELEASED || G_HeldWeave_GetState(heldWeave) == WST_INPROCESSRELEASED)
 	{
 		//then the weave should be removed
-		ClearHeldWeave(heldWeave);
+		ClearHeldWeaveCast(heldWeave, cast);
 	}
 	DEBUGWEAVEING("UseHeldWeave: end");
 }
@@ -909,12 +912,16 @@ Removes weave from the player
 Frees the weave entity.
 
 ent is a ET_HELD_WEAVE
+castClear if non zero (ie, non WVW_NONE), this weave is being cleared because it was just cast.
+	a CAST + CLEAR event can be sent instead of a CLEAR event which would overwrite the CAST.
+	castClear is the weave ID. Use WVW_NONE if weave was not cast.
 =================
 */
-void ClearHeldWeave(gentity_t * ent)
+void ClearHeldWeaveCast(gentity_t * ent, int castClear)
 {
 	int             i;
 	playerState_t  *player;
+	gentity_t      *pent;
 
 	if(!ent)
 	{
@@ -925,7 +932,8 @@ void ClearHeldWeave(gentity_t * ent)
 	DEBUGWEAVEING("ClearHeldWeave: start");
 
 	//get player who is holding weave
-	player = &g_entities[ent->s.otherEntityNum2].client->ps;
+	pent = &g_entities[ent->s.otherEntityNum2];
+	player = &pent->client->ps;
 
 	//for(i = 0; i < HELD_MAX; i++)
 	//[MAX_WEAPONS - i - 1]
@@ -941,7 +949,14 @@ void ClearHeldWeave(gentity_t * ent)
 			player->stats[STAT_WEAPONS] &= ~(1 << i);
 			if(i == player->weapon)
 			{
-				G_AddEvent(&g_entities[ent->s.otherEntityNum2], EV_WEAVE_CLEAREDCHANGE, 0);
+				if(castClear != 0)
+				{
+					G_AddEvent(pent, EV_WEAVE_CASTCLEARED, castClear);
+				}
+				else
+				{
+					G_AddEvent(pent, EV_WEAVE_CLEAREDCHANGE, 0);
+				}
 			}
 			break;
 		}
@@ -956,6 +971,12 @@ void ClearHeldWeave(gentity_t * ent)
 	G_FreeEntity(ent);
 	DEBUGWEAVEING("ClearHeldWeave: end");
 }
+
+void ClearHeldWeave(gentity_t * ent)
+{
+	ClearHeldWeaveCast(ent, WVP_NONE);
+}
+
 
 void G_RunWeaveEffect(gentity_t * ent)
 {

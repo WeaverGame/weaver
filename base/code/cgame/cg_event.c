@@ -1262,6 +1262,7 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 			break;
 
 		case EV_WEAVE_CAST_EFFECT:
+			// If this event is changed, update EV_WEAVE_CASTCLEARED
 			DEBUGNAME("EV_WEAVE_CAST_EFFECT");
 			CG_WeaveCast(cent);
 			break;
@@ -1272,7 +1273,21 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 			CG_WeaveEffect(cent);
 			break;
 
+		case EV_WEAVE_CASTCLEARED:
+			// This event MUST do EV_WEAVE_CAST_EFFECT + EV_WEAVE_CLEAREDCHANGE.
+			DEBUGNAME("EV_WEAVE_CASTCLEARED");
+			//EV_WEAVE_CAST_EFFECT
+			CG_WeaveCast(cent);
+			//EV_WEAVE_CLEAREDCHANGE
+			if(es->number == cg.snap->ps.clientNum)
+			{
+				//Local player's current spell has been cleared, change spell
+				CG_WeaveClearedChange();
+			}
+			break;
+
 		case EV_WEAVE_CLEAREDCHANGE:
+			// If this event is changed, update EV_WEAVE_CASTCLEARED
 			DEBUGNAME("EV_WEAVE_CLEAREDCHANGE");
 			if(es->number == cg.snap->ps.clientNum)
 			{

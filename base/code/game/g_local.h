@@ -789,6 +789,7 @@ void            UseHeldWeave(gentity_t * ent);
 void            ReleaseHeldWeave(gentity_t * ent);
 void            ExpireHeldWeave(gentity_t * heldWeave);
 void            ClearHeldWeave(gentity_t * ent);
+void            ClearHeldWeaveCast(gentity_t * ent, int castClear);
 void            G_RunWeaveEffect(gentity_t * ent);
 void            G_ReleaseWeave(gentity_t * weave);
 void            ThreadsThink(void);
