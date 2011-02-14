@@ -13,19 +13,22 @@ License(s):
 	CC-BY 3.0
 	CC-BY-SA 3.0
 These assets are located at:	base/gfx/icons/spells/cure.png
+								base/gfx/icons/spells/equake1.png
+								base/gfx/icons/spells/equake2.png
+								base/gfx/icons/spells/equake3.png
 								base/gfx/icons/spells/fireball.png
 								base/gfx/icons/spells/heal1.png
 								base/gfx/icons/spells/heal2.png
+								base/gfx/icons/spells/iceshards2.png
+								base/gfx/icons/spells/iceshards3.png
+								base/gfx/icons/spells/lightning.png
+								base/gfx/icons/spells/poisondps.png
+								base/gfx/icons/spells/poisonslow.png
 								base/gfx/icons/spells/protectair.png
 								base/gfx/icons/spells/protectearth.png
 								base/gfx/icons/spells/protectfire.png
 								base/gfx/icons/spells/protectwater.png
-								base/gfx/icons/spells/equake1.png
-								base/gfx/icons/spells/equake2.png
-								base/gfx/icons/spells/equake3.png
-								base/gfx/icons/spells/iceshards2.png
-								base/gfx/icons/spells/iceshards3.png
-								base/gfx/icons/spells/lightning.png
+								base/gfx/icons/spells/stamina.png
 ===============================================================
 Grass models by Nobiax
 http://nobiax.deviantart.com/art/Free-Grass-Pack-2-179149133
