@@ -2208,11 +2208,11 @@ void CG_ParticleTeleportEffect(const vec3_t origin)
 	cparticle_t    *p;
 
 	// create particles inside the player box
-	for(i = playerMins[0]; i < playerMaxs[0]; i += 4)
+	for(i = playerMins[0]; i < playerMaxs[0]; i += 16)
 	{
-		for(j = playerMins[1]; j < playerMaxs[1]; j += 4)
+		for(j = playerMins[1]; j < playerMaxs[1]; j += 16)
 		{
-			for(k = playerMins[2]; k < playerMaxs[2]; k += 4)
+			for(k = playerMins[2]; k < playerMaxs[2]; k += 16)
 			{
 				p = CG_AllocParticle();
 				if(!p)
