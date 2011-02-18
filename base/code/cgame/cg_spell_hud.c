@@ -77,16 +77,16 @@ static void CG_DrawWeaverStatusBar(void)
 
 	const float     health_offset_x = 50.0f;
 	const float     health_offset_y = 130.0f;
-	float           health_w = 27.0f;
+	float           health_w = 28.0f;
 	float           health_h = 270.0f * hpFraction;
 
 	const float     health_val_offset_x = 5.0f;
 	const float     health_val_offset_y = 20.0f;
 
-	const float     stamina_offset_x = 62.0f;
-	const float     stamina_offset_y = 116.0f;
-	float           stamina_w = 9.0f;
-	float           stamina_h = 232.0f * (currentStamina / MAX_STAMINA);
+	const float     stamina_offset_x = 17.0f;
+	const float     stamina_offset_y = 135.0f;
+	float           stamina_w = 14.0f;
+	float           stamina_h = 240.0f * (currentStamina / MAX_STAMINA);
 
 	const float     power_offset_left_w = 180.0f;
 	const float     power_offset_right_w = 105.0f;
@@ -99,16 +99,16 @@ static void CG_DrawWeaverStatusBar(void)
 	char           *pString;
 	char           *protectString;
 
-	const float     protect_1_offset_x = 21.0f;
-	const float     protect_1_offset_y = 135.0f;
-	const float     protect_2_offset_x = 16.0f;
-	const float     protect_2_offset_y = 136.0f;
-	const float     protect_3_offset_x = 11.0f;
-	const float     protect_3_offset_y = 137.0f;
-	const float     protect_4_offset_x = 6.0f;
-	const float     protect_4_offset_y = 138.0f;
-	const float     protect_w = 5.0f;
-	const float     protect_h = 235.0f;
+	const float     protect_1_offset_x = 87.0f;
+	const float     protect_1_offset_y = 120.0f;
+	const float     protect_2_offset_x = 78.0f;
+	const float     protect_2_offset_y = 120.0f;
+	const float     protect_3_offset_x = 69.0f;
+	const float     protect_3_offset_y = 120.0f;
+	const float     protect_4_offset_x = 60.0f;
+	const float     protect_4_offset_y = 120.0f;
+	const float     protect_w = 6.0f;
+	const float     protect_h = 200.0f;
 
 	vec4_t          colorHealth;
 	vec4_t          colorWhite = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -171,6 +171,9 @@ static void CG_DrawWeaverStatusBar(void)
 	CG_Text_PaintAligned(cgs.screenXSize - health_val_offset_x, cgs.screenYSize - health_val_offset_y, hpString, 0.5f, UI_RIGHT, colorWhite, &cgs.media.freeSansBoldFont);
 
 	CG_DrawFillRect(cgs.screenXSize - health_offset_x, cgs.screenYSize - health_offset_y, health_w, health_h, colorHealth, DRFD_UP);
+	trap_R_SetColor(colorHealth);
+	trap_R_DrawStretchPic(cgs.screenXSize - health_offset_x, cgs.screenYSize - health_offset_y, 32, 16, 0, 0, 1, 1, cgs.media.hpBot);
+	trap_R_SetColor(NULL);
 
 	CG_DrawFillRect(cgs.screenXSize - stamina_offset_x, cgs.screenYSize - stamina_offset_y, stamina_w, stamina_h, colorFull, DRFD_UP);
 

@@ -1388,6 +1388,7 @@ typedef struct
 	qhandle_t       weaverBarExt;
 	qhandle_t       weaverBarExt0;
 	qhandle_t       weaverBarDiv;
+	qhandle_t       hpBot;
 
 } cgMedia_t;
 
