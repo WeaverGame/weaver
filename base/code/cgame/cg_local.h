@@ -1388,7 +1388,9 @@ typedef struct
 	qhandle_t       weaverBarExt;
 	qhandle_t       weaverBarExt0;
 	qhandle_t       weaverBarDiv;
+
 	qhandle_t       hpBot;
+	qhandle_t       stBot;
 
 } cgMedia_t;
 
@@ -1869,6 +1871,9 @@ void            CG_UpdateWeaveSense(int clientnum, vec3_t origin, int power);
 void            CG_DrawWeaveSense(void);
 
 // cg_spell_hud.c
+void            CG_HudeSizeRecalc(void);
+void            CG_HudSizesInit(void);
+void            CG_HudSizesScale(float f);
 void            CG_DrawWeaverHUD(void);
 
 //

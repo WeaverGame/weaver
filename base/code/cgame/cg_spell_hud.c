@@ -9,10 +9,16 @@ It has weaver HUD.
 #include "cg_local.h"
 #include "cg_spell_util.h"
 
-vec4_t          colorAir = { 0.937f, 0.90f, 0.00f, 0.7f };
-vec4_t          colorFire = { 0.94f, 0.16f, 0.16f, 0.7f };
-vec4_t          colorEarth = { 0.0f, 0.87f, 0.00f, 0.7f };
-vec4_t          colorWater = { 0.0f, 0.32f, 0.906f, 0.7f };
+const vec4_t    colorAir = { 0.937f, 0.90f, 0.00f, 0.7f };
+const vec4_t    colorFire = { 0.94f, 0.16f, 0.16f, 0.7f };
+const vec4_t    colorEarth = { 0.0f, 0.87f, 0.00f, 0.7f };
+const vec4_t    colorWater = { 0.0f, 0.32f, 0.906f, 0.7f };
+
+const vec4_t    colorTeamBlue = { 0.2f, 0.2f, 1.0f, 0.7f };	// blue
+const vec4_t    colorTeamRed = { 1.0f, 0.2f, 0.2f, 0.7f };	// red
+
+const vec4_t    colorFull = { 1.0f, 1.0f, 1.0f, 1.0f };
+const vec4_t    colorEmpty = { 1.0f, 1.0f, 1.0f, 0.3f };
 
 vec2_t          tutTextOffset[WVP_NUMBER] = { {0.0f, 0.0f},
 {0.0f, 1.1f}, {0.778f, 0.778f},
@@ -64,6 +70,167 @@ void CG_DrawFillRect(float x, float y, float width, float height, float *color, 
 	trap_R_SetColor(NULL);
 }
 
+typedef struct hudSizes_s {
+	float           f;
+
+	float           health_offset_x;
+	float           health_offset_y;
+	float           health_w;
+	float           health_h;
+
+	float           health_val_offset_x;
+	float           health_val_offset_y;
+
+	float           stamina_offset_x;
+	float           stamina_offset_y;
+	float           stamina_w;
+	float           stamina_h;
+
+	float           power_offset_left_w;
+	float           power_offset_right_w;
+	float           power_offset_x;
+	float           power_offset_y;
+	float           power_div_w;
+	float           power_div_h;
+	float           power_spell_h;
+
+	float           spellicon_w;
+
+	float           protect_1_offset_x;
+	float           protect_1_offset_y;
+	float           protect_2_offset_x;
+	float           protect_2_offset_y;
+	float           protect_3_offset_x;
+	float           protect_3_offset_y;
+	float           protect_4_offset_x;
+	float           protect_4_offset_y;
+	float           protect_w;
+	float           protect_h;
+
+	float           s16;
+	float           s32;
+	float           s64;
+	float           s128;
+	float           s256;
+	float           s512;
+
+	float           power;
+
+	// Calculated from those above
+	float           a;
+} hudSizes_t;
+
+static hudSizes_t s;
+
+void CG_HudeSizeRecalc(void)
+{
+	// Calculated from other fields
+	
+}
+
+void CG_HudSizesInit(void)
+{
+	s.f = 1.0f;
+
+	s.health_offset_x = 50.0f;
+	s.health_offset_y = 132.0f;
+	s.health_w = 28.0f;
+	s.health_h = 270.0f;
+
+	s.health_val_offset_x = 5.0f;
+	s.health_val_offset_y = 20.0f;
+
+	s.stamina_offset_x = 18.0f;
+	s.stamina_offset_y = 139.0f;
+	s.stamina_w = 14.0f;
+	s.stamina_h = 238.0f;
+
+	s.power_offset_left_w = 180.0f;
+	s.power_offset_right_w = 105.0f;
+	s.power_offset_x = 151.0f;
+	s.power_offset_y = 8.0f;
+	s.power_div_w = 16.0f;
+	s.power_div_h = 64.0f;
+	s.power_spell_h = 18.0f;
+
+	s.spellicon_w = 80.0f;
+
+	s.protect_1_offset_x = 87.0f;
+	s.protect_1_offset_y = 120.0f;
+	s.protect_2_offset_x = 78.0f;
+	s.protect_2_offset_y = 120.0f;
+	s.protect_3_offset_x = 69.0f;
+	s.protect_3_offset_y = 120.0f;
+	s.protect_4_offset_x = 60.0f;
+	s.protect_4_offset_y = 120.0f;
+	s.protect_w = 6.0f;
+	s.protect_h = 214.0f;
+
+	s.s16 = 16.0f;
+	s.s32 = 32.0f;
+	s.s64 = 64.0f;
+	s.s128 = 128.0f;
+	s.s256 = 256.0f;
+	s.s512 = 512.0f;
+
+	s.power = 0.5f;
+
+	CG_HudeSizeRecalc();
+}
+
+/*
+ * Scale hud by a given factor
+ */
+void CG_HudSizesScale(float f)
+{
+	s.f *= f;
+
+	s.health_offset_x *= f;
+	s.health_offset_y *= f;
+	s.health_w *= f;
+	s.health_h *= f;
+
+	s.health_val_offset_x *= f;
+	s.health_val_offset_y *= f;
+
+	s.stamina_offset_x *= f;
+	s.stamina_offset_y *= f;
+	s.stamina_w *= f;
+	s.stamina_h *= f;
+
+	s.power_offset_left_w *= f;
+	s.power_offset_right_w *= f;
+	s.power_offset_x *= f;
+	s.power_offset_y *= f;
+	s.power_div_w *= f;
+	s.power_div_h *= f;
+	s.power_spell_h *= f;
+
+	s.spellicon_w *= f;
+
+	s.protect_1_offset_x *= f;
+	s.protect_1_offset_y *= f;
+	s.protect_2_offset_x *= f;
+	s.protect_2_offset_y *= f;
+	s.protect_3_offset_x *= f;
+	s.protect_3_offset_y *= f;
+	s.protect_4_offset_x *= f;
+	s.protect_4_offset_y *= f;
+	s.protect_w *= f;
+	s.protect_h *= f;
+
+	s.s16 *= f;
+	s.s32 *= f;
+	s.s64 *= f;
+	s.s128 *= f;
+	s.s256 *= f;
+	s.s512 *= f;
+
+	s.power *= f;
+
+	CG_HudeSizeRecalc();
+}
+
 /*
 ================
 CG_DrawStatusBarWeaver
@@ -71,61 +238,30 @@ CG_DrawStatusBarWeaver
 */
 static void CG_DrawWeaverStatusBar(void)
 {
-	int             currentHealth = cg.snap->ps.stats[STAT_HEALTH];
-	int             currentStamina = cg.snap->ps.stats[STAT_STAMINA];
-	float           hpFraction = currentHealth / 100.0;
-
-	const float     health_offset_x = 50.0f;
-	const float     health_offset_y = 130.0f;
-	float           health_w = 28.0f;
-	float           health_h = 270.0f * hpFraction;
-
-	const float     health_val_offset_x = 5.0f;
-	const float     health_val_offset_y = 20.0f;
-
-	const float     stamina_offset_x = 17.0f;
-	const float     stamina_offset_y = 135.0f;
-	float           stamina_w = 14.0f;
-	float           stamina_h = 240.0f * (currentStamina / MAX_STAMINA);
-
-	const float     power_offset_left_w = 180.0f;
-	const float     power_offset_right_w = 105.0f;
-
-	const vec4_t    colorTeamBlue = { 0.0f, 0.0f, 1.0f, 0.5f };	// blue
-	const vec4_t    colorTeamRed = { 1.0f, 0.0f, 0.0f, 0.5f };	// red
-
-	int             rectx, recty, rectw, recth;
 	char           *hpString;
 	char           *pString;
 	char           *protectString;
 
-	const float     protect_1_offset_x = 87.0f;
-	const float     protect_1_offset_y = 120.0f;
-	const float     protect_2_offset_x = 78.0f;
-	const float     protect_2_offset_y = 120.0f;
-	const float     protect_3_offset_x = 69.0f;
-	const float     protect_3_offset_y = 120.0f;
-	const float     protect_4_offset_x = 60.0f;
-	const float     protect_4_offset_y = 120.0f;
-	const float     protect_w = 6.0f;
-	const float     protect_h = 200.0f;
+	int             currentHealth = cg.snap->ps.stats[STAT_HEALTH];
+	int             currentHealthPC = currentHealth;
+	int             currentStamina = cg.snap->ps.stats[STAT_STAMINA];
+	float           hpFraction = currentHealth / 100.0f;
+	float           stFraction = (currentStamina / MAX_STAMINA);
 
 	vec4_t          colorHealth;
-	vec4_t          colorWhite = { 1.0f, 1.0f, 1.0f, 1.0f };
-	vec4_t          colorFull = { 1.0f, 1.0f, 1.0f, 1.0f };
-	vec4_t          colorEmpty = { 1.0f, 1.0f, 1.0f, 0.3f };
 
-	float power_full_w = cg.snap->ps.stats[STAT_MAX_POWER] / 2;
-	float power_avil_w = cg.snap->ps.stats[STAT_POWER] / 2;
-	float power_full_mid_w = power_full_w - (power_offset_left_w + power_offset_right_w);
+	float power_full_w = s.power * cg.snap->ps.stats[STAT_MAX_POWER];
+	float power_avil_w = s.power * cg.snap->ps.stats[STAT_POWER];
+	float power_full_mid_w = power_full_w - (s.power_offset_left_w + s.power_offset_right_w);
 
 	colorHealth[3] = 1.0f;
 
-	if(currentHealth > 100)
+	// Calculate HP bar color
+	if(currentHealthPC > 100)
 	{
-		currentHealth = 100;
+		currentHealthPC = 100;
 	}
-	if(currentHealth < 0)
+	if(currentHealthPC < 0)
 	{
 		colorHealth[0] = 0.0f;
 		colorHealth[1] = 0.0f;
@@ -133,13 +269,12 @@ static void CG_DrawWeaverStatusBar(void)
 	}
 	else
 	{
-		colorHealth[0] = (100 - currentHealth) / 100.0f;
-		colorHealth[1] = currentHealth / 100.0f;
+		colorHealth[0] = (100 - currentHealthPC) / 100.0f;
+		colorHealth[1] = currentHealthPC / 100.0f;
 		colorHealth[2] = 0.0f;
 	}
 
-	currentHealth = cg.snap->ps.stats[STAT_HEALTH];
-
+	// Don't let HP fraction go negative for wounded players
 	if(hpFraction < 0.0f)
 	{
 		hpFraction = 0.0f;
@@ -167,69 +302,51 @@ static void CG_DrawWeaverStatusBar(void)
 	*/
 #endif
 
+	// HP string
 	hpString = va("%iHP", currentHealth);
-	CG_Text_PaintAligned(cgs.screenXSize - health_val_offset_x, cgs.screenYSize - health_val_offset_y, hpString, 0.5f, UI_RIGHT, colorWhite, &cgs.media.freeSansBoldFont);
+	CG_Text_PaintAligned(cgs.screenXSize - s.health_val_offset_x, cgs.screenYSize - s.health_val_offset_y, hpString, s.f * 0.5f, UI_RIGHT, colorWhite, &cgs.media.freeSansBoldFont);
 
-	CG_DrawFillRect(cgs.screenXSize - health_offset_x, cgs.screenYSize - health_offset_y, health_w, health_h, colorHealth, DRFD_UP);
-	trap_R_SetColor(colorHealth);
-	trap_R_DrawStretchPic(cgs.screenXSize - health_offset_x, cgs.screenYSize - health_offset_y, 32, 16, 0, 0, 1, 1, cgs.media.hpBot);
-	trap_R_SetColor(NULL);
+	if(currentHealth > 0)
+	{
+		// HP bar
+		CG_DrawFillRect(cgs.screenXSize - s.health_offset_x, cgs.screenYSize - s.health_offset_y, s.health_w, s.health_h * hpFraction, colorHealth, DRFD_UP);
+		trap_R_SetColor(colorHealth);
+		trap_R_DrawStretchPic(cgs.screenXSize - s.health_offset_x, cgs.screenYSize - s.health_offset_y, 32, 16, 0, 0, 1, 1, cgs.media.hpBot);
+		trap_R_SetColor(NULL);
 
-	CG_DrawFillRect(cgs.screenXSize - stamina_offset_x, cgs.screenYSize - stamina_offset_y, stamina_w, stamina_h, colorFull, DRFD_UP);
+		// Stamina bar
+		CG_DrawFillRect(cgs.screenXSize - s.stamina_offset_x, cgs.screenYSize - s.stamina_offset_y, s.stamina_w, s.stamina_h * stFraction, colorFull, DRFD_UP);
+		trap_R_SetColor(colorFull);
+		trap_R_DrawStretchPic(cgs.screenXSize - s.stamina_offset_x, cgs.screenYSize - s.stamina_offset_y, 16, 16, 0, 0, 1, 1, cgs.media.stBot);
+		trap_R_SetColor(NULL);
+	}
 
-#if 1
+	// Protect bars
 	if(cg.predictedPlayerState.stats[STAT_AIRPROTECT] > 0)
 	{
-		CG_DrawFillRect(cgs.screenXSize - protect_1_offset_x, cgs.screenYSize - protect_1_offset_y, protect_w,
-					  (protect_h * ((float)cg.predictedPlayerState.stats[STAT_AIRPROTECT] / (float)WEAVE_PROTECTAIR)),
+		CG_DrawFillRect(cgs.screenXSize - s.protect_1_offset_x, cgs.screenYSize - s.protect_1_offset_y, s.protect_w,
+					  (s.protect_h * ((float)cg.predictedPlayerState.stats[STAT_AIRPROTECT] / (float)WEAVE_PROTECTAIR)),
 					  colorAir, DRFD_UP);
 	}
 	if(cg.predictedPlayerState.stats[STAT_FIREPROTECT] > 0)
 	{
-		CG_DrawFillRect(cgs.screenXSize - protect_2_offset_x, cgs.screenYSize - protect_2_offset_y, protect_w,
-					  (protect_h * ((float)cg.predictedPlayerState.stats[STAT_FIREPROTECT] / (float)WEAVE_PROTECTFIRE)),
+		CG_DrawFillRect(cgs.screenXSize - s.protect_2_offset_x, cgs.screenYSize - s.protect_2_offset_y, s.protect_w,
+					  (s.protect_h * ((float)cg.predictedPlayerState.stats[STAT_FIREPROTECT] / (float)WEAVE_PROTECTFIRE)),
 					  colorFire, DRFD_UP);
 	}
 	if(cg.predictedPlayerState.stats[STAT_EARTHPROTECT] > 0)
 	{
-		CG_DrawFillRect(cgs.screenXSize - protect_3_offset_x, cgs.screenYSize - protect_3_offset_y, protect_w,
-					  (protect_h * ((float)cg.predictedPlayerState.stats[STAT_EARTHPROTECT] / (float)WEAVE_PROTECTEARTH)),
+		CG_DrawFillRect(cgs.screenXSize - s.protect_3_offset_x, cgs.screenYSize - s.protect_3_offset_y, s.protect_w,
+					  (s.protect_h * ((float)cg.predictedPlayerState.stats[STAT_EARTHPROTECT] / (float)WEAVE_PROTECTEARTH)),
 					  colorEarth, DRFD_UP);
 	}
 	if(cg.predictedPlayerState.stats[STAT_WATERPROTECT] > 0)
 	{
-		CG_DrawFillRect(cgs.screenXSize - protect_4_offset_x, cgs.screenYSize - protect_4_offset_y, protect_w,
-					  (protect_h * ((float)cg.predictedPlayerState.stats[STAT_WATERPROTECT] / (float)WEAVE_PROTECTWATER)),
+		CG_DrawFillRect(cgs.screenXSize - s.protect_4_offset_x, cgs.screenYSize - s.protect_4_offset_y, s.protect_w,
+					  (s.protect_h * ((float)cg.predictedPlayerState.stats[STAT_WATERPROTECT] / (float)WEAVE_PROTECTWATER)),
 					  colorWater, DRFD_UP);
 	}
 
-	recty -= HUD_PROTECT_HEIGHT;
-
-	if(cg.predictedPlayerState.stats[STAT_AIRPROTECT] > 0)
-	{
-		protectString = va("%d", cg.predictedPlayerState.stats[STAT_AIRPROTECT]);
-		CG_Text_PaintAligned(rectx, recty, protectString, 0.125f, UI_LEFT, colorAir, &cgs.media.freeSansBoldFont);
-		recty += 7;
-	}
-	if(cg.predictedPlayerState.stats[STAT_FIREPROTECT] > 0)
-	{
-		protectString = va("%d", cg.predictedPlayerState.stats[STAT_FIREPROTECT]);
-		CG_Text_PaintAligned(rectx, recty, protectString, 0.125f, UI_LEFT, colorFire, &cgs.media.freeSansBoldFont);
-		recty += 7;
-	}
-	if(cg.predictedPlayerState.stats[STAT_EARTHPROTECT] > 0)
-	{
-		protectString = va("%d", cg.predictedPlayerState.stats[STAT_EARTHPROTECT]);
-		CG_Text_PaintAligned(rectx, recty, protectString, 0.125f, UI_LEFT, colorEarth, &cgs.media.freeSansBoldFont);
-		recty += 7;
-	}
-	if(cg.predictedPlayerState.stats[STAT_WATERPROTECT] > 0)
-	{
-		protectString = va("%d", cg.predictedPlayerState.stats[STAT_WATERPROTECT]);
-		CG_Text_PaintAligned(rectx, recty, protectString, 0.125f, UI_LEFT, colorWater, &cgs.media.freeSansBoldFont);
-		recty += 7;
-	}
-#endif
 
 	// Hud Decoration
 	if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE)
@@ -241,10 +358,10 @@ static void CG_DrawWeaverStatusBar(void)
 		trap_R_SetColor(colorTeamRed);
 	}
 
-	trap_R_DrawStretchPic(cgs.screenXSize-256, cgs.screenYSize-512, 256, 512, 0, 0, 1, 1, cgs.media.weaverCorner);
-	trap_R_DrawStretchPic(cgs.screenXSize-(256+128), cgs.screenYSize-32, 128, 32, 0, 0, 1, 1, cgs.media.weaverBarExt0);
-	trap_R_DrawStretchPic(cgs.screenXSize-(256+(power_full_mid_w)), cgs.screenYSize-32, (power_full_mid_w-128), 32, 0, 0, 1, 1, cgs.media.weaverBarExt);
-	trap_R_DrawStretchPic(cgs.screenXSize-(256+power_full_mid_w+256), cgs.screenYSize-64, 256, 64, 0, 0, 1, 1, cgs.media.weaverBarEnd);
+	trap_R_DrawStretchPic(cgs.screenXSize-s.s256, cgs.screenYSize-s.s512, s.s256, s.s512, 0, 0, 1, 1, cgs.media.weaverCorner);
+	trap_R_DrawStretchPic(cgs.screenXSize-(s.s256+s.s128), cgs.screenYSize-s.s32, s.s128, s.s32, 0, 0, 1, 1, cgs.media.weaverBarExt0);
+	trap_R_DrawStretchPic(cgs.screenXSize-(s.s256+(power_full_mid_w)), cgs.screenYSize-s.s32, (power_full_mid_w-s.s128), s.s32, 0, 0, 1, 1, cgs.media.weaverBarExt);
+	trap_R_DrawStretchPic(cgs.screenXSize-(s.s256+s.s256+power_full_mid_w), cgs.screenYSize-s.s64, s.s256, s.s64, 0, 0, 1, 1, cgs.media.weaverBarEnd);
 
 	trap_R_SetColor(NULL);
 }
@@ -474,35 +591,21 @@ static void CG_DrawWeaverHeld(void)
 	float           x, y;
 	float           xc;
 
-	vec4_t          colorEmpty = { 1.0f, 1.0f, 1.0f, 0.3f };
-
-	const float     spellicon_w = 80.0f;
-
 	float           power_spell_w;
-	const float     power_spell_h = 18.0f;
 
-	const float     power_div_w = 16.0f;
-	const float     power_div_h = 64.0f;
-
-	const float     power_offset_left_w = 180.0f;
-	const float     power_offset_right_w = 105.0f;
-
-	const float     power_offset_x = 151.0f;
-	const float     power_offset_y = 8.0f;
-
-	float           y_div = cgs.screenYSize - power_div_h;
-	float           y_text = cgs.screenYSize - (power_div_h + 20);
-	float           y_icon = cgs.screenYSize - 60;
+	float           y_div = cgs.screenYSize - s.power_div_h;
+	float           y_text = cgs.screenYSize - (s.power_div_h + (s.f * 20));
+	float           y_icon = cgs.screenYSize - (s.f * 60);
 
 	float power_full_w = cg.snap->ps.stats[STAT_MAX_POWER];
 	float power_avil_w = cg.snap->ps.stats[STAT_POWER];
-	float power_used_w = (power_full_w - power_avil_w) / 2;
+	float power_used_w = s.power * (power_full_w - power_avil_w);
 
-	x = cgs.screenXSize - power_offset_x;
-	y = cgs.screenYSize - power_offset_y - power_spell_h;
+	x = cgs.screenXSize - s.power_offset_x;
+	y = cgs.screenYSize - s.power_offset_y - s.power_spell_h;
 
 	// Draw bar used (including current casting)
-	CG_DrawFillRect(x, y, power_used_w, power_spell_h, colorEmpty, DRFD_LEFT);
+	CG_DrawFillRect(x, y, power_used_w, s.power_spell_h, colorEmpty, DRFD_LEFT);
 
 	// Draw each held weave
 	for(i = MIN_WEAPON_WEAVE; i < MAX_WEAPONS; i++)
@@ -514,13 +617,13 @@ static void CG_DrawWeaverHeld(void)
 			weaveInfo = &cg_weaves[cent->currentState.weapon];
 
 			// Width of bar for this spell
-			power_spell_w = CG_HeldWeave_GetPower(cent) / 2;
+			power_spell_w = s.power * CG_HeldWeave_GetPower(cent);
 
 			// Draw power bar
-			CG_DrawFillRect(x, y, power_spell_w, power_spell_h, colorWhite, DRFD_LEFT);
+			CG_DrawFillRect(x, y, power_spell_w, s.power_spell_h, colorWhite, DRFD_LEFT);
 
 			// Draw Spell Icon
-			trap_R_DrawStretchPic(x - spellicon_w, y_icon - spellicon_w, spellicon_w, spellicon_w, 0, 0, 1, 1, weaveInfo->icon);
+			trap_R_DrawStretchPic(x - s.spellicon_w, y_icon - s.spellicon_w, s.spellicon_w, s.spellicon_w, 0, 0, 1, 1, weaveInfo->icon);
 
 			/*
 			thread =
@@ -530,19 +633,19 @@ static void CG_DrawWeaverHeld(void)
 			*/
 
 			thread = va("%d/%d", cent->currentState.torsoAnim, weaveInfo->info.castCharges);
-			CG_Text_PaintAligned(x - (spellicon_w/2), y_icon + 9, thread, 0.22f, UI_CENTER, colorWhite, &cgs.media.freeSansBoldFont);
+			CG_Text_PaintAligned(x - (s.spellicon_w/2), y_icon + 9, thread, s.f * 0.22f, UI_CENTER, colorWhite, &cgs.media.freeSansBoldFont);
 
 			// Draw selection marker
 			if(i == cg.weaponSelect)
 			{
-				trap_R_DrawStretchPic(x - spellicon_w, y_icon - spellicon_w, spellicon_w, spellicon_w, 0, 0, 1, 1, cgs.media.weaponSelectShader);
+				trap_R_DrawStretchPic(x - s.spellicon_w, y_icon - s.spellicon_w, s.spellicon_w, s.spellicon_w, 0, 0, 1, 1, cgs.media.weaponSelectShader);
 			}
 
 			// Move left
 			x -= power_spell_w;
 
 			// Division marker
-			trap_R_DrawStretchPic(x - (power_div_w / 2), y_div, power_div_w, power_div_h, 0, 0, 1, 1, cgs.media.weaverBarDiv);
+			trap_R_DrawStretchPic(x - (s.power_div_w / 2), y_div, s.power_div_w, s.power_div_h, 0, 0, 1, 1, cgs.media.weaverBarDiv);
 		}
 	}
 }

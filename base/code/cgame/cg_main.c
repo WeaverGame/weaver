@@ -1041,7 +1041,9 @@ static void CG_RegisterGraphics(void)
 	cgs.media.weaverBarExt0 = trap_R_RegisterShaderNoMip("gfx/hud/bar_ext0");
 	cgs.media.weaverBarEnd = trap_R_RegisterShaderNoMip("gfx/hud/bar_end");
 	cgs.media.weaverBarDiv = trap_R_RegisterShaderNoMip("gfx/hud/bar_div");
+	
 	cgs.media.hpBot = trap_R_RegisterShaderNoMip("gfx/hud/hp_bot");
+	cgs.media.stBot = trap_R_RegisterShaderNoMip("gfx/hud/st_bot");
 
 	for(i = 0; i < 3; i++)
 	{
@@ -1536,8 +1538,14 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 		cgs.screenXBias = cgs.screenYBias = 0;
 	}
 
-	// Scape hud for new screen size;
+	// Scale hud for new screen size;
 	CG_ScoreboardNewScale();
+
+	CG_HudSizesInit();
+	if(cgs.screenMinSize < 1000.0f)
+	{
+		CG_HudSizesScale(cgs.screenMinSize / 1000.0f);
+	}
 
 	// get the gamestate from the client system
 	trap_GetGameState(&cgs.gameState);
