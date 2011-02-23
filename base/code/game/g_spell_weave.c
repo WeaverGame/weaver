@@ -213,7 +213,6 @@ void CreateWeave(gentity_t * self, vec3_t origin, vec3_t dir, int group, int thr
 	int             weaveID;
 	int             powerUsing;
 	int             i;
-	gentity_t      *weave;
 
 	if(!self)
 	{
@@ -240,6 +239,29 @@ void CreateWeave(gentity_t * self, vec3_t origin, vec3_t dir, int group, int thr
 	}
 
 	weaveID = ThreadsToWeaveID(group, threads);
+	CreateWeaveID(self, weaveID, powerUsing);
+
+	DEBUGWEAVEING("CreateWeave: end");
+	return;
+}
+
+/*
+=================
+CreateWeaveID
+
+=================
+*/
+void CreateWeaveID(gentity_t * self, int weaveID, int powerUsing)
+{
+	gentity_t      *weave;
+
+	if(!self)
+	{
+		DEBUGWEAVEING("CreateWeaveID: no self");
+		return;
+	}
+
+	DEBUGWEAVEING("CreateWeaveID: start");
 
 	switch (weaveID)
 	{
@@ -349,10 +371,10 @@ void CreateWeave(gentity_t * self, vec3_t origin, vec3_t dir, int group, int thr
 		default:
 			break;
 	}
-	DEBUGWEAVEING("CreateWeave: end");
+
+	DEBUGWEAVEING("CreateWeaveID: end");
 	return;
 }
-
 
 /*
 =================

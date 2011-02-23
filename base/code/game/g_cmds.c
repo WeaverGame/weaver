@@ -1876,6 +1876,32 @@ void Cmd_Release_f(gentity_t * ent)
 }
 
 /*
+==================
+Cmd_TestWeave_f
+==================
+*/
+void Cmd_TestWeave_f(gentity_t * ent)
+{
+	char            arg[MAX_TOKEN_CHARS];
+	int             weaveID;
+
+	if(!CheatsOk(ent))
+	{
+		return;
+	}
+
+	if(trap_Argc() < 2)
+	{
+		return;
+	}
+
+	trap_Argv(1, arg, sizeof(arg));
+	weaveID = atoi(arg);
+
+	CreateWeaveID(ent, weaveID, FULL_POWER/10);
+}
+
+/*
 =================
 Cmd_Ready_f
 =================
@@ -2162,6 +2188,8 @@ void ClientCommand(int clientNum)
 		G_StatDump();
 	else if(Q_stricmp(cmd, "spawntimes") == 0)
 		Cmd_Spawntimes_f(ent);
+	else if(Q_stricmp(cmd, "testweave") == 0)
+		Cmd_TestWeave_f(ent);
 	else
 		trap_SendServerCommand(clientNum, va("print \"unknown cmd %s\n\"", cmd));
 }
