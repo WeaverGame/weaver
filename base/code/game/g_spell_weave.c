@@ -208,7 +208,7 @@ This function invokes actions for a player's weaving.
 It takes the basic thread inputs, then creates appropriate entities for this action.
 =================
 */
-void CreateWeave(gentity_t * self, vec3_t origin, vec3_t dir, int group, int threads[MAX_THREADS])
+void CreateWeave(gentity_t * self, int group, int threads[MAX_THREADS])
 {
 	int             weaveID;
 	int             powerUsing;
