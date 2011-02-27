@@ -1933,10 +1933,10 @@ void Menu_Cache(void)
 	// weaver main menu
 	uis.whiteBack = trap_R_RegisterShaderNoMip("gfx/menu/back");
 	uis.logoMain = trap_R_RegisterShaderNoMip("gfx/menu/logo");
-	uis.titleMain = trap_R_RegisterShaderNoMip("gfx/menu/title");
-	uis.scanMain[0] = trap_R_RegisterShaderNoMip("gfx/menu/scan1");
-	uis.scanMain[1] = trap_R_RegisterShaderNoMip("gfx/menu/scan2");
-	uis.playerPicMain = trap_R_RegisterShaderNoMip("gfx/menu/playerpic");
+	uis.decorative = trap_R_RegisterShaderNoMip("gfx/menu/decorative");
+	uis.backScene = trap_R_RegisterShaderNoMip("gfx/menu/back_scene");
+	uis.whiteGrad = trap_R_RegisterShaderNoMip("gfx/menu/white_gradient");
+	uis.blackBar = trap_R_RegisterShaderNoMip("gfx/menu/black_bar");
 
 	uis.cursor = trap_R_RegisterShaderNoMip("gfx/menu/cursor");
 

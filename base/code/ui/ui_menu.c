@@ -44,6 +44,13 @@ MAIN MENU
 
 #define MAIN_MENU_VERTICAL_SPACING		42
 
+#define MENU_BG_PAD_LEFT 20
+#define MENU_BG_W 180
+#define MENU_BG_H 400
+#define MENU_CENTER (MENU_BG_PAD_LEFT + (MENU_BG_W/2))
+#define MENU_ITEM_Y 180
+#define MENU_ITEM_W 100
+#define MENU_LOGO_W 120
 
 typedef struct
 {
@@ -58,8 +65,8 @@ typedef struct
 	//menutext_s      mods;
 
 	menubitmap_s    logo;
-	menubitmap_s    title;
-	menubitmap_s    playerspic;
+	menubitmap_s    decorl;
+	menubitmap_s    decorr;
 
 	menutext_s      exit;
 } mainmenu_t;
@@ -229,6 +236,10 @@ static void Main_MenuDraw(void)
 	   #endif
 	 */
 
+	UI_DrawHandlePic(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, uis.backScene);
+	UI_DrawHandlePic(MENU_BG_PAD_LEFT, 0, MENU_BG_W, MENU_BG_H, uis.whiteGrad);
+	UI_DrawHandlePic(0, 440, SCREEN_WIDTH, 40, uis.blackBar);
+
 	if(strlen(s_errorMessage.errorMessage))
 	{
 		UI_Text_Paint_AutoWrapped(320, 192, 0.4f, 600, va("Error: %s", s_errorMessage.errorMessage),
@@ -241,8 +252,8 @@ static void Main_MenuDraw(void)
 		Menu_Draw(&s_main.menu);
 	}
 
-	UI_DrawHandlePic(210 + 35 * sin(uis.realtime / 2000.0f), 360, 128, 2, uis.scanMain[0]);
-	UI_DrawHandlePic(225 + 40 * sin((230 + uis.realtime) / 2450.0f), 368, 128, 2, uis.scanMain[1]);
+	//UI_DrawHandlePic(210 + 35 * sin(uis.realtime / 2000.0f), 360, 128, 2, uis.scanMain[0]);
+	//UI_DrawHandlePic(225 + 40 * sin((230 + uis.realtime) / 2450.0f), 368, 128, 2, uis.scanMain[1]);
 
 	//UI_DrawString( 320, 450, "Quake III Arena(c) 1999-2000, Id Software, Inc.  All Rights Reserved", UI_CENTER|UI_SMALLFONT, color );
 	//UI_DrawString(320, 450, "XreaL(c) 2005-2008, XreaL Team - http://xreal.sourceforge.net", UI_CENTER | UI_SMALLFONT, color);
@@ -295,7 +306,7 @@ and that local cinematics are killed
 void UI_MainMenu(void)
 {
 	int             y;
-	int             style = UI_CENTER | UI_DROPSHADOW;
+	int             style = UI_CENTER;
 
 	trap_Cvar_Set("sv_killserver", "1");
 
@@ -326,7 +337,7 @@ void UI_MainMenu(void)
 	s_main.menu.wrapAround = qtrue;
 	s_main.menu.showlogo = qtrue;
 
-	y = 134;
+	y = MENU_ITEM_Y;
 	/*
 	s_main.singleplayer.generic.type = MTYPE_PTEXT;
 	s_main.singleplayer.generic.flags = QMF_CENTER_JUSTIFY | QMF_PULSEIFFOCUS;
@@ -342,34 +353,34 @@ void UI_MainMenu(void)
 	y += MAIN_MENU_VERTICAL_SPACING;
 	s_main.multiplayer.generic.type = MTYPE_PTEXT;
 	s_main.multiplayer.generic.flags = QMF_CENTER_JUSTIFY | QMF_PULSEIFFOCUS;
-	s_main.multiplayer.generic.x = 320;
+	s_main.multiplayer.generic.x = MENU_CENTER;
 	s_main.multiplayer.generic.y = y;
 	s_main.multiplayer.generic.id = ID_MULTIPLAYER;
 	s_main.multiplayer.generic.callback = Main_MenuEvent;
 	s_main.multiplayer.string = "Play";
-	s_main.multiplayer.color = color_white;
+	s_main.multiplayer.color = color_black;
 	s_main.multiplayer.style = style;
 
 	y += MAIN_MENU_VERTICAL_SPACING;
 	s_main.setup.generic.type = MTYPE_PTEXT;
 	s_main.setup.generic.flags = QMF_CENTER_JUSTIFY | QMF_PULSEIFFOCUS;
-	s_main.setup.generic.x = 320;
+	s_main.setup.generic.x = MENU_CENTER;
 	s_main.setup.generic.y = y;
 	s_main.setup.generic.id = ID_SETUP;
 	s_main.setup.generic.callback = Main_MenuEvent;
 	s_main.setup.string = "Options";
-	s_main.setup.color = color_white;
+	s_main.setup.color = color_black;
 	s_main.setup.style = style;
 
 	y += MAIN_MENU_VERTICAL_SPACING;
 	s_main.demos.generic.type = MTYPE_PTEXT;
 	s_main.demos.generic.flags = QMF_CENTER_JUSTIFY | QMF_PULSEIFFOCUS;
-	s_main.demos.generic.x = 320;
+	s_main.demos.generic.x = MENU_CENTER;
 	s_main.demos.generic.y = y;
 	s_main.demos.generic.id = ID_DEMOS;
 	s_main.demos.generic.callback = Main_MenuEvent;
 	s_main.demos.string = "Demos";
-	s_main.demos.color = color_white;
+	s_main.demos.color = color_black;
 	s_main.demos.style = style;
 
 /*	y += MAIN_MENU_VERTICAL_SPACING;
@@ -415,44 +426,46 @@ void UI_MainMenu(void)
 
 	y += MAIN_MENU_VERTICAL_SPACING;
 	s_main.exit.generic.type = MTYPE_PTEXT;
-	s_main.exit.generic.flags = QMF_CENTER_JUSTIFY | QMF_PULSEIFFOCUS;
-	s_main.exit.generic.x = 320;
-	s_main.exit.generic.y = y;
+	s_main.exit.generic.flags = QMF_RIGHT_JUSTIFY | QMF_PULSEIFFOCUS;
+	s_main.exit.generic.x = SCREEN_WIDTH - 10;
+	s_main.exit.generic.y = SCREEN_HEIGHT - 35;
 	s_main.exit.generic.id = ID_EXIT;
 	s_main.exit.generic.callback = Main_MenuEvent;
 	s_main.exit.string = "Quit";
 	s_main.exit.color = color_white;
-	s_main.exit.style = style;
+	s_main.exit.style = UI_RIGHT;
+
+	s_main.decorl.generic.name = "gfx/menu/decoration_l";
+	s_main.decorl.generic.type = MTYPE_BITMAP;
+	s_main.decorl.generic.flags = QMF_LEFT_JUSTIFY | QMF_INACTIVE;
+	s_main.decorl.generic.x = MENU_CENTER - MENU_ITEM_W/2;
+	s_main.decorl.generic.y = MENU_ITEM_Y;
+	s_main.decorl.width = 32;
+	s_main.decorl.height = s_main.decorl.width * 8;
+	s_main.decorl.focuscolor = colorRed;
+
+	s_main.decorr.generic.name = "gfx/menu/decoration_r";
+	s_main.decorr.generic.type = MTYPE_BITMAP;
+	s_main.decorr.generic.flags = QMF_LEFT_JUSTIFY | QMF_INACTIVE;
+	s_main.decorr.generic.x = MENU_CENTER + MENU_ITEM_W/2;
+	s_main.decorr.generic.y = MENU_ITEM_Y;
+	s_main.decorr.height = 32;
+	s_main.decorr.width = s_main.decorr.width * 8;
+	s_main.decorr.focuscolor = colorRed;
 
 	s_main.logo.generic.name = "gfx/menu/logo";
 	s_main.logo.generic.type = MTYPE_BITMAP;
 	s_main.logo.generic.flags = QMF_LEFT_JUSTIFY | QMF_INACTIVE;
-	s_main.logo.generic.x = 100;
-	s_main.logo.generic.y = 75;
-	s_main.logo.width = 190;
+	s_main.logo.generic.x = MENU_CENTER - MENU_LOGO_W/2;
+	s_main.logo.generic.y = 5;
+	s_main.logo.width = MENU_LOGO_W;
 	s_main.logo.height = s_main.logo.width * 2;
 	s_main.logo.focuscolor = colorRed;
 
-	s_main.playerspic.generic.name = "gfx/menu/playerpic";
-	s_main.playerspic.generic.type = MTYPE_BITMAP;
-	s_main.playerspic.generic.flags = QMF_LEFT_JUSTIFY | QMF_INACTIVE;
-	s_main.playerspic.generic.x = 390;
-	s_main.playerspic.generic.y = 200;
-	s_main.playerspic.width = 175;
-	s_main.playerspic.height = s_main.playerspic.width;
-	s_main.playerspic.focuscolor = colorRed;
-
-	s_main.title.generic.name = "gfx/menu/title";
-	s_main.title.generic.type = MTYPE_BITMAP;
-	s_main.title.generic.flags = QMF_LEFT_JUSTIFY | QMF_INACTIVE;
-	s_main.title.generic.x = 256;
-	s_main.title.generic.y = 338;
-	s_main.title.height = 42;
-	s_main.title.width = s_main.title.height * 4;
-	s_main.title.focuscolor = colorRed;
-
 	Menu_AddItem(&s_main.menu, &s_main.logo);
-	Menu_AddItem(&s_main.menu, &s_main.playerspic);
+	Menu_AddItem(&s_main.menu, &s_main.decorl);
+	Menu_AddItem(&s_main.menu, &s_main.decorr);
+	//Menu_AddItem(&s_main.menu, &s_main.playerspic);
 
 	//Menu_AddItem(&s_main.menu, &s_main.singleplayer);
 	Menu_AddItem(&s_main.menu, &s_main.multiplayer);
@@ -466,7 +479,7 @@ void UI_MainMenu(void)
 	//Menu_AddItem(&s_main.menu, &s_main.mods);
 	Menu_AddItem(&s_main.menu, &s_main.exit);
 
-	Menu_AddItem(&s_main.menu, &s_main.title);
+	//Menu_AddItem(&s_main.menu, &s_main.title);
 
 	trap_Cmd_ExecuteText(EXEC_APPEND, "music music/theme.ogg\n");
 

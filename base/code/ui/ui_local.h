@@ -559,9 +559,10 @@ typedef struct
 	// weaver main menu
 	qhandle_t       whiteBack;
 	qhandle_t       logoMain;
-	qhandle_t       titleMain;
-	qhandle_t       scanMain[2];
-	qhandle_t       playerPicMain;
+	qhandle_t       decorative;
+	qhandle_t       backScene;
+	qhandle_t       whiteGrad;
+	qhandle_t       blackBar;
 
 	qhandle_t       whiteShader;
 	qhandle_t       charset;
