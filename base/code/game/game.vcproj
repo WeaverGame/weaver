@@ -962,10 +962,6 @@
 				>
 			</File>
 			<File
-				RelativePath="inv.h"
-				>
-			</File>
-			<File
 				RelativePath=".\lua_et.h"
 				>
 			</File>

@@ -452,7 +452,8 @@ void CG_DrawScoreboardStat(clientInfo_t * ci, score_t * score, vec4_t color, flo
 				case 1:
 					//TODO: ready icon
 					//img = cgs.media.cursor;
-					if(cg.snap->ps.stats[STAT_CLIENTS_READY] & (1 << score->client))					{
+					if(cg.snap->ps.stats[STAT_CLIENTS_READY] & (1 << score->client))
+					{
 						str = "R";
 					}
 					break;

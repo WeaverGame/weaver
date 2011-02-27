@@ -1,12 +1,27 @@
 /*
 ===========================================================================
+Copyright (C) 2011 Andrew Browne <dersaidin@dersaidin.net>
 
+This file is part of Weaver source code.
+
+Weaver source code is free software; you can redistribute it
+and/or modify it under the terms of the GNU General Public License as
+published by the Free Software Foundation; either version 2 of the License,
+or (at your option) any later version.
+
+Weaver source code is distributed in the hope that it will be
+useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Weaver source code; if not, write to the Free Software
+Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
 // cg_weaves.c -- events and effects dealing with weaves
 #include "cg_local.h"
-//#include "cg_weaver_effects.h"
 
 static const vec3_t heldWeaveOffset[HELD_MAX][HELD_MAX] = {
 	{{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}},
