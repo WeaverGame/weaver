@@ -1121,12 +1121,14 @@ typedef struct
 	qhandle_t       hud_icon_health;
 	qhandle_t       hud_icon_armor;
 
-	qhandle_t       hud_scoreboard_title;
-	qhandle_t       hud_scoreboard_title_overlay;
-	qhandle_t       hud_scoreboard;
-
 	qhandle_t       osd_button;
 	qhandle_t       osd_button_focus;
+
+	//scoreboard stuff
+	qhandle_t       scoreboard_row;
+	qhandle_t       scoreboard_top_red;
+	qhandle_t       scoreboard_top_blue;
+	qhandle_t       scoreboard_vs;
 
 	//new combination crosshair stuff
 	qhandle_t       crosshairDot[NUM_CROSSHAIRS];
@@ -1204,12 +1206,6 @@ typedef struct
 	qhandle_t       kamikazeHeadModel;
 	qhandle_t       kamikazeHeadTrail;
 	qhandle_t       invulnerabilityPowerupModel;
-
-	// scoreboard headers
-	qhandle_t       scoreboardName;
-	qhandle_t       scoreboardPing;
-	qhandle_t       scoreboardScore;
-	qhandle_t       scoreboardTime;
 
 	// medals shown during gameplay
 	qhandle_t       medalImpressive;
@@ -2011,10 +2007,11 @@ void            CG_DrawInformation(void);
 //
 // cg_scoreboard.c
 //
-qboolean        CG_DrawOldScoreboard(void);
 void            CG_DrawOldTourneyScoreboard(void);
 qboolean        CG_DrawScoreboardNew(void);
-void            CG_ScoreboardNewScale(void);
+void            CG_ScoreSizesRecalc(void);
+void            CG_ScoreSizesInit(void);
+void            CG_ScoreSizesScale(float f);
 
 //
 // cg_consolecmds.c

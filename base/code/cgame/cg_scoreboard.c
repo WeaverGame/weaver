@@ -2,387 +2,251 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2011 Andrew Browne <dersaidin@dersaidin.net>
 
-This file is part of XreaL source code.
+This file is part of Weaver source code.
 
-XreaL source code is free software; you can redistribute it
+Weaver source code is free software; you can redistribute it
 and/or modify it under the terms of the GNU General Public License as
 published by the Free Software Foundation; either version 2 of the License,
 or (at your option) any later version.
 
-XreaL source code is distributed in the hope that it will be
+Weaver source code is distributed in the hope that it will be
 useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with XreaL source code; if not, write to the Free Software
+along with Weaver source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-// cg_scoreboard -- draw the scoreboard on top of the game screen
 #include "cg_local.h"
-
-#define	SCOREBOARD_X		(0)
-
-#define SB_HEADER			86
-#define SB_TOP				(SB_HEADER+32)
-
-// Where the status bar starts, so we don't overwrite it
-#define SB_STATUSBAR		420
-
-#define SB_NORMAL_HEIGHT	40
-#define SB_INTER_HEIGHT		16	// interleaved height
-
-#define SB_MAXCLIENTS_NORMAL  ((SB_STATUSBAR - SB_TOP) / SB_NORMAL_HEIGHT)
-#define SB_MAXCLIENTS_INTER   ((SB_STATUSBAR - SB_TOP) / SB_INTER_HEIGHT - 1)
-
-#define SB_HEAD_X			(SCOREBOARD_X+112)
-
-#define SB_SCORELINE_X		112
-
-#define SB_RATING_WIDTH	    (6 * BIGCHAR_WIDTH)	// width 6
-#define SB_SCORE_X			(SB_SCORELINE_X + BIGCHAR_WIDTH)	// width 6
-#define SB_RATING_X			(SB_SCORELINE_X + 6 * BIGCHAR_WIDTH)	// width 6
-#define SB_PING_X			(SB_SCORELINE_X + 12 * BIGCHAR_WIDTH + 8)	// width 5
-#define SB_TIME_X			(SB_SCORELINE_X + 17 * BIGCHAR_WIDTH + 8)	// width 5
-#define SB_NAME_X			(SB_SCORELINE_X + 22 * BIGCHAR_WIDTH)	// width 15
 
 char           *monthStr2[12] = {
 	"JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"
 };
 
-// The new and improved score board
+// Name, Ready icon, Score, Time, Ping
+#define SCOREBOARD_COLS 5
+char           *headline_titles[] = { "Player",     "", "Score", "Time", "Ping" };
+float           headline_scales[] = { 0.03000f, 0.580f, 0.6200f, 0.760f, 0.900f };
+int             headline_styles[] = { UI_LEFT, UI_LEFT, UI_LEFT, UI_LEFT, UI_LEFT };
 
-// In cases where the number of clients is high, the score board heads are interleaved
-// here's the layout
+typedef struct scoreSizes_s {
+	float           f;
 
-//  112    144   240   320   400   <-- pixel position
-// head  score  ping  time  name
+	int             num_scores;
+	int             num_scores_all;
+	int             num_scores_red;
+	int             num_scores_blue;
 
-/*
-=================
-CG_DrawClientScore
-=================
-*/
-static void CG_DrawClientScore(int y, score_t * score, float *color, float fade, qboolean largeFormat)
-{
-	char            string[1024];
-	vec3_t          headAngles;
-	clientInfo_t   *ci;
-	int             headx;
+	float           sep_x;
 
-	if(score->client < 0 || score->client >= cgs.maxclients)
-	{
-		Com_Printf("Bad score->client: %i\n", score->client);
-		return;
-	}
+	float           row_h;
+	float           row_y_offset;
+	float           row_text_scale;
+	float           row_text_y_offset;
 
-	ci = &cgs.clientinfo[score->client];
+	float           table_y;
 
-	// highlight your position
-	if(score->client == cg.snap->ps.clientNum)
-	{
-		float           hcolor[4];
+	float           top_sep;
+	float           top_y;
+	float           top_h;
+	float           top_text_scale;
+	float           w;
+	float           h;
 
-		hcolor[0] = 0.7f;
-		hcolor[1] = 0.7f;
-		hcolor[2] = 0.7f;
-		hcolor[3] = fade * 0.7f;
-		CG_FillRect(SB_SCORELINE_X + 40, y, SB_SCORELINE_X * 4, BIGCHAR_HEIGHT + 5, hcolor);
-	}
+	float           title_y;
+	float           title_sub_y;
 
-	// draw the players head
-	headx = SB_HEAD_X + (SB_RATING_WIDTH / 2) - 5;
+	float           vs_w;
+	float           vs_h;
 
-	VectorClear(headAngles);
-	headAngles[YAW] = 90 * (cg.time / 1000.0) + 30;
+	float           red_x;
+	float           blue_x;
+	float           ffa_x;
 
-	/*
-	if(largeFormat)
-		CG_DrawHead(headx, y, 24, 24, score->client, headAngles);
-	else
-		CG_DrawHead(headx, y, 16, 16, score->client, headAngles);
-	*/
+	float           red_col_x[SCOREBOARD_COLS];
+	float           blue_col_x[SCOREBOARD_COLS];
+	float           ffa_col_x[SCOREBOARD_COLS];
 
-#ifdef MISSIONPACK
-	// draw the team task
-	if(ci->teamTask != TEAMTASK_NONE)
-	{
-		if(ci->teamTask == TEAMTASK_OFFENSE)
-		{
-			CG_DrawPic(headx + 48, y, 16, 16, cgs.media.assaultShader);
-		}
-		else if(ci->teamTask == TEAMTASK_DEFENSE)
-		{
-			CG_DrawPic(headx + 48, y, 16, 16, cgs.media.defendShader);
-		}
-	}
-#endif
+	float           info_timeleft_x;
+	float           info_timeleft_y;
+} scoreSizes_t;
 
-	// draw the score line
-	if(score->ping == -1)
-	{
-		Com_sprintf(string, sizeof(string), " connecting    %s", ci->name);
-	}
-	else if(ci->team == TEAM_SPECTATOR)
-	{
-		Com_sprintf(string, sizeof(string), " SPECT %3i %4i %s", score->ping, score->time, ci->name);
-	}
-	else if(cg.snap->ps.stats[STAT_CLIENTS_READY] & (1 << score->client))
-	{
-		Com_sprintf(string, sizeof(string), " READY %3i %4i %s", score->ping, score->time, ci->name);
-	}
-	else
-	{
-		Com_sprintf(string, sizeof(string), "%5i %4i %4i %s", score->score, score->ping, score->time, ci->name);
-	}
+static scoreSizes_t s;
 
-	CG_DrawBigString(SB_SCORELINE_X + (SB_RATING_WIDTH / 2), y, string, fade);
-}
-
-/*
-=================
-CG_TeamScoreboard
-=================
-*/
-static int CG_TeamScoreboard(int y, team_t team, float fade, int maxClients, int lineHeight)
+void CG_ScoreSizesRecalc(void)
 {
 	int             i;
-	score_t        *score;
-	float           color[4];
-	int             count;
-	clientInfo_t   *ci;
 
-	color[0] = color[1] = color[2] = 1.0;
-	color[3] = fade;
+	s.red_x = (cgs.screenXSize/2) - s.sep_x - s.w;
+	s.blue_x = (cgs.screenXSize/2) + s.sep_x;
+	s.ffa_x = (cgs.screenXSize/2) - (s.w / 2);
 
-	count = 0;
-	for(i = 0; i < cg.numScores && count < maxClients; i++)
+	for(i = 0; i < SCOREBOARD_COLS; i++)
 	{
-		score = &cg.scores[i];
-		ci = &cgs.clientinfo[score->client];
-
-		if(team != ci->team)
-			continue;
-
-		CG_DrawClientScore(y + lineHeight * count, score, color, fade, lineHeight == SB_NORMAL_HEIGHT);
-
-		count++;
+		s.red_col_x[i] = s.red_x + (headline_scales[i] * s.w);
+		s.blue_col_x[i] = s.blue_x + (headline_scales[i] * s.w);
+		s.ffa_col_x[i] = s.ffa_x + (headline_scales[i] * s.w);
 	}
 
-	return count;
-}
+	s.table_y = s.top_y + s.top_h + s.top_sep;
 
-/*
-================
-CG_CenterGiantLine
-================
-*/
-static void CG_CenterGiantLine(float y, const char *string)
-{
-	float           x;
-	vec4_t          color;
+	s.info_timeleft_x = s.blue_x + s.w;
+	s.info_timeleft_y = s.top_y - 20.0f;
 
-	color[0] = 1;
-	color[1] = 1;
-	color[2] = 1;
-	color[3] = 1;
+	s.num_scores_all = cg.numScores;
+	s.num_scores_red = cg.teamScores[0];
+	s.num_scores_blue = cg.teamScores[1];
 
-	x = 0.5 * (cgs.screenXSize - GIANT_WIDTH * CG_DrawStrlen(string));
-
-	CG_DrawStringExt(x, y, string, color, qtrue, qtrue, GIANT_WIDTH, GIANT_HEIGHT, 0);
-}
-
-// ======================================================================================
-
-/*
-=================
-CG_DrawScoreboard
-
-Draw the normal in-game scoreboard
-=================
-*/
-
-#define SCOREBOARD_HEIGHT 240
-#define SCOREBOARD_DISPLAY 20
-
-#define SCOREBOARD_SEP 10
-#define SCOREBOARD_RED 50
-#define SCOREBOARD_BLUE 50
-#define SCOREBOARD_FFA 150
-
-void CG_DrawScoreboardTitlebarNew(vec4_t color, qboolean team)
-{
-	const char     *s;
-	const char     *status = "";
-	int             msec;
-	int             mins, seconds, tens;
-
-	const int       title_w = 340;
-
-	trap_R_SetColor(color);
-	trap_R_DrawStretchPic((cgs.screenXSize - title_w)/2, 73, title_w, 40, 0, 0, 1, 1, cgs.media.hud_scoreboard_title);
-	trap_R_SetColor(NULL);
-
-	if(team)
+	// Player rows
+	if(s.num_scores_red >= s.num_scores_blue)
 	{
-		if(cgs.gametype == GT_OBJECTIVE_SW)
-		{
-			msec = (cgs.timelimit * 60.0f * 1000.0f);
-			seconds = msec / 1000;
-			mins = seconds / 60;
-			seconds -= mins * 60;
-			tens = seconds / 10;
-			seconds -= tens * 10;
-
-			msec = (cgs.timelimit * 60.0f * 1000.0f) - (cg.time - cgs.levelStartTime);
-
-			if(!cgs.currentRound)
-			{
-				//Stopwatch round 1
-				if(cgs.defender == TEAM_RED)
-				{
-					status = va("Blue attacking %i:%i%i", mins, tens, seconds);
-				}
-				else if(cgs.defender == TEAM_BLUE)
-				{
-					status = va("Red attacking %i:%i%i", mins, tens, seconds);
-				}
-				else
-				{
-					status = va("Team attacking %i:%i%i", mins, tens, seconds);
-				}
-			}
-			else
-			{
-				//Stopwatch round 2
-				if(cgs.winner == TEAM_FREE)
-				{
-					if(msec < 0)
-					{
-						status = va("Game drawn!");
-					}
-					else if(cgs.defender == TEAM_RED)
-					{
-						status = va("Blue attacking %i:%i%i", mins, tens, seconds);
-					}
-					else if(cgs.defender == TEAM_BLUE)
-					{
-						status = va("Red attacking %i:%i%i", mins, tens, seconds);
-					}
-					else
-					{
-						status = va("Team attacking %i:%i%i", mins, tens, seconds);
-					}
-				}
-				else if(cgs.winner == TEAM_RED)
-				{
-					status = va("Red wins the game!");
-				}
-				else if(cgs.winner == TEAM_BLUE)
-				{
-					status = va("Blue wins the game!");
-				}
-			}
-			s = va("Round %i: %s", cgs.currentRound + 1, status);
-		}
-		else
-		{
-			if(cg.teamScores[0] == cg.teamScores[1])
-			{
-				s = va("Teams are tied at %i", cg.teamScores[0]);
-			}
-			else if(cg.teamScores[0] >= cg.teamScores[1])
-			{
-				s = va("Red leads %i to %i", cg.teamScores[0], cg.teamScores[1]);
-			}
-			else
-			{
-				s = va("Blue leads %i to %i", cg.teamScores[1], cg.teamScores[0]);
-			}
-		}
-
-		CG_Text_PaintAligned(cgs.screenXSize / 2, 93, s, 0.4f, UI_CENTER | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
-
+		s.num_scores = s.num_scores_red;
 	}
 	else
 	{
-
-		if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR)
-		{
-			s = "spectating...";
-		}
-		else if(cg.killerName[0] && cg.predictedPlayerState.pm_type != PM_INTERMISSION &&
-				cg.predictedPlayerState.pm_type == PM_DEAD)
-		{
-			s = va("Fragged by %s", cg.killerName);
-		}
-		else
-		{
-			s = va("%s place with %i", CG_PlaceString(cg.snap->ps.persistant[PERS_RANK] + 1), cg.snap->ps.persistant[PERS_SCORE]);
-		}
-
-		CG_Text_PaintAligned(cgs.screenXSize / 2, 93, s, 0.4f, UI_CENTER | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
-
+		s.num_scores = s.num_scores_blue;
 	}
 
-	trap_R_SetColor(color);
-	trap_R_DrawStretchPic((cgs.screenXSize - title_w) / 2, 73, title_w, 40, 0, 0, 1, 1, cgs.media.hud_scoreboard_title_overlay);
+	if(s.num_scores < 8)
+	{
+		// Minimum of 8 rows
+		s.num_scores = 8;
+	}
+
+	// + first (header) row + last (totals) row
+	s.num_scores += 2;
+
+	s.h = s.row_h * s.num_scores;
+
+	s.title_y = s.top_y * 0.45;
+	s.title_sub_y = s.top_y * 0.72;
+}
+
+void CG_ScoreSizesInit(void)
+{
+	s.f = 1.0f;
+
+	s.sep_x = 16.0f;
+	s.row_h = 32.0f;
+	s.row_y_offset = 3.0f;
+	s.row_text_scale = 0.4f;
+	s.row_text_y_offset = 16.0f;
+
+	s.top_sep = 8.0f;
+	s.top_y = 130.0f;
+	s.top_h = 92.0f;
+	s.top_text_scale = 0.45f;
+	s.w = 464.0f;
+
+	s.vs_w = 128.0f;
+	s.vs_h = 64.0f;
+
+	CG_ScoreSizesRecalc();
+}
+
+void CG_ScoreSizesScale(float f)
+{
+	s.f *= f;
+
+	s.sep_x *= f;
+	s.row_h *= f;
+	s.row_y_offset *= f;
+	s.row_text_scale *= f;
+	s.row_text_y_offset *= f;
+
+	s.top_sep *= f;
+	s.top_y *= f;
+	s.top_h *= f;
+	s.top_text_scale *= f;
+	s.w *= f;
+
+	s.vs_w *= f;
+	s.vs_h *= f;
+
+	CG_ScoreSizesRecalc();
+}
+
+/*
+=================
+CG_DrawScoreboardHeadline
+pos is an array of int SCOREBOARD_COLS long.
+=================
+*/
+void CG_DrawScoreboardHeadline(float pos[], int y)
+{
+	int             i;
+
+	for(i = 0; i < SCOREBOARD_COLS; i++)
+	{
+		CG_Text_PaintAligned(pos[i], y + s.row_text_y_offset, headline_titles[i], s.row_text_scale, headline_styles[i], colorWhite, &cgs.media.freeSansBoldFont);
+	}
+}
+
+/*
+=================
+CG_DrawScoreboardRows
+
+Draws row backgrounds
+=================
+*/
+void CG_DrawScoreboardRows(float x, float y, float *start_y, float *end_y)
+{
+	int             i;
+
+	trap_R_SetColor(NULL);
+	*start_y = y;
+	for(i = 0; i < s.num_scores; i++)
+	{
+		trap_R_DrawStretchPic(x, y, s.w, s.row_h, 0, 0, 1, 1, cgs.media.scoreboard_row);
+		y += s.row_h + s.row_y_offset;
+	}
+	*end_y = y - (s.row_h + s.row_y_offset);
 	trap_R_SetColor(NULL);
 }
 
-
-int             headline_ffa[] = { 165, 265, 335, 395, 440 };	//player, clan, score, time, ping
-int             headline_red[] = { 12 + SCOREBOARD_RED, 100 + SCOREBOARD_RED, 146 + SCOREBOARD_RED, 184 + SCOREBOARD_RED, 220 + SCOREBOARD_RED };	//player, clan, score, time, ping
-int             headline_blue[] = { 12 + SCOREBOARD_BLUE, 100 + SCOREBOARD_BLUE, 146 + SCOREBOARD_BLUE, 184 + SCOREBOARD_BLUE, 220 + SCOREBOARD_BLUE };	//player, clan, score, time, ping
-float           headline_scales[] = { 0.05f, 0.47f, 0.68, 0.8f, 0.90f };	//player, clan, score, time, ping
-
-
-void CG_DrawScoreboardHeadlineNew(int pos[])
+/*
+=================
+CG_DrawScoreboardTop
+pos is an array of int SCOREBOARD_COLS long.
+=================
+*/
+void CG_DrawScoreboardTop(float x, float y, vec4_t bgcolor, qhandle_t topShader)
 {
-	const char     *s;
-	const float     scale = 0.3f;
-
-	if(cgs.gametype >= GT_TEAM)
-		s = va("Player");
-	else
-		s = va("Player (%i/%i)", cg.numScores, cgs.maxclients);
-
-	CG_Text_PaintAligned(pos[0], 138, s, scale, UI_LEFT | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
-
-	s = va("Clan");
-	CG_Text_PaintAligned(pos[1], 138, s, scale, UI_LEFT | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
-
-	s = va("Score");
-	CG_Text_PaintAligned(pos[2], 138, s, scale, UI_LEFT | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
-
-	s = va("Time");
-	CG_Text_PaintAligned(pos[3], 138, s, scale, UI_LEFT | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
-
-	s = va("Ping");
-	CG_Text_PaintAligned(pos[4], 138, s, scale, UI_LEFT | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
-
+	trap_R_SetColor(bgcolor);
+	trap_R_DrawStretchPic(x, y, s.w, s.top_h, 0, 0, 1, 1, topShader);
+	trap_R_SetColor(NULL);
 }
+
 
 		//buttom line:
 void CG_DrawScoreboardUnderlineNew(void)
 {
-	const char     *s;
-	const char     *ts = "";
+	const char     *playercount = NULL;
+	const char     *gametype = NULL;
+	const char     *gamelimit = NULL;
+	const char     *matchscore = NULL;
+	const char     *time = "";
+	const char     *status = "";
+	char           *mapname = NULL;
 	int             mins, seconds, tens;
 	int             msec;
-	int             w;
 
 	const char     *info;
-	char           *mapname;
 
-	const float     fontsize = 0.4f;
+	const float     fontsize = 0.4f * s.f;
 
 	info = CG_ConfigString(CS_SERVERINFO);
 	mapname = Info_ValueForKey(info, "mapname");
 
+	// Map name
+	CG_Text_PaintAligned((cgs.screenXSize/2), s.title_y, mapname, fontsize * 2, UI_CENTER, colorWhite, &cgs.media.freeSansBoldFont);
+
+	// Time left
 	if(cgs.timelimit > 0)
 	{
 		if(cg.warmup == 0)
@@ -399,233 +263,238 @@ void CG_DrawScoreboardUnderlineNew(void)
 			tens = seconds / 10;
 			seconds -= tens * 10;
 
-			ts = va("Time left: %i:%i%i", mins, tens, seconds);
+			time = va("Time left: %i:%i%i", mins, tens, seconds);
 		}
 		else
 		{
-			ts = va("WARMUP");
+			time = va("Warmup");
 		}
+		CG_Text_PaintAligned(s.blue_x + s.w, s.top_y - (4.0f * s.f), time, fontsize, UI_RIGHT, colorWhite, &cgs.media.freeSansBoldFont);
 	}
 
-	if(cgs.gametype >= GT_TEAM)	// team based scoreboard
+	// Player count
+	playercount = va("Players: %i/%i", cg.numScores, cgs.maxclients);
+	CG_Text_PaintAligned((cgs.screenXSize/2), cgs.screenYSize - (100.0f * s.f), playercount, fontsize, UI_CENTER, colorWhite, &cgs.media.freeSansBoldFont);
+
+	// Game type & limit
+	switch(cgs.gametype)
 	{
-		// current players
-		s = va("Players: %i/%i", cg.numScores, cgs.maxclients);
+		case GT_FFA:
+		case GT_TOURNAMENT:
+		case GT_SINGLE_PLAYER:
+			gametype = "FFA";
+			gamelimit = va("Fraglimit: %i", cgs.fraglimit);
+			break;
+		case GT_TEAM:
+			gametype = "TDM";
+			gamelimit = va("Fraglimit: %i", cgs.fraglimit);
+			break;
+		case GT_CTF:
+			gametype = "CTF";
+			gamelimit = va("Capturelimit: %i", cgs.capturelimit);
+			break;
+		case GT_1FCTF:
+			gametype = "1 Flag CTF";
+			gamelimit = va("Capturelimit: %i", cgs.capturelimit);
+			break;
+		case GT_OBELISK:
+			gametype = "Overload";
+			gamelimit = va("Capturelimit: %i", cgs.capturelimit);
+			break;
+		case GT_HARVESTER:
+			gametype = "Harvester";
+			gamelimit = va("Capturelimit: %i", cgs.capturelimit);
+			break;
+		case GT_OBJECTIVE:
+			gametype = "Objective";
+			break;
+		case GT_OBJECTIVE_SW:
+			gametype = "SW Objective";
+			break;
+		default:
+			break;
+	}
+	if(gametype)
+	{
+		CG_Text_PaintAligned((cgs.screenXSize/2), s.title_sub_y, gametype, fontsize, UI_CENTER, colorWhite, &cgs.media.freeSansBoldFont);
+	}
+	if(gamelimit)
+	{
+		CG_Text_PaintAligned((cgs.screenXSize/2) + 20, cgs.screenYSize - (50.0f * s.f), gamelimit, fontsize, UI_CENTER, colorWhite, &cgs.media.freeSansBoldFont);
+	}
 
-		CG_Text_PaintAligned((cgs.screenXSize/2) - 20, cgs.screenYSize - 40, s, fontsize, UI_RIGHT | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
+	// Match score
+	if(cgs.gametype == GT_OBJECTIVE_SW)
+	{
+		msec = (cgs.timelimit * 60.0f * 1000.0f);
+		seconds = msec / 1000;
+		mins = seconds / 60;
+		seconds -= mins * 60;
+		tens = seconds / 10;
+		seconds -= tens * 10;
 
-		// time left
-		if(cgs.timelimit > 0)
+		msec = (cgs.timelimit * 60.0f * 1000.0f) - (cg.time - cgs.levelStartTime);
+
+		if(!cgs.currentRound)
 		{
-			CG_Text_PaintAligned((cgs.screenXSize/2) + 20, cgs.screenYSize - 40, ts, fontsize, UI_LEFT | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
-		}
-
-		if(cgs.gametype == GT_OBJECTIVE || cgs.gametype == GT_OBJECTIVE_SW)
-		{
-			if(cgs.gametype == GT_OBJECTIVE_SW)
+			//Stopwatch round 1
+			if(cgs.defender == TEAM_RED)
 			{
-				s = va("Stop Watch Objective on %s", mapname);
+				status = va("Blue attacking %i:%i%i", mins, tens, seconds);
+			}
+			else if(cgs.defender == TEAM_BLUE)
+			{
+				status = va("Red attacking %i:%i%i", mins, tens, seconds);
 			}
 			else
 			{
-				s = va("Objective on %s", mapname);
+				status = va("Team attacking %i:%i%i", mins, tens, seconds);
 			}
-
-			CG_Text_PaintAligned((cgs.screenXSize/2) + 20, cgs.screenYSize - 30, s, fontsize, UI_LEFT | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
-		}
-		else if(cgs.gametype >= GT_CTF)
-		{
-			if(cgs.gametype == GT_1FCTF)
-			{
-				s = va("One Flag CTF on %s", mapname);
-			}
-			else if(cgs.gametype == GT_OBELISK)
-			{
-				s = va("Overload on %s", mapname);
-			}
-			else if(cgs.gametype == GT_HARVESTER)
-			{
-				s = va("Harvester on %s", mapname);
-			}
-			else
-			{
-				s = va("CTF on %s", mapname);
-			}
-			CG_Text_PaintAligned((cgs.screenXSize/2) - 20, cgs.screenYSize - 40, s, fontsize, UI_LEFT | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
-
-			s = va("Capturelimit: %i", cgs.capturelimit);
-			CG_Text_PaintAligned((cgs.screenXSize/2) + 20, cgs.screenYSize - 40, s, fontsize, UI_RIGHT | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
 		}
 		else
 		{
-			s = va("TDM on %s", mapname);
-			CG_Text_PaintAligned((cgs.screenXSize/2) - 20, cgs.screenYSize - 40, s, fontsize, UI_LEFT | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
-
-			s = va("Fraglimit: %i", cgs.fraglimit);
-			CG_Text_PaintAligned((cgs.screenXSize/2) + 20, cgs.screenYSize - 40, s, fontsize, UI_RIGHT | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
+			//Stopwatch round 2
+			if(cgs.winner == TEAM_FREE)
+			{
+				if(msec < 0)
+				{
+					status = va("Game drawn!");
+				}
+				else if(cgs.defender == TEAM_RED)
+				{
+					status = va("Blue attacking %i:%i%i", mins, tens, seconds);
+				}
+				else if(cgs.defender == TEAM_BLUE)
+				{
+					status = va("Red attacking %i:%i%i", mins, tens, seconds);
+				}
+				else
+				{
+					status = va("Team attacking %i:%i%i", mins, tens, seconds);
+				}
+			}
+			else if(cgs.winner == TEAM_RED)
+			{
+				status = va("Red wins the game!");
+			}
+			else if(cgs.winner == TEAM_BLUE)
+			{
+				status = va("Blue wins the game!");
+			}
 		}
-
+		matchscore = va("Round %i: %s", cgs.currentRound + 1, status);
 	}
-	else						// ffa
+	else if(cgs.gametype >= GT_TEAM)
 	{
-		// time left
-		if(cgs.timelimit > 0)
+		if(cg.teamScores[0] == cg.teamScores[1])
 		{
-			CG_Text_PaintAligned(cgs.screenXSize/2, cgs.screenYSize - 40, ts, fontsize, UI_CENTER | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
+			matchscore = va("Teams are tied at %i", cg.teamScores[0]);
 		}
-
-		s = va("FFA on %s", mapname);
-		CG_Text_PaintAligned(SCOREBOARD_FFA + 15, cgs.screenYSize - 40, s, fontsize, UI_LEFT | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
-
-		s = va("Fraglimit: %i", cgs.fraglimit);
-		CG_Text_PaintAligned(cgs.screenXSize - SCOREBOARD_FFA - 15, cgs.screenYSize - 40, s, fontsize, UI_RIGHT | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
+		else if(cg.teamScores[0] >= cg.teamScores[1])
+		{
+			matchscore = va("Red leads %i to %i", cg.teamScores[0], cg.teamScores[1]);
+		}
+		else
+		{
+			matchscore = va("Blue leads %i to %i", cg.teamScores[1], cg.teamScores[0]);
+		}
 	}
-
-
+	else
+	{
+		if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR)
+		{
+			matchscore = "spectating...";
+		}
+		else
+		{
+			matchscore = va("%s place with %i", CG_PlaceString(cg.snap->ps.persistant[PERS_RANK] + 1), cg.snap->ps.persistant[PERS_SCORE]);
+		}
+	}
+	if(matchscore)
+	{
+		CG_Text_PaintAligned(cgs.screenXSize / 2, cgs.screenYSize - (75.0f * s.f), matchscore, fontsize, UI_CENTER, colorWhite, &cgs.media.freeSansBoldFont);
+	}
 }
 
 
-void CG_DrawScoreboardStatNew(clientInfo_t * ci, score_t * score, int count, int num, int height, float fontsize, vec4_t bgcolor,
-							  int pos[])
+void CG_DrawScoreboardStat(clientInfo_t * ci, score_t * score, vec4_t color, float pos[], float y)
 {
-	int             w, w1;
-	const char     *s;
-	vec4_t          fontcolor;
+	int             i;
+	const char     *str;
+	qhandle_t       img;
+	vec4_t          colorP;
 
-
-	if((num & 1) == 0)
-		bgcolor[3] = 0.05f;
-	else
-		bgcolor[3] = 0.0f;
-
-	// set font color
-	VectorSet4(fontcolor, 1.0f, 1.0f, 1.0f, 0.80f);
-
-	fontcolor[3] -= (num - cg.scoreboard_offset) * 0.033f;
-
-	if(score->client == cg.snap->ps.clientNum)	// highlight your position
+	// highlight your position
+	if(score->client == cg.snap->ps.clientNum)
 	{
-		fontcolor[0] = 0.2f;
-		fontcolor[2] = 0.2f;
-
+		VectorCopy4(color, colorP);
+		color[0] = 0.2f;
+		color[2] = 0.2f;
 	}
-
-	trap_R_SetColor(bgcolor);
-	trap_R_DrawStretchPic(pos[0], 150 + num * height, 310, height, 0, 0, 0, 0, cgs.media.whiteShader);
-	trap_R_SetColor(NULL);
 
 	if(score->ping == -1)
 	{
 		// draw "connecting" instead of stats
-		s = va("connecting...");
-
-		CG_Text_PaintAligned(pos[0] + 10, 160 + num * height, s, fontsize, UI_LEFT | UI_DROPSHADOW, fontcolor,
-							 &cgs.media.freeSansBoldFont);
-
+		str = va("connecting...");
+		CG_Text_PaintAligned(pos[0], y + s.row_text_y_offset, str, s.row_text_scale, headline_styles[0], color, &cgs.media.freeSansBoldFont);
 	}
 	else
 	{
-		// place
-		if(ci->team == TEAM_SPECTATOR)
-			s = va("S ");
-		else
-			s = va("%i. ", count + cg.scoreboard_offset);
-
-		w = CG_Text_Width(s, fontsize, 0, &cgs.media.freeSansBoldFont);
-
-		CG_Text_PaintAligned(pos[0], 160 + num * height, s, fontsize, UI_LEFT | UI_DROPSHADOW, fontcolor,
-							 &cgs.media.freeSansBoldFont);
-
-		// name
-		s = va("%s", ci->name);
-		w1 = w + 3;
-		w = CG_Text_Width(s, fontsize, 0, &cgs.media.freeSansBoldFont);
-
-		CG_Text_PaintAligned(pos[0] + w1, 160 + num * height, s, fontsize, UI_LEFT | UI_DROPSHADOW, fontcolor,
-							 &cgs.media.freeSansBoldFont);
-
-
-		// ready ?
-
-		if(cg.snap->ps.stats[STAT_CLIENTS_READY] & (1 << score->client))
+		for(i = 0; i < SCOREBOARD_COLS; i++)
 		{
-			s = " (ready)";
-			w1 += w;
-			w = CG_Text_Width(s, fontsize, 0, &cgs.media.freeSansBoldFont);
-			CG_Text_PaintAligned(pos[0] + w1, 160 + num * height, s, fontsize, UI_LEFT | UI_DROPSHADOW, colorYellow,
-								 &cgs.media.freeSansBoldFont);
-
-
+			str = NULL;
+			img = 0;
+			switch(i)
+			{
+				case 0:
+					str = va("%s", ci->name);
+					break;
+				case 1:
+					//TODO: ready icon
+					//img = cgs.media.cursor;
+					if(cg.snap->ps.stats[STAT_CLIENTS_READY] & (1 << score->client))					{
+						str = "R";
+					}
+					break;
+				case 2:
+					str = va("%i", score->score);
+					break;
+				case 3:
+					str = va("%i", score->time);
+					break;
+				case 4:
+					str = va("%i", score->ping);
+					break;
+				default:
+					break;
+			}
+			if(str)
+			{
+				CG_Text_PaintAligned(pos[i], y + s.row_text_y_offset, str, s.row_text_scale, headline_styles[i], color, &cgs.media.freeSansBoldFont);
+			}
+			if(img)
+			{
+				trap_R_DrawStretchPic(pos[i], y, s.row_h, s.row_h, 0, 0, 1, 1, img);
+			}
 		}
-
-		if(ci->team != TEAM_SPECTATOR)
-		{
-			// TODO clantag
-			s = va(" ");
-			CG_Text_PaintAligned(pos[1], 160 + num * height, s, fontsize, UI_LEFT | UI_DROPSHADOW, fontcolor,
-								 &cgs.media.freeSansBoldFont);
-
-			// Score
-			s = va("%i", score->score);
-			CG_Text_PaintAligned(pos[2], 160 + num * height, s, fontsize, UI_LEFT | UI_DROPSHADOW, fontcolor,
-								 &cgs.media.freeSansBoldFont);
-
-
-			// Time
-			s = va("%i", score->time);
-			CG_Text_PaintAligned(pos[3], 160 + num * height, s, fontsize, UI_LEFT | UI_DROPSHADOW, fontcolor,
-								 &cgs.media.freeSansBoldFont);
-
-
-		}
-
-		// Ping
-		s = va("%i", score->ping);
-		CG_Text_PaintAligned(pos[4], 160 + num * height, s, fontsize, UI_LEFT | UI_DROPSHADOW, fontcolor,
-							 &cgs.media.freeSansBoldFont);
 	}
-}
 
-void CG_ScoreboardNewScale(void)
-{
-	int             board_w = (cgs.screenXSize / 16) * 7;
-	int             board_red_x = (cgs.screenXSize/2) + SCOREBOARD_SEP;
-	int             board_blue_x = (cgs.screenXSize/2) - SCOREBOARD_SEP - board_w;
-	int             i;
-
-	for(i = 0; i < 5; i++)
+	if(score->client == cg.snap->ps.clientNum)
 	{
-		headline_ffa[i] = board_blue_x + (headline_scales[i] * board_w);
-		headline_red[i] = board_red_x + (headline_scales[i] * board_w);
-		headline_blue[i] = board_blue_x + (headline_scales[i] * board_w);
+		VectorCopy4(colorP, color);
 	}
 }
 
 qboolean CG_DrawScoreboardNew(void)
 {
-	float           fade;
-	float          *fadeColor;
 	qtime_t         tm;
 	char            st[1024];
-	vec4_t          basecolor;
-	vec4_t          bgcolor;
 	int             i;
 	score_t        *score;
 	clientInfo_t   *ci;
 	int             count = 0;
 	int             red_count = 0;
 	int             blue_count = 0;
-	int             max_height;
-	int             max_display;	//how many stats are visible ( note: displaying more then 20 cause non readable stats on low resolutions )
-
-	float           fontsize;
-	float           height;
-
-	int             board_h;
-	int             board_w;
-
-	int             board_blue_x;
-	int             board_red_x;
 
 	if(cgs.gametype == GT_SINGLE_PLAYER && cg.predictedPlayerState.pm_type == PM_INTERMISSION)
 	{
@@ -637,160 +506,94 @@ qboolean CG_DrawScoreboardNew(void)
 	if(cg.warmup && !cg.showScores)
 		return qfalse;
 
-	if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE)
-		VectorCopy4(blueTeamColor, basecolor);
-	else if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED)
-		VectorCopy4(redTeamColor, basecolor);
-	else
-		VectorCopy4(baseTeamColor, basecolor);
-
-
-	if(cg.showScores || cg.predictedPlayerState.pm_type == PM_INTERMISSION)
+	if(s.num_scores_all != cg.numScores || s.num_scores_red != cg.teamScores[0] || s.num_scores_blue != cg.teamScores[1])
 	{
-		fade = 1.0;
-		fadeColor = colorWhite;
+		CG_ScoreSizesRecalc();
 	}
-	else
-	{
-		fadeColor = CG_FadeColor(cg.scoreFadeTime, FADE_TIME);
-
-		if(!fadeColor)
-		{
-			// next time scoreboard comes up, don't print killer
-			cg.deferredPlayerLoading = 0;
-			cg.killerName[0] = 0;
-			return qfalse;
-		}
-		fade = *fadeColor;
-	}
-
-
-	//draw scoreboard
-
-	max_height = cgs.screenYSize - (100 + 100);
-	max_display = cg.numScores;
-
-
-	max_display = SCOREBOARD_DISPLAY;
-
-	//FIXME: displaying more then 32 players causes the display to disappear. is this a bug of the scoreboard ?
-	if(cgs.gametype >= GT_TEAM)
-	{
-		max_display *= 2;
-		max_height *= 2;
-
-		//FIXME: scrolling does not work for teamscores
-		cg.scoreboard_offset = 0;
-	}
-
-	if(max_display > cg.numScores)
-		max_display = cg.numScores;
-
-	if(cg.numScores > max_display)
-		max_display = SCOREBOARD_DISPLAY;
-
-
-	if(cg.scoreboard_offset > (cg.numScores - SCOREBOARD_DISPLAY))
-		cg.scoreboard_offset = (cg.numScores - SCOREBOARD_DISPLAY);
-
-	if(cg.scoreboard_offset < 0)
-		cg.scoreboard_offset = 0;
-
-	//calculate size for each entry
-	height = 14 * cgs.screenYScale;
-
-	if((height * cg.numScores) > max_height)
-		height = max_height / max_display;
-
-
-	//calculate fontsize
-	fontsize = height / 72.0f;
-
 
 	if(cgs.gametype >= GT_TEAM)	// team based scoreboard
 	{
-		// Titlebar
-
-		CG_DrawScoreboardTitlebarNew(basecolor, qtrue);
-
-		board_w = (cgs.screenXSize / 16) * 7;
-		board_h = (cgs.screenYSize / 4) * 3;
-
-		board_red_x = (cgs.screenXSize/2) + SCOREBOARD_SEP;
-		board_blue_x = (cgs.screenXSize/2) - SCOREBOARD_SEP - board_w;
+		float           red_table_y;
+		float           blue_table_y;
+		float           red_table_end_y;
+		float           blue_table_end_y;
 
 		//red
-		trap_R_SetColor(redTeamColor);
-		trap_R_DrawStretchPic(board_red_x, 120, board_w, board_h, 0, 0, 1, 1, cgs.media.hud_scoreboard);
-		trap_R_SetColor(NULL);
-
-		CG_DrawScoreboardHeadlineNew(headline_red);
+		CG_DrawScoreboardTop(s.red_x, s.top_y, redTeamColor, cgs.media.scoreboard_top_red);
+		CG_DrawScoreboardRows(s.red_x, s.table_y, &red_table_y, &red_table_end_y);
+		CG_DrawScoreboardHeadline(s.red_col_x, red_table_y);
+		red_table_y += s.row_h + s.row_y_offset;
 
 		//blue
-		trap_R_SetColor(blueTeamColor);
-		trap_R_DrawStretchPic(board_blue_x, 120, board_w, board_h, 0, 0, 1, 1, cgs.media.hud_scoreboard);
-		trap_R_SetColor(NULL);
-
-		CG_DrawScoreboardHeadlineNew(headline_blue);
-
-		CG_DrawScoreboardUnderlineNew();
+		CG_DrawScoreboardTop(s.blue_x, s.top_y, blueTeamColor, cgs.media.scoreboard_top_blue);
+		CG_DrawScoreboardRows(s.blue_x, s.table_y, &blue_table_y, &blue_table_end_y);
+		CG_DrawScoreboardHeadline(s.blue_col_x, blue_table_y);
+		blue_table_y += s.row_h + s.row_y_offset;
 
 		//display scores
-		for(i = 0; i < max_display; i++)
+		for(i = 0; i < s.num_scores_all; i++)
 		{
-			score = &cg.scores[i + cg.scoreboard_offset];
+			score = &cg.scores[i];
 			ci = &cgs.clientinfo[score->client];
 
-
-			VectorCopy4(basecolor, bgcolor);
-
-			if((ci->team == TEAM_BLUE) || (ci->team == TEAM_SPECTATOR && (i & 1) == 0))
+			if(ci->team == TEAM_RED)
 			{
-
-				CG_DrawScoreboardStatNew(ci, score, blue_count + 1, blue_count, height, fontsize, bgcolor, headline_blue);
+				CG_DrawScoreboardStat(ci, score, colorWhite, s.red_col_x, red_table_y);
+				red_table_y += s.row_h + s.row_y_offset;
+				red_count++;
+			}
+			else if(ci->team == TEAM_BLUE)
+			{
+				CG_DrawScoreboardStat(ci, score, colorWhite, s.blue_col_x, blue_table_y);
+				blue_table_y += s.row_h + s.row_y_offset;
 				blue_count++;
+			}
+			else if(ci->team == TEAM_SPECTATOR && (i & 1) == 0)
+			{
+				CG_DrawScoreboardStat(ci, score, colorWhite, s.red_col_x, red_table_end_y);
+				red_table_end_y -= s.row_h + s.row_y_offset;
 			}
 			else
 			{
-
-				CG_DrawScoreboardStatNew(ci, score, red_count + 1, red_count, height, fontsize, bgcolor, headline_red);
-				red_count++;
+				CG_DrawScoreboardStat(ci, score, colorWhite, s.blue_col_x, blue_table_end_y);
+				blue_table_end_y -= s.row_h + s.row_y_offset;
 			}
 		}
+
+		trap_R_DrawStretchPic((cgs.screenXSize - s.vs_w)/2, s.table_y + s.h + (s.vs_h / 2), s.vs_w, s.vs_h, 0, 0, 1, 1, cgs.media.scoreboard_vs);
+
+		CG_DrawScoreboardUnderlineNew();
 	}
 	else						// FFA Scoreboard
 	{
-
-		// Titlebar
-		CG_DrawScoreboardTitlebarNew(basecolor, qfalse);
-
-		board_w = (cgs.screenXSize / 16) * 7;
-		board_h = (cgs.screenYSize / 4) * 3;
-
-		board_blue_x = (cgs.screenXSize/2) - SCOREBOARD_SEP - board_w;
+		float           ffa_table_y;
+		float           ffa_table_end_y;
 
 		// scoreboard
-		trap_R_SetColor(basecolor);
-		trap_R_DrawStretchPic(board_blue_x, 120, board_w, board_h, 0, 0, 1, 1, cgs.media.hud_scoreboard);
-		trap_R_SetColor(NULL);
-
-		// top line:
-		CG_DrawScoreboardHeadlineNew(headline_ffa);
+		CG_DrawScoreboardTop(s.ffa_x, s.top_y, colorWhite, cgs.media.scoreboard_top_blue);
+		CG_DrawScoreboardRows(s.ffa_x, s.table_y, &ffa_table_y, &ffa_table_end_y);
+		CG_DrawScoreboardHeadline(s.ffa_col_x, ffa_table_y);
+		ffa_table_y += s.row_h + s.row_y_offset;
 
 		// buttom line:
 		CG_DrawScoreboardUnderlineNew();
 
-		for(i = 0; i < max_display; i++)
+		for(i = 0; i < s.num_scores_all; i++)
 		{
 			score = &cg.scores[i + cg.scoreboard_offset];
 			ci = &cgs.clientinfo[score->client];
 
-			VectorCopy4(basecolor, bgcolor);
-
 			if(ci->team != TEAM_SPECTATOR)
+			{
 				count++;
-
-			CG_DrawScoreboardStatNew(ci, score, count, i, height, fontsize, bgcolor, headline_ffa);
+				CG_DrawScoreboardStat(ci, score, colorWhite, s.ffa_col_x, ffa_table_y);
+				ffa_table_y += s.row_h + s.row_y_offset;
+			}
+			else
+			{
+				CG_DrawScoreboardStat(ci, score, colorWhite, s.ffa_col_x, ffa_table_end_y);
+				ffa_table_end_y -= s.row_h + s.row_y_offset;
+			}
 		}
 	}
 
@@ -803,159 +606,7 @@ qboolean CG_DrawScoreboardNew(void)
 				tm.tm_sec, tm.tm_mday, monthStr2[tm.tm_mon], 1900 + tm.tm_year);
 
 
-	CG_Text_PaintAligned(cgs.screenXSize/2, cgs.screenYSize - 18, st, 0.45f, UI_CENTER | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
-
-	return qtrue;
-}
-
-
-
-
-qboolean CG_DrawOldScoreboard(void)
-{
-	int             x, y, w, n1, n2;
-	float           fade;
-	float          *fadeColor;
-	const char     *s;
-	int             maxClients;
-	int             lineHeight;
-	int             topBorderSize, bottomBorderSize;
-	qtime_t         tm;
-	char            st[1024];
-
-	if(cgs.gametype == GT_SINGLE_PLAYER && cg.predictedPlayerState.pm_type == PM_INTERMISSION)
-	{
-		cg.deferredPlayerLoading = 0;
-		return qfalse;
-	}
-
-	// don't draw scoreboard during death while warmup up
-	if(cg.warmup && !cg.showScores)
-		return qfalse;
-
-	if(cg.showScores || cg.predictedPlayerState.pm_type == PM_DEAD || cg.predictedPlayerState.pm_type == PM_INTERMISSION)
-	{
-		fade = 1.0;
-		fadeColor = colorWhite;
-	}
-	else
-	{
-		fadeColor = CG_FadeColor(cg.scoreFadeTime, FADE_TIME);
-
-		if(!fadeColor)
-		{
-			// next time scoreboard comes up, don't print killer
-			cg.deferredPlayerLoading = 0;
-			cg.killerName[0] = 0;
-			return qfalse;
-		}
-		fade = *fadeColor;
-	}
-
-	// fragged by ... line
-	if(cg.killerName[0] && cg.predictedPlayerState.pm_type != PM_INTERMISSION && cg.predictedPlayerState.pm_type == PM_DEAD)
-	{
-		s = va("Fragged by %s", cg.killerName);
-		w = CG_DrawStrlen(s) * BIGCHAR_WIDTH;
-		x = (SCREEN_WIDTH - w) / 2;
-		y = 40 + 70;
-		CG_DrawStringExt(x, y, s, colorWhite, qfalse, qtrue, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 900);
-	}
-	else
-	{
-		s = va("%s place with %i", CG_PlaceString(cg.snap->ps.persistant[PERS_RANK] + 1), cg.snap->ps.persistant[PERS_SCORE]);
-		w = CG_DrawStrlen(s) * BIGCHAR_WIDTH;
-		x = (SCREEN_WIDTH - w) / 2;
-		y = 40 + 70;
-		CG_DrawStringExt(x, y, s, colorWhite, qfalse, qtrue, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 900);
-	}
-
-	// scoreboard
-	y = SB_HEADER + 70;
-
-	CG_DrawPic(SB_SCORE_X + (SB_RATING_WIDTH / 2), y, 64, 32, cgs.media.scoreboardScore);
-	CG_DrawPic(SB_PING_X - (SB_RATING_WIDTH / 2), y, 64, 32, cgs.media.scoreboardPing);
-	CG_DrawPic(SB_TIME_X - (SB_RATING_WIDTH / 2), y, 64, 32, cgs.media.scoreboardTime);
-	CG_DrawPic(SB_NAME_X - (SB_RATING_WIDTH / 2), y, 64, 32, cgs.media.scoreboardName);
-
-	y = SB_TOP + 70;
-
-	// If there are more than SB_MAXCLIENTS_NORMAL, use the interleaved scores
-	if(cg.numScores > SB_MAXCLIENTS_NORMAL)
-	{
-		maxClients = SB_MAXCLIENTS_INTER;
-		lineHeight = SB_INTER_HEIGHT;
-		topBorderSize = 8;
-		bottomBorderSize = 16;
-	}
-	else
-	{
-		maxClients = SB_MAXCLIENTS_NORMAL;
-		lineHeight = SB_NORMAL_HEIGHT;
-		topBorderSize = 16;
-		bottomBorderSize = 16;
-	}
-
-	if(cgs.gametype >= GT_TEAM)
-	{
-		// teamplay scoreboard
-		y += lineHeight / 2;
-
-		if(cg.teamScores[0] >= cg.teamScores[1])
-		{
-			n1 = CG_TeamScoreboard(y, TEAM_RED, fade, maxClients, lineHeight);
-			CG_DrawTeamBackground(0, y - topBorderSize, 640, n1 * lineHeight + bottomBorderSize, 0.33f, TEAM_RED);
-			y += (n1 * lineHeight) + BIGCHAR_HEIGHT;
-			maxClients -= n1;
-
-			n2 = CG_TeamScoreboard(y, TEAM_BLUE, fade, maxClients, lineHeight);
-			CG_DrawTeamBackground(0, y - topBorderSize, 640, n2 * lineHeight + bottomBorderSize, 0.33f, TEAM_BLUE);
-			y += (n2 * lineHeight) + BIGCHAR_HEIGHT;
-			maxClients -= n2;
-		}
-		else
-		{
-			n1 = CG_TeamScoreboard(y, TEAM_BLUE, fade, maxClients, lineHeight);
-			CG_DrawTeamBackground(0, y - topBorderSize, 640, n1 * lineHeight + bottomBorderSize, 0.33f, TEAM_BLUE);
-			y += (n1 * lineHeight) + BIGCHAR_HEIGHT;
-			maxClients -= n1;
-
-			n2 = CG_TeamScoreboard(y, TEAM_RED, fade, maxClients, lineHeight);
-			CG_DrawTeamBackground(0, y - topBorderSize, 640, n2 * lineHeight + bottomBorderSize, 0.33f, TEAM_RED);
-			y += (n2 * lineHeight) + BIGCHAR_HEIGHT;
-			maxClients -= n2;
-		}
-
-		n1 = CG_TeamScoreboard(y, TEAM_SPECTATOR, fade, maxClients, lineHeight);
-		y += (n1 * lineHeight) + BIGCHAR_HEIGHT;
-	}
-	else
-	{
-		// free for all scoreboard
-		n1 = CG_TeamScoreboard(y, TEAM_FREE, fade, maxClients, lineHeight);
-		y += (n1 * lineHeight) + BIGCHAR_HEIGHT;
-
-		n2 = CG_TeamScoreboard(y, TEAM_SPECTATOR, fade, maxClients - n1, lineHeight);
-		y += (n2 * lineHeight) + BIGCHAR_HEIGHT;
-	}
-
-	// load any models that have been deferred
-	if(++cg.deferredPlayerLoading > 10)
-	{
-		CG_LoadDeferredPlayers();
-	}
-
-	// put the current date and time at the bottom along with version info
-	trap_RealTime(&tm);
-	Com_sprintf(st, sizeof(st), "%2i:%s%i:%s%i (%i %s %i) " S_COLOR_YELLOW "XreaL v" PRODUCT_VERSION " " S_COLOR_BLUE " http://xreal.sourceforge.net", (1 + (tm.tm_hour + 11) % 12),	// 12 hour format
-				(tm.tm_min > 9 ? "" : "0"),	// minute padding
-				tm.tm_min, (tm.tm_sec > 9 ? "" : "0"),	// second padding
-				tm.tm_sec, tm.tm_mday, monthStr2[tm.tm_mon], 1900 + tm.tm_year);
-
-	w = CG_Text_Width(st, 0.3f, 0, &cgs.media.freeSansBoldFont);
-	x = (cgs.screenXSize/2) - (w/2);
-	y = cgs.screenYSize - 20;
-	CG_Text_Paint(x, y, 0.3f, colorWhite, st, 0, 0, UI_DROPSHADOW, &cgs.media.freeSansBoldFont);
+	CG_Text_PaintAligned(cgs.screenXSize/2, cgs.screenYSize - 18, st, 0.45f, UI_CENTER, colorWhite, &cgs.media.freeSansBoldFont);
 
 	return qtrue;
 }

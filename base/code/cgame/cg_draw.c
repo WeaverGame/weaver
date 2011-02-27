@@ -3,21 +3,22 @@
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
 Copyright (C) 2006 Josef Soentgen <cnuke@users.sourceforge.net>
+Copyright (C) 2011 Andrew Browne <dersaidin@dersaidin.net>
 
-This file is part of XreaL source code.
+This file is part of Weaver source code.
 
-XreaL source code is free software; you can redistribute it
+Weaver source code is free software; you can redistribute it
 and/or modify it under the terms of the GNU General Public License as
 published by the Free Software Foundation; either version 2 of the License,
 or (at your option) any later version.
 
-XreaL source code is distributed in the hope that it will be
+Weaver source code is distributed in the hope that it will be
 useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with XreaL source code; if not, write to the Free Software
+along with Weaver source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
@@ -27,12 +28,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "cg_local.h"
 
-vec4_t          redTeamColor = { 0.9f, 0.0f, 0.2f, 0.80f };
-vec4_t          blueTeamColor = { 0.2f, 0.0f, 0.9f, 0.80f };
+vec4_t          redTeamColor = { 1.0f, 0.0f, 0.1f, 0.95f };
+vec4_t          blueTeamColor = { 0.1f, 0.0f, 1.0f, 0.95f };
 vec4_t          baseTeamColor = { 1.0f, 1.0f, 1.0f, 0.80f };
-
-
-
 
 int             drawTeamOverlayModificationCount = -1;
 
@@ -1451,10 +1449,7 @@ static void CG_DrawTeamVote(void)
 
 static qboolean CG_DrawScoreboard(void)
 {
-	if(cg_drawStatus.integer == 3)
-		return CG_DrawScoreboardNew();
-
-	return CG_DrawOldScoreboard();
+	return CG_DrawScoreboardNew();
 }
 
 /*
@@ -1593,7 +1588,7 @@ static void CG_DrawWarmup(void)
 	if(sec < 0)
 	{
 		s = "Waiting for players";
-		CG_Text_PaintAligned(cgs.screenXSize/2, 40, s, 0.5f, UI_CENTER | UI_DROPSHADOW, colorWhite, &cgs.media.freeSansBoldFont);
+		CG_Text_PaintAligned(cgs.screenXSize/2, 40, s, 0.5f, UI_CENTER, colorWhite, &cgs.media.freeSansBoldFont);
 		cg.warmupCount = 0;
 		return;
 	}
@@ -1868,6 +1863,7 @@ CG_Draw2D
 */
 static void CG_Draw2D(void)
 {
+	qboolean        noScoreboard;
 
 	if(cg_debugHUD.integer == 1)
 	{
@@ -1905,13 +1901,18 @@ static void CG_Draw2D(void)
 		return;
 	}
 
+	noScoreboard = !CG_DrawScoreboardNew();
+
 	CG_DrawOSD();
 
 	if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR)
 	{
-		CG_DrawSpectator();
-		CG_DrawCrosshairNew();
-		CG_DrawCrosshairNames();
+		if(noScoreboard)
+		{
+			CG_DrawSpectator();
+			CG_DrawCrosshairNew();
+			CG_DrawCrosshairNames();
+		}
 	}
 	else
 	{
@@ -1921,7 +1922,6 @@ static void CG_Draw2D(void)
 			CG_DrawWeaverHUD();
 
 			CG_DrawCrosshairNew();
-
 			CG_DrawCrosshairNames();
 		}
 		else if(cg.snap->ps.pm_type == PM_WOUNDED)
@@ -1938,21 +1938,19 @@ static void CG_Draw2D(void)
 	CG_DrawVote();
 	CG_DrawTeamVote();
 
-	CG_DrawLagometer();
-
 	CG_DrawUpperRight();
 
-	CG_DrawTimers();
-
-	if(!CG_DrawFollow())
+	if(noScoreboard && !CG_DrawFollow())
 	{
 		CG_DrawWarmup();
 	}
 
 	// don't draw center string if scoreboard is up
 	//cg.scoreBoardShowing = CG_DrawScoreboard();
-	if(!CG_DrawScoreboardNew())
+	if(noScoreboard)
 	{
+		CG_DrawLagometer();
+		CG_DrawTimers();
 		CG_DrawCenterString();
 	}
 }

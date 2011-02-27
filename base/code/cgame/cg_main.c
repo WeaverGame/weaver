@@ -1006,14 +1006,6 @@ static void CG_RegisterGraphics(void)
 	cgs.media.osd_button = trap_R_RegisterShaderNoMip("ui/button");
 	cgs.media.osd_button_focus = trap_R_RegisterShaderNoMip("ui/button_focus");
 
-	cgs.media.hud_scoreboard_title = trap_R_RegisterShaderNoMip("hud/scoreboard_title");
-	cgs.media.hud_scoreboard_title_overlay = trap_R_RegisterShaderNoMip("hud/scoreboard_title_overlay");
-	cgs.media.hud_scoreboard = trap_R_RegisterShaderNoMip("hud/scoreboard");
-	cgs.media.scoreboardName = trap_R_RegisterShaderNoMip("menu/tab/name.tga");
-	cgs.media.scoreboardPing = trap_R_RegisterShaderNoMip("menu/tab/ping.tga");
-	cgs.media.scoreboardScore = trap_R_RegisterShaderNoMip("menu/tab/score.tga");
-	cgs.media.scoreboardTime = trap_R_RegisterShaderNoMip("menu/tab/time.tga");
-
 	/*
 	cgs.media.backTileShader = trap_R_RegisterShader("gfx/2d/backtile");
 	cgs.media.noammoShader = trap_R_RegisterShader("icons/noammo");
@@ -1024,6 +1016,11 @@ static void CG_RegisterGraphics(void)
 	cgs.media.sideBarItemSelectShader = trap_R_RegisterShaderNoMip("hud/sidebar_item_select");
 	cgs.media.sideBarPowerupShader = trap_R_RegisterShaderNoMip("hud/sidebar_powerup");
 	*/
+
+	cgs.media.scoreboard_row = trap_R_RegisterShaderNoMip("gfx/scoreboard/row");
+	cgs.media.scoreboard_top_red = trap_R_RegisterShaderNoMip("gfx/scoreboard/top_red");
+	cgs.media.scoreboard_top_blue = trap_R_RegisterShaderNoMip("gfx/scoreboard/top_blue");
+	cgs.media.scoreboard_vs = trap_R_RegisterShaderNoMip("gfx/scoreboard/vs");
 
 	// weaver disc
 	for(i = 1; i <= NUM_WEAVERDISCS; i++)
@@ -1538,13 +1535,13 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 		cgs.screenXBias = cgs.screenYBias = 0;
 	}
 
-	// Scale hud for new screen size;
-	CG_ScoreboardNewScale();
-
 	CG_HudSizesInit();
+	CG_ScoreSizesInit();
 	if(cgs.screenMinSize < 1000.0f)
 	{
-		CG_HudSizesScale(cgs.screenMinSize / 1000.0f);
+		float scale = cgs.screenMinSize / 1000.0f;
+		CG_HudSizesScale(scale);
+		CG_ScoreSizesScale(scale);
 	}
 
 	// get the gamestate from the client system

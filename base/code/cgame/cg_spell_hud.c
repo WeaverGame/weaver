@@ -122,7 +122,7 @@ typedef struct hudSizes_s {
 
 static hudSizes_t s;
 
-void CG_HudeSizeRecalc(void)
+void CG_HudSizesRecalc(void)
 {
 	// Calculated from other fields
 	
@@ -175,7 +175,7 @@ void CG_HudSizesInit(void)
 
 	s.power = 0.5f;
 
-	CG_HudeSizeRecalc();
+	CG_HudSizesRecalc();
 }
 
 /*
@@ -228,7 +228,7 @@ void CG_HudSizesScale(float f)
 
 	s.power *= f;
 
-	CG_HudeSizeRecalc();
+	CG_HudSizesRecalc();
 }
 
 /*
