@@ -285,7 +285,6 @@ void ClientThreadEnd(gclient_t * client)
 void ClientWeaveEnd(gclient_t * client, gentity_t * ent)
 {
 	int             i;
-	vec3_t          dir;
 
 	client->weaving = qfalse;
 	if(client->thread > 0)
@@ -318,8 +317,7 @@ void ClientWeaveEnd(gclient_t * client, gentity_t * ent)
 					   WeavePowerNames[client->currentWeaveThreads[7]]);
 		}
 #endif
-		AnglesToVector(client->ps.viewangles, dir);
-		CreateWeave(ent, client->ps.origin, dir, client->currentWeaveGroup, client->currentWeaveThreads);
+		CreateWeave(ent, client->currentWeaveGroup, client->currentWeaveThreads);
 	}
 	client->ps.stats[STAT_THREADX] = 0;
 	client->ps.stats[STAT_THREADY] = 0;
