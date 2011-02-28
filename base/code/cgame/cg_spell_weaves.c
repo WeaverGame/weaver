@@ -251,6 +251,7 @@ void CG_AddPlayerThreads(centity_t * player, playerState_t * ps, refEntity_t * p
 {
 	int             i;
 	refEntity_t     ent;
+	int             boneIndex;
 	playerEntity_t *pe;
 	vec3_t          pos;
 	float           d;
@@ -271,7 +272,23 @@ void CG_AddPlayerThreads(centity_t * player, playerState_t * ps, refEntity_t * p
 	memset(&ent, 0, sizeof(ent));
 	AxisClear(ent.axis);
 
-	CG_PositionEntityOnWeaponTag(&ent, parent, parent->hModel, ps, player);
+	if(ps)
+	{
+		CG_PositionEntityOnTag(&ent, parent, parent->hModel, "spellControl");
+	}
+	else
+	{
+		boneIndex = trap_R_BoneIndex(parent->hModel, "spellControl");
+		if(boneIndex >= 0 && boneIndex < pe->torso.skeleton.numBones)
+		{
+			AxisClear(ent.axis);
+			CG_PositionRotatedEntityOnBone(&ent, parent, parent->hModel, "spellControl");
+		}
+		else
+		{
+			CG_Error("No tag found while adding threads.");
+		}
+	}
 
 	if(player->currentState.number == cg.snap->ps.clientNum && !cg.renderingThirdPerson)
 	{

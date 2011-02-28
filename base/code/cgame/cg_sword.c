@@ -91,7 +91,7 @@ void CG_AddPlayerSword(refEntity_t * parent, playerState_t * ps, centity_t * cen
 			}
 			else
 			{
-				CG_Error("No tag found while adding held weave.");
+				CG_Error("No tag found while adding sword.");
 			}
 		}
 #else
@@ -116,7 +116,7 @@ void CG_AddPlayerSword(refEntity_t * parent, playerState_t * ps, centity_t * cen
 			}
 			else
 			{
-				CG_Error("No tag found while adding held weave.");
+				CG_Error("No tag found while adding sword.");
 			}
 		}
 #else

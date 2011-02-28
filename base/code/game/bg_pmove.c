@@ -181,6 +181,11 @@ static void PM_ForceLegsAnim(int anim)
 	PM_StartLegsAnim(anim);
 }
 
+static void PM_ForceTorsoAnim(int anim)
+{
+	pm->ps->torsoTimer = 0;
+	PM_StartTorsoAnim(anim);
+}
 
 /*
 ==================
@@ -2200,6 +2205,12 @@ static void PM_Footsteps(void)
 		pm->xyspeed = sqrt(pm->ps->velocity[0] * pm->ps->velocity[0] + pm->ps->velocity[1] * pm->ps->velocity[1]);
 	}
 
+	if(pm->ps->pm_type == PM_WOUNDED)
+	{
+		PM_ContinueLegsAnim(BOTH_WOUNDED1);
+		return;
+	}
+
 	if(pm->ps->groundEntityNum == ENTITYNUM_NONE)
 	{
 
@@ -2462,7 +2473,11 @@ PM_TorsoAnimation
 */
 static void PM_TorsoAnimation(void)
 {
-	if(pm->ps->weaponstate == WEAPON_READY)
+	if(pm->ps->pm_type == PM_WOUNDED)
+	{
+		PM_ContinueTorsoAnim(BOTH_WOUNDED1);
+	}
+	else if(pm->ps->weaponstate == WEAPON_READY)
 	{
 		if(pm->ps->weapon == WP_GAUNTLET)
 		{
@@ -2688,6 +2703,8 @@ static void PM_Weapon(void)
 	{
 		//this is a weave.
 		PM_AddEvent(EV_WEAVE_CAST);
+		PM_ForceTorsoAnim(TORSO_CASTING1);
+		pm->ps->torsoTimer = TIMER_CASTING;
 		//Add delay between shots specific to weave
 		//We don't know what weave is being shot here in bg_
 		//So just add a second, and we can reduce it as

@@ -431,7 +431,7 @@ qboolean CG_RegisterClientModel(clientInfo_t * ci, const char *modelName, const 
 		if(!CG_RegisterPlayerAnimation(ci, modelName, BOTH_DEATH1, "death1", qfalse, qfalse, qfalse))
 			ci->animations[BOTH_DEATH1] = ci->animations[LEGS_IDLE];
 
-		if(!CG_RegisterPlayerAnimation(ci, modelName, BOTH_WOUNDED1, "wounded", qfalse, qfalse, qfalse))
+		if(!CG_RegisterPlayerAnimation(ci, modelName, BOTH_WOUNDED1, "wounded", qtrue, qfalse, qfalse))
 			ci->animations[BOTH_WOUNDED1] = ci->animations[LEGS_IDLE];
 
 		if(!CG_RegisterPlayerAnimation(ci, modelName, BOTH_HIT1, "hit1", qfalse, qfalse, qfalse))
@@ -488,10 +488,10 @@ qboolean CG_RegisterClientModel(clientInfo_t * ci, const char *modelName, const 
 		if(!CG_RegisterPlayerAnimation(ci, modelName, LEGS_TURN, "step", qfalse, qfalse, qfalse))
 			ci->animations[LEGS_TURN] = ci->animations[LEGS_IDLE];
 
-		if(!CG_RegisterPlayerAnimation(ci, modelName, TORSO_WEAVING1, "weaving1", qfalse, qfalse, qfalse))
+		if(!CG_RegisterPlayerAnimation(ci, modelName, TORSO_WEAVING1, "weaving1", qtrue, qfalse, qfalse))
 			ci->animations[TORSO_WEAVING1] = ci->animations[LEGS_IDLE];
 
-		if(!CG_RegisterPlayerAnimation(ci, modelName, TORSO_WEAVING2, "weaving2", qfalse, qfalse, qfalse))
+		if(!CG_RegisterPlayerAnimation(ci, modelName, TORSO_WEAVING2, "weaving2", qtrue, qfalse, qfalse))
 			ci->animations[TORSO_WEAVING2] = ci->animations[LEGS_IDLE];
 
 		if(!CG_RegisterPlayerAnimation(ci, modelName, TORSO_CASTING1, "casting1", qfalse, qfalse, qfalse))
