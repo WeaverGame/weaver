@@ -43,10 +43,8 @@ qhandle_t       levelshot = 0;
 qhandle_t       levelshotDefault = 0;
 qhandle_t       menuback = 0;
 
+qhandle_t       blackbar = 0;
 qhandle_t       black_gradient = 0;
-qhandle_t       logo_dark = 0;
-qhandle_t       title = 0;
-qhandle_t       title_white = 0;
 
 /*
 ======================
@@ -156,7 +154,6 @@ void CG_DrawInformation(void)
 
 	int             y_offset;
 
-	const int       title_h = 64;
 	int             loading_h;
 
 	const float     infoScale = 0.35f;
@@ -176,20 +173,15 @@ void CG_DrawInformation(void)
 	if(!load1)
 		load1 = trap_R_RegisterShaderNoMip("gfx/menu/load1");
 
-	if(!title)
-		title = trap_R_RegisterShaderNoMip("gfx/menu/title");
-	if(!title_white)
-		title_white = trap_R_RegisterShaderNoMip("gfx/menu/title_white");
 	if(!black_gradient)
 		black_gradient = trap_R_RegisterShaderNoMip("gfx/menu/black_gradient");
-	if(!logo_dark)
-		logo_dark = trap_R_RegisterShaderNoMip("gfx/menu/logo_dark");
+	if(!blackbar)
+		blackbar = trap_R_RegisterShaderNoMip("gfx/menu/black_bar");
 
 	if(!menuback)
 		menuback = trap_R_RegisterShaderNoMip("white");
 
-	CG_DrawPic(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, menuback);
-
+	trap_R_DrawStretchPic(0, 0, cgs.screenXSize, cgs.screenYSize, 0, 0, 1, 1, menuback);
 
 	//mapshot
 	trap_R_SetColor(NULL);
@@ -203,12 +195,13 @@ void CG_DrawInformation(void)
 	{
 		trap_R_DrawStretchPic((cgs.screenXSize - CG_INFO_LOGO_WIDTH)/2, cgs.screenYSize/2 - CG_INFO_LOGO_WIDTH, CG_INFO_LOGO_WIDTH, CG_INFO_LOGO_WIDTH*2, 0, 0, 1, 1, levelshotDefault);
 	}
-	trap_R_DrawStretchPic((CG_INFO_SIDE_GRADIENT_WIDTH * cgs.screenXScale) - 9, cgs.screenYSize - title_h - (8 * cgs.screenYScale), title_h*4, title_h, 0, 0, 1, 1, (levelshot ? title_white : title));
+	trap_R_DrawStretchPic(0, cgs.screenYSize - 50.0f, cgs.screenXSize, 50, 0, 0, 1, 1, blackbar);
+
 	CG_Text_PaintAligned(cgs.screenXSize - (CG_INFO_PERCENT_WIDTH * cgs.screenXScale) - 2, cgs.screenYSize - (8 * cgs.screenYScale) - loading_h, loadingmap, 0.4f, UI_RIGHT, (levelshot ? colorText : colorTextGrey), &cgs.media.freeSansFont);
 
+
 	// left side
-	trap_R_DrawStretchPic(0, 0, CG_INFO_SIDE_GRADIENT_WIDTH * cgs.screenXScale, cgs.screenYSize, 0, 0, 1, 1, black_gradient);
-	trap_R_DrawStretchPic(((CG_INFO_SIDE_GRADIENT_WIDTH * cgs.screenXScale) - CG_INFO_SIDE_LOGO_WIDTH)/2, 0, CG_INFO_SIDE_LOGO_WIDTH, CG_INFO_SIDE_LOGO_WIDTH*2, 0, 0, 1, 1, logo_dark);
+	//trap_R_DrawStretchPic(0, 0, CG_INFO_SIDE_GRADIENT_WIDTH * cgs.screenXScale, cgs.screenYSize, 0, 0, 1, 1, black_gradient);
 
 	// draw the cg.progress
 	CG_DrawProgress();
