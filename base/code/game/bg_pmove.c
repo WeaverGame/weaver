@@ -2424,10 +2424,19 @@ static void PM_BeginWeaponChange(int weapon)
 
 	PM_AddEvent(EV_CHANGE_WEAPON);
 	pm->ps->weaponstate = WEAPON_DROPPING;
-	if(!pm->fastWeaponSwitches)
-		pm->ps->weaponTime += 200;
 
-	PM_StartTorsoAnim(TORSO_DROP);
+	if(pm->ps->weapon == WP_GAUNTLET)
+	{
+		pm->ps->weaponTime = 500;
+		PM_ForceTorsoAnim(TORSO_SWORD_DRAW);
+		pm->ps->torsoTimer = TIMER_SWORD_DRAW;
+	}
+	else
+	{
+		if(!pm->fastWeaponSwitches)
+			pm->ps->weaponTime += 200;
+		PM_StartTorsoAnim(TORSO_DROP);
+	}
 }
 
 
@@ -2458,10 +2467,19 @@ static void PM_FinishWeaponChange(void)
 
 	pm->ps->weapon = weapon;
 	pm->ps->weaponstate = WEAPON_RAISING;
-	if(!pm->fastWeaponSwitches)
-		pm->ps->weaponTime += 250;
 
-	PM_StartTorsoAnim(TORSO_RAISE);
+	if(weapon == WP_GAUNTLET)
+	{
+		pm->ps->weaponTime = 500;
+		PM_ForceTorsoAnim(TORSO_SWORD_DRAW);
+		pm->ps->torsoTimer = TIMER_SWORD_DRAW;
+	}
+	else
+	{
+		if(!pm->fastWeaponSwitches)
+			pm->ps->weaponTime += 200;
+		PM_StartTorsoAnim(TORSO_RAISE);
+	}
 }
 
 
@@ -2477,18 +2495,18 @@ static void PM_TorsoAnimation(void)
 	{
 		PM_ContinueTorsoAnim(BOTH_WOUNDED1);
 	}
-	else if(pm->ps->weaponstate == WEAPON_READY)
+	/*
+	else if(pm->ps->weapon == WP_GAUNTLET)
 	{
-		if(pm->ps->weapon == WP_GAUNTLET)
+		if(pm->ps->weaponstate == WEAPON_READY)
 		{
-			PM_ContinueTorsoAnim(TORSO_STAND2);
+			//TODO: sword stance when we have the animation
+			PM_ContinueTorsoAnim(TORSO_SWORD1);
+			return;
 		}
-		else
-		{
-			PM_ContinueTorsoAnim(TORSO_STAND);
-		}
-		return;
 	}
+	*/
+	PM_ContinueTorsoAnim(pm->ps->legsAnim & ~ANIM_TOGGLEBIT);
 }
 
 
@@ -2611,15 +2629,6 @@ static void PM_Weapon(void)
 	if(pm->ps->weaponstate == WEAPON_RAISING)
 	{
 		pm->ps->weaponstate = WEAPON_READY;
-		if(pm->ps->weapon == WP_GAUNTLET)
-		{
-			PM_StartTorsoAnim(TORSO_STAND2);
-		}
-		else
-		{
-			PM_StartTorsoAnim(TORSO_STAND);
-		}
-		return;
 	}
 
 	// check for fire
@@ -2649,26 +2658,6 @@ static void PM_Weapon(void)
 				pm->ps->weaponstate = WEAPON_READY;
 				return;
 		}
-	}
-
-	// start the animation even if out of ammo
-	if(pm->ps->weapon == WP_GAUNTLET)
-	{
-		if(!(pm->cmd.buttons & BUTTON_ATTACK2))
-		{
-			// the guantlet only "fires" when it actually hits something
-			if(!pm->gauntletHit)
-			{
-				pm->ps->weaponTime = 0;
-				pm->ps->weaponstate = WEAPON_READY;
-				return;
-			}
-			PM_StartTorsoAnim(TORSO_ATTACK2);
-		}
-	}
-	else
-	{
-		PM_StartTorsoAnim(TORSO_ATTACK);
 	}
 	*/
 
@@ -2711,22 +2700,17 @@ static void PM_Weapon(void)
 		//appropriate in the game code.
 		addTime = 1000;
 	}
+	else if(pm->ps->weapon == WP_GAUNTLET)
+	{
+		PM_AddEvent(EV_FIRE_WEAPON);
+		PM_ForceTorsoAnim(TORSO_SWORD1);
+		pm->ps->torsoTimer = TIMER_SWORD1;
+		addTime = 500;
+	}
 	else
 	{
-		// fire weapon
-		//if(pm->cmd.buttons & BUTTON_ATTACK2)
-		//  PM_AddEvent(EV_FIRE_WEAPON2);
-		//else
-		PM_AddEvent(EV_FIRE_WEAPON);
-
-		//not a weave
-		switch (pm->ps->weapon)
-		{
-			default:
-			case WP_GAUNTLET:
-				addTime = 400;
-				break;
-		}
+		//Theres nothing else.
+		addTime = 0;
 	}
 
 	pm->ps->weaponTime += addTime;
@@ -3323,11 +3307,11 @@ void PmoveSingle(pmove_t * pmove)
 	//WEAVER
 	//PM_Weave();
 
-	// torso animation
-	PM_TorsoAnimation();
-
 	// footstep events / legs animations
 	PM_Footsteps();
+
+	// torso animation
+	PM_TorsoAnimation();
 
 	// entering / leaving water splashes
 	PM_WaterEvents();
