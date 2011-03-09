@@ -116,7 +116,7 @@ void TeamMain_MenuInit(void)
 	s_teammain.banner.generic.x = 320;
 	s_teammain.banner.generic.y = 16;
 	s_teammain.banner.string = "CHOOSE TEAM";
-	s_teammain.banner.color = color_white;
+	s_teammain.banner.color = menu_banner_color;
 	s_teammain.banner.style = UI_CENTER | UI_DROPSHADOW;
 
 

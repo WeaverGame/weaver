@@ -201,7 +201,7 @@ void InGame_MenuInit(void)
 	s_ingame.banner.generic.x = 320;
 	s_ingame.banner.generic.y = 16;
 	s_ingame.banner.string = "Menu";
-	s_ingame.banner.color = color_white;
+	s_ingame.banner.color = menu_banner_color;
 	s_ingame.banner.style = UI_CENTER;
 
 

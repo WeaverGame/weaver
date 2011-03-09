@@ -139,7 +139,7 @@ void Options_MenuInit(void)
 	s_options.banner.generic.x = uis.screenXSize / 2;
 	s_options.banner.generic.y = 16;
 	s_options.banner.string = "SYSTEM SETUP";
-	s_options.banner.color = color_white;
+	s_options.banner.color = menu_banner_color;
 	s_options.banner.style = UI_CENTER;
 
 	s_options.framel.generic.type = MTYPE_BITMAP;

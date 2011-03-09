@@ -134,7 +134,7 @@ static void UI_CinematicsMenu_Init(void)
 	cinematicsMenuInfo.banner.generic.x = 320;
 	cinematicsMenuInfo.banner.generic.y = 16;
 	cinematicsMenuInfo.banner.string = "CINEMATICS";
-	cinematicsMenuInfo.banner.color = color_white;
+	cinematicsMenuInfo.banner.color = menu_banner_color;
 	cinematicsMenuInfo.banner.style = UI_CENTER;
 
 /*	cinematicsMenuInfo.framel.generic.type = MTYPE_BITMAP;

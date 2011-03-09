@@ -146,7 +146,7 @@ static void Demos_MenuInit(void)
 	s_demos.banner.generic.x = uis.screenXSize / 2;
 	s_demos.banner.generic.y = 16;
 	s_demos.banner.string = "DEMOS";
-	s_demos.banner.color = color_white;
+	s_demos.banner.color = menu_banner_color;
 	s_demos.banner.style = UI_CENTER;
 
 /*	s_demos.framel.generic.type = MTYPE_BITMAP;

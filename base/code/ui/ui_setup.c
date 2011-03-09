@@ -172,7 +172,7 @@ static void UI_SetupMenu_Init(void)
 	setupMenuInfo.banner.generic.x = uis.screenXSize / 2;
 	setupMenuInfo.banner.generic.y = 16;
 	setupMenuInfo.banner.string = "Options";
-	setupMenuInfo.banner.color = color_white;
+	setupMenuInfo.banner.color = menu_banner_color;
 	setupMenuInfo.banner.style = UI_CENTER;
 /*
 	setupMenuInfo.framel.generic.type = MTYPE_BITMAP;

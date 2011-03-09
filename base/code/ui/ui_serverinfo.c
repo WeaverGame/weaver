@@ -210,7 +210,7 @@ void UI_ServerInfoMenu(void)
 	s_serverinfo.banner.generic.x = uis.screenXSize / 2;
 	s_serverinfo.banner.generic.y = 16;
 	s_serverinfo.banner.string = "SERVER INFO";
-	s_serverinfo.banner.color = color_white;
+	s_serverinfo.banner.color = menu_banner_color;
 	s_serverinfo.banner.style = UI_CENTER;
 
 	s_serverinfo.add.generic.type = MTYPE_PTEXT;

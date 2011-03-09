@@ -148,7 +148,7 @@ static void UI_NetworkOptionsMenu_Init(void)
 	networkOptionsInfo.banner.generic.x = uis.screenXSize / 2;
 	networkOptionsInfo.banner.generic.y = 16;
 	networkOptionsInfo.banner.string = "SYSTEM SETUP";
-	networkOptionsInfo.banner.color = color_white;
+	networkOptionsInfo.banner.color = menu_banner_color;
 	networkOptionsInfo.banner.style = UI_CENTER;
 
 /*	networkOptionsInfo.framel.generic.type = MTYPE_BITMAP;

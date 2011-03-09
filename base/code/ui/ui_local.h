@@ -294,6 +294,7 @@ extern sfxHandle_t menu_out_sound;
 extern sfxHandle_t menu_buzz_sound;
 extern sfxHandle_t menu_null_sound;
 extern sfxHandle_t weaponChangeSound;
+extern vec4_t   menu_banner_color;
 extern vec4_t   menu_text_color;
 extern vec4_t   menu_grayed_color;
 extern vec4_t   menu_dark_color;
