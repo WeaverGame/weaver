@@ -145,11 +145,11 @@ static void UI_NetworkOptionsMenu_Init(void)
 
 	networkOptionsInfo.banner.generic.type = MTYPE_BTEXT;
 	networkOptionsInfo.banner.generic.flags = QMF_CENTER_JUSTIFY;
-	networkOptionsInfo.banner.generic.x = 320;
+	networkOptionsInfo.banner.generic.x = uis.screenXSize / 2;
 	networkOptionsInfo.banner.generic.y = 16;
 	networkOptionsInfo.banner.string = "SYSTEM SETUP";
 	networkOptionsInfo.banner.color = color_white;
-	networkOptionsInfo.banner.style = UI_CENTER | UI_DROPSHADOW;
+	networkOptionsInfo.banner.style = UI_CENTER;
 
 /*	networkOptionsInfo.framel.generic.type = MTYPE_BITMAP;
 	networkOptionsInfo.framel.generic.name = ART_FRAMEL;
@@ -216,13 +216,13 @@ static void UI_NetworkOptionsMenu_Init(void)
 	networkOptionsInfo.graphics.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	networkOptionsInfo.graphics.generic.callback = UI_NetworkOptionsMenu_Event;
 	networkOptionsInfo.graphics.generic.id = ID_GRAPHICS;
-	networkOptionsInfo.graphics.generic.x = 128;
-	networkOptionsInfo.graphics.generic.y = 480 - 64;
+	networkOptionsInfo.graphics.generic.x = uis.screenXSize * 0.2f;
+	networkOptionsInfo.graphics.generic.y = uis.screenYSize - 64;
 	networkOptionsInfo.graphics.width = 128;
 	networkOptionsInfo.graphics.height = 64;
 	networkOptionsInfo.graphics.focuspic = UI_ART_BUTTON_FOCUS;
 	networkOptionsInfo.graphics.generic.caption.text = "Graphics";
-	networkOptionsInfo.graphics.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
+	networkOptionsInfo.graphics.generic.caption.style = UI_CENTER;
 	networkOptionsInfo.graphics.generic.caption.fontsize = 0.6f;
 	networkOptionsInfo.graphics.generic.caption.font = &uis.buttonFont;
 	networkOptionsInfo.graphics.generic.caption.color = text_color_normal;
@@ -234,13 +234,13 @@ static void UI_NetworkOptionsMenu_Init(void)
 	networkOptionsInfo.sound.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	networkOptionsInfo.sound.generic.callback = UI_NetworkOptionsMenu_Event;
 	networkOptionsInfo.sound.generic.id = ID_SOUND;
-	networkOptionsInfo.sound.generic.x = 256;
-	networkOptionsInfo.sound.generic.y = 480 - 64;
+	networkOptionsInfo.sound.generic.x = uis.screenXSize * 0.4f;
+	networkOptionsInfo.sound.generic.y = uis.screenYSize - 64;
 	networkOptionsInfo.sound.width = 128;
 	networkOptionsInfo.sound.height = 64;
 	networkOptionsInfo.sound.focuspic = UI_ART_BUTTON_FOCUS;
 	networkOptionsInfo.sound.generic.caption.text = "Sound";
-	networkOptionsInfo.sound.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
+	networkOptionsInfo.sound.generic.caption.style = UI_CENTER;
 	networkOptionsInfo.sound.generic.caption.fontsize = 0.6f;
 	networkOptionsInfo.sound.generic.caption.font = &uis.buttonFont;
 	networkOptionsInfo.sound.generic.caption.color = text_color_normal;
@@ -251,13 +251,13 @@ static void UI_NetworkOptionsMenu_Init(void)
 	networkOptionsInfo.network.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	networkOptionsInfo.network.generic.callback = UI_NetworkOptionsMenu_Event;
 	networkOptionsInfo.network.generic.id = ID_NETWORK;
-	networkOptionsInfo.network.generic.x = 384;
-	networkOptionsInfo.network.generic.y = 480 - 64;
+	networkOptionsInfo.network.generic.x = uis.screenXSize * 0.6f;
+	networkOptionsInfo.network.generic.y = uis.screenYSize - 64;
 	networkOptionsInfo.network.width = 128;
 	networkOptionsInfo.network.height = 64;
 	networkOptionsInfo.network.focuspic = UI_ART_BUTTON_FOCUS;
 	networkOptionsInfo.network.generic.caption.text = "Network";
-	networkOptionsInfo.network.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
+	networkOptionsInfo.network.generic.caption.style = UI_CENTER;
 	networkOptionsInfo.network.generic.caption.fontsize = 0.6f;
 	networkOptionsInfo.network.generic.caption.font = &uis.buttonFont;
 	networkOptionsInfo.network.generic.caption.color = text_color_normal;
@@ -270,7 +270,7 @@ static void UI_NetworkOptionsMenu_Init(void)
 	networkOptionsInfo.rate.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
 	networkOptionsInfo.rate.generic.callback = UI_NetworkOptionsMenu_Event;
 	networkOptionsInfo.rate.generic.id = ID_RATE;
-	networkOptionsInfo.rate.generic.x = 320;
+	networkOptionsInfo.rate.generic.x = uis.screenXSize / 2;
 	networkOptionsInfo.rate.generic.y = y;
 	networkOptionsInfo.rate.itemnames = rate_items;
 
@@ -280,7 +280,7 @@ static void UI_NetworkOptionsMenu_Init(void)
 	networkOptionsInfo.packetdup.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
 	networkOptionsInfo.packetdup.generic.callback = UI_NetworkOptionsMenu_Event;
 	networkOptionsInfo.packetdup.generic.id = ID_PACKETDUP;
-	networkOptionsInfo.packetdup.generic.x = 320;
+	networkOptionsInfo.packetdup.generic.x = uis.screenXSize / 2;
 	networkOptionsInfo.packetdup.generic.y = y;
 	networkOptionsInfo.packetdup.minvalue = 0;
 	networkOptionsInfo.packetdup.maxvalue = 5;
@@ -291,7 +291,7 @@ static void UI_NetworkOptionsMenu_Init(void)
 	networkOptionsInfo.maxpackets.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
 	networkOptionsInfo.maxpackets.generic.callback = UI_NetworkOptionsMenu_Event;
 	networkOptionsInfo.maxpackets.generic.id = ID_MAXPACKETS;
-	networkOptionsInfo.maxpackets.generic.x = 320;
+	networkOptionsInfo.maxpackets.generic.x = uis.screenXSize / 2;
 	networkOptionsInfo.maxpackets.generic.y = y;
 	networkOptionsInfo.maxpackets.minvalue = 1;
 	networkOptionsInfo.maxpackets.maxvalue = 125;
@@ -302,12 +302,12 @@ static void UI_NetworkOptionsMenu_Init(void)
 	networkOptionsInfo.back.generic.callback = UI_NetworkOptionsMenu_Event;
 	networkOptionsInfo.back.generic.id = ID_BACK;
 	networkOptionsInfo.back.generic.x = 0;
-	networkOptionsInfo.back.generic.y = 480 - 64;
+	networkOptionsInfo.back.generic.y = uis.screenYSize - 64;
 	networkOptionsInfo.back.width = 128;
 	networkOptionsInfo.back.height = 64;
 	networkOptionsInfo.back.focuspic = UI_ART_BUTTON_FOCUS;
 	networkOptionsInfo.back.generic.caption.text = "Back";
-	networkOptionsInfo.back.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
+	networkOptionsInfo.back.generic.caption.style = UI_CENTER;
 	networkOptionsInfo.back.generic.caption.fontsize = 0.6f;
 	networkOptionsInfo.back.generic.caption.font = &uis.buttonFont;
 	networkOptionsInfo.back.generic.caption.color = text_color_normal;

@@ -46,10 +46,11 @@ MAIN MENU
 
 #define MENU_BG_PAD_LEFT 20
 #define MENU_BG_W 180
-#define MENU_BG_H 400
+#define MENU_BG_H (uis.screenYSize * 0.9f)
 #define MENU_CENTER (MENU_BG_PAD_LEFT + (MENU_BG_W/2))
 #define MENU_ITEM_Y 180
 #define MENU_ITEM_W 100
+#define MENU_DECO_W 26
 #define MENU_LOGO_W 120
 
 typedef struct
@@ -68,7 +69,7 @@ typedef struct
 	menubitmap_s    decorl;
 	menubitmap_s    decorr;
 
-	menutext_s      exit;
+	menubitmap_s      exit;
 } mainmenu_t;
 
 
@@ -236,13 +237,15 @@ static void Main_MenuDraw(void)
 	   #endif
 	 */
 
-	UI_DrawHandlePic(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, uis.backScene);
+	UI_DrawHandlePic(0, 0, uis.screenXSize, uis.screenYSize, uis.backScene);
 	UI_DrawHandlePic(MENU_BG_PAD_LEFT, 0, MENU_BG_W, MENU_BG_H, uis.whiteGrad);
-	UI_DrawHandlePic(0, 440, SCREEN_WIDTH, 40, uis.blackBar);
+	UI_DrawHandlePic(MENU_BG_PAD_LEFT - 6, 0, 3, MENU_BG_H, uis.whiteGrad);
+	UI_DrawHandlePic(MENU_BG_PAD_LEFT + MENU_BG_W + 6, 0, 3, MENU_BG_H, uis.whiteGrad);
+	UI_DrawHandlePic(0, uis.screenYSize - 64, uis.screenXSize, 64, uis.blackBar);
 
 	if(strlen(s_errorMessage.errorMessage))
 	{
-		UI_Text_Paint_AutoWrapped(320, 192, 0.4f, 600, va("Error: %s", s_errorMessage.errorMessage),
+		UI_Text_Paint_AutoWrapped(uis.screenXSize / 2, 192, 0.4f, 600, va("Error: %s", s_errorMessage.errorMessage),
 								  UI_CENTER, color_red, &uis.freeSansFont);
 
 	}
@@ -424,33 +427,39 @@ void UI_MainMenu(void)
 	s_main.mods.style = style;
 	*/
 
-	y += MAIN_MENU_VERTICAL_SPACING;
-	s_main.exit.generic.type = MTYPE_PTEXT;
-	s_main.exit.generic.flags = QMF_RIGHT_JUSTIFY | QMF_PULSEIFFOCUS;
-	s_main.exit.generic.x = SCREEN_WIDTH - 10;
-	s_main.exit.generic.y = SCREEN_HEIGHT - 35;
-	s_main.exit.generic.id = ID_EXIT;
+	s_main.exit.generic.type = MTYPE_BITMAP;
+	s_main.exit.generic.name = UI_ART_BUTTON;
+	s_main.exit.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	s_main.exit.generic.callback = Main_MenuEvent;
-	s_main.exit.string = "Quit";
-	s_main.exit.color = color_white;
-	s_main.exit.style = UI_RIGHT;
+	s_main.exit.generic.id = ID_EXIT;
+	s_main.exit.generic.x = uis.screenXSize * 0.8f;
+	s_main.exit.generic.y = uis.screenYSize - 64;
+	s_main.exit.width = 128;
+	s_main.exit.height = 64;
+	s_main.exit.focuspic = UI_ART_BUTTON_FOCUS;
+	s_main.exit.generic.caption.text = "Quit";
+	s_main.exit.generic.caption.style = UI_CENTER;
+	s_main.exit.generic.caption.fontsize = 0.6f;
+	s_main.exit.generic.caption.font = &uis.buttonFont;
+	s_main.exit.generic.caption.color = text_color_normal;
+	s_main.exit.generic.caption.focuscolor = text_color_highlight;
 
 	s_main.decorl.generic.name = "gfx/menu/decoration_l";
 	s_main.decorl.generic.type = MTYPE_BITMAP;
 	s_main.decorl.generic.flags = QMF_LEFT_JUSTIFY | QMF_INACTIVE;
-	s_main.decorl.generic.x = MENU_CENTER - MENU_ITEM_W/2;
+	s_main.decorl.generic.x = MENU_BG_PAD_LEFT + 7;
 	s_main.decorl.generic.y = MENU_ITEM_Y;
-	s_main.decorl.width = 32;
+	s_main.decorl.width = MENU_DECO_W;
 	s_main.decorl.height = s_main.decorl.width * 8;
 	s_main.decorl.focuscolor = colorRed;
 
 	s_main.decorr.generic.name = "gfx/menu/decoration_r";
 	s_main.decorr.generic.type = MTYPE_BITMAP;
 	s_main.decorr.generic.flags = QMF_LEFT_JUSTIFY | QMF_INACTIVE;
-	s_main.decorr.generic.x = MENU_CENTER + MENU_ITEM_W/2;
+	s_main.decorr.generic.x = MENU_BG_PAD_LEFT + MENU_BG_W - MENU_DECO_W - 7;
 	s_main.decorr.generic.y = MENU_ITEM_Y;
-	s_main.decorr.height = 32;
-	s_main.decorr.width = s_main.decorr.width * 8;
+	s_main.decorr.width = MENU_DECO_W;
+	s_main.decorr.height = s_main.decorr.width * 8;
 	s_main.decorr.focuscolor = colorRed;
 
 	s_main.logo.generic.name = "gfx/menu/logo";

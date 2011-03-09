@@ -1342,10 +1342,10 @@ static void ArenaServers_MenuInit(void)
 
 	g_arenaservers.banner.generic.type = MTYPE_BTEXT;
 	g_arenaservers.banner.generic.flags = QMF_CENTER_JUSTIFY;
-	g_arenaservers.banner.generic.x = 320;
+	g_arenaservers.banner.generic.x = uis.screenXSize / 2;
 	g_arenaservers.banner.generic.y = 16;
 	g_arenaservers.banner.string = "MULTIPLAYER";
-	g_arenaservers.banner.style = UI_CENTER | UI_DROPSHADOW;
+	g_arenaservers.banner.style = UI_CENTER;
 	g_arenaservers.banner.color = color_white;
 
 	y = 80;
@@ -1354,7 +1354,7 @@ static void ArenaServers_MenuInit(void)
 	g_arenaservers.master.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
 	g_arenaservers.master.generic.callback = ArenaServers_Event;
 	g_arenaservers.master.generic.id = ID_MASTER;
-	g_arenaservers.master.generic.x = 320;
+	g_arenaservers.master.generic.x = uis.screenXSize / 2;
 	g_arenaservers.master.generic.y = y;
 	g_arenaservers.master.itemnames = master_items;
 
@@ -1364,7 +1364,7 @@ static void ArenaServers_MenuInit(void)
 	g_arenaservers.gametype.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
 	g_arenaservers.gametype.generic.callback = ArenaServers_Event;
 	g_arenaservers.gametype.generic.id = ID_GAMETYPE;
-	g_arenaservers.gametype.generic.x = 320;
+	g_arenaservers.gametype.generic.x = uis.screenXSize / 2;
 	g_arenaservers.gametype.generic.y = y;
 	g_arenaservers.gametype.itemnames = servertype_items;
 
@@ -1374,7 +1374,7 @@ static void ArenaServers_MenuInit(void)
 	g_arenaservers.sortkey.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
 	g_arenaservers.sortkey.generic.callback = ArenaServers_Event;
 	g_arenaservers.sortkey.generic.id = ID_SORTKEY;
-	g_arenaservers.sortkey.generic.x = 320;
+	g_arenaservers.sortkey.generic.x = uis.screenXSize / 2;
 	g_arenaservers.sortkey.generic.y = y;
 	g_arenaservers.sortkey.itemnames = sortkey_items;
 
@@ -1384,7 +1384,7 @@ static void ArenaServers_MenuInit(void)
 	g_arenaservers.showfull.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
 	g_arenaservers.showfull.generic.callback = ArenaServers_Event;
 	g_arenaservers.showfull.generic.id = ID_SHOW_FULL;
-	g_arenaservers.showfull.generic.x = 320;
+	g_arenaservers.showfull.generic.x = uis.screenXSize / 2;
 	g_arenaservers.showfull.generic.y = y;
 
 	y += SMALLCHAR_HEIGHT;
@@ -1393,7 +1393,7 @@ static void ArenaServers_MenuInit(void)
 	g_arenaservers.showempty.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
 	g_arenaservers.showempty.generic.callback = ArenaServers_Event;
 	g_arenaservers.showempty.generic.id = ID_SHOW_EMPTY;
-	g_arenaservers.showempty.generic.x = 320;
+	g_arenaservers.showempty.generic.x = uis.screenXSize / 2;
 	g_arenaservers.showempty.generic.y = y;
 
 	y += 3 * SMALLCHAR_HEIGHT;
@@ -1450,7 +1450,7 @@ static void ArenaServers_MenuInit(void)
 
 	y = 376;
 	g_arenaservers.status.generic.type = MTYPE_TEXT;
-	g_arenaservers.status.generic.x = 320;
+	g_arenaservers.status.generic.x = uis.screenXSize / 2;
 	g_arenaservers.status.generic.y = y;
 	g_arenaservers.status.string = statusbuffer;
 	g_arenaservers.status.style = UI_CENTER | UI_SMALLFONT;
@@ -1458,7 +1458,7 @@ static void ArenaServers_MenuInit(void)
 
 	y += SMALLCHAR_HEIGHT;
 	g_arenaservers.statusbar.generic.type = MTYPE_TEXT;
-	g_arenaservers.statusbar.generic.x = 320;
+	g_arenaservers.statusbar.generic.x = uis.screenXSize / 2;
 	g_arenaservers.statusbar.generic.y = y;
 	g_arenaservers.statusbar.string = "";
 	g_arenaservers.statusbar.style = UI_CENTER | UI_SMALLFONT;
@@ -1469,13 +1469,13 @@ static void ArenaServers_MenuInit(void)
 	g_arenaservers.remove.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	g_arenaservers.remove.generic.callback = ArenaServers_Event;
 	g_arenaservers.remove.generic.id = ID_REMOVE;
-	g_arenaservers.remove.generic.x = 450;
+	g_arenaservers.remove.generic.x = uis.screenXSize * 0.7f;
 	g_arenaservers.remove.generic.y = 86;
 	g_arenaservers.remove.width = 128;
 	g_arenaservers.remove.height = 64;
 	g_arenaservers.remove.focuspic = UI_ART_BUTTON_FOCUS;
 	g_arenaservers.remove.generic.caption.text = "Remove";
-	g_arenaservers.remove.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
+	g_arenaservers.remove.generic.caption.style = UI_CENTER;
 	g_arenaservers.remove.generic.caption.fontsize = 0.6f;
 	g_arenaservers.remove.generic.caption.font = &uis.buttonFont;
 	g_arenaservers.remove.generic.caption.color = text_color_normal;
@@ -1488,12 +1488,12 @@ static void ArenaServers_MenuInit(void)
 	g_arenaservers.back.generic.callback = ArenaServers_Event;
 	g_arenaservers.back.generic.id = ID_BACK;
 	g_arenaservers.back.generic.x = 0;
-	g_arenaservers.back.generic.y = 480 - 64;
+	g_arenaservers.back.generic.y = uis.screenYSize - 64;
 	g_arenaservers.back.width = 128;
 	g_arenaservers.back.height = 64;
 	g_arenaservers.back.focuspic = UI_ART_BUTTON_FOCUS;
 	g_arenaservers.back.generic.caption.text = "Back";
-	g_arenaservers.back.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
+	g_arenaservers.back.generic.caption.style = UI_CENTER;
 	g_arenaservers.back.generic.caption.fontsize = 0.6f;
 	g_arenaservers.back.generic.caption.font = &uis.buttonFont;
 	g_arenaservers.back.generic.caption.color = text_color_normal;
@@ -1504,13 +1504,13 @@ static void ArenaServers_MenuInit(void)
 	g_arenaservers.specify.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	g_arenaservers.specify.generic.callback = ArenaServers_Event;
 	g_arenaservers.specify.generic.id = ID_SPECIFY;
-	g_arenaservers.specify.generic.x = 128;
-	g_arenaservers.specify.generic.y = 480 - 64;
+	g_arenaservers.specify.generic.x = uis.screenXSize * 0.2f;
+	g_arenaservers.specify.generic.y = uis.screenYSize - 64;
 	g_arenaservers.specify.width = 128;
 	g_arenaservers.specify.height = 64;
 	g_arenaservers.specify.focuspic = UI_ART_BUTTON_FOCUS;
 	g_arenaservers.specify.generic.caption.text = "Specify";
-	g_arenaservers.specify.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
+	g_arenaservers.specify.generic.caption.style = UI_CENTER;
 	g_arenaservers.specify.generic.caption.fontsize = 0.6f;
 	g_arenaservers.specify.generic.caption.font = &uis.buttonFont;
 	g_arenaservers.specify.generic.caption.color = text_color_normal;
@@ -1521,13 +1521,13 @@ static void ArenaServers_MenuInit(void)
 	g_arenaservers.refresh.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	g_arenaservers.refresh.generic.callback = ArenaServers_Event;
 	g_arenaservers.refresh.generic.id = ID_REFRESH;
-	g_arenaservers.refresh.generic.x = 256;
-	g_arenaservers.refresh.generic.y = 480 - 64;
+	g_arenaservers.refresh.generic.x = uis.screenXSize * 0.4f;
+	g_arenaservers.refresh.generic.y = uis.screenYSize - 64;
 	g_arenaservers.refresh.width = 128;
 	g_arenaservers.refresh.height = 64;
 	g_arenaservers.refresh.focuspic = UI_ART_BUTTON_FOCUS;
 	g_arenaservers.refresh.generic.caption.text = "Refresh";
-	g_arenaservers.refresh.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
+	g_arenaservers.refresh.generic.caption.style = UI_CENTER;
 	g_arenaservers.refresh.generic.caption.fontsize = 0.6f;
 	g_arenaservers.refresh.generic.caption.font = &uis.buttonFont;
 	g_arenaservers.refresh.generic.caption.color = text_color_normal;
@@ -1538,13 +1538,13 @@ static void ArenaServers_MenuInit(void)
 	g_arenaservers.create.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	g_arenaservers.create.generic.callback = ArenaServers_Event;
 	g_arenaservers.create.generic.id = ID_CREATE;
-	g_arenaservers.create.generic.x = 384;
-	g_arenaservers.create.generic.y = 480 - 64;
+	g_arenaservers.create.generic.x = uis.screenXSize * 0.6f;
+	g_arenaservers.create.generic.y = uis.screenYSize - 64;
 	g_arenaservers.create.width = 128;
 	g_arenaservers.create.height = 64;
 	g_arenaservers.create.focuspic = UI_ART_BUTTON_FOCUS;
 	g_arenaservers.create.generic.caption.text = "Host";
-	g_arenaservers.create.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
+	g_arenaservers.create.generic.caption.style = UI_CENTER;
 	g_arenaservers.create.generic.caption.fontsize = 0.6f;
 	g_arenaservers.create.generic.caption.font = &uis.buttonFont;
 	g_arenaservers.create.generic.caption.color = text_color_normal;
@@ -1552,16 +1552,16 @@ static void ArenaServers_MenuInit(void)
 
 	g_arenaservers.go.generic.type = MTYPE_BITMAP;
 	g_arenaservers.go.generic.name = UI_ART_BUTTON;
-	g_arenaservers.go.generic.flags = QMF_RIGHT_JUSTIFY | QMF_PULSEIFFOCUS;
+	g_arenaservers.go.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	g_arenaservers.go.generic.callback = ArenaServers_Event;
 	g_arenaservers.go.generic.id = ID_CONNECT;
-	g_arenaservers.go.generic.x = 640;
-	g_arenaservers.go.generic.y = 480 - 64;
+	g_arenaservers.go.generic.x = uis.screenXSize * 0.8f;
+	g_arenaservers.go.generic.y = uis.screenXSize - 64;
 	g_arenaservers.go.width = 128;
 	g_arenaservers.go.height = 64;
 	g_arenaservers.go.focuspic = UI_ART_BUTTON_FOCUS;
 	g_arenaservers.go.generic.caption.text = "Connect";
-	g_arenaservers.go.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
+	g_arenaservers.go.generic.caption.style = UI_CENTER;
 	g_arenaservers.go.generic.caption.fontsize = 0.6f;
 	g_arenaservers.go.generic.caption.font = &uis.buttonFont;
 	g_arenaservers.go.generic.caption.color = text_color_normal;

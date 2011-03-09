@@ -528,11 +528,11 @@ static void PlayerModel_MenuInit(void)
 	s_playermodel.menu.fullscreen = qtrue;
 
 	s_playermodel.banner.generic.type = MTYPE_BTEXT;
-	s_playermodel.banner.generic.x = 320;
+	s_playermodel.banner.generic.x = uis.screenXSize / 2;
 	s_playermodel.banner.generic.y = 16;
 	s_playermodel.banner.string = "PLAYER MODEL";
 	s_playermodel.banner.color = color_white;
-	s_playermodel.banner.style = UI_CENTER | UI_DROPSHADOW;
+	s_playermodel.banner.style = UI_CENTER;
 
 /*	s_playermodel.framel.generic.type = MTYPE_BITMAP;
 	s_playermodel.framel.generic.name = MODEL_FRAMEL;
@@ -595,10 +595,10 @@ static void PlayerModel_MenuInit(void)
 
 	s_playermodel.playername.generic.type = MTYPE_TEXT;
 	s_playermodel.playername.generic.flags = QMF_CENTER_JUSTIFY | QMF_INACTIVE;
-	s_playermodel.playername.generic.x = 320;
+	s_playermodel.playername.generic.x = uis.screenXSize / 2;
 	s_playermodel.playername.generic.y = 440;
 	s_playermodel.playername.string = playername;
-	s_playermodel.playername.style = UI_CENTER | UI_DROPSHADOW;
+	s_playermodel.playername.style = UI_CENTER;
 	s_playermodel.playername.color = text_color_normal;
 
 
@@ -610,7 +610,7 @@ static void PlayerModel_MenuInit(void)
 	s_playermodel.modelname.generic.x = 280;
 	s_playermodel.modelname.generic.y = y;
 	s_playermodel.modelname.string = modelname;
-	s_playermodel.modelname.style = UI_DROPSHADOW;
+	s_playermodel.modelname.style = 0;
 	s_playermodel.modelname.color = text_color_dim;
 	y += 20;
 
@@ -619,7 +619,7 @@ static void PlayerModel_MenuInit(void)
 	s_playermodel.skinname.generic.x = 280;
 	s_playermodel.skinname.generic.y = y;
 	s_playermodel.skinname.string = skinname;
-	s_playermodel.skinname.style = UI_DROPSHADOW;
+	s_playermodel.skinname.style = 0;
 	s_playermodel.skinname.color = text_color_dim;
 
 
@@ -673,12 +673,12 @@ static void PlayerModel_MenuInit(void)
 	s_playermodel.back.generic.callback = PlayerModel_MenuEvent;
 	s_playermodel.back.generic.id = ID_BACK;
 	s_playermodel.back.generic.x = 0;
-	s_playermodel.back.generic.y = 480 - 64;
+	s_playermodel.back.generic.y = uis.screenYSize - 64;
 	s_playermodel.back.width = 128;
 	s_playermodel.back.height = 64;
 	s_playermodel.back.focuspic = UI_ART_BUTTON_FOCUS;
 	s_playermodel.back.generic.caption.text = "Back";
-	s_playermodel.back.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
+	s_playermodel.back.generic.caption.style = UI_CENTER;
 	s_playermodel.back.generic.caption.fontsize = 0.6f;
 	s_playermodel.back.generic.caption.font = &uis.buttonFont;
 	s_playermodel.back.generic.caption.color = text_color_normal;

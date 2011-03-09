@@ -142,14 +142,12 @@ static void ServerInfo_MenuDraw(void)
 
 		Q_strcat(key, MAX_INFO_KEY, ":");
 
-		//UI_DrawString(SCREEN_WIDTH * 0.50 - 8, y, key, UI_RIGHT | UI_SMALLFONT, color_red);
-		//UI_DrawString(SCREEN_WIDTH * 0.50 + 8, y, value, UI_LEFT | UI_SMALLFONT, text_color_normal);
+		//UI_DrawString(uis.screenXSize * 0.50 - 8, y, key, UI_RIGHT | UI_SMALLFONT, color_red);
+		//UI_DrawString(uis.screenXSize * 0.50 + 8, y, value, UI_LEFT | UI_SMALLFONT, text_color_normal);
 
 
-		UI_Text_Paint(SCREEN_WIDTH * 0.50 - 8, y + 8, 0.25f, text_color_normal, key, 0, 0, UI_DROPSHADOW | UI_RIGHT,
-					  &uis.freeSansBoldFont);
-		UI_Text_Paint(SCREEN_WIDTH * 0.50 + 8, y + 8, 0.25f, text_color_normal, value, 0, 0, UI_DROPSHADOW | UI_LEFT,
-					  &uis.freeSansFont);
+		UI_Text_Paint(uis.screenXSize * 0.50 - 8, y + 8, 0.25f, text_color_normal, key, 0, 0, UI_RIGHT, &uis.freeSansBoldFont);
+		UI_Text_Paint(uis.screenXSize * 0.50 + 8, y + 8, 0.25f, text_color_normal, value, 0, 0, UI_LEFT, &uis.freeSansFont);
 
 
 		y += SMALLCHAR_HEIGHT;
@@ -209,17 +207,17 @@ void UI_ServerInfoMenu(void)
 	s_serverinfo.menu.fullscreen = qtrue;
 
 	s_serverinfo.banner.generic.type = MTYPE_BTEXT;
-	s_serverinfo.banner.generic.x = 320;
+	s_serverinfo.banner.generic.x = uis.screenXSize / 2;
 	s_serverinfo.banner.generic.y = 16;
 	s_serverinfo.banner.string = "SERVER INFO";
 	s_serverinfo.banner.color = color_white;
-	s_serverinfo.banner.style = UI_CENTER | UI_DROPSHADOW;
+	s_serverinfo.banner.style = UI_CENTER;
 
 	s_serverinfo.add.generic.type = MTYPE_PTEXT;
 	s_serverinfo.add.generic.flags = QMF_CENTER_JUSTIFY | QMF_PULSEIFFOCUS;
 	s_serverinfo.add.generic.callback = ServerInfo_Event;
 	s_serverinfo.add.generic.id = ID_ADD;
-	s_serverinfo.add.generic.x = 320;
+	s_serverinfo.add.generic.x = uis.screenXSize / 2;
 	s_serverinfo.add.generic.y = 371;
 	s_serverinfo.add.string = "ADD TO FAVORITES";
 	s_serverinfo.add.style = UI_CENTER | UI_SMALLFONT;
@@ -235,12 +233,12 @@ void UI_ServerInfoMenu(void)
 	s_serverinfo.back.generic.callback = ServerInfo_Event;
 	s_serverinfo.back.generic.id = ID_BACK;
 	s_serverinfo.back.generic.x = 0;
-	s_serverinfo.back.generic.y = 480 - 64;
+	s_serverinfo.back.generic.y = uis.screenYSize - 64;
 	s_serverinfo.back.width = 128;
 	s_serverinfo.back.height = 64;
 	s_serverinfo.back.focuspic = UI_ART_BUTTON_FOCUS;
 	s_serverinfo.back.generic.caption.text = "Back";
-	s_serverinfo.back.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
+	s_serverinfo.back.generic.caption.style = UI_CENTER;
 	s_serverinfo.back.generic.caption.fontsize = 0.6f;
 	s_serverinfo.back.generic.caption.font = &uis.buttonFont;
 	s_serverinfo.back.generic.caption.color = text_color_normal;

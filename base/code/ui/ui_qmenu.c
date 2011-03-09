@@ -591,19 +591,19 @@ static void RadioButton_Draw(menuradiobutton_s * rb)
 
 	if(rb->generic.name)
 		//UI_DrawString(x - SMALLCHAR_WIDTH, y, rb->generic.name, UI_RIGHT | UI_SMALLFONT, color);
-		UI_Text_Paint(x - SMALLCHAR_WIDTH, y + 8, 0.25f, color, rb->generic.name, 0, 0, style | UI_RIGHT | UI_DROPSHADOW,
+		UI_Text_Paint(x - SMALLCHAR_WIDTH, y + 8, 0.25f, color, rb->generic.name, 0, 0, style | UI_RIGHT,
 					  &uis.freeSansBoldFont);
 	if(!rb->curvalue)
 	{
 //      UI_DrawHandlePic(x + SMALLCHAR_WIDTH, y + 2, 16, 16, uis.rb_off);
-		UI_Text_Paint(x + SMALLCHAR_WIDTH, y + 8, 0.25f, color, "Off", 0, 0, style | UI_DROPSHADOW, &uis.freeSansFont);
+		UI_Text_Paint(x + SMALLCHAR_WIDTH, y + 8, 0.25f, color, "Off", 0, 0, style, &uis.freeSansFont);
 
 		//UI_DrawString(x + SMALLCHAR_WIDTH + 16, y, "off", style, color);
 	}
 	else
 	{
 		//  UI_DrawHandlePic(x + SMALLCHAR_WIDTH, y + 2, 16, 16, uis.rb_on);
-		UI_Text_Paint(x + SMALLCHAR_WIDTH, y + 8, 0.25f, color, "On", 0, 0, style | UI_DROPSHADOW, &uis.freeSansFont);
+		UI_Text_Paint(x + SMALLCHAR_WIDTH, y + 8, 0.25f, color, "On", 0, 0, style, &uis.freeSansFont);
 
 		//UI_DrawString(x + SMALLCHAR_WIDTH + 16, y, "on", style, color);
 	}
@@ -763,7 +763,7 @@ static void Slider_Draw(menuslider_s * s)
 
 	// draw label
 	//UI_DrawString(x - SMALLCHAR_WIDTH, y, s->generic.name, UI_RIGHT | style, color);
-	UI_Text_Paint(x - SMALLCHAR_WIDTH, y + 8, 0.25f, color, s->generic.name, 0, 0, style | UI_RIGHT | UI_DROPSHADOW,
+	UI_Text_Paint(x - SMALLCHAR_WIDTH, y + 8, 0.25f, color, s->generic.name, 0, 0, style | UI_RIGHT,
 				  &uis.freeSansBoldFont);
 
 	// draw slider
@@ -1008,9 +1008,9 @@ static void SpinControl_Draw(menulist_s * s)
 	//UI_DrawString(x - SMALLCHAR_WIDTH, y, s->generic.name, style | UI_RIGHT, color);
 	//UI_DrawString(x + SMALLCHAR_WIDTH, y, s->itemnames[s->curvalue], style | UI_LEFT, color);
 
-	UI_Text_Paint(x - SMALLCHAR_WIDTH, y + 8, 0.25f, color, s->generic.name, 0, 0, style | UI_RIGHT | UI_DROPSHADOW,
+	UI_Text_Paint(x - SMALLCHAR_WIDTH, y + 8, 0.25f, color, s->generic.name, 0, 0, style | UI_RIGHT,
 				  &uis.freeSansBoldFont);
-	UI_Text_Paint(x + SMALLCHAR_WIDTH, y + 8, 0.25f, color, s->itemnames[s->curvalue], 0, 0, style | UI_LEFT | UI_DROPSHADOW,
+	UI_Text_Paint(x + SMALLCHAR_WIDTH, y + 8, 0.25f, color, s->itemnames[s->curvalue], 0, 0, style | UI_LEFT,
 				  &uis.freeSansFont);
 
 
@@ -1414,7 +1414,7 @@ void ScrollList_Draw(menulist_s * l)
 
 			//UI_DrawString(x, y, l->itemnames[i], style, color);
 
-			UI_Text_Paint(x, y + 8, 0.25f, color, l->itemnames[i], 0, 0, style | UI_DROPSHADOW, &uis.freeSansBoldFont);
+			UI_Text_Paint(x, y + 8, 0.25f, color, l->itemnames[i], 0, 0, style, &uis.freeSansBoldFont);
 
 
 			y += SMALLCHAR_HEIGHT;

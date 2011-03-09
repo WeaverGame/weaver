@@ -136,8 +136,8 @@ static void MessageMenu_Draw(void)
 	y = 188;
 	for(i = 0; s_confirm.lines[i]; i++)
 	{
-		//UI_DrawProportionalString(320, y, s_confirm.lines[i], s_confirm.style, color_red);
-		UI_Text_Paint(320, y + 8, 0.55f, text_color_highlight, s_confirm.lines[i], 0, 0, s_confirm.style | UI_DROPSHADOW,
+		//UI_DrawProportionalString(uis.screenXSize / 2, y, s_confirm.lines[i], s_confirm.style, color_red);
+		UI_Text_Paint(uis.screenXSize / 2, y + 8, 0.55f, text_color_highlight, s_confirm.lines[i], 0, 0, s_confirm.style,
 					  &uis.BTextFont);
 
 		y += 18;
@@ -159,8 +159,8 @@ ConfirmMenu_Draw
 static void ConfirmMenu_Draw(void)
 {
 	//UI_DrawNamedPic(142, 118, 359, 256, ART_CONFIRM_FRAME);
-	//UI_DrawProportionalString(320, 204, s_confirm.question, s_confirm.style, color_red);
-	UI_Text_Paint(320, 204, 0.55f, text_color_highlight, s_confirm.question, 0, 0, s_confirm.style | UI_DROPSHADOW,
+	//UI_DrawProportionalString(uis.screenXSize / 2, 204, s_confirm.question, s_confirm.style, color_red);
+	UI_Text_Paint(uis.screenXSize / 2, 204, 0.55f, text_color_highlight, s_confirm.question, 0, 0, s_confirm.style,
 				  &uis.BTextFont);
 	//UI_DrawProportionalString(s_confirm.slashX, 265, "/", UI_LEFT | UI_INVERSE, color_red);
 
@@ -204,7 +204,7 @@ void UI_ConfirmMenu_Style(const char *question, int style, void (*draw) (void), 
 /*	n1 = UI_ProportionalStringWidth("YES/NO");
 	n2 = UI_ProportionalStringWidth("YES") + PROP_GAP_WIDTH;
 	n3 = UI_ProportionalStringWidth("/") + PROP_GAP_WIDTH;
-	l1 = 320 - (n1 / 2);
+	l1 = uis.screenXSize / 2 - (n1 / 2);
 	l2 = l1 + n2;
 	l3 = l2 + n3;
 	s_confirm.slashX = l2;
@@ -255,13 +255,13 @@ void UI_ConfirmMenu_Style(const char *question, int style, void (*draw) (void), 
 	s_confirm.yes.generic.flags = QMF_PULSEIFFOCUS;
 	s_confirm.yes.generic.callback = ConfirmMenu_Event;
 	s_confirm.yes.generic.id = ID_CONFIRM_YES;
-	s_confirm.yes.generic.x = 320 - 128;
+	s_confirm.yes.generic.x = uis.screenXSize / 2 - 128;
 	s_confirm.yes.generic.y = 244;
 	s_confirm.yes.width = 128;
 	s_confirm.yes.height = 64;
 	s_confirm.yes.focuspic = UI_ART_BUTTON_FOCUS;
 	s_confirm.yes.generic.caption.text = "Yes";
-	s_confirm.yes.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
+	s_confirm.yes.generic.caption.style = UI_CENTER;
 	s_confirm.yes.generic.caption.fontsize = 0.6f;
 	s_confirm.yes.generic.caption.font = &uis.buttonFont;
 	s_confirm.yes.generic.caption.color = text_color_normal;
@@ -273,13 +273,13 @@ void UI_ConfirmMenu_Style(const char *question, int style, void (*draw) (void), 
 	s_confirm.no.generic.flags = QMF_PULSEIFFOCUS;
 	s_confirm.no.generic.callback = ConfirmMenu_Event;
 	s_confirm.no.generic.id = ID_CONFIRM_NO;
-	s_confirm.no.generic.x = 320;
+	s_confirm.no.generic.x = uis.screenXSize / 2;
 	s_confirm.no.generic.y = 244;
 	s_confirm.no.width = 128;
 	s_confirm.no.height = 64;
 	s_confirm.no.focuspic = UI_ART_BUTTON_FOCUS;
 	s_confirm.no.generic.caption.text = "No";
-	s_confirm.no.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
+	s_confirm.no.generic.caption.style = UI_CENTER;
 	s_confirm.no.generic.caption.fontsize = 0.6f;
 	s_confirm.no.generic.caption.font = &uis.buttonFont;
 	s_confirm.no.generic.caption.color = text_color_normal;
@@ -322,7 +322,7 @@ void UI_Message(const char **lines)
 	ConfirmMenu_Cache();
 
 	n1 = UI_ProportionalStringWidth("OK");
-	l1 = 320 - (n1 / 2);
+	l1 = uis.screenXSize / 2 - (n1 / 2);
 
 	s_confirm.lines = lines;
 	s_confirm.style = UI_CENTER | UI_INVERSE | UI_SMALLFONT;
@@ -357,13 +357,13 @@ void UI_Message(const char **lines)
 	s_confirm.yes.generic.flags = QMF_PULSEIFFOCUS;
 	s_confirm.yes.generic.callback = ConfirmMenu_Event;
 	s_confirm.yes.generic.id = ID_CONFIRM_YES;
-	s_confirm.yes.generic.x = 320 - 64;
+	s_confirm.yes.generic.x = uis.screenXSize / 2 - 64;
 	s_confirm.yes.generic.y = 260;
 	s_confirm.yes.width = 128;
 	s_confirm.yes.height = 64;
 	s_confirm.yes.focuspic = UI_ART_BUTTON_FOCUS;
 	s_confirm.yes.generic.caption.text = "Ok";
-	s_confirm.yes.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
+	s_confirm.yes.generic.caption.style = UI_CENTER;
 	s_confirm.yes.generic.caption.fontsize = 0.6f;
 	s_confirm.yes.generic.caption.font = &uis.buttonFont;
 	s_confirm.yes.generic.caption.color = text_color_normal;

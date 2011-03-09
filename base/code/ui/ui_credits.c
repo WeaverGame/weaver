@@ -156,16 +156,17 @@ Main drawing function
 */
 static void ScrollingCredits_Draw(void)
 {
-	int             x = 320, y, n;
+	int             x = uis.screenXSize / 2;
+	int             y, n;
 	float           textScale = 0.25f;
 	vec4_t          color;
 	float           textZoom;
 
 	// first, fill the background with the specified shader
-//  UI_DrawHandlePic(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, BackgroundShader);
+	//  UI_DrawHandlePic(0, 0, uis.screenXSize, uis.screenYSize, BackgroundShader);
 
 	// draw the stuff by setting the initial y location
-	y = 480 - SCROLLSPEED * (float)(uis.realtime - starttime) / 100;
+	y = (uis.screenYSize - 64) - SCROLLSPEED * (float)(uis.realtime - starttime) / 100;
 
 
 	// loop through the entire credits sequence
@@ -195,15 +196,13 @@ static void ScrollingCredits_Draw(void)
 
 		VectorSet4(color, credits[n].color[0], credits[n].color[1], credits[n].color[2], 0.0f);
 
-		if(y <= 0 || y >= 480)
+		if(y <= 0 || y >= (uis.screenYSize - 64))
 		{
 			color[3] = 0;
 		}
 		else
 		{
-
-			color[3] = sin(M_PI / 480.0f * y);
-
+			color[3] = sin(M_PI / (uis.screenYSize - 64) * y);
 		}
 
 		textZoom = color[3] * 4 * textScale;

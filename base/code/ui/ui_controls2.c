@@ -580,10 +580,10 @@ static void Controls_Update(void)
 	// bk001204 - parentheses
 	for(j = 0; (control = controls[j]); j++, y += SMALLCHAR_HEIGHT)
 	{
-		control->x = 320;
+		control->x = uis.screenXSize / 2;
 		control->y = y;
-		control->left = 320 - 19 * SMALLCHAR_WIDTH;
-		control->right = 320 + 21 * SMALLCHAR_WIDTH;
+		control->left = uis.screenXSize / 2 - 19 * SMALLCHAR_WIDTH;
+		control->right = uis.screenXSize / 2 + 21 * SMALLCHAR_WIDTH;
 		control->top = y;
 		control->bottom = y + SMALLCHAR_HEIGHT;
 	}
@@ -708,8 +708,8 @@ static void Controls_DrawKeyBinding(void *self)
 
 
 		UI_Text_Paint(x - SMALLCHAR_WIDTH, y + 8, 0.25f, text_color_highlight, g_bindings[a->generic.id].label, 0, 0,
-					  UI_RIGHT | UI_DROPSHADOW | UI_PULSE, &uis.freeSansBoldFont);
-		UI_Text_Paint(x + SMALLCHAR_WIDTH, y + 8, 0.25f, text_color_highlight, name, 0, 0, UI_LEFT | UI_DROPSHADOW | UI_PULSE,
+					  UI_RIGHT | UI_PULSE, &uis.freeSansBoldFont);
+		UI_Text_Paint(x + SMALLCHAR_WIDTH, y + 8, 0.25f, text_color_highlight, name, 0, 0, UI_LEFT | UI_PULSE,
 					  &uis.freeSansFont);
 
 
@@ -718,9 +718,9 @@ static void Controls_DrawKeyBinding(void *self)
 			//UI_DrawChar(x, y, '=', UI_CENTER | UI_BLINK | UI_SMALLFONT, text_color_highlight);
 			UI_Text_Paint(x, y + 9, 0.25f, text_color_highlight, "=", 0, 0, UI_CENTER | UI_BLINK, &uis.freeSansBoldFont);
 
-			//UI_DrawString(SCREEN_WIDTH * 0.50, SCREEN_HEIGHT * 0.80, "Waiting for new key ... ESCAPE to cancel",                        UI_SMALLFONT | UI_CENTER | UI_PULSE, colorWhite);
+			//UI_DrawString(uis.screenXSize * 0.50, uis.screenYSize * 0.80, "Waiting for new key ... ESCAPE to cancel",                        UI_SMALLFONT | UI_CENTER | UI_PULSE, colorWhite);
 
-			UI_Text_Paint(SCREEN_WIDTH * 0.50, SCREEN_HEIGHT * 0.80, 0.25f, colorWhite,
+			UI_Text_Paint(uis.screenXSize * 0.50, uis.screenYSize * 0.80, 0.25f, colorWhite,
 						  "Waiting for new key ... ESCAPE to cancel", 0, 0, UI_CENTER | UI_PULSE, &uis.freeSansBoldFont);
 
 
@@ -731,15 +731,15 @@ static void Controls_DrawKeyBinding(void *self)
 			UI_Text_Paint(x, y + 9, 0.25f, text_color_highlight, ">", 0, 0, UI_CENTER | UI_BLINK, &uis.freeSansBoldFont);
 
 
-			//UI_DrawString(SCREEN_WIDTH * 0.50, SCREEN_HEIGHT * 0.78, "Press ENTER or CLICK to change", UI_SMALLFONT | UI_CENTER,  colorWhite);
+			//UI_DrawString(uis.screenXSize * 0.50, uis.screenYSize * 0.78, "Press ENTER or CLICK to change", UI_SMALLFONT | UI_CENTER,  colorWhite);
 
-			UI_Text_Paint(SCREEN_WIDTH * 0.50, SCREEN_HEIGHT * 0.78, 0.25f, colorWhite, "Press ENTER or CLICK to change", 0, 0,
+			UI_Text_Paint(uis.screenXSize * 0.50, uis.screenYSize * 0.78, 0.25f, colorWhite, "Press ENTER or CLICK to change", 0, 0,
 						  UI_CENTER | UI_PULSE, &uis.freeSansBoldFont);
 
 
-			//UI_DrawString(SCREEN_WIDTH * 0.50, SCREEN_HEIGHT * 0.82, "Press BACKSPACE to clear", UI_SMALLFONT | UI_CENTER,  colorWhite);
+			//UI_DrawString(uis.screenXSize * 0.50, uis.screenYSize * 0.82, "Press BACKSPACE to clear", UI_SMALLFONT | UI_CENTER,  colorWhite);
 
-			UI_Text_Paint(SCREEN_WIDTH * 0.50, SCREEN_HEIGHT * 0.82, 0.25f, colorWhite, "Press BACKSPACE to clear", 0, 0,
+			UI_Text_Paint(uis.screenXSize * 0.50, uis.screenYSize * 0.82, 0.25f, colorWhite, "Press BACKSPACE to clear", 0, 0,
 						  UI_CENTER | UI_PULSE, &uis.freeSansBoldFont);
 
 		}
@@ -752,9 +752,8 @@ static void Controls_DrawKeyBinding(void *self)
 			//UI_DrawString(x + SMALLCHAR_WIDTH, y, name, UI_LEFT | UI_SMALLFONT, text_color_disabled);
 
 			UI_Text_Paint(x - SMALLCHAR_WIDTH, y + 8, 0.25f, text_color_disabled, g_bindings[a->generic.id].label, 0, 0,
-						  UI_RIGHT | UI_DROPSHADOW, &uis.freeSansBoldFont);
-			UI_Text_Paint(x + SMALLCHAR_WIDTH, y + 8, 0.25f, text_color_disabled, name, 0, 0, UI_LEFT | UI_DROPSHADOW,
-						  &uis.freeSansFont);
+						  UI_RIGHT, &uis.freeSansBoldFont);
+			UI_Text_Paint(x + SMALLCHAR_WIDTH, y + 8, 0.25f, text_color_disabled, name, 0, 0, UI_LEFT, &uis.freeSansFont);
 
 		}
 		else
@@ -763,9 +762,8 @@ static void Controls_DrawKeyBinding(void *self)
 			//UI_DrawString(x + SMALLCHAR_WIDTH, y, name, UI_LEFT | UI_SMALLFONT, controls_binding_color);
 
 			UI_Text_Paint(x - SMALLCHAR_WIDTH, y + 8, 0.25f, text_color_normal, g_bindings[a->generic.id].label, 0, 0,
-						  UI_RIGHT | UI_DROPSHADOW, &uis.freeSansBoldFont);
-			UI_Text_Paint(x + SMALLCHAR_WIDTH, y + 8, 0.25f, text_color_normal, name, 0, 0, UI_LEFT | UI_DROPSHADOW,
-						  &uis.freeSansFont);
+						  UI_RIGHT, &uis.freeSansBoldFont);
+			UI_Text_Paint(x + SMALLCHAR_WIDTH, y + 8, 0.25f, text_color_normal, name, 0, 0, UI_LEFT, &uis.freeSansFont);
 
 
 		}
@@ -780,9 +778,9 @@ Controls_StatusBar
 */
 static void Controls_StatusBar(void *self)
 {
-	//UI_DrawString(SCREEN_WIDTH * 0.50, SCREEN_HEIGHT * 0.80, "Use Arrow Keys or CLICK to change", UI_SMALLFONT | UI_CENTER,     colorWhite);
+	//UI_DrawString(uis.screenXSize * 0.50, uis.screenYSize * 0.80, "Use Arrow Keys or CLICK to change", UI_SMALLFONT | UI_CENTER,     colorWhite);
 
-	UI_Text_Paint(SCREEN_WIDTH * 0.50, SCREEN_HEIGHT * 0.80, 0.25f, colorWhite, "Use Arrow Keys or CLICK to change", 0, 0,
+	UI_Text_Paint(uis.screenXSize * 0.50, uis.screenYSize * 0.80, 0.25f, colorWhite, "Use Arrow Keys or CLICK to change", 0, 0,
 				  UI_CENTER | UI_PULSE, &uis.freeSansBoldFont);
 
 
@@ -1084,9 +1082,9 @@ Controls_ResetDefaults_Draw
 */
 static void Controls_ResetDefaults_Draw(void)
 {
-	UI_DrawProportionalString(SCREEN_WIDTH / 2, 356 + PROP_HEIGHT * 0, "WARNING: This will reset all", UI_CENTER | UI_SMALLFONT,
+	UI_DrawProportionalString(uis.screenXSize / 2, 356 + PROP_HEIGHT * 0, "WARNING: This will reset all", UI_CENTER | UI_SMALLFONT,
 							  color_yellow);
-	UI_DrawProportionalString(SCREEN_WIDTH / 2, 356 + PROP_HEIGHT * 1, "controls to their default values.",
+	UI_DrawProportionalString(uis.screenXSize / 2, 356 + PROP_HEIGHT * 1, "controls to their default values.",
 							  UI_CENTER | UI_SMALLFONT, color_yellow);
 }
 
@@ -1222,11 +1220,11 @@ static void Controls_MenuInit(void)
 
 	s_controls.banner.generic.type = MTYPE_BTEXT;
 	s_controls.banner.generic.flags = QMF_CENTER_JUSTIFY;
-	s_controls.banner.generic.x = 320;
+	s_controls.banner.generic.x = uis.screenXSize / 2;
 	s_controls.banner.generic.y = 16;
 	s_controls.banner.string = "CONTROLS";
 	s_controls.banner.color = color_white;
-	s_controls.banner.style = UI_CENTER | UI_DROPSHADOW;
+	s_controls.banner.style = UI_CENTER;
 
 /*	s_controls.framel.generic.type = MTYPE_BITMAP;
 	s_controls.framel.generic.name = ART_FRAMEL;
@@ -1258,13 +1256,13 @@ static void Controls_MenuInit(void)
 	s_controls.looking.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	s_controls.looking.generic.callback = Controls_MenuEvent;
 	s_controls.looking.generic.id = ID_LOOKING;
-	s_controls.looking.generic.x = 128;
-	s_controls.looking.generic.y = 480 - 64;
+	s_controls.looking.generic.x = uis.screenXSize * 0.2f;
+	s_controls.looking.generic.y = uis.screenYSize - 64;
 	s_controls.looking.width = 128;
 	s_controls.looking.height = 64;
 	s_controls.looking.focuspic = UI_ART_BUTTON_FOCUS;
 	s_controls.looking.generic.caption.text = "Look";
-	s_controls.looking.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
+	s_controls.looking.generic.caption.style = UI_CENTER;
 	s_controls.looking.generic.caption.fontsize = 0.6f;
 	s_controls.looking.generic.caption.font = &uis.buttonFont;
 	s_controls.looking.generic.caption.color = text_color_normal;
@@ -1276,13 +1274,13 @@ static void Controls_MenuInit(void)
 	s_controls.movement.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	s_controls.movement.generic.callback = Controls_MenuEvent;
 	s_controls.movement.generic.id = ID_MOVEMENT;
-	s_controls.movement.generic.x = 256;
-	s_controls.movement.generic.y = 480 - 64;
+	s_controls.movement.generic.x = uis.screenXSize * 0.4f;
+	s_controls.movement.generic.y = uis.screenYSize - 64;
 	s_controls.movement.width = 128;
 	s_controls.movement.height = 64;
 	s_controls.movement.focuspic = UI_ART_BUTTON_FOCUS;
 	s_controls.movement.generic.caption.text = "Move";
-	s_controls.movement.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
+	s_controls.movement.generic.caption.style = UI_CENTER;
 	s_controls.movement.generic.caption.fontsize = 0.6f;
 	s_controls.movement.generic.caption.font = &uis.buttonFont;
 	s_controls.movement.generic.caption.color = text_color_normal;
@@ -1296,13 +1294,13 @@ static void Controls_MenuInit(void)
 	s_controls.weapons.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	s_controls.weapons.generic.callback = Controls_MenuEvent;
 	s_controls.weapons.generic.id = ID_WEAPONS;
-	s_controls.weapons.generic.x = 384;
-	s_controls.weapons.generic.y = 480 - 64;
+	s_controls.weapons.generic.x = uis.screenXSize * 0.6f;
+	s_controls.weapons.generic.y = uis.screenYSize - 64;
 	s_controls.weapons.width = 128;
 	s_controls.weapons.height = 64;
 	s_controls.weapons.focuspic = UI_ART_BUTTON_FOCUS;
 	s_controls.weapons.generic.caption.text = "Attack";
-	s_controls.weapons.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
+	s_controls.weapons.generic.caption.style = UI_CENTER;
 	s_controls.weapons.generic.caption.fontsize = 0.6f;
 	s_controls.weapons.generic.caption.font = &uis.buttonFont;
 	s_controls.weapons.generic.caption.color = text_color_normal;
@@ -1311,16 +1309,16 @@ static void Controls_MenuInit(void)
 
 	s_controls.misc.generic.type = MTYPE_BITMAP;
 	s_controls.misc.generic.name = UI_ART_BUTTON;
-	s_controls.misc.generic.flags = QMF_RIGHT_JUSTIFY | QMF_PULSEIFFOCUS;
+	s_controls.misc.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	s_controls.misc.generic.callback = Controls_MenuEvent;
 	s_controls.misc.generic.id = ID_MISC;
-	s_controls.misc.generic.x = 640;
-	s_controls.misc.generic.y = 480 - 64;
+	s_controls.misc.generic.x = uis.screenXSize * 0.8f;
+	s_controls.misc.generic.y = uis.screenYSize - 64;
 	s_controls.misc.width = 128;
 	s_controls.misc.height = 64;
 	s_controls.misc.focuspic = UI_ART_BUTTON_FOCUS;
 	s_controls.misc.generic.caption.text = "Misc";
-	s_controls.misc.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
+	s_controls.misc.generic.caption.style = UI_CENTER;
 	s_controls.misc.generic.caption.fontsize = 0.6f;
 	s_controls.misc.generic.caption.font = &uis.buttonFont;
 	s_controls.misc.generic.caption.color = text_color_normal;
@@ -1331,14 +1329,14 @@ static void Controls_MenuInit(void)
 	s_controls.back.generic.name = UI_ART_BUTTON;
 	s_controls.back.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	s_controls.back.generic.x = 0;
-	s_controls.back.generic.y = 480 - 64;
+	s_controls.back.generic.y = uis.screenYSize - 64;
 	s_controls.back.generic.id = ID_BACK;
 	s_controls.back.generic.callback = Controls_MenuEvent;
 	s_controls.back.width = 128;
 	s_controls.back.height = 64;
 	s_controls.back.focuspic = UI_ART_BUTTON_FOCUS;
 	s_controls.back.generic.caption.text = "Back";
-	s_controls.back.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
+	s_controls.back.generic.caption.style = UI_CENTER;
 	s_controls.back.generic.caption.fontsize = 0.6f;
 	s_controls.back.generic.caption.font = &uis.buttonFont;
 	s_controls.back.generic.caption.color = text_color_normal;
@@ -1490,7 +1488,7 @@ static void Controls_MenuInit(void)
 
 	s_controls.freelook.generic.type = MTYPE_RADIOBUTTON;
 	s_controls.freelook.generic.flags = QMF_SMALLFONT;
-	s_controls.freelook.generic.x = SCREEN_WIDTH / 2;
+	s_controls.freelook.generic.x = uis.screenXSize / 2;
 	s_controls.freelook.generic.name = "free look";
 	s_controls.freelook.generic.id = ID_FREELOOK;
 	s_controls.freelook.generic.callback = Controls_MenuEvent;
@@ -1522,7 +1520,7 @@ static void Controls_MenuInit(void)
 
 	s_controls.invertmouse.generic.type = MTYPE_RADIOBUTTON;
 	s_controls.invertmouse.generic.flags = QMF_SMALLFONT;
-	s_controls.invertmouse.generic.x = SCREEN_WIDTH / 2;
+	s_controls.invertmouse.generic.x = uis.screenXSize / 2;
 	s_controls.invertmouse.generic.name = "invert mouse";
 	s_controls.invertmouse.generic.id = ID_INVERTMOUSE;
 	s_controls.invertmouse.generic.callback = Controls_MenuEvent;
@@ -1530,7 +1528,7 @@ static void Controls_MenuInit(void)
 
 	s_controls.smoothmouse.generic.type = MTYPE_RADIOBUTTON;
 	s_controls.smoothmouse.generic.flags = QMF_SMALLFONT;
-	s_controls.smoothmouse.generic.x = SCREEN_WIDTH / 2;
+	s_controls.smoothmouse.generic.x = uis.screenXSize / 2;
 	s_controls.smoothmouse.generic.name = "smooth mouse";
 	s_controls.smoothmouse.generic.id = ID_SMOOTHMOUSE;
 	s_controls.smoothmouse.generic.callback = Controls_MenuEvent;
@@ -1538,7 +1536,7 @@ static void Controls_MenuInit(void)
 
 	s_controls.alwaysrun.generic.type = MTYPE_RADIOBUTTON;
 	s_controls.alwaysrun.generic.flags = QMF_SMALLFONT;
-	s_controls.alwaysrun.generic.x = SCREEN_WIDTH / 2;
+	s_controls.alwaysrun.generic.x = uis.screenXSize / 2;
 	s_controls.alwaysrun.generic.name = "always run";
 	s_controls.alwaysrun.generic.id = ID_ALWAYSRUN;
 	s_controls.alwaysrun.generic.callback = Controls_MenuEvent;
@@ -1546,14 +1544,14 @@ static void Controls_MenuInit(void)
 
 	s_controls.autoswitch.generic.type = MTYPE_RADIOBUTTON;
 	s_controls.autoswitch.generic.flags = QMF_SMALLFONT;
-	s_controls.autoswitch.generic.x = SCREEN_WIDTH / 2;
+	s_controls.autoswitch.generic.x = uis.screenXSize / 2;
 	s_controls.autoswitch.generic.name = "autoswitch weapons";
 	s_controls.autoswitch.generic.id = ID_AUTOSWITCH;
 	s_controls.autoswitch.generic.callback = Controls_MenuEvent;
 	s_controls.autoswitch.generic.statusbar = Controls_StatusBar;
 
 	s_controls.sensitivity.generic.type = MTYPE_SLIDER;
-	s_controls.sensitivity.generic.x = SCREEN_WIDTH / 2;
+	s_controls.sensitivity.generic.x = uis.screenXSize / 2;
 	s_controls.sensitivity.generic.flags = QMF_SMALLFONT;
 	s_controls.sensitivity.generic.name = "mouse speed";
 	s_controls.sensitivity.generic.id = ID_MOUSESPEED;
@@ -1594,14 +1592,14 @@ static void Controls_MenuInit(void)
 
 	s_controls.joyenable.generic.type = MTYPE_RADIOBUTTON;
 	s_controls.joyenable.generic.flags = QMF_SMALLFONT;
-	s_controls.joyenable.generic.x = SCREEN_WIDTH / 2;
+	s_controls.joyenable.generic.x = uis.screenXSize / 2;
 	s_controls.joyenable.generic.name = "joystick";
 	s_controls.joyenable.generic.id = ID_JOYENABLE;
 	s_controls.joyenable.generic.callback = Controls_MenuEvent;
 	s_controls.joyenable.generic.statusbar = Controls_StatusBar;
 
 	s_controls.joythreshold.generic.type = MTYPE_SLIDER;
-	s_controls.joythreshold.generic.x = SCREEN_WIDTH / 2;
+	s_controls.joythreshold.generic.x = uis.screenXSize / 2;
 	s_controls.joythreshold.generic.flags = QMF_SMALLFONT;
 	s_controls.joythreshold.generic.name = "joystick threshold";
 	s_controls.joythreshold.generic.id = ID_JOYTHRESHOLD;
@@ -1612,8 +1610,8 @@ static void Controls_MenuInit(void)
 
 	s_controls.name.generic.type = MTYPE_PTEXT;
 	s_controls.name.generic.flags = QMF_CENTER_JUSTIFY | QMF_INACTIVE;
-	s_controls.name.generic.x = 320;
-	s_controls.name.generic.y = 440;
+	s_controls.name.generic.x = uis.screenXSize / 2;
+	s_controls.name.generic.y = uis.screenYSize - 64;
 	s_controls.name.string = playername;
 	s_controls.name.style = UI_CENTER;
 	s_controls.name.color = text_color_normal;

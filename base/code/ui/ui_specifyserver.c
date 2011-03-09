@@ -111,11 +111,11 @@ void SpecifyServer_MenuInit(void)
 	s_specifyserver.menu.fullscreen = qtrue;
 
 	s_specifyserver.banner.generic.type = MTYPE_BTEXT;
-	s_specifyserver.banner.generic.x = 320;
+	s_specifyserver.banner.generic.x = uis.screenXSize / 2;
 	s_specifyserver.banner.generic.y = 16;
 	s_specifyserver.banner.string = "SPECIFY SERVER";
 	s_specifyserver.banner.color = color_white;
-	s_specifyserver.banner.style = UI_CENTER | UI_DROPSHADOW;
+	s_specifyserver.banner.style = UI_CENTER;
 
 /*	s_specifyserver.framel.generic.type = MTYPE_BITMAP;
 	s_specifyserver.framel.generic.name = SPECIFYSERVER_FRAMEL;
@@ -136,7 +136,7 @@ void SpecifyServer_MenuInit(void)
 	s_specifyserver.domain.generic.type = MTYPE_FIELD;
 	s_specifyserver.domain.generic.name = "Address:";
 	s_specifyserver.domain.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
-	s_specifyserver.domain.generic.x = 206;
+	s_specifyserver.domain.generic.x = uis.screenXSize * 0.35f;
 	s_specifyserver.domain.generic.y = 220;
 	s_specifyserver.domain.field.widthInChars = 38;
 	s_specifyserver.domain.field.maxchars = 80;
@@ -144,23 +144,23 @@ void SpecifyServer_MenuInit(void)
 	s_specifyserver.port.generic.type = MTYPE_FIELD;
 	s_specifyserver.port.generic.name = "Port:";
 	s_specifyserver.port.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT | QMF_NUMBERSONLY;
-	s_specifyserver.port.generic.x = 206;
+	s_specifyserver.port.generic.x = uis.screenXSize * 0.35f;
 	s_specifyserver.port.generic.y = 250;
 	s_specifyserver.port.field.widthInChars = 6;
 	s_specifyserver.port.field.maxchars = 5;
 
 	s_specifyserver.go.generic.type = MTYPE_BITMAP;
 	s_specifyserver.go.generic.name = UI_ART_BUTTON;
-	s_specifyserver.go.generic.flags = QMF_RIGHT_JUSTIFY | QMF_PULSEIFFOCUS;
+	s_specifyserver.go.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	s_specifyserver.go.generic.callback = SpecifyServer_Event;
 	s_specifyserver.go.generic.id = ID_SPECIFYSERVERGO;
-	s_specifyserver.go.generic.x = 640;
-	s_specifyserver.go.generic.y = 480 - 64;
+	s_specifyserver.go.generic.x = uis.screenXSize * 0.8f;
+	s_specifyserver.go.generic.y = uis.screenYSize - 64;
 	s_specifyserver.go.width = 128;
 	s_specifyserver.go.height = 64;
 	s_specifyserver.go.focuspic = UI_ART_BUTTON_FOCUS;
 	s_specifyserver.go.generic.caption.text = "Specify";
-	s_specifyserver.go.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
+	s_specifyserver.go.generic.caption.style = UI_CENTER;
 	s_specifyserver.go.generic.caption.fontsize = 0.6f;
 	s_specifyserver.go.generic.caption.font = &uis.buttonFont;
 	s_specifyserver.go.generic.caption.color = text_color_normal;
@@ -172,12 +172,12 @@ void SpecifyServer_MenuInit(void)
 	s_specifyserver.back.generic.callback = SpecifyServer_Event;
 	s_specifyserver.back.generic.id = ID_SPECIFYSERVERBACK;
 	s_specifyserver.back.generic.x = 0;
-	s_specifyserver.back.generic.y = 480 - 64;
+	s_specifyserver.back.generic.y = uis.screenYSize - 64;
 	s_specifyserver.back.width = 128;
 	s_specifyserver.back.height = 64;
 	s_specifyserver.back.focuspic = UI_ART_BUTTON_FOCUS;
 	s_specifyserver.back.generic.caption.text = "Back";
-	s_specifyserver.back.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
+	s_specifyserver.back.generic.caption.style = UI_CENTER;
 	s_specifyserver.back.generic.caption.fontsize = 0.6f;
 	s_specifyserver.back.generic.caption.font = &uis.buttonFont;
 	s_specifyserver.back.generic.caption.color = text_color_normal;

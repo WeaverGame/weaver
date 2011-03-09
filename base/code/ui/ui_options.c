@@ -136,11 +136,11 @@ void Options_MenuInit(void)
 
 	s_options.banner.generic.type = MTYPE_BTEXT;
 	s_options.banner.generic.flags = QMF_CENTER_JUSTIFY;
-	s_options.banner.generic.x = 320;
+	s_options.banner.generic.x = uis.screenXSize / 2;
 	s_options.banner.generic.y = 16;
 	s_options.banner.string = "SYSTEM SETUP";
 	s_options.banner.color = color_white;
-	s_options.banner.style = UI_CENTER | UI_DROPSHADOW;
+	s_options.banner.style = UI_CENTER;
 
 	s_options.framel.generic.type = MTYPE_BITMAP;
 	s_options.framel.generic.name = ART_FRAMEL;
@@ -163,7 +163,7 @@ void Options_MenuInit(void)
 	s_options.graphics.generic.flags = QMF_CENTER_JUSTIFY | QMF_PULSEIFFOCUS;
 	s_options.graphics.generic.callback = Options_Event;
 	s_options.graphics.generic.id = ID_GRAPHICS;
-	s_options.graphics.generic.x = 320;
+	s_options.graphics.generic.x = uis.screenXSize / 2;
 	s_options.graphics.generic.y = y;
 	s_options.graphics.string = "GRAPHICS";
 	s_options.graphics.color = color_red;
@@ -174,7 +174,7 @@ void Options_MenuInit(void)
 	s_options.display.generic.flags = QMF_CENTER_JUSTIFY | QMF_PULSEIFFOCUS;
 	s_options.display.generic.callback = Options_Event;
 	s_options.display.generic.id = ID_DISPLAY;
-	s_options.display.generic.x = 320;
+	s_options.display.generic.x = uis.screenXSize / 2;
 	s_options.display.generic.y = y;
 	s_options.display.string = "DISPLAY";
 	s_options.display.color = color_red;
@@ -185,7 +185,7 @@ void Options_MenuInit(void)
 	s_options.sound.generic.flags = QMF_CENTER_JUSTIFY | QMF_PULSEIFFOCUS;
 	s_options.sound.generic.callback = Options_Event;
 	s_options.sound.generic.id = ID_SOUND;
-	s_options.sound.generic.x = 320;
+	s_options.sound.generic.x = uis.screenXSize / 2;
 	s_options.sound.generic.y = y;
 	s_options.sound.string = "SOUND";
 	s_options.sound.color = color_red;
@@ -196,7 +196,7 @@ void Options_MenuInit(void)
 	s_options.network.generic.flags = QMF_CENTER_JUSTIFY | QMF_PULSEIFFOCUS;
 	s_options.network.generic.callback = Options_Event;
 	s_options.network.generic.id = ID_NETWORK;
-	s_options.network.generic.x = 320;
+	s_options.network.generic.x = uis.screenXSize / 2;
 	s_options.network.generic.y = y;
 	s_options.network.string = "NETWORK";
 	s_options.network.color = color_red;
@@ -208,12 +208,12 @@ void Options_MenuInit(void)
 	s_options.back.generic.callback = Options_Event;
 	s_options.back.generic.id = ID_BACK;
 	s_options.back.generic.x = 0;
-	s_options.back.generic.y = 480 - 64;
+	s_options.back.generic.y = uis.screenYSize - 64;
 	s_options.back.width = 128;
 	s_options.back.height = 64;
 	s_options.back.focuspic = UI_ART_BUTTON_FOCUS;
 	s_options.back.generic.caption.text = "Back";
-	s_options.back.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
+	s_options.back.generic.caption.style = UI_CENTER;
 	s_options.back.generic.caption.fontsize = 0.6f;
 	s_options.back.generic.caption.font = &uis.buttonFont;
 	s_options.back.generic.caption.color = text_color_normal;

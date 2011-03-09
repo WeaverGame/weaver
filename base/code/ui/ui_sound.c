@@ -162,24 +162,24 @@ static void UI_SoundOptionsMenu_Init(void)
 
 	soundOptionsInfo.banner.generic.type = MTYPE_BTEXT;
 	soundOptionsInfo.banner.generic.flags = QMF_CENTER_JUSTIFY;
-	soundOptionsInfo.banner.generic.x = 320;
+	soundOptionsInfo.banner.generic.x = uis.screenXSize / 2;
 	soundOptionsInfo.banner.generic.y = 16;
 	soundOptionsInfo.banner.string = "SYSTEM SETUP";
 	soundOptionsInfo.banner.color = color_white;
-	soundOptionsInfo.banner.style = UI_CENTER | UI_DROPSHADOW;
+	soundOptionsInfo.banner.style = UI_CENTER;
 
 	soundOptionsInfo.graphics.generic.type = MTYPE_BITMAP;
 	soundOptionsInfo.graphics.generic.name = UI_ART_BUTTON;
 	soundOptionsInfo.graphics.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	soundOptionsInfo.graphics.generic.callback = UI_SoundOptionsMenu_Event;
 	soundOptionsInfo.graphics.generic.id = ID_GRAPHICS;
-	soundOptionsInfo.graphics.generic.x = 128;
-	soundOptionsInfo.graphics.generic.y = 480 - 64;
+	soundOptionsInfo.graphics.generic.x = uis.screenXSize * 0.2f;
+	soundOptionsInfo.graphics.generic.y = uis.screenYSize - 64;
 	soundOptionsInfo.graphics.width = 128;
 	soundOptionsInfo.graphics.height = 64;
 	soundOptionsInfo.graphics.focuspic = UI_ART_BUTTON_FOCUS;
 	soundOptionsInfo.graphics.generic.caption.text = "Graphics";
-	soundOptionsInfo.graphics.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
+	soundOptionsInfo.graphics.generic.caption.style = UI_CENTER;
 	soundOptionsInfo.graphics.generic.caption.fontsize = 0.6f;
 	soundOptionsInfo.graphics.generic.caption.font = &uis.buttonFont;
 	soundOptionsInfo.graphics.generic.caption.color = text_color_normal;
@@ -191,13 +191,13 @@ static void UI_SoundOptionsMenu_Init(void)
 	soundOptionsInfo.sound.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	soundOptionsInfo.sound.generic.callback = UI_SoundOptionsMenu_Event;
 	soundOptionsInfo.sound.generic.id = ID_SOUND;
-	soundOptionsInfo.sound.generic.x = 256;
-	soundOptionsInfo.sound.generic.y = 480 - 64;
+	soundOptionsInfo.sound.generic.x = uis.screenXSize * 0.4f;
+	soundOptionsInfo.sound.generic.y = uis.screenYSize - 64;
 	soundOptionsInfo.sound.width = 128;
 	soundOptionsInfo.sound.height = 64;
 	soundOptionsInfo.sound.focuspic = UI_ART_BUTTON_FOCUS;
 	soundOptionsInfo.sound.generic.caption.text = "Sound";
-	soundOptionsInfo.sound.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
+	soundOptionsInfo.sound.generic.caption.style = UI_CENTER;
 	soundOptionsInfo.sound.generic.caption.fontsize = 0.6f;
 	soundOptionsInfo.sound.generic.caption.font = &uis.buttonFont;
 	soundOptionsInfo.sound.generic.caption.color = text_color_normal;
@@ -208,13 +208,13 @@ static void UI_SoundOptionsMenu_Init(void)
 	soundOptionsInfo.network.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	soundOptionsInfo.network.generic.callback = UI_SoundOptionsMenu_Event;
 	soundOptionsInfo.network.generic.id = ID_NETWORK;
-	soundOptionsInfo.network.generic.x = 384;
-	soundOptionsInfo.network.generic.y = 480 - 64;
+	soundOptionsInfo.network.generic.x = uis.screenXSize * 0.6f;
+	soundOptionsInfo.network.generic.y = uis.screenYSize - 64;
 	soundOptionsInfo.network.width = 128;
 	soundOptionsInfo.network.height = 64;
 	soundOptionsInfo.network.focuspic = UI_ART_BUTTON_FOCUS;
 	soundOptionsInfo.network.generic.caption.text = "Network";
-	soundOptionsInfo.network.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
+	soundOptionsInfo.network.generic.caption.style = UI_CENTER;
 	soundOptionsInfo.network.generic.caption.fontsize = 0.6f;
 	soundOptionsInfo.network.generic.caption.font = &uis.buttonFont;
 	soundOptionsInfo.network.generic.caption.color = text_color_normal;
@@ -227,7 +227,7 @@ static void UI_SoundOptionsMenu_Init(void)
 	soundOptionsInfo.sfxvolume.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
 	soundOptionsInfo.sfxvolume.generic.callback = UI_SoundOptionsMenu_Event;
 	soundOptionsInfo.sfxvolume.generic.id = ID_EFFECTSVOLUME;
-	soundOptionsInfo.sfxvolume.generic.x = 320;
+	soundOptionsInfo.sfxvolume.generic.x = uis.screenXSize / 2;
 	soundOptionsInfo.sfxvolume.generic.y = y;
 	soundOptionsInfo.sfxvolume.minvalue = 0;
 	soundOptionsInfo.sfxvolume.maxvalue = 10;
@@ -238,7 +238,7 @@ static void UI_SoundOptionsMenu_Init(void)
 	soundOptionsInfo.musicvolume.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
 	soundOptionsInfo.musicvolume.generic.callback = UI_SoundOptionsMenu_Event;
 	soundOptionsInfo.musicvolume.generic.id = ID_MUSICVOLUME;
-	soundOptionsInfo.musicvolume.generic.x = 320;
+	soundOptionsInfo.musicvolume.generic.x = uis.screenXSize / 2;
 	soundOptionsInfo.musicvolume.generic.y = y;
 	soundOptionsInfo.musicvolume.minvalue = 0;
 	soundOptionsInfo.musicvolume.maxvalue = 10;
@@ -249,7 +249,7 @@ static void UI_SoundOptionsMenu_Init(void)
 	soundOptionsInfo.quality.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
 	soundOptionsInfo.quality.generic.callback = UI_SoundOptionsMenu_Event;
 	soundOptionsInfo.quality.generic.id = ID_QUALITY;
-	soundOptionsInfo.quality.generic.x = 320;
+	soundOptionsInfo.quality.generic.x = uis.screenXSize / 2;
 	soundOptionsInfo.quality.generic.y = y;
 	soundOptionsInfo.quality.itemnames = quality_items;
 
@@ -259,7 +259,7 @@ static void UI_SoundOptionsMenu_Init(void)
 	soundOptionsInfo.openal.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
 	soundOptionsInfo.openal.generic.callback = UI_SoundOptionsMenu_Event;
 	soundOptionsInfo.openal.generic.id = ID_OPENAL;
-	soundOptionsInfo.openal.generic.x = 320;
+	soundOptionsInfo.openal.generic.x = uis.screenXSize / 2;
 	soundOptionsInfo.openal.generic.y = y;
 
 	soundOptionsInfo.back.generic.type = MTYPE_BITMAP;
@@ -268,12 +268,12 @@ static void UI_SoundOptionsMenu_Init(void)
 	soundOptionsInfo.back.generic.callback = UI_SoundOptionsMenu_Event;
 	soundOptionsInfo.back.generic.id = ID_BACK;
 	soundOptionsInfo.back.generic.x = 0;
-	soundOptionsInfo.back.generic.y = 480 - 64;
+	soundOptionsInfo.back.generic.y = uis.screenYSize - 64;
 	soundOptionsInfo.back.width = 128;
 	soundOptionsInfo.back.height = 64;
 	soundOptionsInfo.back.focuspic = UI_ART_BUTTON_FOCUS;
 	soundOptionsInfo.back.generic.caption.text = "Back";
-	soundOptionsInfo.back.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
+	soundOptionsInfo.back.generic.caption.style = UI_CENTER;
 	soundOptionsInfo.back.generic.caption.fontsize = 0.6f;
 	soundOptionsInfo.back.generic.caption.font = &uis.buttonFont;
 	soundOptionsInfo.back.generic.caption.color = text_color_normal;

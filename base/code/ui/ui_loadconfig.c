@@ -133,7 +133,7 @@ static void LoadConfig_MenuInit(void)
 	s_configs.banner.generic.y = 16;
 	s_configs.banner.string = "LOAD CONFIG";
 	s_configs.banner.color = color_white;
-	s_configs.banner.style = UI_CENTER | UI_DROPSHADOW;
+	s_configs.banner.style = UI_CENTER;
 
 /*	s_configs.framel.generic.type = MTYPE_BITMAP;
 	s_configs.framel.generic.name = ART_FRAMEL;
@@ -154,14 +154,14 @@ static void LoadConfig_MenuInit(void)
 	s_configs.arrows.generic.type = MTYPE_BITMAP;
 	s_configs.arrows.generic.name = ART_ARROWS;
 	s_configs.arrows.generic.flags = QMF_INACTIVE;
-	s_configs.arrows.generic.x = 320 - ARROWS_WIDTH / 2;
+	s_configs.arrows.generic.x = (uis.screenYSize - ARROWS_WIDTH) / 2;
 	s_configs.arrows.generic.y = 400;
 	s_configs.arrows.width = ARROWS_WIDTH;
 	s_configs.arrows.height = ARROWS_HEIGHT;
 
 	s_configs.left.generic.type = MTYPE_BITMAP;
 	s_configs.left.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS | QMF_MOUSEONLY;
-	s_configs.left.generic.x = 320 - ARROWS_WIDTH / 2;
+	s_configs.left.generic.x = (uis.screenYSize - ARROWS_WIDTH) / 2;
 	s_configs.left.generic.y = 400;
 	s_configs.left.generic.id = ID_LEFT;
 	s_configs.left.generic.callback = LoadConfig_MenuEvent;
@@ -185,12 +185,12 @@ static void LoadConfig_MenuInit(void)
 	s_configs.back.generic.id = ID_BACK;
 	s_configs.back.generic.callback = LoadConfig_MenuEvent;
 	s_configs.back.generic.x = 0;
-	s_configs.back.generic.y = 480 - 64;
+	s_configs.back.generic.y = uis.screenYSize - 64;
 	s_configs.back.width = 128;
 	s_configs.back.height = 64;
 	s_configs.back.focuspic = UI_ART_BUTTON_FOCUS;
 	s_configs.back.generic.caption.text = "Back";
-	s_configs.back.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
+	s_configs.back.generic.caption.style = UI_CENTER;
 	s_configs.back.generic.caption.fontsize = 0.6f;
 	s_configs.back.generic.caption.font = &uis.buttonFont;
 	s_configs.back.generic.caption.color = text_color_normal;
@@ -199,16 +199,16 @@ static void LoadConfig_MenuInit(void)
 
 	s_configs.go.generic.type = MTYPE_BITMAP;
 	s_configs.go.generic.name = UI_ART_BUTTON;
-	s_configs.go.generic.flags = QMF_RIGHT_JUSTIFY | QMF_PULSEIFFOCUS;
+	s_configs.go.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	s_configs.go.generic.id = ID_GO;
 	s_configs.go.generic.callback = LoadConfig_MenuEvent;
-	s_configs.go.generic.x = 640;
-	s_configs.go.generic.y = 480 - 64;
+	s_configs.go.generic.x = uis.screenXSize * 0.8f;
+	s_configs.go.generic.y = uis.screenYSize - 64;
 	s_configs.go.width = 128;
 	s_configs.go.height = 64;
 	s_configs.go.focuspic = UI_ART_BUTTON_FOCUS;
 	s_configs.go.generic.caption.text = "Fight";
-	s_configs.go.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
+	s_configs.go.generic.caption.style = UI_CENTER;
 	s_configs.go.generic.caption.fontsize = 0.6f;
 	s_configs.go.generic.caption.font = &uis.buttonFont;
 	s_configs.go.generic.caption.color = text_color_normal;

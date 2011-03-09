@@ -136,7 +136,7 @@ static void UI_DisplayOptionsMenu_Init(void)
 	displayOptionsInfo.banner.generic.y = 16;
 	displayOptionsInfo.banner.string = "SYSTEM SETUP";
 	displayOptionsInfo.banner.color = color_white;
-	displayOptionsInfo.banner.style = UI_CENTER | UI_DROPSHADOW;
+	displayOptionsInfo.banner.style = UI_CENTER;
 
 	displayOptionsInfo.framel.generic.type = MTYPE_BITMAP;
 	displayOptionsInfo.framel.generic.name = ART_FRAMEL;
@@ -231,7 +231,7 @@ static void UI_DisplayOptionsMenu_Init(void)
 	displayOptionsInfo.back.height = 64;
 	displayOptionsInfo.back.focuspic = UI_ART_BUTTON_FOCUS;
 	displayOptionsInfo.back.generic.caption.text = "Back";
-	displayOptionsInfo.back.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
+	displayOptionsInfo.back.generic.caption.style = UI_CENTER;
 	displayOptionsInfo.back.generic.caption.fontsize = 0.6f;
 	displayOptionsInfo.back.generic.caption.font = &uis.buttonFont;
 	displayOptionsInfo.back.generic.caption.color = text_color_normal;

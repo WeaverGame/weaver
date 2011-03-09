@@ -257,7 +257,7 @@ static void UI_RemoveBotsMenu_Init(void)
 	removeBotsMenuInfo.banner.generic.y = 16;
 	removeBotsMenuInfo.banner.string = "REMOVE BOTS";
 	removeBotsMenuInfo.banner.color = color_white;
-	removeBotsMenuInfo.banner.style = UI_CENTER | UI_DROPSHADOW;
+	removeBotsMenuInfo.banner.style = UI_CENTER;
 
 
 	removeBotsMenuInfo.arrows.generic.type = MTYPE_BITMAP;
@@ -293,7 +293,7 @@ static void UI_RemoveBotsMenu_Init(void)
 		removeBotsMenuInfo.bots[n].generic.type = MTYPE_PTEXT;
 		removeBotsMenuInfo.bots[n].generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 		removeBotsMenuInfo.bots[n].generic.id = ID_BOTNAME0 + n;
-		removeBotsMenuInfo.bots[n].generic.x = 320 - 56;
+		removeBotsMenuInfo.bots[n].generic.x = uis.screenXSize / 2 - 56;
 		removeBotsMenuInfo.bots[n].generic.y = y;
 		removeBotsMenuInfo.bots[n].generic.callback = UI_RemoveBotsMenu_BotEvent;
 		removeBotsMenuInfo.bots[n].string = removeBotsMenuInfo.botnames[n];
@@ -303,16 +303,16 @@ static void UI_RemoveBotsMenu_Init(void)
 
 	removeBotsMenuInfo.delete.generic.type = MTYPE_BITMAP;
 	removeBotsMenuInfo.delete.generic.name = UI_ART_BUTTON;
-	removeBotsMenuInfo.delete.generic.flags = QMF_RIGHT_JUSTIFY | QMF_PULSEIFFOCUS;
+	removeBotsMenuInfo.delete.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	removeBotsMenuInfo.delete.generic.id = ID_DELETE;
 	removeBotsMenuInfo.delete.generic.callback = UI_RemoveBotsMenu_DeleteEvent;
-	removeBotsMenuInfo.delete.generic.x = 640;
-	removeBotsMenuInfo.delete.generic.y = 480 - 64;
+	removeBotsMenuInfo.delete.generic.x = uis.screenXSize * 0.8f;
+	removeBotsMenuInfo.delete.generic.y = uis.screenYSize - 64;
 	removeBotsMenuInfo.delete.width = 128;
 	removeBotsMenuInfo.delete.height = 64;
 	removeBotsMenuInfo.delete.focuspic = UI_ART_BUTTON_FOCUS;
 	removeBotsMenuInfo.delete.generic.caption.text = "Remove";
-	removeBotsMenuInfo.delete.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
+	removeBotsMenuInfo.delete.generic.caption.style = UI_CENTER;
 	removeBotsMenuInfo.delete.generic.caption.fontsize = 0.6f;
 	removeBotsMenuInfo.delete.generic.caption.font = &uis.buttonFont;
 	removeBotsMenuInfo.delete.generic.caption.color = text_color_normal;
@@ -324,12 +324,12 @@ static void UI_RemoveBotsMenu_Init(void)
 	removeBotsMenuInfo.back.generic.id = ID_BACK;
 	removeBotsMenuInfo.back.generic.callback = UI_RemoveBotsMenu_BackEvent;
 	removeBotsMenuInfo.back.generic.x = 0;
-	removeBotsMenuInfo.back.generic.y = 480 - 64;
+	removeBotsMenuInfo.back.generic.y = uis.screenYSize - 64;
 	removeBotsMenuInfo.back.width = 128;
 	removeBotsMenuInfo.back.height = 64;
 	removeBotsMenuInfo.back.focuspic = UI_ART_BUTTON_FOCUS;
 	removeBotsMenuInfo.back.generic.caption.text = "Back";
-	removeBotsMenuInfo.back.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
+	removeBotsMenuInfo.back.generic.caption.style = UI_CENTER;
 	removeBotsMenuInfo.back.generic.caption.fontsize = 0.6f;
 	removeBotsMenuInfo.back.generic.caption.font = &uis.buttonFont;
 	removeBotsMenuInfo.back.generic.caption.color = text_color_normal;

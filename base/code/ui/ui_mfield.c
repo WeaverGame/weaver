@@ -438,11 +438,11 @@ void MenuField_Draw(menufield_s * f)
 	if(f->generic.name)
 	{
 		//UI_DrawString(x - w, y, f->generic.name, style | UI_RIGHT, color);
-		UI_Text_Paint(x - w, y + 8, 0.25f, color, f->generic.name, 0, 0, style | UI_RIGHT | UI_DROPSHADOW, &uis.freeSansBoldFont);
+		UI_Text_Paint(x - w, y + 8, 0.25f, color, f->generic.name, 0, 0, style | UI_RIGHT, &uis.freeSansBoldFont);
 
 	}
 
-	MField_Draw(&f->field, x + w, y, style | UI_DROPSHADOW, color);
+	MField_Draw(&f->field, x + w, y, style, color);
 }
 
 /*

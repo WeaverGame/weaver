@@ -143,11 +143,11 @@ static void Demos_MenuInit(void)
 	s_demos.menu.wrapAround = qtrue;
 
 	s_demos.banner.generic.type = MTYPE_BTEXT;
-	s_demos.banner.generic.x = 320;
+	s_demos.banner.generic.x = uis.screenXSize / 2;
 	s_demos.banner.generic.y = 16;
 	s_demos.banner.string = "DEMOS";
 	s_demos.banner.color = color_white;
-	s_demos.banner.style = UI_CENTER | UI_DROPSHADOW;
+	s_demos.banner.style = UI_CENTER;
 
 /*	s_demos.framel.generic.type = MTYPE_BITMAP;
 	s_demos.framel.generic.name = ART_FRAMEL;
@@ -168,15 +168,15 @@ static void Demos_MenuInit(void)
 	s_demos.arrows.generic.type = MTYPE_BITMAP;
 	s_demos.arrows.generic.name = ART_ARROWS;
 	s_demos.arrows.generic.flags = QMF_INACTIVE;
-	s_demos.arrows.generic.x = 320 - ARROWS_WIDTH / 2;
-	s_demos.arrows.generic.y = 400;
+	s_demos.arrows.generic.x = (uis.screenXSize - ARROWS_WIDTH) / 2;
+	s_demos.arrows.generic.y = uis.screenYSize - 64;
 	s_demos.arrows.width = ARROWS_WIDTH;
 	s_demos.arrows.height = ARROWS_HEIGHT;
 
 	s_demos.left.generic.type = MTYPE_BITMAP;
 	s_demos.left.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS | QMF_MOUSEONLY;
-	s_demos.left.generic.x = 320 - ARROWS_WIDTH / 2;
-	s_demos.left.generic.y = 400;
+	s_demos.left.generic.x = (uis.screenXSize - ARROWS_WIDTH) / 2;
+	s_demos.left.generic.y = uis.screenYSize - 64;
 	s_demos.left.generic.id = ID_LEFT;
 	s_demos.left.generic.callback = Demos_MenuEvent;
 	s_demos.left.width = ARROWS_WIDTH / 2;
@@ -185,8 +185,8 @@ static void Demos_MenuInit(void)
 
 	s_demos.right.generic.type = MTYPE_BITMAP;
 	s_demos.right.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS | QMF_MOUSEONLY;
-	s_demos.right.generic.x = 320;
-	s_demos.right.generic.y = 400;
+	s_demos.right.generic.x = uis.screenXSize / 2;
+	s_demos.right.generic.y = uis.screenYSize - 64;
 	s_demos.right.generic.id = ID_RIGHT;
 	s_demos.right.generic.callback = Demos_MenuEvent;
 	s_demos.right.width = ARROWS_WIDTH / 2;
@@ -199,12 +199,12 @@ static void Demos_MenuInit(void)
 	s_demos.back.generic.id = ID_BACK;
 	s_demos.back.generic.callback = Demos_MenuEvent;
 	s_demos.back.generic.x = 0;
-	s_demos.back.generic.y = 480 - 64;
+	s_demos.back.generic.y = uis.screenYSize - 64;
 	s_demos.back.width = 128;
 	s_demos.back.height = 64;
 	s_demos.back.focuspic = UI_ART_BUTTON_FOCUS;
 	s_demos.back.generic.caption.text = "Back";
-	s_demos.back.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
+	s_demos.back.generic.caption.style = UI_CENTER;
 	s_demos.back.generic.caption.fontsize = 0.6f;
 	s_demos.back.generic.caption.font = &uis.buttonFont;
 	s_demos.back.generic.caption.color = text_color_normal;
@@ -213,16 +213,16 @@ static void Demos_MenuInit(void)
 
 	s_demos.go.generic.type = MTYPE_BITMAP;
 	s_demos.go.generic.name = UI_ART_BUTTON;
-	s_demos.go.generic.flags = QMF_RIGHT_JUSTIFY | QMF_PULSEIFFOCUS;
+	s_demos.go.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	s_demos.go.generic.id = ID_GO;
 	s_demos.go.generic.callback = Demos_MenuEvent;
-	s_demos.go.generic.x = 640;
-	s_demos.go.generic.y = 480 - 64;
+	s_demos.go.generic.x = uis.screenXSize * 0.8f;
+	s_demos.go.generic.y = uis.screenYSize - 64;
 	s_demos.go.width = 128;
 	s_demos.go.height = 64;
 	s_demos.go.focuspic = UI_ART_BUTTON_FOCUS;
 	s_demos.go.generic.caption.text = "Go";
-	s_demos.go.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
+	s_demos.go.generic.caption.style = UI_CENTER;
 	s_demos.go.generic.caption.fontsize = 0.6f;
 	s_demos.go.generic.caption.font = &uis.buttonFont;
 	s_demos.go.generic.caption.color = text_color_normal;
@@ -232,7 +232,7 @@ static void Demos_MenuInit(void)
 	s_demos.list.generic.flags = QMF_PULSEIFFOCUS | QMF_CENTER_JUSTIFY;
 	s_demos.list.generic.callback = Demos_MenuEvent;
 	s_demos.list.generic.id = ID_LIST;
-	s_demos.list.generic.x = 320;
+	s_demos.list.generic.x = uis.screenXSize / 2;
 	s_demos.list.generic.y = 130;
 	s_demos.list.width = 48;
 	s_demos.list.height = 14;

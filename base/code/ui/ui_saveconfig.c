@@ -140,11 +140,11 @@ static void UI_SaveConfigMenu_Init(void)
 	saveConfig.menu.fullscreen = qtrue;
 
 	saveConfig.banner.generic.type = MTYPE_BTEXT;
-	saveConfig.banner.generic.x = 320;
+	saveConfig.banner.generic.x = uis.screenXSize / 2;
 	saveConfig.banner.generic.y = 16;
 	saveConfig.banner.string = "SAVE CONFIG";
 	saveConfig.banner.color = color_white;
-	saveConfig.banner.style = UI_CENTER | UI_DROPSHADOW;
+	saveConfig.banner.style = UI_CENTER;
 
 	saveConfig.background.generic.type = MTYPE_BITMAP;
 	saveConfig.background.generic.name = ART_BACKGROUND;
@@ -172,12 +172,12 @@ static void UI_SaveConfigMenu_Init(void)
 	saveConfig.back.generic.id = ID_BACK;
 	saveConfig.back.generic.callback = UI_SaveConfigMenu_BackEvent;
 	saveConfig.back.generic.x = 0;
-	saveConfig.back.generic.y = 480 - 64;
+	saveConfig.back.generic.y = uis.screenYSize - 64;
 	saveConfig.back.width = 128;
 	saveConfig.back.height = 64;
 	saveConfig.back.focuspic = UI_ART_BUTTON_FOCUS;
 	saveConfig.back.generic.caption.text = "Back";
-	saveConfig.back.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
+	saveConfig.back.generic.caption.style = UI_CENTER;
 	saveConfig.back.generic.caption.fontsize = 0.6f;
 	saveConfig.back.generic.caption.font = &uis.buttonFont;
 	saveConfig.back.generic.caption.color = text_color_normal;
@@ -185,16 +185,16 @@ static void UI_SaveConfigMenu_Init(void)
 
 	saveConfig.save.generic.type = MTYPE_BITMAP;
 	saveConfig.save.generic.name = UI_ART_BUTTON;
-	saveConfig.save.generic.flags = QMF_RIGHT_JUSTIFY | QMF_PULSEIFFOCUS;
+	saveConfig.save.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	saveConfig.save.generic.id = ID_SAVE;
 	saveConfig.save.generic.callback = UI_SaveConfigMenu_SaveEvent;
-	saveConfig.save.generic.x = 640;
-	saveConfig.save.generic.y = 480 - 64;
+	saveConfig.save.generic.x = uis.screenXSize * 0.8f;
+	saveConfig.save.generic.y = uis.screenYSize - 64;
 	saveConfig.save.width = 128;
 	saveConfig.save.height = 64;
 	saveConfig.save.focuspic = UI_ART_BUTTON_FOCUS;
 	saveConfig.save.generic.caption.text = "Save";
-	saveConfig.save.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
+	saveConfig.save.generic.caption.style = UI_CENTER;
 	saveConfig.save.generic.caption.fontsize = 0.6f;
 	saveConfig.save.generic.caption.font = &uis.buttonFont;
 	saveConfig.save.generic.caption.color = text_color_normal;

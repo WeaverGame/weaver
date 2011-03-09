@@ -580,7 +580,7 @@ void UI_XPPM_Player(float x, float y, float w, float h, playerInfo_t * pi, int t
 
 	//UI_DrawRect(x, y, w, h, colorYellow);
 
-	UI_AdjustFrom640(&x, &y, &w, &h);
+	//UI_AdjustFrom640(&x, &y, &w, &h);
 
 	memset(&refdef, 0, sizeof(refdef));
 	memset(&body, 0, sizeof(body));

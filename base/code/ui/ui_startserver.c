@@ -416,12 +416,12 @@ static void StartServer_LevelshotDraw(void *self)
 	if(focus)
 	{
 		color = text_color_highlight;
-		style = UI_CENTER | UI_DROPSHADOW | UI_PULSE;
+		style = UI_CENTER | UI_PULSE;
 	}
 	else
 	{
 		color = text_color_highlight;
-		style = UI_CENTER | UI_DROPSHADOW;
+		style = UI_CENTER;
 	}
 
 	x = b->generic.x;
@@ -469,7 +469,7 @@ static void StartServer_MenuInit(void)
 	s_startserver.menu.fullscreen = qtrue;
 
 	s_startserver.banner.generic.type = MTYPE_BTEXT;
-	s_startserver.banner.generic.x = 320;
+	s_startserver.banner.generic.x = uis.screenXSize / 2;;
 	s_startserver.banner.generic.y = 16;
 	s_startserver.banner.string = "GAME SERVER";
 	s_startserver.banner.color = color_white;
@@ -496,7 +496,7 @@ static void StartServer_MenuInit(void)
 	s_startserver.gametype.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
 	s_startserver.gametype.generic.callback = StartServer_GametypeEvent;
 	s_startserver.gametype.generic.id = ID_GAMETYPE;
-	s_startserver.gametype.generic.x = 320 - 24;
+	s_startserver.gametype.generic.x = uis.screenXSize / 2 - 24;
 	s_startserver.gametype.generic.y = 368;
 	s_startserver.gametype.itemnames = gametype_items;
 
@@ -577,7 +577,7 @@ static void StartServer_MenuInit(void)
 	s_startserver.back.generic.callback = StartServer_MenuEvent;
 	s_startserver.back.generic.id = ID_STARTSERVERBACK;
 	s_startserver.back.generic.x = 0;
-	s_startserver.back.generic.y = 480 - 64;
+	s_startserver.back.generic.y = uis.screenYSize - 64;
 	s_startserver.back.width = 128;
 	s_startserver.back.height = 64;
 	s_startserver.back.focuspic = UI_ART_BUTTON_FOCUS;
@@ -591,11 +591,11 @@ static void StartServer_MenuInit(void)
 
 	s_startserver.next.generic.type = MTYPE_BITMAP;
 	s_startserver.next.generic.name = UI_ART_BUTTON;
-	s_startserver.next.generic.flags = QMF_RIGHT_JUSTIFY | QMF_PULSEIFFOCUS;
+	s_startserver.next.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	s_startserver.next.generic.callback = StartServer_MenuEvent;
 	s_startserver.next.generic.id = ID_STARTSERVERNEXT;
-	s_startserver.next.generic.x = 640;
-	s_startserver.next.generic.y = 480 - 64;
+	s_startserver.next.generic.x = uis.screenXSize * 0.8f;
+	s_startserver.next.generic.y = uis.screenYSize - 64;
 	s_startserver.next.width = 128;
 	s_startserver.next.height = 64;
 	s_startserver.next.focuspic = UI_ART_BUTTON_FOCUS;
@@ -611,8 +611,8 @@ static void StartServer_MenuInit(void)
 	s_startserver.item_null.generic.flags = QMF_LEFT_JUSTIFY | QMF_MOUSEONLY | QMF_SILENT;
 	s_startserver.item_null.generic.x = 0;
 	s_startserver.item_null.generic.y = 0;
-	s_startserver.item_null.width = 640;
-	s_startserver.item_null.height = 480;
+	s_startserver.item_null.width = uis.screenXSize;
+	s_startserver.item_null.height = uis.screenYSize;
 
 	Menu_AddItem(&s_startserver.menu, &s_startserver.banner);
 //  Menu_AddItem(&s_startserver.menu, &s_startserver.framel);
@@ -1130,7 +1130,7 @@ static void ServerOptions_StatusBar(void *ptr)
 	switch (((menucommon_s *) ptr)->id)
 	{
 		default:
-			UI_DrawString(320, 440, "0 = NO LIMIT", UI_CENTER | UI_SMALLFONT, colorWhite);
+			UI_DrawString(uis.screenXSize / 2, 440, "0 = NO LIMIT", UI_CENTER | UI_SMALLFONT, colorWhite);
 			break;
 	}
 }
@@ -1528,7 +1528,7 @@ static void PlayerName_Draw(void *item)
 ServerOptions_MenuInit
 =================
 */
-#define OPTIONS_X	456
+#define OPTIONS_X	(uis.screenXSize * 0.65);
 
 static void ServerOptions_MenuInit(qboolean multiplayer)
 {
@@ -1545,7 +1545,7 @@ static void ServerOptions_MenuInit(qboolean multiplayer)
 	s_serveroptions.menu.fullscreen = qtrue;
 
 	s_serveroptions.banner.generic.type = MTYPE_BTEXT;
-	s_serveroptions.banner.generic.x = 320;
+	s_serveroptions.banner.generic.x = uis.screenXSize / 2;;
 	s_serveroptions.banner.generic.y = 16;
 	s_serveroptions.banner.string = "GAME SERVER";
 	s_serveroptions.banner.color = color_white;
@@ -1553,7 +1553,7 @@ static void ServerOptions_MenuInit(qboolean multiplayer)
 
 	s_serveroptions.mappic.generic.type = MTYPE_BITMAP;
 	s_serveroptions.mappic.generic.flags = QMF_LEFT_JUSTIFY | QMF_INACTIVE;
-	s_serveroptions.mappic.generic.x = 352;
+	s_serveroptions.mappic.generic.x = uis.screenXSize / 2 + 32;
 	s_serveroptions.mappic.generic.y = 80;
 	s_serveroptions.mappic.width = 160;
 	s_serveroptions.mappic.height = 120;
@@ -1562,7 +1562,7 @@ static void ServerOptions_MenuInit(qboolean multiplayer)
 
 	s_serveroptions.picframe.generic.type = MTYPE_BITMAP;
 	s_serveroptions.picframe.generic.flags = QMF_LEFT_JUSTIFY | QMF_INACTIVE | QMF_HIGHLIGHT;
-	s_serveroptions.picframe.generic.x = 352;
+	s_serveroptions.picframe.generic.x = uis.screenXSize / 2 + 32;
 	s_serveroptions.picframe.generic.y = 80;
 	s_serveroptions.picframe.width = 160;
 	s_serveroptions.picframe.height = 120;
@@ -1701,7 +1701,7 @@ static void ServerOptions_MenuInit(qboolean multiplayer)
 	s_serveroptions.back.generic.callback = ServerOptions_Event;
 	s_serveroptions.back.generic.id = ID_BACK;
 	s_serveroptions.back.generic.x = 0;
-	s_serveroptions.back.generic.y = 480 - 64;
+	s_serveroptions.back.generic.y = uis.screenYSize - 64;
 	s_serveroptions.back.width = 128;
 	s_serveroptions.back.height = 64;
 	s_serveroptions.back.focuspic = UI_ART_BUTTON_FOCUS;
@@ -1714,11 +1714,11 @@ static void ServerOptions_MenuInit(qboolean multiplayer)
 
 	s_serveroptions.next.generic.type = MTYPE_BITMAP;
 	s_serveroptions.next.generic.name = GAMESERVER_NEXT0;
-	s_serveroptions.next.generic.flags = QMF_RIGHT_JUSTIFY | QMF_PULSEIFFOCUS | QMF_INACTIVE | QMF_GRAYED | QMF_HIDDEN;
+	s_serveroptions.next.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS | QMF_INACTIVE | QMF_GRAYED | QMF_HIDDEN;
 	s_serveroptions.next.generic.callback = ServerOptions_Event;
 	s_serveroptions.next.generic.id = ID_STARTSERVERNEXT;
-	s_serveroptions.next.generic.x = 640;
-	s_serveroptions.next.generic.y = 480 - 64 - 72;
+	s_serveroptions.next.generic.x = uis.screenXSize * 0.8f;
+	s_serveroptions.next.generic.y = uis.screenYSize - 64 - 72;
 	s_serveroptions.next.generic.statusbar = ServerOptions_StatusBar;
 	s_serveroptions.next.width = 128;
 	s_serveroptions.next.height = 64;
@@ -1726,11 +1726,11 @@ static void ServerOptions_MenuInit(qboolean multiplayer)
 
 	s_serveroptions.go.generic.type = MTYPE_BITMAP;
 	s_serveroptions.go.generic.name = UI_ART_BUTTON;
-	s_serveroptions.go.generic.flags = QMF_RIGHT_JUSTIFY | QMF_PULSEIFFOCUS;
+	s_serveroptions.go.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	s_serveroptions.go.generic.callback = ServerOptions_Event;
 	s_serveroptions.go.generic.id = ID_GO;
-	s_serveroptions.go.generic.x = 640;
-	s_serveroptions.go.generic.y = 480 - 64;
+	s_serveroptions.go.generic.x = uis.screenXSize * 0.8f;
+	s_serveroptions.go.generic.y = uis.screenYSize - 64;
 	s_serveroptions.go.width = 128;
 	s_serveroptions.go.height = 64;
 	s_serveroptions.go.focuspic = UI_ART_BUTTON_FOCUS;
@@ -2213,7 +2213,7 @@ static void UI_BotSelectMenu_Init(char *bot)
 	UI_BotSelectMenu_Cache();
 
 	botSelectInfo.banner.generic.type = MTYPE_BTEXT;
-	botSelectInfo.banner.generic.x = 320;
+	botSelectInfo.banner.generic.x = uis.screenXSize / 2;
 	botSelectInfo.banner.generic.y = 16;
 	botSelectInfo.banner.string = "SELECT BOT";
 	botSelectInfo.banner.color = color_white;
@@ -2294,7 +2294,7 @@ static void UI_BotSelectMenu_Init(char *bot)
 	botSelectInfo.back.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	botSelectInfo.back.generic.callback = UI_BotSelectMenu_BackEvent;
 	botSelectInfo.back.generic.x = 0;
-	botSelectInfo.back.generic.y = 480 - 64;
+	botSelectInfo.back.generic.y = uis.screenYSize - 64;
 	botSelectInfo.back.width = 128;
 	botSelectInfo.back.height = 64;
 	botSelectInfo.back.focuspic = UI_ART_BUTTON_FOCUS;
@@ -2307,10 +2307,10 @@ static void UI_BotSelectMenu_Init(char *bot)
 
 	botSelectInfo.go.generic.type = MTYPE_BITMAP;
 	botSelectInfo.go.generic.name = UI_ART_BUTTON;
-	botSelectInfo.go.generic.flags = QMF_RIGHT_JUSTIFY | QMF_PULSEIFFOCUS;
+	botSelectInfo.go.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	botSelectInfo.go.generic.callback = UI_BotSelectMenu_SelectEvent;
-	botSelectInfo.go.generic.x = 640;
-	botSelectInfo.go.generic.y = 480 - 64;
+	botSelectInfo.go.generic.x = uis.screenXSize * 0.8f;
+	botSelectInfo.go.generic.y = uis.screenYSize - 64;
 	botSelectInfo.go.width = 128;
 	botSelectInfo.go.height = 64;
 	botSelectInfo.go.focuspic = UI_ART_BUTTON_FOCUS;

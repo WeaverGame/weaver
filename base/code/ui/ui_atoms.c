@@ -28,6 +28,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 **********************************************************************/
 #include "ui_local.h"
 
+#define MENU_BG_W (uis.screenXSize * 0.6f)
+#define MENU_BG_H (uis.screenYSize * 0.9f)
+
 uiStatic_t      uis;
 qboolean        m_entersound;	// after a frame, so caching won't disrupt the sound
 
@@ -916,7 +919,7 @@ void UI_Text_PaintChar(float x, float y, float width, float height, float scale,
 
 	w = width * scale;
 	h = height * scale;
-	UI_AdjustFrom640(&x, &y, &w, &h);
+	//UI_AdjustFrom640(&x, &y, &w, &h);
 
 	trap_R_DrawStretchPic(x, y, w, h, s, t, s2, t2, hShader);
 }
@@ -1206,14 +1209,14 @@ void UI_MouseEvent(int dx, int dy)
 	uis.cursorx += dx;
 	if(uis.cursorx < 0)
 		uis.cursorx = 0;
-	else if(uis.cursorx > SCREEN_WIDTH)
-		uis.cursorx = SCREEN_WIDTH;
+	else if(uis.cursorx > uis.screenXSize)
+		uis.cursorx = uis.screenXSize;
 
 	uis.cursory += dy;
 	if(uis.cursory < 0)
 		uis.cursory = 0;
-	else if(uis.cursory > SCREEN_HEIGHT)
-		uis.cursory = SCREEN_HEIGHT;
+	else if(uis.cursory > uis.screenYSize)
+		uis.cursory = uis.screenYSize;
 
 	// region test the active menu items
 	for(i = 0; i < uis.activemenu->nitems; i++)
@@ -1398,6 +1401,8 @@ void UI_Init(void)
 	uis.screenXScale = uis.glconfig.vidWidth / 640.0;
 	uis.screenYScale = uis.glconfig.vidHeight / 480.0;
 	uis.screenScale = uis.glconfig.vidHeight * (1.0f / 480.0f);
+	uis.screenXSize = uis.glconfig.vidWidth;
+	uis.screenYSize = uis.glconfig.vidHeight;
 	if(uis.glconfig.vidWidth * 480 > uis.glconfig.vidHeight * 640)
 	{
 		// wide screen
@@ -1454,7 +1459,7 @@ void UI_DrawNamedPic(float x, float y, float width, float height, const char *pi
 	qhandle_t       hShader;
 
 	hShader = trap_R_RegisterShaderNoMip(picname);
-	UI_AdjustFrom640(&x, &y, &width, &height);
+	//UI_AdjustFrom640(&x, &y, &width, &height);
 	trap_R_DrawStretchPic(x, y, width, height, 0, 0, 1, 1, hShader);
 }
 
@@ -1489,7 +1494,7 @@ void UI_DrawHandlePic(float x, float y, float w, float h, qhandle_t hShader)
 		t1 = 1;
 	}
 
-	UI_AdjustFrom640(&x, &y, &w, &h);
+	//UI_AdjustFrom640(&x, &y, &w, &h);
 	trap_R_DrawStretchPic(x, y, w, h, s0, t0, s1, t1, hShader);
 }
 
@@ -1502,7 +1507,7 @@ Coordinates are 640*480 virtual values
 */
 void UI_DrawRotatedPic(float x, float y, float width, float height, qhandle_t hShader, float angle)
 {
-	UI_AdjustFrom640(&x, &y, &width, &height);
+	//UI_AdjustFrom640(&x, &y, &width, &height);
 
 	trap_R_DrawRotatedPic(x, y, width, height, 0, 0, 1, 1, hShader, angle);
 }
@@ -1518,7 +1523,7 @@ void UI_FillRect(float x, float y, float width, float height, const float *color
 {
 	trap_R_SetColor(color);
 
-	UI_AdjustFrom640(&x, &y, &width, &height);
+	//UI_AdjustFrom640(&x, &y, &width, &height);
 	trap_R_DrawStretchPic(x, y, width, height, 0, 0, 0, 0, uis.whiteShader);
 
 	trap_R_SetColor(NULL);
@@ -1535,7 +1540,7 @@ void UI_DrawRect(float x, float y, float width, float height, const float *color
 {
 	trap_R_SetColor(color);
 
-	UI_AdjustFrom640(&x, &y, &width, &height);
+	//UI_AdjustFrom640(&x, &y, &width, &height);
 
 	trap_R_DrawStretchPic(x, y, width, 1, 0, 0, 0, 0, uis.whiteShader);
 	trap_R_DrawStretchPic(x, y, 1, height, 0, 0, 0, 0, uis.whiteShader);
@@ -1578,7 +1583,7 @@ void UI_Refresh(int realtime)
 	UI_UpdateCvars();
 
 	UI_SetColor(color_white);
-	trap_R_DrawStretchPic(0, 0, SCREEN_WIDTH*2, SCREEN_HEIGHT*2, 0, 0, 0, 0, uis.whiteShader);
+	//trap_R_DrawStretchPic(0, 0, uis.screenXSize, uis.screenYSize, 0, 0, 0, 0, uis.whiteShader);
 
 	if(uis.activemenu)
 	{
@@ -1588,13 +1593,19 @@ void UI_Refresh(int realtime)
 //          if(uis.activemenu->showlogo)
 //          {
 //FIXME: non 4:3 resolutions are causeing black bars
-			UI_DrawHandlePic(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, uis.whiteShader);
+			//UI_DrawHandlePic(0, 0, uis.screenXSize, uis.screenYSize, uis.whiteShader);
+			UI_DrawHandlePic(0, 0, uis.screenXSize, uis.screenYSize, uis.backScene);
 //          }
 //          else
 //          {
-//              UI_DrawHandlePic(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, uis.menuBackNoLogoShader);
+//              UI_DrawHandlePic(0, 0, uis.screenXSize, SCREEN_HEIGHT, uis.menuBackNoLogoShader);
 //          }
 		}
+
+		UI_DrawHandlePic((uis.screenXSize - MENU_BG_W)/2, 0, MENU_BG_W, MENU_BG_H, uis.whiteGrad);
+		UI_DrawHandlePic((uis.screenXSize - MENU_BG_W)/2 - 6, 0, 3, MENU_BG_H, uis.whiteGrad);
+		UI_DrawHandlePic((uis.screenXSize + MENU_BG_W)/2 + 6, 0, 3, MENU_BG_H, uis.whiteGrad);
+		UI_DrawHandlePic(0, uis.screenYSize - 64, uis.screenXSize, 64, uis.blackBar);
 
 		if(uis.activemenu->draw)
 			uis.activemenu->draw();

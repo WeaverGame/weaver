@@ -135,7 +135,7 @@ static void UI_CinematicsMenu_Init(void)
 	cinematicsMenuInfo.banner.generic.y = 16;
 	cinematicsMenuInfo.banner.string = "CINEMATICS";
 	cinematicsMenuInfo.banner.color = color_white;
-	cinematicsMenuInfo.banner.style = UI_CENTER | UI_DROPSHADOW;
+	cinematicsMenuInfo.banner.style = UI_CENTER;
 
 /*	cinematicsMenuInfo.framel.generic.type = MTYPE_BITMAP;
 	cinematicsMenuInfo.framel.generic.name = ART_FRAMEL;
@@ -306,7 +306,7 @@ static void UI_CinematicsMenu_Init(void)
 	cinematicsMenuInfo.back.height = 64;
 	cinematicsMenuInfo.back.focuspic = UI_ART_BUTTON_FOCUS;
 	cinematicsMenuInfo.back.generic.caption.text = "Back";
-	cinematicsMenuInfo.back.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
+	cinematicsMenuInfo.back.generic.caption.style = UI_CENTER;
 	cinematicsMenuInfo.back.generic.caption.fontsize = 0.6f;
 	cinematicsMenuInfo.back.generic.caption.font = &uis.buttonFont;
 	cinematicsMenuInfo.back.generic.caption.color = text_color_normal;

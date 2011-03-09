@@ -209,7 +209,7 @@ static void UI_Mods_MenuInit(void)
 	s_mods.banner.generic.y = 16;
 	s_mods.banner.string = "MODS";
 	s_mods.banner.color = color_white;
-	s_mods.banner.style = UI_CENTER | UI_DROPSHADOW;
+	s_mods.banner.style = UI_CENTER;
 
 /*	s_mods.framel.generic.type = MTYPE_BITMAP;
 	s_mods.framel.generic.name = ART_FRAMEL;
@@ -238,7 +238,7 @@ static void UI_Mods_MenuInit(void)
 	s_mods.back.height = 64;
 	s_mods.back.focuspic = UI_ART_BUTTON_FOCUS;
 	s_mods.back.generic.caption.text = "Back";
-	s_mods.back.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
+	s_mods.back.generic.caption.style = UI_CENTER;
 	s_mods.back.generic.caption.fontsize = 0.6f;
 	s_mods.back.generic.caption.font = &uis.buttonFont;
 	s_mods.back.generic.caption.color = text_color_normal;

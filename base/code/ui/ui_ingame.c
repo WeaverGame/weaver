@@ -200,9 +200,9 @@ void InGame_MenuInit(void)
 	s_ingame.banner.generic.type = MTYPE_BTEXT;
 	s_ingame.banner.generic.x = 320;
 	s_ingame.banner.generic.y = 16;
-	s_ingame.banner.string = "INGAME MENU";
+	s_ingame.banner.string = "Menu";
 	s_ingame.banner.color = color_white;
-	s_ingame.banner.style = UI_CENTER | UI_DROPSHADOW;
+	s_ingame.banner.style = UI_CENTER;
 
 
 	y = 134;
@@ -212,9 +212,9 @@ void InGame_MenuInit(void)
 	s_ingame.team.generic.y = y;
 	s_ingame.team.generic.id = ID_TEAM;
 	s_ingame.team.generic.callback = InGame_Event;
-	s_ingame.team.string = "START";
+	s_ingame.team.string = "Start";
 	s_ingame.team.color = color_white;
-	s_ingame.team.style = UI_CENTER | UI_DROPSHADOW;
+	s_ingame.team.style = UI_CENTER;
 
 	/*
 	y += INGAME_MENU_VERTICAL_SPACING;
@@ -224,9 +224,9 @@ void InGame_MenuInit(void)
 	s_ingame.addbots.generic.y = y;
 	s_ingame.addbots.generic.id = ID_ADDBOTS;
 	s_ingame.addbots.generic.callback = InGame_Event;
-	s_ingame.addbots.string = "ADD BOTS";
+	s_ingame.addbots.string = "Add Bots";
 	s_ingame.addbots.color = color_white;
-	s_ingame.addbots.style = UI_CENTER | UI_DROPSHADOW;
+	s_ingame.addbots.style = UI_CENTER;
 	if(!trap_Cvar_VariableValue("sv_running") || (trap_Cvar_VariableValue("g_gametype") == GT_SINGLE_PLAYER))
 	{
 		s_ingame.addbots.generic.flags |= QMF_GRAYED;
@@ -239,9 +239,9 @@ void InGame_MenuInit(void)
 	s_ingame.removebots.generic.y = y;
 	s_ingame.removebots.generic.id = ID_REMOVEBOTS;
 	s_ingame.removebots.generic.callback = InGame_Event;
-	s_ingame.removebots.string = "REMOVE BOTS";
+	s_ingame.removebots.string = "Remove Bots";
 	s_ingame.removebots.color = color_white;
-	s_ingame.removebots.style = UI_CENTER | UI_DROPSHADOW;
+	s_ingame.removebots.style = UI_CENTER;
 	if(!trap_Cvar_VariableValue("sv_running") || (trap_Cvar_VariableValue("g_gametype") == GT_SINGLE_PLAYER))
 	{
 		s_ingame.removebots.generic.flags |= QMF_GRAYED;
@@ -257,9 +257,9 @@ void InGame_MenuInit(void)
 		s_ingame.teamorders.generic.y = y;
 		s_ingame.teamorders.generic.id = ID_TEAMORDERS;
 		s_ingame.teamorders.generic.callback = InGame_Event;
-		s_ingame.teamorders.string = "TEAM ORDERS";
+		s_ingame.teamorders.string = "Team Orders";
 		s_ingame.teamorders.color = color_white;
-		s_ingame.teamorders.style = UI_CENTER | UI_DROPSHADOW;
+		s_ingame.teamorders.style = UI_CENTER;
 
 		trap_GetClientState(&cs);
 		trap_GetConfigString(CS_PLAYERS + cs.clientNum, info, MAX_INFO_STRING);
@@ -273,24 +273,24 @@ void InGame_MenuInit(void)
 	y += INGAME_MENU_VERTICAL_SPACING;
 	s_ingame.setup.generic.type = MTYPE_PTEXT;
 	s_ingame.setup.generic.flags = QMF_CENTER_JUSTIFY | QMF_PULSEIFFOCUS;
-	s_ingame.setup.generic.x = 320;
+	s_ingame.setup.generic.x = uis.screenXSize / 2;
 	s_ingame.setup.generic.y = y;
 	s_ingame.setup.generic.id = ID_SETUP;
 	s_ingame.setup.generic.callback = InGame_Event;
-	s_ingame.setup.string = "SETUP";
+	s_ingame.setup.string = "Options";
 	s_ingame.setup.color = color_white;
-	s_ingame.setup.style = UI_CENTER | UI_DROPSHADOW;
+	s_ingame.setup.style = UI_CENTER;
 
 	y += INGAME_MENU_VERTICAL_SPACING;
 	s_ingame.server.generic.type = MTYPE_PTEXT;
 	s_ingame.server.generic.flags = QMF_CENTER_JUSTIFY | QMF_PULSEIFFOCUS;
-	s_ingame.server.generic.x = 320;
+	s_ingame.server.generic.x = uis.screenXSize / 2;
 	s_ingame.server.generic.y = y;
 	s_ingame.server.generic.id = ID_SERVERINFO;
 	s_ingame.server.generic.callback = InGame_Event;
-	s_ingame.server.string = "SERVER INFO";
+	s_ingame.server.string = "Server Info";
 	s_ingame.server.color = color_white;
-	s_ingame.server.style = UI_CENTER | UI_DROPSHADOW;
+	s_ingame.server.style = UI_CENTER;
 
 
 	s_ingame.restart.generic.type = MTYPE_BITMAP;
@@ -299,12 +299,12 @@ void InGame_MenuInit(void)
 	s_ingame.restart.generic.callback = InGame_Event;
 	s_ingame.restart.generic.id = ID_RESTART;
 	s_ingame.restart.generic.x = 320 - 32;
-	s_ingame.restart.generic.y = 480 - 64;
+	s_ingame.restart.generic.y = uis.screenYSize - 64;
 	s_ingame.restart.width = 128;
 	s_ingame.restart.height = 64;
 	s_ingame.restart.focuspic = UI_ART_BUTTON_FOCUS;
 	s_ingame.restart.generic.caption.text = "Restart";
-	s_ingame.restart.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
+	s_ingame.restart.generic.caption.style = UI_CENTER;
 	s_ingame.restart.generic.caption.fontsize = 0.6f;
 	s_ingame.restart.generic.caption.font = &uis.buttonFont;
 	s_ingame.restart.generic.caption.color = text_color_normal;
@@ -321,12 +321,12 @@ void InGame_MenuInit(void)
 	s_ingame.quit.generic.callback = InGame_Event;
 	s_ingame.quit.generic.id = ID_QUIT;
 	s_ingame.quit.generic.x = 320 + 32;
-	s_ingame.quit.generic.y = 480 - 64;
+	s_ingame.quit.generic.y = uis.screenYSize - 64;
 	s_ingame.quit.width = 128;
 	s_ingame.quit.height = 64;
 	s_ingame.quit.focuspic = UI_ART_BUTTON_FOCUS;
 	s_ingame.quit.generic.caption.text = "Quit";
-	s_ingame.quit.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
+	s_ingame.quit.generic.caption.style = UI_CENTER;
 	s_ingame.quit.generic.caption.fontsize = 0.6f;
 	s_ingame.quit.generic.caption.font = &uis.buttonFont;
 	s_ingame.quit.generic.caption.color = text_color_normal;
@@ -344,7 +344,7 @@ void InGame_MenuInit(void)
 	s_ingame.leave.height = 64;
 	s_ingame.leave.focuspic = UI_ART_BUTTON_FOCUS;
 	s_ingame.leave.generic.caption.text = "Leave";
-	s_ingame.leave.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
+	s_ingame.leave.generic.caption.style = UI_CENTER;
 	s_ingame.leave.generic.caption.fontsize = 0.6f;
 	s_ingame.leave.generic.caption.font = &uis.buttonFont;
 	s_ingame.leave.generic.caption.color = text_color_normal;
@@ -362,7 +362,7 @@ void InGame_MenuInit(void)
 	s_ingame.resume.height = 64;
 	s_ingame.resume.focuspic = UI_ART_BUTTON_FOCUS;
 	s_ingame.resume.generic.caption.text = "Back";
-	s_ingame.resume.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
+	s_ingame.resume.generic.caption.style = UI_CENTER;
 	s_ingame.resume.generic.caption.fontsize = 0.6f;
 	s_ingame.resume.generic.caption.font = &uis.buttonFont;
 	s_ingame.resume.generic.caption.color = text_color_normal;

@@ -92,12 +92,12 @@ Setup_ResetDefaults_Draw
 */
 static void Setup_ResetDefaults_Draw(void)
 {
-	//UI_DrawProportionalString(SCREEN_WIDTH / 2, 356 + PROP_HEIGHT * 0, "WARNING: This will reset *ALL*", UI_CENTER | UI_SMALLFONT,                              color_yellow);
-	//UI_DrawProportionalString(SCREEN_WIDTH / 2, 356 + PROP_HEIGHT * 1, "options to their default values.",                              UI_CENTER | UI_SMALLFONT, color_yellow);
+	//UI_DrawProportionalString(uis.screenXSize / 2, 356 + PROP_HEIGHT * 0, "WARNING: This will reset *ALL*", UI_CENTER | UI_SMALLFONT,                              color_yellow);
+	//UI_DrawProportionalString(uis.screenXSize / 2, 356 + PROP_HEIGHT * 1, "options to their default values.",                              UI_CENTER | UI_SMALLFONT, color_yellow);
 
 
-	UI_Text_Paint_AutoWrapped(320, 356, 0.2f, 400, "WARNING: This will reset *ALL* options to their default values.",
-							  UI_CENTER | UI_DROPSHADOW, color_white, &uis.freeSansFont);
+	UI_Text_Paint_AutoWrapped(uis.screenXSize / 2, 356, 0.2f, 400, "WARNING: This will reset *ALL* options to their default values.",
+							  UI_CENTER, color_white, &uis.freeSansFont);
 
 
 
@@ -169,11 +169,11 @@ static void UI_SetupMenu_Init(void)
 	setupMenuInfo.menu.fullscreen = qtrue;
 
 	setupMenuInfo.banner.generic.type = MTYPE_BTEXT;
-	setupMenuInfo.banner.generic.x = 320;
+	setupMenuInfo.banner.generic.x = uis.screenXSize / 2;
 	setupMenuInfo.banner.generic.y = 16;
-	setupMenuInfo.banner.string = "SETUP";
+	setupMenuInfo.banner.string = "Options";
 	setupMenuInfo.banner.color = color_white;
-	setupMenuInfo.banner.style = UI_CENTER | UI_DROPSHADOW;
+	setupMenuInfo.banner.style = UI_CENTER;
 /*
 	setupMenuInfo.framel.generic.type = MTYPE_BITMAP;
 	setupMenuInfo.framel.generic.name = ART_FRAMEL;
@@ -194,46 +194,46 @@ static void UI_SetupMenu_Init(void)
 	y = 134;
 	setupMenuInfo.setupplayer.generic.type = MTYPE_PTEXT;
 	setupMenuInfo.setupplayer.generic.flags = QMF_CENTER_JUSTIFY | QMF_PULSEIFFOCUS;
-	setupMenuInfo.setupplayer.generic.x = 320;
+	setupMenuInfo.setupplayer.generic.x = uis.screenXSize / 2;
 	setupMenuInfo.setupplayer.generic.y = y;
 	setupMenuInfo.setupplayer.generic.id = ID_CUSTOMIZEPLAYER;
 	setupMenuInfo.setupplayer.generic.callback = UI_SetupMenu_Event;
-	setupMenuInfo.setupplayer.string = "PLAYER";
+	setupMenuInfo.setupplayer.string = "Player";
 	setupMenuInfo.setupplayer.color = colorWhite;
-	setupMenuInfo.setupplayer.style = UI_CENTER | UI_DROPSHADOW;
+	setupMenuInfo.setupplayer.style = UI_CENTER;
 
 	y += SETUP_MENU_VERTICAL_SPACING;
 	setupMenuInfo.setupcontrols.generic.type = MTYPE_PTEXT;
 	setupMenuInfo.setupcontrols.generic.flags = QMF_CENTER_JUSTIFY | QMF_PULSEIFFOCUS;
-	setupMenuInfo.setupcontrols.generic.x = 320;
+	setupMenuInfo.setupcontrols.generic.x = uis.screenXSize / 2;
 	setupMenuInfo.setupcontrols.generic.y = y;
 	setupMenuInfo.setupcontrols.generic.id = ID_CUSTOMIZECONTROLS;
 	setupMenuInfo.setupcontrols.generic.callback = UI_SetupMenu_Event;
-	setupMenuInfo.setupcontrols.string = "CONTROLS";
+	setupMenuInfo.setupcontrols.string = "Controls";
 	setupMenuInfo.setupcontrols.color = colorWhite;
-	setupMenuInfo.setupcontrols.style = UI_CENTER | UI_DROPSHADOW;
+	setupMenuInfo.setupcontrols.style = UI_CENTER;
 
 	y += SETUP_MENU_VERTICAL_SPACING;
 	setupMenuInfo.setupsystem.generic.type = MTYPE_PTEXT;
 	setupMenuInfo.setupsystem.generic.flags = QMF_CENTER_JUSTIFY | QMF_PULSEIFFOCUS;
-	setupMenuInfo.setupsystem.generic.x = 320;
+	setupMenuInfo.setupsystem.generic.x = uis.screenXSize / 2;
 	setupMenuInfo.setupsystem.generic.y = y;
 	setupMenuInfo.setupsystem.generic.id = ID_SYSTEMCONFIG;
 	setupMenuInfo.setupsystem.generic.callback = UI_SetupMenu_Event;
-	setupMenuInfo.setupsystem.string = "SYSTEM";
+	setupMenuInfo.setupsystem.string = "System";
 	setupMenuInfo.setupsystem.color = colorWhite;
-	setupMenuInfo.setupsystem.style = UI_CENTER | UI_DROPSHADOW;
+	setupMenuInfo.setupsystem.style = UI_CENTER;
 
 	y += SETUP_MENU_VERTICAL_SPACING;
 	setupMenuInfo.game.generic.type = MTYPE_PTEXT;
 	setupMenuInfo.game.generic.flags = QMF_CENTER_JUSTIFY | QMF_PULSEIFFOCUS;
-	setupMenuInfo.game.generic.x = 320;
+	setupMenuInfo.game.generic.x = uis.screenXSize / 2;
 	setupMenuInfo.game.generic.y = y;
 	setupMenuInfo.game.generic.id = ID_GAME;
 	setupMenuInfo.game.generic.callback = UI_SetupMenu_Event;
-	setupMenuInfo.game.string = "GAME OPTIONS";
+	setupMenuInfo.game.string = "Game";
 	setupMenuInfo.game.color = colorWhite;
-	setupMenuInfo.game.style = UI_CENTER | UI_DROPSHADOW;
+	setupMenuInfo.game.style = UI_CENTER;
 
 	if(!trap_Cvar_VariableValue("cl_paused"))
 	{
@@ -241,7 +241,7 @@ static void UI_SetupMenu_Init(void)
 		y += SETUP_MENU_VERTICAL_SPACING;
 		setupMenuInfo.load.generic.type = MTYPE_PTEXT;
 		setupMenuInfo.load.generic.flags = QMF_CENTER_JUSTIFY | QMF_PULSEIFFOCUS;
-		setupMenuInfo.load.generic.x = 320;
+		setupMenuInfo.load.generic.x = uis.screenXSize / 2;
 		setupMenuInfo.load.generic.y = y;
 		setupMenuInfo.load.generic.id = ID_LOAD;
 		setupMenuInfo.load.generic.callback = UI_SetupMenu_Event;
@@ -252,7 +252,7 @@ static void UI_SetupMenu_Init(void)
 		y += SETUP_MENU_VERTICAL_SPACING;
 		setupMenuInfo.save.generic.type = MTYPE_PTEXT;
 		setupMenuInfo.save.generic.flags = QMF_CENTER_JUSTIFY | QMF_PULSEIFFOCUS;
-		setupMenuInfo.save.generic.x = 320;
+		setupMenuInfo.save.generic.x = uis.screenXSize / 2;
 		setupMenuInfo.save.generic.y = y;
 		setupMenuInfo.save.generic.id = ID_SAVE;
 		setupMenuInfo.save.generic.callback = UI_SetupMenu_Event;
@@ -264,11 +264,11 @@ static void UI_SetupMenu_Init(void)
 		y += SETUP_MENU_VERTICAL_SPACING;
 		setupMenuInfo.defaults.generic.type = MTYPE_PTEXT;
 		setupMenuInfo.defaults.generic.flags = QMF_CENTER_JUSTIFY | QMF_PULSEIFFOCUS;
-		setupMenuInfo.defaults.generic.x = 320;
+		setupMenuInfo.defaults.generic.x = uis.screenXSize / 2;
 		setupMenuInfo.defaults.generic.y = y;
 		setupMenuInfo.defaults.generic.id = ID_DEFAULTS;
 		setupMenuInfo.defaults.generic.callback = UI_SetupMenu_Event;
-		setupMenuInfo.defaults.string = "DEFAULTS";
+		setupMenuInfo.defaults.string = "Defaults";
 		setupMenuInfo.defaults.color = colorWhite;
 		setupMenuInfo.defaults.style = UI_CENTER;
 	}
@@ -279,12 +279,12 @@ static void UI_SetupMenu_Init(void)
 	setupMenuInfo.back.generic.id = ID_BACK;
 	setupMenuInfo.back.generic.callback = UI_SetupMenu_Event;
 	setupMenuInfo.back.generic.x = 0;
-	setupMenuInfo.back.generic.y = 480 - 64;
+	setupMenuInfo.back.generic.y = uis.screenYSize - 64;
 	setupMenuInfo.back.width = 128;
 	setupMenuInfo.back.height = 64;
 	setupMenuInfo.back.focuspic = UI_ART_BUTTON_FOCUS;
 	setupMenuInfo.back.generic.caption.text = "Back";
-	setupMenuInfo.back.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
+	setupMenuInfo.back.generic.caption.style = UI_CENTER;
 	setupMenuInfo.back.generic.caption.fontsize = 0.6f;
 	setupMenuInfo.back.generic.caption.font = &uis.buttonFont;
 	setupMenuInfo.back.generic.caption.color = text_color_normal;

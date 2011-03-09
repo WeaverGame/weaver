@@ -238,7 +238,7 @@ void UI_DrawConnectScreen(qboolean overlay)
 	{
 		// draw the dialog background
 		UI_SetColor(color_white);
-		UI_DrawHandlePic(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, uis.whiteBack);
+		UI_DrawHandlePic(0, 0, uis.screenXSize, uis.screenYSize, uis.whiteBack);
 	}
 
 	// see what information we should display
@@ -251,21 +251,21 @@ void UI_DrawConnectScreen(qboolean overlay)
 	{
 		s = va("Loading %s", Info_ValueForKey(info, "mapname"));
 		//50 = CG_INFO_PERCENT_WIDTH (cg_local.h)
-		UI_Text_Paint(SCREEN_WIDTH - 50, SCREEN_HEIGHT - 15, 0.2f, color_white, s, 0, 0, UI_RIGHT, &uis.TextFont);
+		UI_Text_Paint(uis.screenXSize - 50, SCREEN_HEIGHT - 15, 0.2f, color_white, s, 0, 0, UI_RIGHT, &uis.TextFont);
 	}
 	*/
 
 	// display global MOTD at bottom
-	//UI_DrawProportionalString(SCREEN_WIDTH / 2, SCREEN_HEIGHT - 32,                             Info_ValueForKey(cstate.updateInfoString, "motd"), UI_CENTER | UI_SMALLFONT | UI_DROPSHADOW,                            menu_text_color);
+	//UI_DrawProportionalString(uis.screenXSize / 2, uis.screenYSize - 32,                             Info_ValueForKey(cstate.updateInfoString, "motd"), UI_CENTER | UI_SMALLFONT | UI_DROPSHADOW,                            menu_text_color);
 
 	// print any server info (server full, bad version, etc)
 	if(cstate.connState < CA_CONNECTED)
 	{
-		UI_DrawProportionalString_AutoWrapped(320, 192, 630, 20, cstate.messageString, UI_CENTER | UI_SMALLFONT | UI_DROPSHADOW,
+		UI_DrawProportionalString_AutoWrapped(uis.screenXSize / 2, 192, 630, 20, cstate.messageString, UI_CENTER | UI_SMALLFONT,
 											  menu_text_color);
 
 		s = va("%s", cstate.messageString);
-		UI_Text_Paint(320, 60, 0.25f, color_red, s, 0, 0, UI_CENTER, &uis.BTextFont);
+		UI_Text_Paint(uis.screenXSize / 2, 60, 0.25f, color_red, s, 0, 0, UI_CENTER, &uis.BTextFont);
 	}
 	else
 	{

@@ -98,14 +98,14 @@ static void DriverInfo_MenuDraw(void)
 
 	Menu_Draw(&s_driverinfo.menu);
 
-	UI_DrawString(320, 80, "VENDOR", UI_CENTER | UI_SMALLFONT, color_red);
-	UI_DrawString(320, 152, "PIXELFORMAT", UI_CENTER | UI_SMALLFONT, color_red);
-	UI_DrawString(320, 192, "EXTENSIONS", UI_CENTER | UI_SMALLFONT, color_red);
+	UI_DrawString(uis.screenXSize / 2, 80, "VENDOR", UI_CENTER | UI_SMALLFONT, color_red);
+	UI_DrawString(uis.screenXSize / 2, 152, "PIXELFORMAT", UI_CENTER | UI_SMALLFONT, color_red);
+	UI_DrawString(uis.screenXSize / 2, 192, "EXTENSIONS", UI_CENTER | UI_SMALLFONT, color_red);
 
-	UI_DrawString(320, 80 + 16, uis.glconfig.vendor_string, UI_CENTER | UI_SMALLFONT, text_color_normal);
-	UI_DrawString(320, 96 + 16, uis.glconfig.version_string, UI_CENTER | UI_SMALLFONT, text_color_normal);
-	UI_DrawString(320, 112 + 16, uis.glconfig.renderer_string, UI_CENTER | UI_SMALLFONT, text_color_normal);
-	UI_DrawString(320, 152 + 16,
+	UI_DrawString(uis.screenXSize / 2, 80 + 16, uis.glconfig.vendor_string, UI_CENTER | UI_SMALLFONT, text_color_normal);
+	UI_DrawString(uis.screenXSize / 2, 96 + 16, uis.glconfig.version_string, UI_CENTER | UI_SMALLFONT, text_color_normal);
+	UI_DrawString(uis.screenXSize / 2, 112 + 16, uis.glconfig.renderer_string, UI_CENTER | UI_SMALLFONT, text_color_normal);
+	UI_DrawString(uis.screenXSize / 2, 152 + 16,
 				  va("color(%d-bits) Z(%d-bits) stencil(%d-bits)", uis.glconfig.colorBits, uis.glconfig.depthBits,
 					 uis.glconfig.stencilBits), UI_CENTER | UI_SMALLFONT, text_color_normal);
 
@@ -113,13 +113,13 @@ static void DriverInfo_MenuDraw(void)
 	y = 192 + 16;
 	for(i = 0; i < s_driverinfo.numstrings / 2; i++)
 	{
-		UI_DrawString(320 - 4, y, s_driverinfo.strings[i * 2], UI_RIGHT | UI_SMALLFONT, text_color_normal);
-		UI_DrawString(320 + 4, y, s_driverinfo.strings[i * 2 + 1], UI_LEFT | UI_SMALLFONT, text_color_normal);
+		UI_DrawString(uis.screenXSize / 2 - 4, y, s_driverinfo.strings[i * 2], UI_RIGHT | UI_SMALLFONT, text_color_normal);
+		UI_DrawString(uis.screenXSize / 2 + 4, y, s_driverinfo.strings[i * 2 + 1], UI_LEFT | UI_SMALLFONT, text_color_normal);
 		y += SMALLCHAR_HEIGHT;
 	}
 
 	if(s_driverinfo.numstrings & 1)
-		UI_DrawString(320, y, s_driverinfo.strings[s_driverinfo.numstrings - 1], UI_CENTER | UI_SMALLFONT, text_color_normal);
+		UI_DrawString(uis.screenXSize / 2, y, s_driverinfo.strings[s_driverinfo.numstrings - 1], UI_CENTER | UI_SMALLFONT, text_color_normal);
 }
 
 /*
@@ -160,7 +160,7 @@ static void UI_DriverInfo_Menu(void)
 	s_driverinfo.menu.draw = DriverInfo_MenuDraw;
 
 	s_driverinfo.banner.generic.type = MTYPE_BTEXT;
-	s_driverinfo.banner.generic.x = 320;
+	s_driverinfo.banner.generic.x = uis.screenXSize / 2;
 	s_driverinfo.banner.generic.y = 16;
 	s_driverinfo.banner.string = "DRIVER INFO";
 	s_driverinfo.banner.color = color_white;
@@ -188,7 +188,7 @@ static void UI_DriverInfo_Menu(void)
 	s_driverinfo.back.generic.callback = DriverInfo_Event;
 	s_driverinfo.back.generic.id = ID_DRIVERINFOBACK;
 	s_driverinfo.back.generic.x = 0;
-	s_driverinfo.back.generic.y = 480 - 64;
+	s_driverinfo.back.generic.y = uis.screenYSize - 64;
 	s_driverinfo.back.width = 128;
 	s_driverinfo.back.height = 64;
 	s_driverinfo.back.focuspic = UI_ART_BUTTON_FOCUS;
@@ -1331,7 +1331,7 @@ void GraphicsOptions_MenuInit(void)
 	s_graphicsoptions.menu.draw = GraphicsOptions_MenuDraw;
 
 	s_graphicsoptions.banner.generic.type = MTYPE_BTEXT;
-	s_graphicsoptions.banner.generic.x = 320;
+	s_graphicsoptions.banner.generic.x = uis.screenXSize / 2;
 	s_graphicsoptions.banner.generic.y = 16;
 	s_graphicsoptions.banner.string = "SYSTEM SETUP";
 	s_graphicsoptions.banner.color = color_white;
@@ -1360,7 +1360,7 @@ void GraphicsOptions_MenuInit(void)
 	s_graphicsoptions.back.generic.callback = GraphicsOptions_Event;
 	s_graphicsoptions.back.generic.id = ID_BACK2;
 	s_graphicsoptions.back.generic.x = 0;
-	s_graphicsoptions.back.generic.y = 480 - 64;
+	s_graphicsoptions.back.generic.y = uis.screenYSize - 64;
 	s_graphicsoptions.back.width = 128;
 	s_graphicsoptions.back.height = 64;
 	s_graphicsoptions.back.focuspic = UI_ART_BUTTON_FOCUS;
@@ -1376,8 +1376,8 @@ void GraphicsOptions_MenuInit(void)
 	s_graphicsoptions.graphics.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	s_graphicsoptions.graphics.generic.callback = GraphicsOptions_Event;
 	s_graphicsoptions.graphics.generic.id = ID_GRAPHICS;
-	s_graphicsoptions.graphics.generic.x = 128;
-	s_graphicsoptions.graphics.generic.y = 480 - 64;
+	s_graphicsoptions.graphics.generic.x = uis.screenXSize * 0.2f;
+	s_graphicsoptions.graphics.generic.y = uis.screenYSize - 64;
 	s_graphicsoptions.graphics.width = 128;
 	s_graphicsoptions.graphics.height = 64;
 	s_graphicsoptions.graphics.focuspic = UI_ART_BUTTON_FOCUS;
@@ -1394,8 +1394,8 @@ void GraphicsOptions_MenuInit(void)
 	s_graphicsoptions.sound.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	s_graphicsoptions.sound.generic.callback = GraphicsOptions_Event;
 	s_graphicsoptions.sound.generic.id = ID_SOUND;
-	s_graphicsoptions.sound.generic.x = 256;
-	s_graphicsoptions.sound.generic.y = 480 - 64;
+	s_graphicsoptions.sound.generic.x = uis.screenXSize * 0.4f;
+	s_graphicsoptions.sound.generic.y = uis.screenYSize - 64;
 	s_graphicsoptions.sound.width = 128;
 	s_graphicsoptions.sound.height = 64;
 	s_graphicsoptions.sound.focuspic = UI_ART_BUTTON_FOCUS;
@@ -1411,8 +1411,8 @@ void GraphicsOptions_MenuInit(void)
 	s_graphicsoptions.network.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	s_graphicsoptions.network.generic.callback = GraphicsOptions_Event;
 	s_graphicsoptions.network.generic.id = ID_NETWORK;
-	s_graphicsoptions.network.generic.x = 384;
-	s_graphicsoptions.network.generic.y = 480 - 64;
+	s_graphicsoptions.network.generic.x = uis.screenXSize * 0.6f;
+	s_graphicsoptions.network.generic.y = uis.screenYSize - 64;
 	s_graphicsoptions.network.width = 128;
 	s_graphicsoptions.network.height = 64;
 	s_graphicsoptions.network.focuspic = UI_ART_BUTTON_FOCUS;
@@ -1425,10 +1425,10 @@ void GraphicsOptions_MenuInit(void)
 
 	s_graphicsoptions.apply.generic.type = MTYPE_BITMAP;
 	s_graphicsoptions.apply.generic.name = UI_ART_BUTTON;
-	s_graphicsoptions.apply.generic.flags = QMF_RIGHT_JUSTIFY | QMF_PULSEIFFOCUS | QMF_GRAYED | QMF_INACTIVE;
+	s_graphicsoptions.apply.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS | QMF_GRAYED | QMF_INACTIVE;
 	s_graphicsoptions.apply.generic.callback = GraphicsOptions_ApplyChanges;
-	s_graphicsoptions.apply.generic.x = 640;
-	s_graphicsoptions.apply.generic.y = 480 - 64;
+	s_graphicsoptions.apply.generic.x = uis.screenXSize * 0.8f;
+	s_graphicsoptions.apply.generic.y = uis.screenYSize - 64;
 	s_graphicsoptions.apply.width = 128;
 	s_graphicsoptions.apply.height = 64;
 	s_graphicsoptions.apply.focuspic = UI_ART_BUTTON_FOCUS;
@@ -1459,7 +1459,7 @@ otty: do we need this ?
 	s_graphicsoptions.ratio.generic.type = MTYPE_SPINCONTROL;
 	s_graphicsoptions.ratio.generic.name = "Aspect Ratio:";
 	s_graphicsoptions.ratio.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
-	s_graphicsoptions.ratio.generic.x = 320;
+	s_graphicsoptions.ratio.generic.x = uis.screenXSize / 2;
 	s_graphicsoptions.ratio.generic.y = y;
 	s_graphicsoptions.ratio.itemnames = ratios;
 	s_graphicsoptions.ratio.generic.callback = GraphicsOptions_Event;
@@ -1470,7 +1470,7 @@ otty: do we need this ?
 	s_graphicsoptions.mode.generic.type = MTYPE_SPINCONTROL;
 	s_graphicsoptions.mode.generic.name = "Resolution:";
 	s_graphicsoptions.mode.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
-	s_graphicsoptions.mode.generic.x = 320;
+	s_graphicsoptions.mode.generic.x = uis.screenXSize / 2;
 	s_graphicsoptions.mode.generic.y = y;
 	s_graphicsoptions.mode.itemnames = resolutions;
 	s_graphicsoptions.mode.generic.callback = GraphicsOptions_Event;
@@ -1482,7 +1482,7 @@ otty: do we need this ?
 	   s_graphicsoptions.colordepth.generic.type = MTYPE_SPINCONTROL;
 	   s_graphicsoptions.colordepth.generic.name = "Color Depth:";
 	   s_graphicsoptions.colordepth.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
-	   s_graphicsoptions.colordepth.generic.x = 320;
+	   s_graphicsoptions.colordepth.generic.x = uis.screenXSize / 2;
 	   s_graphicsoptions.colordepth.generic.y = y;
 	   s_graphicsoptions.colordepth.itemnames = colordepth_names;
 	   y += BIGCHAR_HEIGHT + 2;
@@ -1492,7 +1492,7 @@ otty: do we need this ?
 	s_graphicsoptions.fs.generic.type = MTYPE_SPINCONTROL;
 	s_graphicsoptions.fs.generic.name = "Fullscreen:";
 	s_graphicsoptions.fs.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
-	s_graphicsoptions.fs.generic.x = 320;
+	s_graphicsoptions.fs.generic.x = uis.screenXSize / 2;
 	s_graphicsoptions.fs.generic.y = y;
 	s_graphicsoptions.fs.itemnames = enabled_names;
 	y += BIGCHAR_HEIGHT + 2;
@@ -1501,7 +1501,7 @@ otty: do we need this ?
 	s_graphicsoptions.vsync.generic.type = MTYPE_SPINCONTROL;
 	s_graphicsoptions.vsync.generic.name = "VSync:";
 	s_graphicsoptions.vsync.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
-	s_graphicsoptions.vsync.generic.x = 320;
+	s_graphicsoptions.vsync.generic.x = uis.screenXSize / 2;
 	s_graphicsoptions.vsync.generic.y = y;
 	s_graphicsoptions.vsync.itemnames = enabled_names;
 	y += BIGCHAR_HEIGHT + 2;
@@ -1511,7 +1511,7 @@ otty: do we need this ?
 	s_graphicsoptions.brightness.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
 	s_graphicsoptions.brightness.generic.callback = GraphicsOptions_Event;
 	s_graphicsoptions.brightness.generic.id = ID_BRIGHTNESS;
-	s_graphicsoptions.brightness.generic.x = 320;
+	s_graphicsoptions.brightness.generic.x = uis.screenXSize / 2;
 	s_graphicsoptions.brightness.generic.y = y;
 	s_graphicsoptions.brightness.minvalue = 5;
 	s_graphicsoptions.brightness.maxvalue = 20;
@@ -1525,7 +1525,7 @@ otty: do we need this ?
 	s_graphicsoptions.geometry.generic.type = MTYPE_SPINCONTROL;
 	s_graphicsoptions.geometry.generic.name = "Geometric Detail:";
 	s_graphicsoptions.geometry.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
-	s_graphicsoptions.geometry.generic.x = 320;
+	s_graphicsoptions.geometry.generic.x = uis.screenXSize / 2;
 	s_graphicsoptions.geometry.generic.y = y;
 	s_graphicsoptions.geometry.itemnames = quality_names;
 	y += BIGCHAR_HEIGHT + 2;
@@ -1534,7 +1534,7 @@ otty: do we need this ?
 	s_graphicsoptions.tq.generic.type = MTYPE_SLIDER;
 	s_graphicsoptions.tq.generic.name = "Texture Detail:";
 	s_graphicsoptions.tq.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
-	s_graphicsoptions.tq.generic.x = 320;
+	s_graphicsoptions.tq.generic.x = uis.screenXSize / 2;
 	s_graphicsoptions.tq.generic.y = y;
 	s_graphicsoptions.tq.minvalue = 0;
 	s_graphicsoptions.tq.maxvalue = 3;
@@ -1545,7 +1545,7 @@ otty: do we need this ?
 	s_graphicsoptions.filter.generic.type = MTYPE_SPINCONTROL;
 	s_graphicsoptions.filter.generic.name = "Texture Filter:";
 	s_graphicsoptions.filter.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
-	s_graphicsoptions.filter.generic.x = 320;
+	s_graphicsoptions.filter.generic.x = uis.screenXSize / 2;
 	s_graphicsoptions.filter.generic.y = y;
 	s_graphicsoptions.filter.itemnames = filter_names;
 	y += BIGCHAR_HEIGHT + 2;
@@ -1558,7 +1558,7 @@ otty: do we need this ?
 		s_graphicsoptions.compression.generic.type = MTYPE_SPINCONTROL;
 		s_graphicsoptions.compression.generic.name = "Texture Compression:";
 		s_graphicsoptions.compression.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
-		s_graphicsoptions.compression.generic.x = 320;
+		s_graphicsoptions.compression.generic.x = uis.screenXSize / 2;
 		s_graphicsoptions.compression.generic.y = y;
 		s_graphicsoptions.compression.itemnames = enabled_names;
 		y += BIGCHAR_HEIGHT + 2;
@@ -1571,7 +1571,7 @@ otty: do we need this ?
 		s_graphicsoptions.anisotropicFilter.generic.type = MTYPE_SLIDER;
 		s_graphicsoptions.anisotropicFilter.generic.name = "Anisotropic Filter:";
 		s_graphicsoptions.anisotropicFilter.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
-		s_graphicsoptions.anisotropicFilter.generic.x = 320;
+		s_graphicsoptions.anisotropicFilter.generic.x = uis.screenXSize / 2;
 		s_graphicsoptions.anisotropicFilter.generic.y = y;
 		s_graphicsoptions.anisotropicFilter.minvalue = 0;
 		s_graphicsoptions.anisotropicFilter.maxvalue = uis.glconfig.maxTextureAnisotropy;
@@ -1583,7 +1583,7 @@ otty: do we need this ?
 	s_graphicsoptions.deferredShading.generic.type = MTYPE_SPINCONTROL;
 	s_graphicsoptions.deferredShading.generic.name = "Deferred Shading:";
 	s_graphicsoptions.deferredShading.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
-	s_graphicsoptions.deferredShading.generic.x = 320;
+	s_graphicsoptions.deferredShading.generic.x = uis.screenXSize / 2;
 	s_graphicsoptions.deferredShading.generic.y = y;
 	s_graphicsoptions.deferredShading.itemnames = enabled_names;
 	y += BIGCHAR_HEIGHT + 2;
@@ -1592,7 +1592,7 @@ otty: do we need this ?
 	s_graphicsoptions.normalMapping.generic.type = MTYPE_SPINCONTROL;
 	s_graphicsoptions.normalMapping.generic.name = "Normal Mapping:";
 	s_graphicsoptions.normalMapping.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
-	s_graphicsoptions.normalMapping.generic.x = 320;
+	s_graphicsoptions.normalMapping.generic.x = uis.screenXSize / 2;
 	s_graphicsoptions.normalMapping.generic.y = y;
 	s_graphicsoptions.normalMapping.itemnames = enabled_names;
 	y += BIGCHAR_HEIGHT + 2;
@@ -1601,7 +1601,7 @@ otty: do we need this ?
 	s_graphicsoptions.parallax.generic.type = MTYPE_SPINCONTROL;
 	s_graphicsoptions.parallax.generic.name = "Relief Mapping:";
 	s_graphicsoptions.parallax.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
-	s_graphicsoptions.parallax.generic.x = 320;
+	s_graphicsoptions.parallax.generic.x = uis.screenXSize / 2;
 	s_graphicsoptions.parallax.generic.y = y;
 	s_graphicsoptions.parallax.itemnames = enabled_names;
 	y += BIGCHAR_HEIGHT + 2;
@@ -1610,7 +1610,7 @@ otty: do we need this ?
 	s_graphicsoptions.shadowType.generic.type = MTYPE_SPINCONTROL;
 	s_graphicsoptions.shadowType.generic.name = "Shadow Type:";
 	s_graphicsoptions.shadowType.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
-	s_graphicsoptions.shadowType.generic.x = 320;
+	s_graphicsoptions.shadowType.generic.x = uis.screenXSize / 2;
 	s_graphicsoptions.shadowType.generic.y = y;
 	s_graphicsoptions.shadowType.itemnames = shadowType_names;
 	y += BIGCHAR_HEIGHT + 2;
@@ -1619,7 +1619,7 @@ otty: do we need this ?
 	s_graphicsoptions.shadowFilter.generic.type = MTYPE_SPINCONTROL;
 	s_graphicsoptions.shadowFilter.generic.name = "Shadow Filter:";
 	s_graphicsoptions.shadowFilter.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
-	s_graphicsoptions.shadowFilter.generic.x = 320;
+	s_graphicsoptions.shadowFilter.generic.x = uis.screenXSize / 2;
 	s_graphicsoptions.shadowFilter.generic.y = y;
 	s_graphicsoptions.shadowFilter.itemnames = shadowFilter_names;
 	y += BIGCHAR_HEIGHT + 2;
@@ -1628,7 +1628,7 @@ otty: do we need this ?
 	s_graphicsoptions.shadowBlur.generic.type = MTYPE_SLIDER;
 	s_graphicsoptions.shadowBlur.generic.name = "Shadow Blur:";
 	s_graphicsoptions.shadowBlur.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
-	s_graphicsoptions.shadowBlur.generic.x = 320;
+	s_graphicsoptions.shadowBlur.generic.x = uis.screenXSize / 2;
 	s_graphicsoptions.shadowBlur.generic.y = y;
 	s_graphicsoptions.shadowBlur.minvalue = 1;
 	s_graphicsoptions.shadowBlur.maxvalue = 10;
@@ -1639,7 +1639,7 @@ otty: do we need this ?
 	s_graphicsoptions.shadowQuality.generic.type = MTYPE_SPINCONTROL;
 	s_graphicsoptions.shadowQuality.generic.name = "Shadow Map Quality:";
 	s_graphicsoptions.shadowQuality.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
-	s_graphicsoptions.shadowQuality.generic.x = 320;
+	s_graphicsoptions.shadowQuality.generic.x = uis.screenXSize / 2;
 	s_graphicsoptions.shadowQuality.generic.y = y;
 	s_graphicsoptions.shadowQuality.itemnames = shadowQuality_names;
 	y += BIGCHAR_HEIGHT + 2;
@@ -1648,7 +1648,7 @@ otty: do we need this ?
 	s_graphicsoptions.dynamicLightsCastShadows.generic.type = MTYPE_SPINCONTROL;
 	s_graphicsoptions.dynamicLightsCastShadows.generic.name = "Dynamic Light Shadows:";
 	s_graphicsoptions.dynamicLightsCastShadows.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
-	s_graphicsoptions.dynamicLightsCastShadows.generic.x = 320;
+	s_graphicsoptions.dynamicLightsCastShadows.generic.x = uis.screenXSize / 2;
 	s_graphicsoptions.dynamicLightsCastShadows.generic.y = y;
 	s_graphicsoptions.dynamicLightsCastShadows.itemnames = enabled_names;
 	y += BIGCHAR_HEIGHT + 2;
@@ -1657,7 +1657,7 @@ otty: do we need this ?
 	s_graphicsoptions.hdr.generic.type = MTYPE_SPINCONTROL;
 	s_graphicsoptions.hdr.generic.name = "HDR Rendering:";
 	s_graphicsoptions.hdr.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
-	s_graphicsoptions.hdr.generic.x = 320;
+	s_graphicsoptions.hdr.generic.x = uis.screenXSize / 2;
 	s_graphicsoptions.hdr.generic.y = y;
 	s_graphicsoptions.hdr.itemnames = enabled_names;
 	y += BIGCHAR_HEIGHT + 2;
@@ -1666,7 +1666,7 @@ otty: do we need this ?
 	s_graphicsoptions.bloom.generic.type = MTYPE_SPINCONTROL;
 	s_graphicsoptions.bloom.generic.name = "Bloom:";
 	s_graphicsoptions.bloom.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
-	s_graphicsoptions.bloom.generic.x = 320;
+	s_graphicsoptions.bloom.generic.x = uis.screenXSize / 2;
 	s_graphicsoptions.bloom.generic.y = y;
 	s_graphicsoptions.bloom.itemnames = bloom_names;
 	y += 2 * BIGCHAR_HEIGHT;
@@ -1675,7 +1675,7 @@ otty: do we need this ?
 	s_graphicsoptions.driverinfo.generic.flags = QMF_CENTER_JUSTIFY | QMF_PULSEIFFOCUS;
 	s_graphicsoptions.driverinfo.generic.callback = GraphicsOptions_Event;
 	s_graphicsoptions.driverinfo.generic.id = ID_DRIVERINFO;
-	s_graphicsoptions.driverinfo.generic.x = 320;
+	s_graphicsoptions.driverinfo.generic.x = uis.screenXSize / 2;
 	s_graphicsoptions.driverinfo.generic.y = y;
 	s_graphicsoptions.driverinfo.string = "Driver Info";
 	s_graphicsoptions.driverinfo.style = UI_CENTER | UI_SMALLFONT;

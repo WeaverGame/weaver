@@ -577,6 +577,8 @@ typedef struct
 	float           screenYBias;
 	float           screenXScale;
 	float           screenYScale;
+	float           screenXSize;
+	float           screenYSize;
 	qboolean        firstdraw;
 
 	// Tr3B: new truetype fonts

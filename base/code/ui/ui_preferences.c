@@ -36,7 +36,7 @@ GAME OPTIONS MENU
 #define ART_FRAMEL				"menu/art/frame2_l"
 #define ART_FRAMER				"menu/art/frame1_r"
 
-#define PREFERENCES_X_POS		360
+#define PREFERENCES_X_POS		(uis.screenXSize / 2)
 
 
 #define ID_SIMPLEITEMS			128
@@ -219,11 +219,11 @@ static void Preferences_MenuInit(void)
 	s_preferences.menu.fullscreen = qtrue;
 
 	s_preferences.banner.generic.type = MTYPE_BTEXT;
-	s_preferences.banner.generic.x = 320;
+	s_preferences.banner.generic.x = uis.screenXSize / 2;
 	s_preferences.banner.generic.y = 16;
 	s_preferences.banner.string = "GAME OPTIONS";
 	s_preferences.banner.color = color_white;
-	s_preferences.banner.style = UI_CENTER | UI_DROPSHADOW;
+	s_preferences.banner.style = UI_CENTER;
 
 /*	s_preferences.framel.generic.type = MTYPE_BITMAP;
 	s_preferences.framel.generic.name = ART_FRAMEL;
@@ -348,12 +348,12 @@ static void Preferences_MenuInit(void)
 	s_preferences.back.generic.callback = Preferences_Event;
 	s_preferences.back.generic.id = ID_BACK;
 	s_preferences.back.generic.x = 0;
-	s_preferences.back.generic.y = 480 - 64;
+	s_preferences.back.generic.y = uis.screenYSize - 64;
 	s_preferences.back.width = 128;
 	s_preferences.back.height = 64;
 	s_preferences.back.focuspic = UI_ART_BUTTON_FOCUS;
 	s_preferences.back.generic.caption.text = "Back";
-	s_preferences.back.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
+	s_preferences.back.generic.caption.style = UI_CENTER;
 	s_preferences.back.generic.caption.fontsize = 0.6f;
 	s_preferences.back.generic.caption.font = &uis.buttonFont;
 	s_preferences.back.generic.caption.color = text_color_normal;

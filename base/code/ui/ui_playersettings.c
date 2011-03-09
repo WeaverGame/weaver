@@ -438,11 +438,11 @@ static void PlayerSettings_MenuInit(void)
 	s_playersettings.menu.fullscreen = qtrue;
 
 	s_playersettings.banner.generic.type = MTYPE_BTEXT;
-	s_playersettings.banner.generic.x = 320;
+	s_playersettings.banner.generic.x = uis.screenXSize / 2;
 	s_playersettings.banner.generic.y = 16;
 	s_playersettings.banner.string = "PLAYER SETTINGS";
 	s_playersettings.banner.color = color_white;
-	s_playersettings.banner.style = UI_CENTER | UI_DROPSHADOW;
+	s_playersettings.banner.style = UI_CENTER;
 
 
 
@@ -453,7 +453,7 @@ static void PlayerSettings_MenuInit(void)
 	s_playersettings.title_player.generic.y = y;
 	s_playersettings.title_player.string = "Player:";
 	s_playersettings.title_player.color = color_white;
-	s_playersettings.title_player.style = UI_LEFT | UI_BOLD | UI_DROPSHADOW;
+	s_playersettings.title_player.style = UI_LEFT | UI_BOLD;
 	y += BIGCHAR_HEIGHT + 8;
 
 	s_playersettings.name.generic.type = MTYPE_FIELD;
@@ -497,7 +497,7 @@ static void PlayerSettings_MenuInit(void)
 	s_playersettings.title_crosshair.generic.y = y;
 	s_playersettings.title_crosshair.string = "Crosshair:";
 	s_playersettings.title_crosshair.color = color_white;
-	s_playersettings.title_crosshair.style = UI_LEFT | UI_BOLD | UI_DROPSHADOW;
+	s_playersettings.title_crosshair.style = UI_LEFT | UI_BOLD;
 	y += BIGCHAR_HEIGHT + 8;
 
 
@@ -586,7 +586,7 @@ static void PlayerSettings_MenuInit(void)
 	s_playersettings.title_hud.generic.y = y;
 	s_playersettings.title_hud.string = "Hud:";
 	s_playersettings.title_hud.color = color_white;
-	s_playersettings.title_hud.style = UI_LEFT | UI_BOLD | UI_DROPSHADOW;
+	s_playersettings.title_hud.style = UI_LEFT | UI_BOLD;
 	y += BIGCHAR_HEIGHT + 2;
 
 	x += 140;
@@ -678,16 +678,16 @@ static void PlayerSettings_MenuInit(void)
 */
 	s_playersettings.model.generic.type = MTYPE_BITMAP;
 	s_playersettings.model.generic.name = UI_ART_BUTTON;
-	s_playersettings.model.generic.flags = QMF_RIGHT_JUSTIFY | QMF_PULSEIFFOCUS;
+	s_playersettings.model.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	s_playersettings.model.generic.id = ID_MODEL;
 	s_playersettings.model.generic.callback = PlayerSettings_MenuEvent;
-	s_playersettings.model.generic.x = 640;
-	s_playersettings.model.generic.y = 480 - 64;
+	s_playersettings.model.generic.x = uis.screenXSize * 0.8f;
+	s_playersettings.model.generic.y = uis.screenYSize - 64;
 	s_playersettings.model.width = 128;
 	s_playersettings.model.height = 64;
 	s_playersettings.model.focuspic = UI_ART_BUTTON_FOCUS;
 	s_playersettings.model.generic.caption.text = "Model";
-	s_playersettings.model.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
+	s_playersettings.model.generic.caption.style = UI_CENTER;
 	s_playersettings.model.generic.caption.fontsize = 0.6f;
 	s_playersettings.model.generic.caption.font = &uis.buttonFont;
 	s_playersettings.model.generic.caption.color = text_color_normal;
@@ -707,12 +707,12 @@ static void PlayerSettings_MenuInit(void)
 	s_playersettings.back.generic.id = ID_BACK;
 	s_playersettings.back.generic.callback = PlayerSettings_MenuEvent;
 	s_playersettings.back.generic.x = 0;
-	s_playersettings.back.generic.y = 480 - 64;
+	s_playersettings.back.generic.y = uis.screenYSize - 64;
 	s_playersettings.back.width = 128;
 	s_playersettings.back.height = 64;
 	s_playersettings.back.focuspic = UI_ART_BUTTON_FOCUS;
 	s_playersettings.back.generic.caption.text = "Back";
-	s_playersettings.back.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
+	s_playersettings.back.generic.caption.style = UI_CENTER;
 	s_playersettings.back.generic.caption.fontsize = 0.6f;
 	s_playersettings.back.generic.caption.font = &uis.buttonFont;
 	s_playersettings.back.generic.caption.color = text_color_normal;
@@ -723,8 +723,8 @@ static void PlayerSettings_MenuInit(void)
 	s_playersettings.item_null.generic.flags = QMF_LEFT_JUSTIFY | QMF_MOUSEONLY | QMF_SILENT;
 	s_playersettings.item_null.generic.x = 0;
 	s_playersettings.item_null.generic.y = 0;
-	s_playersettings.item_null.width = 640;
-	s_playersettings.item_null.height = 480;
+	s_playersettings.item_null.width = uis.screenXSize;
+	s_playersettings.item_null.height = uis.screenYSize;
 
 	Menu_AddItem(&s_playersettings.menu, &s_playersettings.player);
 
