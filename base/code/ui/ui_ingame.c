@@ -307,7 +307,7 @@ void InGame_MenuInit(void)
 	s_ingame.restart.generic.caption.style = UI_CENTER;
 	s_ingame.restart.generic.caption.fontsize = 0.6f;
 	s_ingame.restart.generic.caption.font = &uis.buttonFont;
-	s_ingame.restart.generic.caption.color = text_color_normal;
+	s_ingame.restart.generic.caption.color = text_color_blackbar;
 	s_ingame.restart.generic.caption.focuscolor = text_color_highlight;
 	if(!trap_Cvar_VariableValue("sv_running"))
 	{
@@ -329,7 +329,7 @@ void InGame_MenuInit(void)
 	s_ingame.quit.generic.caption.style = UI_CENTER;
 	s_ingame.quit.generic.caption.fontsize = 0.6f;
 	s_ingame.quit.generic.caption.font = &uis.buttonFont;
-	s_ingame.quit.generic.caption.color = text_color_normal;
+	s_ingame.quit.generic.caption.color = text_color_blackbar;
 	s_ingame.quit.generic.caption.focuscolor = text_color_highlight;
 
 

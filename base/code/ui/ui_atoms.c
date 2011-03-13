@@ -698,8 +698,8 @@ static void UI_DrawString2(int x, int y, const char *str, vec4_t color, int char
 
 	ax = x * uis.screenScale + uis.screenXBias;
 	ay = y * uis.screenScale + uis.screenYBias;
-	aw = charw * uis.screenScale;
-	ah = charh * uis.screenScale;
+	aw = charw * uis.screenScale * 1.5f;
+	ah = charh * uis.screenScale * 1.5f;
 
 	s = str;
 	while(*s)

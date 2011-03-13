@@ -315,7 +315,7 @@ static void UI_RemoveBotsMenu_Init(void)
 	removeBotsMenuInfo.delete.generic.caption.style = UI_CENTER;
 	removeBotsMenuInfo.delete.generic.caption.fontsize = 0.6f;
 	removeBotsMenuInfo.delete.generic.caption.font = &uis.buttonFont;
-	removeBotsMenuInfo.delete.generic.caption.color = text_color_normal;
+	removeBotsMenuInfo.delete.generic.caption.color = text_color_blackbar;
 	removeBotsMenuInfo.delete.generic.caption.focuscolor = text_color_highlight;
 
 	removeBotsMenuInfo.back.generic.type = MTYPE_BITMAP;
@@ -332,7 +332,7 @@ static void UI_RemoveBotsMenu_Init(void)
 	removeBotsMenuInfo.back.generic.caption.style = UI_CENTER;
 	removeBotsMenuInfo.back.generic.caption.fontsize = 0.6f;
 	removeBotsMenuInfo.back.generic.caption.font = &uis.buttonFont;
-	removeBotsMenuInfo.back.generic.caption.color = text_color_normal;
+	removeBotsMenuInfo.back.generic.caption.color = text_color_blackbar;
 	removeBotsMenuInfo.back.generic.caption.focuscolor = text_color_highlight;
 
 

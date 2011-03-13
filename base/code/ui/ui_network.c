@@ -225,7 +225,7 @@ static void UI_NetworkOptionsMenu_Init(void)
 	networkOptionsInfo.graphics.generic.caption.style = UI_CENTER;
 	networkOptionsInfo.graphics.generic.caption.fontsize = 0.6f;
 	networkOptionsInfo.graphics.generic.caption.font = &uis.buttonFont;
-	networkOptionsInfo.graphics.generic.caption.color = text_color_normal;
+	networkOptionsInfo.graphics.generic.caption.color = text_color_blackbar;
 	networkOptionsInfo.graphics.generic.caption.focuscolor = text_color_highlight;
 
 
@@ -243,7 +243,7 @@ static void UI_NetworkOptionsMenu_Init(void)
 	networkOptionsInfo.sound.generic.caption.style = UI_CENTER;
 	networkOptionsInfo.sound.generic.caption.fontsize = 0.6f;
 	networkOptionsInfo.sound.generic.caption.font = &uis.buttonFont;
-	networkOptionsInfo.sound.generic.caption.color = text_color_normal;
+	networkOptionsInfo.sound.generic.caption.color = text_color_blackbar;
 	networkOptionsInfo.sound.generic.caption.focuscolor = text_color_highlight;
 
 	networkOptionsInfo.network.generic.type = MTYPE_BITMAP;
@@ -260,7 +260,7 @@ static void UI_NetworkOptionsMenu_Init(void)
 	networkOptionsInfo.network.generic.caption.style = UI_CENTER;
 	networkOptionsInfo.network.generic.caption.fontsize = 0.6f;
 	networkOptionsInfo.network.generic.caption.font = &uis.buttonFont;
-	networkOptionsInfo.network.generic.caption.color = text_color_normal;
+	networkOptionsInfo.network.generic.caption.color = text_color_blackbar;
 	networkOptionsInfo.network.generic.caption.focuscolor = text_color_highlight;
 
 
@@ -310,7 +310,7 @@ static void UI_NetworkOptionsMenu_Init(void)
 	networkOptionsInfo.back.generic.caption.style = UI_CENTER;
 	networkOptionsInfo.back.generic.caption.fontsize = 0.6f;
 	networkOptionsInfo.back.generic.caption.font = &uis.buttonFont;
-	networkOptionsInfo.back.generic.caption.color = text_color_normal;
+	networkOptionsInfo.back.generic.caption.color = text_color_blackbar;
 	networkOptionsInfo.back.generic.caption.focuscolor = text_color_highlight;
 
 	Menu_AddItem(&networkOptionsInfo.menu, (void *)&networkOptionsInfo.banner);

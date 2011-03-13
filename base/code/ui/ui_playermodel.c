@@ -681,7 +681,7 @@ static void PlayerModel_MenuInit(void)
 	s_playermodel.back.generic.caption.style = UI_CENTER;
 	s_playermodel.back.generic.caption.fontsize = 0.6f;
 	s_playermodel.back.generic.caption.font = &uis.buttonFont;
-	s_playermodel.back.generic.caption.color = text_color_normal;
+	s_playermodel.back.generic.caption.color = text_color_blackbar;
 	s_playermodel.back.generic.caption.focuscolor = text_color_highlight;
 
 

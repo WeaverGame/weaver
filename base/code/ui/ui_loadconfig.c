@@ -211,7 +211,7 @@ static void LoadConfig_MenuInit(void)
 	s_configs.go.generic.caption.style = UI_CENTER;
 	s_configs.go.generic.caption.fontsize = 0.6f;
 	s_configs.go.generic.caption.font = &uis.buttonFont;
-	s_configs.go.generic.caption.color = text_color_normal;
+	s_configs.go.generic.caption.color = text_color_blackbar;
 	s_configs.go.generic.caption.focuscolor = text_color_highlight;
 
 	// scan for configs

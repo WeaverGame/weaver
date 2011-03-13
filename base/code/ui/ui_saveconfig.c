@@ -180,7 +180,7 @@ static void UI_SaveConfigMenu_Init(void)
 	saveConfig.back.generic.caption.style = UI_CENTER;
 	saveConfig.back.generic.caption.fontsize = 0.6f;
 	saveConfig.back.generic.caption.font = &uis.buttonFont;
-	saveConfig.back.generic.caption.color = text_color_normal;
+	saveConfig.back.generic.caption.color = text_color_blackbar;
 	saveConfig.back.generic.caption.focuscolor = text_color_highlight;
 
 	saveConfig.save.generic.type = MTYPE_BITMAP;
@@ -197,7 +197,7 @@ static void UI_SaveConfigMenu_Init(void)
 	saveConfig.save.generic.caption.style = UI_CENTER;
 	saveConfig.save.generic.caption.fontsize = 0.6f;
 	saveConfig.save.generic.caption.font = &uis.buttonFont;
-	saveConfig.save.generic.caption.color = text_color_normal;
+	saveConfig.save.generic.caption.color = text_color_blackbar;
 	saveConfig.save.generic.caption.focuscolor = text_color_highlight;
 
 	Menu_AddItem(&saveConfig.menu, &saveConfig.banner);

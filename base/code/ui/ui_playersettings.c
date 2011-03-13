@@ -690,7 +690,7 @@ static void PlayerSettings_MenuInit(void)
 	s_playersettings.model.generic.caption.style = UI_CENTER;
 	s_playersettings.model.generic.caption.fontsize = 0.6f;
 	s_playersettings.model.generic.caption.font = &uis.buttonFont;
-	s_playersettings.model.generic.caption.color = text_color_normal;
+	s_playersettings.model.generic.caption.color = text_color_blackbar;
 	s_playersettings.model.generic.caption.focuscolor = text_color_highlight;
 
 	s_playersettings.player.generic.type = MTYPE_BITMAP;
@@ -715,7 +715,7 @@ static void PlayerSettings_MenuInit(void)
 	s_playersettings.back.generic.caption.style = UI_CENTER;
 	s_playersettings.back.generic.caption.fontsize = 0.6f;
 	s_playersettings.back.generic.caption.font = &uis.buttonFont;
-	s_playersettings.back.generic.caption.color = text_color_normal;
+	s_playersettings.back.generic.caption.color = text_color_blackbar;
 	s_playersettings.back.generic.caption.focuscolor = text_color_highlight;
 
 

@@ -207,7 +207,7 @@ static void Demos_MenuInit(void)
 	s_demos.back.generic.caption.style = UI_CENTER;
 	s_demos.back.generic.caption.fontsize = 0.6f;
 	s_demos.back.generic.caption.font = &uis.buttonFont;
-	s_demos.back.generic.caption.color = text_color_normal;
+	s_demos.back.generic.caption.color = text_color_blackbar;
 	s_demos.back.generic.caption.focuscolor = text_color_highlight;
 
 
@@ -225,7 +225,7 @@ static void Demos_MenuInit(void)
 	s_demos.go.generic.caption.style = UI_CENTER;
 	s_demos.go.generic.caption.fontsize = 0.6f;
 	s_demos.go.generic.caption.font = &uis.buttonFont;
-	s_demos.go.generic.caption.color = text_color_normal;
+	s_demos.go.generic.caption.color = text_color_blackbar;
 	s_demos.go.generic.caption.focuscolor = text_color_highlight;
 
 	s_demos.list.generic.type = MTYPE_SCROLLLIST;

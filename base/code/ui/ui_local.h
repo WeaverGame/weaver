@@ -316,6 +316,7 @@ extern vec4_t   listbar_color;
 extern vec4_t   text_color_disabled;
 extern vec4_t   text_color_normal;
 extern vec4_t   text_color_highlight;
+extern vec4_t   text_color_blackbar;
 extern vec4_t   color_cursorLines;
 extern vec4_t   text_color_dim;
 

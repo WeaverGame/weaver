@@ -196,7 +196,7 @@ static void UI_DriverInfo_Menu(void)
 	s_driverinfo.back.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	s_driverinfo.back.generic.caption.fontsize = 0.6f;
 	s_driverinfo.back.generic.caption.font = &uis.buttonFont;
-	s_driverinfo.back.generic.caption.color = text_color_normal;
+	s_driverinfo.back.generic.caption.color = text_color_blackbar;
 	s_driverinfo.back.generic.caption.focuscolor = text_color_highlight;
 
 	// TTimo: overflow with particularly long GL extensions (such as the gf3)
@@ -1368,7 +1368,7 @@ void GraphicsOptions_MenuInit(void)
 	s_graphicsoptions.back.generic.caption.style = UI_CENTER;
 	s_graphicsoptions.back.generic.caption.fontsize = 0.6f;
 	s_graphicsoptions.back.generic.caption.font = &uis.buttonFont;
-	s_graphicsoptions.back.generic.caption.color = text_color_normal;
+	s_graphicsoptions.back.generic.caption.color = text_color_blackbar;
 	s_graphicsoptions.back.generic.caption.focuscolor = text_color_highlight;
 
 	s_graphicsoptions.graphics.generic.type = MTYPE_BITMAP;
@@ -1385,7 +1385,7 @@ void GraphicsOptions_MenuInit(void)
 	s_graphicsoptions.graphics.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	s_graphicsoptions.graphics.generic.caption.fontsize = 0.6f;
 	s_graphicsoptions.graphics.generic.caption.font = &uis.buttonFont;
-	s_graphicsoptions.graphics.generic.caption.color = text_color_normal;
+	s_graphicsoptions.graphics.generic.caption.color = text_color_blackbar;
 	s_graphicsoptions.graphics.generic.caption.focuscolor = text_color_highlight;
 
 
@@ -1403,7 +1403,7 @@ void GraphicsOptions_MenuInit(void)
 	s_graphicsoptions.sound.generic.caption.style = UI_CENTER;
 	s_graphicsoptions.sound.generic.caption.fontsize = 0.6f;
 	s_graphicsoptions.sound.generic.caption.font = &uis.buttonFont;
-	s_graphicsoptions.sound.generic.caption.color = text_color_normal;
+	s_graphicsoptions.sound.generic.caption.color = text_color_blackbar;
 	s_graphicsoptions.sound.generic.caption.focuscolor = text_color_highlight;
 
 	s_graphicsoptions.network.generic.type = MTYPE_BITMAP;
@@ -1420,7 +1420,7 @@ void GraphicsOptions_MenuInit(void)
 	s_graphicsoptions.network.generic.caption.style = UI_CENTER;
 	s_graphicsoptions.network.generic.caption.fontsize = 0.6f;
 	s_graphicsoptions.network.generic.caption.font = &uis.buttonFont;
-	s_graphicsoptions.network.generic.caption.color = text_color_normal;
+	s_graphicsoptions.network.generic.caption.color = text_color_blackbar;
 	s_graphicsoptions.network.generic.caption.focuscolor = text_color_highlight;
 
 	s_graphicsoptions.apply.generic.type = MTYPE_BITMAP;
@@ -1436,7 +1436,7 @@ void GraphicsOptions_MenuInit(void)
 	s_graphicsoptions.apply.generic.caption.style = UI_CENTER;
 	s_graphicsoptions.apply.generic.caption.fontsize = 0.6f;
 	s_graphicsoptions.apply.generic.caption.font = &uis.buttonFont;
-	s_graphicsoptions.apply.generic.caption.color = text_color_normal;
+	s_graphicsoptions.apply.generic.caption.color = text_color_blackbar;
 	s_graphicsoptions.apply.generic.caption.focuscolor = text_color_highlight;
 
 

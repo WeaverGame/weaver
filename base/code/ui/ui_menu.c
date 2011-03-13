@@ -441,7 +441,7 @@ void UI_MainMenu(void)
 	s_main.exit.generic.caption.style = UI_CENTER;
 	s_main.exit.generic.caption.fontsize = 0.6f;
 	s_main.exit.generic.caption.font = &uis.buttonFont;
-	s_main.exit.generic.caption.color = text_color_normal;
+	s_main.exit.generic.caption.color = text_color_blackbar;
 	s_main.exit.generic.caption.focuscolor = text_color_highlight;
 
 	s_main.decorl.generic.name = "gfx/menu/decoration_l";

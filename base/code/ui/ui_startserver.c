@@ -585,7 +585,7 @@ static void StartServer_MenuInit(void)
 	s_startserver.back.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	s_startserver.back.generic.caption.fontsize = 0.6f;
 	s_startserver.back.generic.caption.font = &uis.buttonFont;
-	s_startserver.back.generic.caption.color = text_color_normal;
+	s_startserver.back.generic.caption.color = text_color_blackbar;
 	s_startserver.back.generic.caption.focuscolor = text_color_highlight;
 
 
@@ -603,7 +603,7 @@ static void StartServer_MenuInit(void)
 	s_startserver.next.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	s_startserver.next.generic.caption.fontsize = 0.6f;
 	s_startserver.next.generic.caption.font = &uis.buttonFont;
-	s_startserver.next.generic.caption.color = text_color_normal;
+	s_startserver.next.generic.caption.color = text_color_blackbar;
 	s_startserver.next.generic.caption.focuscolor = text_color_highlight;
 
 
@@ -1709,7 +1709,7 @@ static void ServerOptions_MenuInit(qboolean multiplayer)
 	s_serveroptions.back.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	s_serveroptions.back.generic.caption.fontsize = 0.6f;
 	s_serveroptions.back.generic.caption.font = &uis.buttonFont;
-	s_serveroptions.back.generic.caption.color = text_color_normal;
+	s_serveroptions.back.generic.caption.color = text_color_blackbar;
 	s_serveroptions.back.generic.caption.focuscolor = text_color_highlight;
 
 	s_serveroptions.next.generic.type = MTYPE_BITMAP;
@@ -1738,7 +1738,7 @@ static void ServerOptions_MenuInit(qboolean multiplayer)
 	s_serveroptions.go.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	s_serveroptions.go.generic.caption.fontsize = 0.6f;
 	s_serveroptions.go.generic.caption.font = &uis.buttonFont;
-	s_serveroptions.go.generic.caption.color = text_color_normal;
+	s_serveroptions.go.generic.caption.color = text_color_blackbar;
 	s_serveroptions.go.generic.caption.focuscolor = text_color_highlight;
 
 	Menu_AddItem(&s_serveroptions.menu, &s_serveroptions.banner);
@@ -2302,7 +2302,7 @@ static void UI_BotSelectMenu_Init(char *bot)
 	botSelectInfo.back.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	botSelectInfo.back.generic.caption.fontsize = 0.6f;
 	botSelectInfo.back.generic.caption.font = &uis.buttonFont;
-	botSelectInfo.back.generic.caption.color = text_color_normal;
+	botSelectInfo.back.generic.caption.color = text_color_blackbar;
 	botSelectInfo.back.generic.caption.focuscolor = text_color_highlight;
 
 	botSelectInfo.go.generic.type = MTYPE_BITMAP;
@@ -2318,7 +2318,7 @@ static void UI_BotSelectMenu_Init(char *bot)
 	botSelectInfo.go.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
 	botSelectInfo.go.generic.caption.fontsize = 0.6f;
 	botSelectInfo.go.generic.caption.font = &uis.buttonFont;
-	botSelectInfo.go.generic.caption.color = text_color_normal;
+	botSelectInfo.go.generic.caption.color = text_color_blackbar;
 	botSelectInfo.go.generic.caption.focuscolor = text_color_highlight;
 
 	Menu_AddItem(&botSelectInfo.menu, &botSelectInfo.banner);

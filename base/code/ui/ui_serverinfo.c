@@ -241,7 +241,7 @@ void UI_ServerInfoMenu(void)
 	s_serverinfo.back.generic.caption.style = UI_CENTER;
 	s_serverinfo.back.generic.caption.fontsize = 0.6f;
 	s_serverinfo.back.generic.caption.font = &uis.buttonFont;
-	s_serverinfo.back.generic.caption.color = text_color_normal;
+	s_serverinfo.back.generic.caption.color = text_color_blackbar;
 	s_serverinfo.back.generic.caption.focuscolor = text_color_highlight;
 
 	trap_GetConfigString(CS_SERVERINFO, s_serverinfo.info, MAX_INFO_STRING);

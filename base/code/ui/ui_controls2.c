@@ -1265,7 +1265,7 @@ static void Controls_MenuInit(void)
 	s_controls.looking.generic.caption.style = UI_CENTER;
 	s_controls.looking.generic.caption.fontsize = 0.6f;
 	s_controls.looking.generic.caption.font = &uis.buttonFont;
-	s_controls.looking.generic.caption.color = text_color_normal;
+	s_controls.looking.generic.caption.color = text_color_blackbar;
 	s_controls.looking.generic.caption.focuscolor = text_color_highlight;
 
 
@@ -1283,7 +1283,7 @@ static void Controls_MenuInit(void)
 	s_controls.movement.generic.caption.style = UI_CENTER;
 	s_controls.movement.generic.caption.fontsize = 0.6f;
 	s_controls.movement.generic.caption.font = &uis.buttonFont;
-	s_controls.movement.generic.caption.color = text_color_normal;
+	s_controls.movement.generic.caption.color = text_color_blackbar;
 	s_controls.movement.generic.caption.focuscolor = text_color_highlight;
 
 
@@ -1303,7 +1303,7 @@ static void Controls_MenuInit(void)
 	s_controls.weapons.generic.caption.style = UI_CENTER;
 	s_controls.weapons.generic.caption.fontsize = 0.6f;
 	s_controls.weapons.generic.caption.font = &uis.buttonFont;
-	s_controls.weapons.generic.caption.color = text_color_normal;
+	s_controls.weapons.generic.caption.color = text_color_blackbar;
 	s_controls.weapons.generic.caption.focuscolor = text_color_highlight;
 
 
@@ -1321,7 +1321,7 @@ static void Controls_MenuInit(void)
 	s_controls.misc.generic.caption.style = UI_CENTER;
 	s_controls.misc.generic.caption.fontsize = 0.6f;
 	s_controls.misc.generic.caption.font = &uis.buttonFont;
-	s_controls.misc.generic.caption.color = text_color_normal;
+	s_controls.misc.generic.caption.color = text_color_blackbar;
 	s_controls.misc.generic.caption.focuscolor = text_color_highlight;
 
 
@@ -1339,7 +1339,7 @@ static void Controls_MenuInit(void)
 	s_controls.back.generic.caption.style = UI_CENTER;
 	s_controls.back.generic.caption.fontsize = 0.6f;
 	s_controls.back.generic.caption.font = &uis.buttonFont;
-	s_controls.back.generic.caption.color = text_color_normal;
+	s_controls.back.generic.caption.color = text_color_blackbar;
 	s_controls.back.generic.caption.focuscolor = text_color_highlight;
 
 	s_controls.walkforward.generic.type = MTYPE_ACTION;

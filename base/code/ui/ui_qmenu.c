@@ -55,9 +55,10 @@ vec4_t          color_grey75 = { 0.75f, 0.75f, 0.75f, 1.00f };
 // current color scheme
 vec4_t          pulse_color = { 1.00f, 1.00f, 1.00f, 1.00f };
 
-vec4_t          text_color_disabled = { 0.50f, 0.50f, 0.50f, 0.75f };	// light gray
-vec4_t          text_color_normal = { 1.00f, 1.00f, 1.00f, 0.75f };	// light white
-vec4_t          text_color_highlight = { 0.90f, 0.90f, 1.00f, 0.95f };	// bright white
+vec4_t          text_color_disabled = { 0.50f, 0.50f, 0.50f, 0.85f };	// light gray
+vec4_t          text_color_normal = { 0.00f, 0.00f, 0.00f, 0.85f };	// light white
+vec4_t          text_color_highlight = { 0.20f, 0.20f, 2.00f, 0.95f };	// bright white
+vec4_t          text_color_blackbar = { 1.00f, 1.00f, 1.00f, 0.95f };	// light white
 
 vec4_t          listbar_color = { 0.43f, 0.43f, 0.63f, 0.30f };	// transluscent
 vec4_t          text_color_status = { 1.00f, 1.00f, 1.00f, 1.00f };	// bright white

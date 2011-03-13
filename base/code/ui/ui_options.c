@@ -216,7 +216,7 @@ void Options_MenuInit(void)
 	s_options.back.generic.caption.style = UI_CENTER;
 	s_options.back.generic.caption.fontsize = 0.6f;
 	s_options.back.generic.caption.font = &uis.buttonFont;
-	s_options.back.generic.caption.color = text_color_normal;
+	s_options.back.generic.caption.color = text_color_blackbar;
 	s_options.back.generic.caption.focuscolor = text_color_highlight;
 
 	Menu_AddItem(&s_options.menu, (void *)&s_options.banner);

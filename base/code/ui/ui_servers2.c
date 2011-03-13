@@ -1496,7 +1496,7 @@ static void ArenaServers_MenuInit(void)
 	g_arenaservers.back.generic.caption.style = UI_CENTER;
 	g_arenaservers.back.generic.caption.fontsize = 0.6f;
 	g_arenaservers.back.generic.caption.font = &uis.buttonFont;
-	g_arenaservers.back.generic.caption.color = text_color_normal;
+	g_arenaservers.back.generic.caption.color = text_color_blackbar;
 	g_arenaservers.back.generic.caption.focuscolor = text_color_highlight;
 
 	g_arenaservers.specify.generic.type = MTYPE_BITMAP;
@@ -1513,7 +1513,7 @@ static void ArenaServers_MenuInit(void)
 	g_arenaservers.specify.generic.caption.style = UI_CENTER;
 	g_arenaservers.specify.generic.caption.fontsize = 0.6f;
 	g_arenaservers.specify.generic.caption.font = &uis.buttonFont;
-	g_arenaservers.specify.generic.caption.color = text_color_normal;
+	g_arenaservers.specify.generic.caption.color = text_color_blackbar;
 	g_arenaservers.specify.generic.caption.focuscolor = text_color_highlight;
 
 	g_arenaservers.refresh.generic.type = MTYPE_BITMAP;
@@ -1530,7 +1530,7 @@ static void ArenaServers_MenuInit(void)
 	g_arenaservers.refresh.generic.caption.style = UI_CENTER;
 	g_arenaservers.refresh.generic.caption.fontsize = 0.6f;
 	g_arenaservers.refresh.generic.caption.font = &uis.buttonFont;
-	g_arenaservers.refresh.generic.caption.color = text_color_normal;
+	g_arenaservers.refresh.generic.caption.color = text_color_blackbar;
 	g_arenaservers.refresh.generic.caption.focuscolor = text_color_highlight;
 
 	g_arenaservers.create.generic.type = MTYPE_BITMAP;
@@ -1547,7 +1547,7 @@ static void ArenaServers_MenuInit(void)
 	g_arenaservers.create.generic.caption.style = UI_CENTER;
 	g_arenaservers.create.generic.caption.fontsize = 0.6f;
 	g_arenaservers.create.generic.caption.font = &uis.buttonFont;
-	g_arenaservers.create.generic.caption.color = text_color_normal;
+	g_arenaservers.create.generic.caption.color = text_color_blackbar;
 	g_arenaservers.create.generic.caption.focuscolor = text_color_highlight;
 
 	g_arenaservers.go.generic.type = MTYPE_BITMAP;
@@ -1564,7 +1564,7 @@ static void ArenaServers_MenuInit(void)
 	g_arenaservers.go.generic.caption.style = UI_CENTER;
 	g_arenaservers.go.generic.caption.fontsize = 0.6f;
 	g_arenaservers.go.generic.caption.font = &uis.buttonFont;
-	g_arenaservers.go.generic.caption.color = text_color_normal;
+	g_arenaservers.go.generic.caption.color = text_color_blackbar;
 	g_arenaservers.go.generic.caption.focuscolor = text_color_highlight;
 
 	Menu_AddItem(&g_arenaservers.menu, (void *)&g_arenaservers.banner);

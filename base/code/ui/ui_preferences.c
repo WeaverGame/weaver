@@ -356,7 +356,7 @@ static void Preferences_MenuInit(void)
 	s_preferences.back.generic.caption.style = UI_CENTER;
 	s_preferences.back.generic.caption.fontsize = 0.6f;
 	s_preferences.back.generic.caption.font = &uis.buttonFont;
-	s_preferences.back.generic.caption.color = text_color_normal;
+	s_preferences.back.generic.caption.color = text_color_blackbar;
 	s_preferences.back.generic.caption.focuscolor = text_color_highlight;
 
 	Menu_AddItem(&s_preferences.menu, &s_preferences.banner);

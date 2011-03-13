@@ -182,7 +182,7 @@ static void UI_SoundOptionsMenu_Init(void)
 	soundOptionsInfo.graphics.generic.caption.style = UI_CENTER;
 	soundOptionsInfo.graphics.generic.caption.fontsize = 0.6f;
 	soundOptionsInfo.graphics.generic.caption.font = &uis.buttonFont;
-	soundOptionsInfo.graphics.generic.caption.color = text_color_normal;
+	soundOptionsInfo.graphics.generic.caption.color = text_color_blackbar;
 	soundOptionsInfo.graphics.generic.caption.focuscolor = text_color_highlight;
 
 
@@ -200,7 +200,7 @@ static void UI_SoundOptionsMenu_Init(void)
 	soundOptionsInfo.sound.generic.caption.style = UI_CENTER;
 	soundOptionsInfo.sound.generic.caption.fontsize = 0.6f;
 	soundOptionsInfo.sound.generic.caption.font = &uis.buttonFont;
-	soundOptionsInfo.sound.generic.caption.color = text_color_normal;
+	soundOptionsInfo.sound.generic.caption.color = text_color_blackbar;
 	soundOptionsInfo.sound.generic.caption.focuscolor = text_color_highlight;
 
 	soundOptionsInfo.network.generic.type = MTYPE_BITMAP;
@@ -217,7 +217,7 @@ static void UI_SoundOptionsMenu_Init(void)
 	soundOptionsInfo.network.generic.caption.style = UI_CENTER;
 	soundOptionsInfo.network.generic.caption.fontsize = 0.6f;
 	soundOptionsInfo.network.generic.caption.font = &uis.buttonFont;
-	soundOptionsInfo.network.generic.caption.color = text_color_normal;
+	soundOptionsInfo.network.generic.caption.color = text_color_blackbar;
 	soundOptionsInfo.network.generic.caption.focuscolor = text_color_highlight;
 
 
@@ -276,7 +276,7 @@ static void UI_SoundOptionsMenu_Init(void)
 	soundOptionsInfo.back.generic.caption.style = UI_CENTER;
 	soundOptionsInfo.back.generic.caption.fontsize = 0.6f;
 	soundOptionsInfo.back.generic.caption.font = &uis.buttonFont;
-	soundOptionsInfo.back.generic.caption.color = text_color_normal;
+	soundOptionsInfo.back.generic.caption.color = text_color_blackbar;
 	soundOptionsInfo.back.generic.caption.focuscolor = text_color_highlight;
 
 	Menu_AddItem(&soundOptionsInfo.menu, (void *)&soundOptionsInfo.banner);

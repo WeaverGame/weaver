@@ -163,7 +163,7 @@ void SpecifyServer_MenuInit(void)
 	s_specifyserver.go.generic.caption.style = UI_CENTER;
 	s_specifyserver.go.generic.caption.fontsize = 0.6f;
 	s_specifyserver.go.generic.caption.font = &uis.buttonFont;
-	s_specifyserver.go.generic.caption.color = text_color_normal;
+	s_specifyserver.go.generic.caption.color = text_color_blackbar;
 	s_specifyserver.go.generic.caption.focuscolor = text_color_highlight;
 
 	s_specifyserver.back.generic.type = MTYPE_BITMAP;
@@ -180,7 +180,7 @@ void SpecifyServer_MenuInit(void)
 	s_specifyserver.back.generic.caption.style = UI_CENTER;
 	s_specifyserver.back.generic.caption.fontsize = 0.6f;
 	s_specifyserver.back.generic.caption.font = &uis.buttonFont;
-	s_specifyserver.back.generic.caption.color = text_color_normal;
+	s_specifyserver.back.generic.caption.color = text_color_blackbar;
 	s_specifyserver.back.generic.caption.focuscolor = text_color_highlight;
 
 	Menu_AddItem(&s_specifyserver.menu, &s_specifyserver.banner);
