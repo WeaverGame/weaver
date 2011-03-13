@@ -139,3 +139,39 @@ License(s):
 These assets are located at:	base/sprites/balloon4.png
 								base/sprites/friend.png
 ===============================================================
+Explosion Sprites
+By: Willi Hammes
+License(s):
+	CC-BY-NC-SA 3.0 Unported
+These assets are located at:	base/models/weaphits/rlboom_*.png
+===============================================================
+Debris models
+By: ratty redemption
+License(s):
+	CC-BY-NC-SA 3.0 Unported
+These assets are located at:	base/models/debris/*.md5mesh
+===============================================================
+Damage decals
+By: Willi Hammes
+License(s):
+	CC-BY-NC-SA 3.0 Unported
+These assets are located at:	base/gfx/damage/burn_med_mrk_local.png
+								base/gfx/damage/hole_lg_mrk.jpg
+								base/gfx/damage/bullet_mrk.png
+								base/gfx/damage/burn_med_mrk.jpg
+								base/gfx/damage/bullet_mrk_local.png
+								base/gfx/damage/hole_lg_mrk_local.png
+===============================================================
+Sprites
+By: Adrian Fuhrmann
+License(s):
+	CC-BY-NC-SA 3.0
+These assets are located at:	base/gfx/effect/invismap.png
+								base/gfx/effect/effmap03.png
+								base/gfx/effect/grid01.png
+								base/gfx/effect/Reptile_Skin_normal.png
+								base/gfx/effect/effmap02.png
+								base/gfx/effect/quad_fx.jpg
+								base/gfx/effect/effmap01.png
+								base/gfx/effect/flare01.png
+===============================================================
