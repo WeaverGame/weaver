@@ -33,6 +33,15 @@ These assets are located at:	base/gfx/icons/spells/cure.png
 								base/gfx/icons/spells/protectwater.png
 								base/gfx/icons/spells/stamina.png
 ===============================================================
+Spell Icons by Scribe
+By: Scribe
+License(s):
+	GNU GPL 2.0
+	GNU GPL 3.0
+	CC-BY 3.0
+	CC-BY-SA 3.0
+These assets are located at:	base/gfx/icons/spells/revive.png
+===============================================================
 Grass models by Nobiax
 http://nobiax.deviantart.com/art/Free-Grass-Pack-2-179149133
 http://nobiax.deviantart.com/art/Free-Grass-Pack-179052021?
