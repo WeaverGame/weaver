@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2008-2009 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2008-2011 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -35,16 +35,11 @@ attribute vec3		attr_LightDirection;
 uniform mat4		u_DiffuseTextureMatrix;
 uniform mat4		u_NormalTextureMatrix;
 uniform mat4		u_SpecularTextureMatrix;
-uniform int			u_InverseVertexColor;
 uniform mat4		u_ModelViewProjectionMatrix;
 
-uniform int			u_DeformGen;
-uniform vec4		u_DeformWave;	// [base amplitude phase freq]
-uniform float		u_DeformSpread;
 uniform float		u_Time;
 
-uniform int			u_ColorGen;
-uniform int			u_AlphaGen;
+uniform vec4		u_ColorModulate;
 uniform vec4		u_Color;
 
 varying vec3		var_Position;
@@ -59,77 +54,17 @@ varying vec3		var_Binormal;
 varying vec3		var_Normal;
 
 
-// for construction of a triangle wave
-float triangle(float x)
-{
-	return max(1.0 - abs(x), 0);
-}
 
-float sawtooth(float x)
-{
-	return x - floor(x);
-}
-
-vec4 DeformPosition(const vec4 pos, const vec3 normal)
-{
-	vec4 deformed = pos;
-	
-	/*
-		define	WAVEVALUE( table, base, amplitude, phase, freq ) \
-			((base) + table[ Q_ftol( ( ( (phase) + backEnd.refdef.floatTime * (freq) ) * FUNCTABLE_SIZE ) ) & FUNCTABLE_MASK ] * (amplitude))
-	*/
-
-	if(u_DeformGen == DGEN_WAVE_SIN)
-	{
-		float off = (pos.x + pos.y + pos.z) * u_DeformSpread;
-		float scale = u_DeformWave.x  + sin(off + u_DeformWave.z + (u_Time * u_DeformWave.w)) * u_DeformWave.y;
-		vec3 offset = normal * scale;
-
-		deformed.xyz += offset;
-	}
-	
-	if(u_DeformGen == DGEN_WAVE_SQUARE)
-	{
-		float off = (pos.x + pos.y + pos.z) * u_DeformSpread;
-		float scale = u_DeformWave.x  + sign(sin(off + u_DeformWave.z + (u_Time * u_DeformWave.w))) * u_DeformWave.y;
-		vec3 offset = normal * scale;
-
-		deformed.xyz += offset;
-	}
-	
-	if(u_DeformGen == DGEN_WAVE_TRIANGLE)
-	{
-		float off = (pos.x + pos.y + pos.z) * u_DeformSpread;
-		float scale = u_DeformWave.x  + triangle(off + u_DeformWave.z + (u_Time * u_DeformWave.w)) * u_DeformWave.y;
-		vec3 offset = normal * scale;
-
-		deformed.xyz += offset;
-	}
-	
-	if(u_DeformGen == DGEN_WAVE_SAWTOOTH)
-	{
-		float off = (pos.x + pos.y + pos.z) * u_DeformSpread;
-		float scale = u_DeformWave.x  + sawtooth(off + u_DeformWave.z + (u_Time * u_DeformWave.w)) * u_DeformWave.y;
-		vec3 offset = normal * scale;
-
-		deformed.xyz += offset;
-	}
-	
-	if(u_DeformGen == DGEN_WAVE_INVERSE_SAWTOOTH)
-	{
-		float off = (pos.x + pos.y + pos.z) * u_DeformSpread;
-		float scale = u_DeformWave.x + (1.0 - sawtooth(off + u_DeformWave.z + (u_Time * u_DeformWave.w))) * u_DeformWave.y;
-		vec3 offset = normal * scale;
-
-		deformed.xyz += offset;
-	}
-
-	return deformed;
-}
 
 void	main()
 {
-	vec4 position = DeformPosition(attr_Position, attr_Normal);
+	vec4 position = attr_Position;
+#if defined(USE_DEFORM_VERTEXES)
+	position = DeformPosition2(	position,
+								attr_Normal,
+								attr_TexCoord0.st,
+								u_Time);
+#endif
 
 	// transform vertex position into homogenous clip-space
 	gl_Position = u_ModelViewProjectionMatrix * position;
@@ -140,7 +75,7 @@ void	main()
 	// transform diffusemap texcoords
 	var_TexDiffuseNormal.st = (u_DiffuseTextureMatrix * attr_TexCoord0).st;
 	
-#if defined(r_NormalMapping)
+#if defined(USE_NORMAL_MAPPING)
 	// transform normalmap texcoords
 	var_TexDiffuseNormal.pq = (u_NormalTextureMatrix * attr_TexCoord0).st;
 	
@@ -154,24 +89,9 @@ void	main()
 #endif
 	
 	// assign color
-	if(u_ColorGen == CGEN_VERTEX)
-	{
-		var_LightColor.r = attr_Color.r;
-		var_LightColor.g = attr_Color.g;
-		var_LightColor.b = attr_Color.b;
-	}
-	else if(u_ColorGen == CGEN_ONE_MINUS_VERTEX)
-	{
-		var_LightColor.r = 1.0 - attr_Color.r;
-		var_LightColor.g = 1.0 - attr_Color.g;
-		var_LightColor.b = 1.0 - attr_Color.b;
-	}
-	else
-	{
-		var_LightColor.rgb = u_Color.rgb;
-	}
+	var_LightColor = attr_Color;// * u_ColorModulate;// + u_Color;
 	
-#if defined(r_NormalMapping)
+#if defined(USE_NORMAL_MAPPING)
 	var_Tangent = attr_Tangent;
 	var_Binormal = attr_Binormal;
 #endif

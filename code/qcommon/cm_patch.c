@@ -498,7 +498,7 @@ static int CM_FindPlane2(float plane[4], int *flipped)
 		Com_Error(ERR_DROP, "CM_FindPlane2: MAX_PATCH_PLANES");
 	}
 
-	VectorCopy4(plane, planes[numPlanes].plane);
+	Vector4Copy(plane, planes[numPlanes].plane);
 	planes[numPlanes].signbits = CM_SignbitsForNormal(plane);
 
 	numPlanes++;
@@ -560,7 +560,7 @@ static int CM_FindPlane(float *p1, float *p2, float *p3)
 		Com_Error(ERR_DROP, "MAX_PATCH_PLANES");
 	}
 
-	VectorCopy4(plane, planes[numPlanes].plane);
+	Vector4Copy(plane, planes[numPlanes].plane);
 	planes[numPlanes].signbits = CM_SignbitsForNormal(plane);
 
 	numPlanes++;
@@ -795,7 +795,7 @@ static qboolean CM_ValidateFacet(cFacet_t * facet)
 		return qfalse;
 	}
 
-	VectorCopy4(planes[facet->surfacePlane].plane, plane);
+	Vector4Copy(planes[facet->surfacePlane].plane, plane);
 	w = BaseWindingForPlane(plane, plane[3]);
 	for(j = 0; j < facet->numBorders && w; j++)
 	{
@@ -804,7 +804,7 @@ static qboolean CM_ValidateFacet(cFacet_t * facet)
 			FreeWinding(w);
 			return qfalse;
 		}
-		VectorCopy4(planes[facet->borderPlanes[j]].plane, plane);
+		Vector4Copy(planes[facet->borderPlanes[j]].plane, plane);
 		if(!facet->borderInward[j])
 		{
 			VectorSubtract(vec3_origin, plane, plane);
@@ -854,14 +854,14 @@ static void CM_AddFacetBevels(cFacet_t * facet)
 	winding_t      *w, *w2;
 	vec3_t          mins, maxs, vec, vec2;
 
-	VectorCopy4(planes[facet->surfacePlane].plane, plane);
+	Vector4Copy(planes[facet->surfacePlane].plane, plane);
 
 	w = BaseWindingForPlane(plane, plane[3]);
 	for(j = 0; j < facet->numBorders && w; j++)
 	{
 		if(facet->borderPlanes[j] == facet->surfacePlane)
 			continue;
-		VectorCopy4(planes[facet->borderPlanes[j]].plane, plane);
+		Vector4Copy(planes[facet->borderPlanes[j]].plane, plane);
 
 		if(!facet->borderInward[j])
 		{
@@ -989,7 +989,7 @@ static void CM_AddFacetBevels(cFacet_t * facet)
 					facet->borderInward[facet->numBorders] = flipped;
 					//
 					w2 = CopyWinding(w);
-					VectorCopy4(planes[facet->borderPlanes[facet->numBorders]].plane, newplane);
+					Vector4Copy(planes[facet->borderPlanes[facet->numBorders]].plane, newplane);
 					if(!facet->borderInward[facet->numBorders])
 					{
 						VectorNegate(newplane, newplane);

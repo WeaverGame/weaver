@@ -1475,26 +1475,27 @@ void Com_Meminfo_f(void)
 		}
 	}
 
-	Com_Printf("%8i bytes total hunk\n", s_hunkTotal);
-	Com_Printf("%8i bytes total zone\n", s_zoneTotal);
+	Com_Printf("%9i bytes (%6.2f MB) total hunk\n", s_hunkTotal, s_hunkTotal / Square(1024.f));
+	Com_Printf("%9i bytes (%6.2f MB) total zone\n", s_zoneTotal, s_zoneTotal / Square(1024.f));
 	Com_Printf("\n");
-	Com_Printf("%8i low mark\n", hunk_low.mark);
-	Com_Printf("%8i low permanent\n", hunk_low.permanent);
+	Com_Printf("%9i bytes (%6.2f MB) low mark\n", hunk_low.mark, hunk_low.mark / Square(1024.f));
+	Com_Printf("%9i bytes (%6.2f MB) low permanent\n", hunk_low.permanent, hunk_low.permanent / Square(1024.f));
 	if(hunk_low.temp != hunk_low.permanent)
 	{
-		Com_Printf("%8i low temp\n", hunk_low.temp);
+		Com_Printf("%9i bytes (%6.2f MB) low temp\n", hunk_low.temp, hunk_low.temp / Square(1024.f));
 	}
-	Com_Printf("%8i low tempHighwater\n", hunk_low.tempHighwater);
+	Com_Printf("%9i bytes (%6.2f MB) low tempHighwater\n", hunk_low.tempHighwater, hunk_low.tempHighwater / Square(1024.f));
 	Com_Printf("\n");
-	Com_Printf("%8i high mark\n", hunk_high.mark);
-	Com_Printf("%8i high permanent\n", hunk_high.permanent);
+	Com_Printf("%9i bytes (%6.2f MB) high mark\n", hunk_high.mark, hunk_high.mark / Square(1024.f));
+	Com_Printf("%9i bytes (%6.2f MB) high permanent\n", hunk_high.permanent, hunk_high.permanent / Square(1024.f));
 	if(hunk_high.temp != hunk_high.permanent)
 	{
-		Com_Printf("%8i high temp\n", hunk_high.temp);
+		Com_Printf("%9i bytes (%6.2f MB) high temp\n", hunk_high.temp, hunk_high.temp / Square(1024.f));
 	}
-	Com_Printf("%8i high tempHighwater\n", hunk_high.tempHighwater);
+	Com_Printf("%9i bytes (%6.2f MB) high tempHighwater\n", hunk_high.tempHighwater, hunk_high.tempHighwater / Square(1024.f));
 	Com_Printf("\n");
-	Com_Printf("%8i total hunk in use\n", hunk_low.permanent + hunk_high.permanent);
+	Com_Printf("%9i bytes (%6.2f MB) total hunk in use\n", hunk_low.permanent + hunk_high.permanent,
+			   (hunk_low.permanent + hunk_high.permanent) / Square(1024.f));
 	unused = 0;
 	if(hunk_low.tempHighwater > hunk_low.permanent)
 	{
@@ -1504,13 +1505,14 @@ void Com_Meminfo_f(void)
 	{
 		unused += hunk_high.tempHighwater - hunk_high.permanent;
 	}
-	Com_Printf("%8i unused highwater\n", unused);
+	Com_Printf("%9i bytes (%6.2f MB) unused highwater\n", unused, unused / Square(1024.f));
 	Com_Printf("\n");
-	Com_Printf("%8i bytes in %i zone blocks\n", zoneBytes, zoneBlocks);
-	Com_Printf("        %8i bytes in dynamic botlib\n", botlibBytes);
-	Com_Printf("        %8i bytes in dynamic renderer\n", rendererBytes);
-	Com_Printf("        %8i bytes in dynamic other\n", zoneBytes - (botlibBytes + rendererBytes));
-	Com_Printf("        %8i bytes in small Zone memory\n", smallZoneBytes);
+	Com_Printf("%9i bytes (%6.2f MB) in %i zone blocks\n", zoneBytes, zoneBytes / Square(1024.f), zoneBlocks);
+	Com_Printf("        %9i bytes (%6.2f MB) in dynamic botlib\n", botlibBytes, botlibBytes / Square(1024.f));
+	Com_Printf("        %9i bytes (%6.2f MB) in dynamic renderer\n", rendererBytes, rendererBytes / Square(1024.f));
+	Com_Printf("        %9i bytes (%6.2f MB) in dynamic other\n", zoneBytes - (botlibBytes + rendererBytes),
+			   (zoneBytes - (botlibBytes + rendererBytes)) / Square(1024.f));
+	Com_Printf("        %9i bytes (%6.2f MB) in small Zone memory\n", smallZoneBytes, smallZoneBytes / Square(1024.f));
 }
 
 /*
@@ -1693,7 +1695,8 @@ void Hunk_SmallLog(void)
 			block2->printed = qtrue;
 		}
 #ifdef HUNK_DEBUG
-		Com_sprintf(buf, sizeof(buf), "size = %8d: %s, line: %d (%s)\r\n", locsize, block->file, block->line, block->label);
+		Com_sprintf(buf, sizeof(buf), "size = %8d (%6.2f MB / %6.2f MB): %s, line: %d (%s)\r\n", locsize,
+					locsize / Square(1024.f), (size + block->size) / Square(1024.f), block->file, block->line, block->label);
 		FS_Write(buf, strlen(buf), logfile);
 #endif
 		size += block->size;
@@ -2001,6 +2004,10 @@ void           *Hunk_AllocateTempMemory(int size)
 
 	if(hunk_temp->temp + hunk_permanent->permanent + size > s_hunkTotal)
 	{
+#ifdef HUNK_DEBUG
+		Hunk_Log();
+		Hunk_SmallLog();
+#endif
 		Com_Error(ERR_DROP, "Hunk_AllocateTempMemory: failed on %i", size);
 	}
 
@@ -3739,13 +3746,13 @@ void Com_Init(char *commandLine)
 	// get the developer cvar set as early as possible
 	Com_StartupVariable("developer");
 
-#if defined(_DEBUG)
-	com_developer = Cvar_Get("developer", "1", CVAR_TEMP);
-	com_logfile = Cvar_Get("logfile", "2", CVAR_TEMP);
-#else
+//#if defined(_DEBUG)
+//	com_developer = Cvar_Get("developer", "1", CVAR_TEMP);
+//	com_logfile = Cvar_Get("logfile", "2", CVAR_TEMP);
+//#else
 	com_developer = Cvar_Get("developer", "0", CVAR_TEMP);
 	com_logfile = Cvar_Get("logfile", "0", CVAR_TEMP);
-#endif
+//#endif
 
 	// done early so bind command exists
 	CL_InitKeyCommands();

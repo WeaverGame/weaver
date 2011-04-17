@@ -7,7 +7,7 @@ import SCons.Errors
 # set configuration options
 #
 opts = Variables('xreal.conf')
-opts.Add(EnumVariable('arch', 'Choose architecture to build for', 'linux-i386', allowed_values=('freebsd-i386', 'linux-i386', 'linux-x86_64', 'netbsd-i386', 'opensolaris-i386', 'win32-mingw', 'darwin-ppc', 'darwin-i386')))
+opts.Add(EnumVariable('arch', 'Choose architecture to build for', 'linux-i386', allowed_values=('freebsd-i386', 'freebsd-amd64', 'linux-i386', 'linux-x86_64', 'netbsd-i386', 'opensolaris-i386', 'win32-mingw', 'darwin-ppc', 'darwin-i386')))
 opts.Add(EnumVariable('warnings', 'Choose warnings level', '1', allowed_values=('0', '1', '2')))
 opts.Add(EnumVariable('debug', 'Set to >= 1 to build for debug', '2', allowed_values=('0', '1', '2', '3')))
 opts.Add(EnumVariable('optimize', 'Set to >= 1 to build with general optimizations', '2', allowed_values=('0', '1', '2', '3', '4', '5', '6')))
@@ -61,7 +61,7 @@ if env['arch'] == 'linux-x86_64':
 env.Append(CCFLAGS = '-pipe -fsigned-char')
 
 if env['warnings'] == '1':
-	env.Append(CCFLAGS = '-Wall -Wno-unused-parameter -Wno-unused-function')
+	env.Append(CCFLAGS = '-Wall -Wno-unused-parameter')
 elif env['warnings'] == '2':
 	env.Append(CCFLAGS = '-Wall -Werror')
 
@@ -80,6 +80,16 @@ if env['optimize'] != '0':
 
 #if env['arch'] == 'linux-i386' and env['vectorize'] == 1:
 #	env.Append(CCFLAGS = '-ftree-vectorize -ftree-vectorizer-verbose=1')
+
+if env['arch'] == 'freebsd-i386':
+        env.Append(CCFLAGS='-I/usr/local/include -I/usr/local/include/SDL -fPIC -L/usr/local/lib/gcc44 -Wl,-rpath /usr/local/lib/gcc44')
+        env.Append(LIBPATH=['/usr/local/lib'])
+        env.Append(LDFLAGS='-fPIC -L/usr/local/lib/gcc44 -Wl,-rpath /usr/local/lib/gcc44')
+
+if env['arch'] == 'freebsd-amd64':
+        env.Append(CCFLAGS='-I/usr/local/include -I/usr/local/include/SDL -fPIC -L/usr/local/lib/gcc44 -Wl,-rpath /usr/local/lib/gcc44')
+        env.Append(LIBPATH=['/usr/local/lib'])
+        env.Append(LDFLAGS='-fPIC -L/usr/local/lib/gcc44 -Wl,-rpath /usr/local/lib/gcc44')
 
 if env['simd'] == 'sse':
 	env.Append(CCFLAGS = '-DSIMD_SSE -msse')

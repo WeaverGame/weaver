@@ -4,12 +4,13 @@ Import('env')
 
 # the file with vmMain function MUST be the first one of the list
 rendererGL_src = [
-'code/renderer/qgl.c',
+'code/renderer/gl_shader.cpp',
 'code/renderer/tr_animation.c',
-'code/renderer/tr_backend.c',
+ 'code/renderer/tr_backend.cpp',
 'code/renderer/tr_bsp.c',
 'code/renderer/tr_cmds.c',
 'code/renderer/tr_curve.c',
+'code/renderer/tr_decals.c',
 'code/renderer/tr_fbo.c',
 'code/renderer/tr_flares.c',
 'code/renderer/tr_font.c',
@@ -25,16 +26,21 @@ rendererGL_src = [
 'code/renderer/tr_marks.c',
 'code/renderer/tr_mesh.c',
 'code/renderer/tr_model.c',
+'code/renderer/tr_model_md3.c',
+'code/renderer/tr_model_md5.c',
+'code/renderer/tr_model_psk.c',
+'code/renderer/tr_model_skel.c',
 'code/renderer/tr_noise.c',
 'code/renderer/tr_scene.c',
-'code/renderer/tr_shade.c',
+'code/renderer/tr_shade.cpp',
 'code/renderer/tr_shade_calc.c',
 'code/renderer/tr_shader.c',
 'code/renderer/tr_shadows.c',
-'code/renderer/tr_sky.c',
+'code/renderer/tr_skin.c',
+'code/renderer/tr_sky.cpp',
 'code/renderer/tr_surface.c',
 'code/renderer/tr_vbo.c',
-'code/renderer/tr_world.c',
+'code/renderer/tr_world.cpp',
 'code/jpeg-6/jcapimin.c',
 'code/jpeg-6/jchuff.c',
 'code/jpeg-6/jcinit.c',
@@ -135,10 +141,16 @@ rendererGL_src = [
 'code/qcommon/q_shared.c',
 'code/sys/sdl_gamma.c',
 'code/sys/sdl_glimp.c',
+'code/glew/src/glew.c',
 ]
 
 
 rendererGL_env = env.Clone()
+rendererGL_env.Append(CCFLAGS='-DGLEW_STATIC')
+rendererGL_env.Append(CCFLAGS='-Icode/glew/include')
+
+if env['compatq3a'] == 1:
+	rendererGL_env.Append(CCFLAGS='-DCOMPAT_Q3A')
 
 if env['experimental'] == 1:
 	rendererGL_env.Append(CCFLAGS='-DEXPERIMENTAL')
@@ -185,6 +197,23 @@ elif env['arch'] == 'opensolaris-i386':
 
 	rendererGL_env.SharedLibrary('rendererGL', rendererGL_src)
 	rendererGL_env.InstallAs('#rendererGLi386.so', 'librendererGL.so')
+	rendererGL_env.Append(LIBS=['GL'])
+	if env['smp'] == 1:
+		rendererGL_env.Append(CCFLAGS='-DSMP')
+		rendererGL_env.Append(LIBS=['pthread'])
+
+elif env['arch'] == 'freebsd-amd64':
+	rendererGL_env.Append(CCFLAGS='-DPNG_NO_ASSEMBLER_CODE')
+	rendererGL_env.ParseConfig('freetype-config --cflags --libs')
+	rendererGL_env.Append(CCFLAGS='-DBUILD_FREETYPE')
+	rendererGL_env.Append(LIBS=['GL'])
+
+	if env['smp'] == 1:
+		rendererGL_env.Append(CCFLAGS='-DSMP')
+		rendererGL_env.Append(LIBS=['pthread'])
+
+	rendererGL_env.SharedLibrary('rendererGL', rendererGL_src)
+	rendererGL_env.InstallAs('#rendererGLamd64.so', 'librendererGL.so')
 
 elif env['arch'] == 'darwin-ppc ' or env['arch'] == 'darwin-i386':
 	rendererGL_env.ParseConfig('sdl-config --cflags --libs')

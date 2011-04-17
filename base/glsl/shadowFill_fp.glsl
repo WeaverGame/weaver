@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2006-2009 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2011 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 uniform sampler2D	u_ColorMap;
 uniform int			u_AlphaTest;
-uniform int			u_LightParallel;
+uniform vec4		u_PortalPlane;
 uniform vec3		u_LightOrigin;
 uniform float       u_LightRadius;
 
@@ -34,7 +34,20 @@ varying vec4		var_Color;
 
 void	main()
 {
+#if defined(USE_PORTAL_CLIPPING)
+	{
+		float dist = dot(var_Position.xyz, u_PortalPlane.xyz) - u_PortalPlane.w;
+		if(dist < 0.0)
+		{
+			discard;
+			return;
+		}
+	}
+#endif
+
 	vec4 color = texture2D(u_ColorMap, var_Tex);
+
+#if defined(USE_ALPHA_TESTING)
 	if(u_AlphaTest == ATEST_GT_0 && color.a <= 0.0)
 	{
 		discard;
@@ -50,18 +63,18 @@ void	main()
 		discard;
 		return;
 	}
+#endif
+
 	
 #if defined(VSM)
 
 	float distance;
-	if(bool(u_LightParallel))
-	{
-		distance = gl_FragCoord.z;
-	}
-	else
-	{
-		distance = length(var_Position - u_LightOrigin) / u_LightRadius;
-	}
+
+#if defined(LIGHT_DIRECTIONAL)
+	distance = gl_FragCoord.z;
+#else
+	distance = length(var_Position - u_LightOrigin) / u_LightRadius;
+#endif
 	
 	float distanceSquared = distance * distance;
 
@@ -77,17 +90,18 @@ void	main()
 #elif defined(ESM)
 	
 	float distance;
-	if(bool(u_LightParallel))
+#if defined(LIGHT_DIRECTIONAL)
 	{
 		distance = gl_FragCoord.z;// * r_ShadowMapDepthScale;
 		//distance /= gl_FragCoord.w;
 		//distance = var_Position.z / var_Position.w;
 		//distance = var_Position.z;
 	}
-	else
+#else
 	{
 		distance = (length(var_Position - u_LightOrigin) / u_LightRadius) * r_ShadowMapDepthScale;
 	}
+#endif
 	
 	gl_FragColor = vec4(0.0, 0.0, 0.0, distance);
 #else

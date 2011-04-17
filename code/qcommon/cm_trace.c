@@ -862,7 +862,7 @@ void CM_TraceThroughSurfaceCollide(traceWork_t * tw, const cSurfaceCollide_t * s
 
 		if(hit)
 		{
-			VectorCopy4(plane, bestplane);
+			Vector4Copy(plane, bestplane);
 		}
 
 		for(j = 0; j < facet->numBorders; j++)
@@ -915,7 +915,7 @@ void CM_TraceThroughSurfaceCollide(traceWork_t * tw, const cSurfaceCollide_t * s
 			if(hit)
 			{
 				hitnum = j;
-				VectorCopy4(plane, bestplane);
+				Vector4Copy(plane, bestplane);
 			}
 		}
 
@@ -2641,7 +2641,7 @@ void CM_DrawDebugSurface(void (*drawPoly) (int color, int numPoints, float *poin
 				//continue;
 			}
 
-			VectorCopy4(pc->planes[planenum].plane, plane);
+			Vector4Copy(pc->planes[planenum].plane, plane);
 			if(inward)
 			{
 				VectorInverse(plane);
@@ -2682,7 +2682,7 @@ void CM_DrawDebugSurface(void (*drawPoly) (int color, int numPoints, float *poin
 				if(curplanenum == planenum)
 					continue;
 
-				VectorCopy4(pc->planes[curplanenum].plane, plane);
+				Vector4Copy(pc->planes[curplanenum].plane, plane);
 				if(!curinward)
 				{
 					VectorInverse(plane);

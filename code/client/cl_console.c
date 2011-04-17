@@ -616,7 +616,7 @@ void Con_DrawNotify(void)
 
 			//SCR_DrawSmallChar(cl_conXOffset->integer + con.xadjust + (x + 1) * SMALLCHAR_WIDTH, v, text[x] & 0xff);
 
-			VectorCopy4(g_color_table[currentColor], color);
+			Vector4Copy(g_color_table[currentColor], color);
 
 			color[3] = alpha;
 
@@ -783,8 +783,8 @@ void Con_DrawSolidConsole(float frac)
 
 	i = strlen(Q3_VERSION);
 
-	VectorSet4(fontColor, 1.0f, 1.0f, 1.0f, alpha);
-	VectorSet4(fontColorHighlight, 1.0f, 1.0f, 1.0f, alpha * 1.5f);
+	Vector4Set(fontColor, 1.0f, 1.0f, 1.0f, alpha);
+	Vector4Set(fontColorHighlight, 1.0f, 1.0f, 1.0f, alpha * 1.5f);
 
 	// version string
 	SCR_Text_PaintAligned(626, 230, Q3_VERSION, 0.2f, UI_RIGHT | style, fontColorHighlight, &cls.consoleFont);
@@ -890,7 +890,7 @@ void Con_DrawSolidConsole(float frac)
 			}
 			//SCR_DrawSmallChar(con.xadjust + (x + 1) * SMALLCHAR_WIDTH, y, text[x] & 0xff);
 
-			VectorCopy4(g_color_table[currentColor], color);
+			Vector4Copy(g_color_table[currentColor], color);
 			color[3] = alpha * 1.5f;
 
 			SCR_Text_PaintSingleChar(15 + con.xadjust + (x + 1) * 5, y, 0.15f, color, text[x] & 0xff, 0, 0, style,

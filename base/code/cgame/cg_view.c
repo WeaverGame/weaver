@@ -1205,26 +1205,26 @@ the surface player is looking at
 	VectorCopy(tr.endpos, normal[0].xyz);
 	normal[0].st[0] = 0;
 	normal[0].st[1] = 0;
-	VectorCopy4(color, normal[0].modulate);
+	Vector4Copy(color, normal[0].modulate);
 
 	VectorMA(tr.endpos, NORMAL_WIDTH, cg.refdef.viewaxis[1], temp);
 	VectorCopy(temp, normal[1].xyz);
 	normal[1].st[0] = 0;
 	normal[1].st[1] = 1;
-	VectorCopy4(color, normal[1].modulate);
+	Vector4Copy(color, normal[1].modulate);
 
 	VectorMA(tr.endpos, NORMAL_HEIGHT, tr.plane.normal, temp);
 	VectorMA(temp, NORMAL_WIDTH, cg.refdef.viewaxis[1], temp);
 	VectorCopy(temp, normal[2].xyz);
 	normal[2].st[0] = 1;
 	normal[2].st[1] = 1;
-	VectorCopy4(color, normal[2].modulate);
+	Vector4Copy(color, normal[2].modulate);
 
 	VectorMA(tr.endpos, NORMAL_HEIGHT, tr.plane.normal, temp);
 	VectorCopy(temp, normal[3].xyz);
 	normal[3].st[0] = 1;
 	normal[3].st[1] = 0;
-	VectorCopy4(color, normal[3].modulate);
+	Vector4Copy(color, normal[3].modulate);
 
 	trap_R_AddPolyToScene(cgs.media.debugPlayerAABB_twoSided, 4, normal);
 }*/

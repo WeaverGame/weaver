@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2006-2009 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2011 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 /* blurY_fp.glsl */
 
 uniform sampler2D	u_ColorMap;
-uniform float		u_BlurMagnitude;
+uniform float		u_DeformMagnitude;
 
 void	main()
 {
@@ -40,8 +40,8 @@ void	main()
 	
 #if 1
 	// set so a magnitude of 1 is approximately 1 pixel with 640x480
-	//vec2 deform = vec2(u_BlurMagnitude * 0.0016, u_BlurMagnitude * 0.00213333);
-	vec2 deform = u_BlurMagnitude * r_FBufScale;
+	//vec2 deform = vec2(u_DeformMagnitude * 0.0016, u_DeformMagnitude * 0.00213333);
+	vec2 deform = u_DeformMagnitude * r_FBufScale;
 	
 	// these are the multipliers for the gaussian blur
 	float mu01 = 0.00261097;
@@ -149,7 +149,7 @@ void	main()
 	for(int i = -tap; i < tap; i++)
     {
 	    float weight = gaussFact[i + 2];
-		vec4 color = texture2D(u_ColorMap, st + vec2(0, i) * u_BlurMagnitude * r_FBufScale) * weight;
+		vec4 color = texture2D(u_ColorMap, st + vec2(0, i) * u_DeformMagnitude * r_FBufScale) * weight;
 			
 		sumColors += color;
 	}

@@ -32,8 +32,7 @@ int             gl_filter_min = GL_LINEAR_MIPMAP_NEAREST;
 int             gl_filter_max = GL_LINEAR;
 #endif
 
-#define FILE_HASH_SIZE		(1024 * 2)
-static image_t *hashTable[FILE_HASH_SIZE];
+image_t *r_imageHashTable[IMAGE_FILE_HASH_SIZE];
 
 /*
 ** R_GammaCorrect
@@ -72,13 +71,13 @@ textureMode_t   modes[] = {
 return a hash value for the filename
 ================
 */
-static long generateHashValue(const char *fname)
+long GenerateImageHashValue(const char *fname)
 {
 	int             i;
 	long            hash;
 	char            letter;
 
-//  ri.Printf(PRINT_ALL, "tr_image::generateHashValue: '%s'\n", fname);
+//  ri.Printf(PRINT_ALL, "tr_image::GenerateImageHashValue: '%s'\n", fname);
 
 	hash = 0;
 	i = 0;
@@ -95,7 +94,7 @@ static long generateHashValue(const char *fname)
 		hash += (long)(letter) * (i + 119);
 		i++;
 	}
-	hash &= (FILE_HASH_SIZE - 1);
+	hash &= (IMAGE_FILE_HASH_SIZE - 1);
 	return hash;
 }
 
@@ -150,12 +149,12 @@ void GL_TextureMode(const char *string)
 			GL_Bind(image);
 
 			// set texture filter
-			qglTexParameterf(image->type, GL_TEXTURE_MIN_FILTER, gl_filter_min);
-			qglTexParameterf(image->type, GL_TEXTURE_MAG_FILTER, gl_filter_max);
+			glTexParameterf(image->type, GL_TEXTURE_MIN_FILTER, gl_filter_min);
+			glTexParameterf(image->type, GL_TEXTURE_MAG_FILTER, gl_filter_max);
 
 			// set texture anisotropy
 			if(glConfig.textureAnisotropyAvailable)
-				qglTexParameterf(image->type, GL_TEXTURE_MAX_ANISOTROPY_EXT, r_ext_texture_filter_anisotropic->value);
+				glTexParameterf(image->type, GL_TEXTURE_MAX_ANISOTROPY_EXT, r_ext_texture_filter_anisotropic->value);
 		}
 	}
 }
@@ -1257,11 +1256,7 @@ void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 		}
 		else if(samples == 4)
 		{
-			if(image->bits & IF_INTENSITY)
-			{
-				internalFormat = GL_INTENSITY8;
-			}
-			else if(image->bits & IF_ALPHA)
+			if(image->bits & IF_ALPHA)
 			{
 				internalFormat = GL_ALPHA8;
 			}
@@ -1317,26 +1312,26 @@ void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 		if(image->filterType == FT_DEFAULT && glConfig.generateMipmapAvailable)
 		{
 			// raynorpat: if hardware mipmap generation is available, use it
-			//qglHint(GL_GENERATE_MIPMAP_HINT_SGIS, GL_NICEST);	// make sure its nice
-			qglTexParameteri(image->type, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
-			qglTexParameteri(image->type, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);	// default to trilinear
+			//glHint(GL_GENERATE_MIPMAP_HINT_SGIS, GL_NICEST);	// make sure its nice
+			glTexParameteri(image->type, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
+			glTexParameteri(image->type, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);	// default to trilinear
 		}
 
 		switch (image->type)
 		{
 			case GL_TEXTURE_CUBE_MAP_ARB:
-				qglTexImage2D(target + i, 0, internalFormat, scaledWidth, scaledHeight, 0, format, GL_UNSIGNED_BYTE,
+				glTexImage2D(target + i, 0, internalFormat, scaledWidth, scaledHeight, 0, format, GL_UNSIGNED_BYTE,
 							  scaledBuffer);
 				break;
 
 			default:
 				if(image->bits & IF_PACKED_DEPTH24_STENCIL8)
 				{
-					qglTexImage2D(target, 0, internalFormat, scaledWidth, scaledHeight, 0, format, GL_UNSIGNED_INT_24_8_EXT, NULL);
+					glTexImage2D(target, 0, internalFormat, scaledWidth, scaledHeight, 0, format, GL_UNSIGNED_INT_24_8_EXT, NULL);
 				}
 				else
 				{
-					qglTexImage2D(target, 0, internalFormat, scaledWidth, scaledHeight, 0, format, GL_UNSIGNED_BYTE, scaledBuffer);
+					glTexImage2D(target, 0, internalFormat, scaledWidth, scaledHeight, 0, format, GL_UNSIGNED_BYTE, scaledBuffer);
 				}
 				break;
 		}
@@ -1378,12 +1373,12 @@ void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 					switch (image->type)
 					{
 						case GL_TEXTURE_CUBE_MAP_ARB:
-							qglTexImage2D(target + i, mipLevel, internalFormat, mipWidth, mipHeight, 0, format, GL_UNSIGNED_BYTE,
+							glTexImage2D(target + i, mipLevel, internalFormat, mipWidth, mipHeight, 0, format, GL_UNSIGNED_BYTE,
 										  scaledBuffer);
 							break;
 
 						default:
-							qglTexImage2D(target, mipLevel, internalFormat, mipWidth, mipHeight, 0, format, GL_UNSIGNED_BYTE,
+							glTexImage2D(target, mipLevel, internalFormat, mipWidth, mipHeight, 0, format, GL_UNSIGNED_BYTE,
 										  scaledBuffer);
 							break;
 					}
@@ -1400,26 +1395,26 @@ void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 		case FT_DEFAULT:
 			// set texture anisotropy
 			if(glConfig.textureAnisotropyAvailable)
-				qglTexParameterf(image->type, GL_TEXTURE_MAX_ANISOTROPY_EXT, r_ext_texture_filter_anisotropic->value);
+				glTexParameterf(image->type, GL_TEXTURE_MAX_ANISOTROPY_EXT, r_ext_texture_filter_anisotropic->value);
 
-			qglTexParameterf(image->type, GL_TEXTURE_MIN_FILTER, gl_filter_min);
-			qglTexParameterf(image->type, GL_TEXTURE_MAG_FILTER, gl_filter_max);
+			glTexParameterf(image->type, GL_TEXTURE_MIN_FILTER, gl_filter_min);
+			glTexParameterf(image->type, GL_TEXTURE_MAG_FILTER, gl_filter_max);
 			break;
 
 		case FT_LINEAR:
-			qglTexParameterf(image->type, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			qglTexParameterf(image->type, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameterf(image->type, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameterf(image->type, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			break;
 
 		case FT_NEAREST:
-			qglTexParameterf(image->type, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-			qglTexParameterf(image->type, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glTexParameterf(image->type, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glTexParameterf(image->type, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 			break;
 
 		default:
 			ri.Printf(PRINT_WARNING, "WARNING: unknown filter type for image '%s'\n", image->name);
-			qglTexParameterf(image->type, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			qglTexParameterf(image->type, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameterf(image->type, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameterf(image->type, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			break;
 	}
 
@@ -1429,36 +1424,32 @@ void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 	switch (image->wrapType)
 	{
 		case WT_REPEAT:
-			qglTexParameterf(image->type, GL_TEXTURE_WRAP_S, GL_REPEAT);
-			qglTexParameterf(image->type, GL_TEXTURE_WRAP_T, GL_REPEAT);
+			glTexParameterf(image->type, GL_TEXTURE_WRAP_S, GL_REPEAT);
+			glTexParameterf(image->type, GL_TEXTURE_WRAP_T, GL_REPEAT);
 			break;
 
 		case WT_CLAMP:
-			qglTexParameterf(image->type, GL_TEXTURE_WRAP_S, GL_CLAMP);
-			qglTexParameterf(image->type, GL_TEXTURE_WRAP_T, GL_CLAMP);
-			break;
-
 		case WT_EDGE_CLAMP:
-			qglTexParameterf(image->type, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-			qglTexParameterf(image->type, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+			glTexParameterf(image->type, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameterf(image->type, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 			break;
 
 		case WT_ZERO_CLAMP:
-			qglTexParameterf(image->type, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-			qglTexParameterf(image->type, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-			qglTexParameterfv(image->type, GL_TEXTURE_BORDER_COLOR, zeroClampBorder);
+			glTexParameterf(image->type, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+			glTexParameterf(image->type, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+			glTexParameterfv(image->type, GL_TEXTURE_BORDER_COLOR, zeroClampBorder);
 			break;
 
 		case WT_ALPHA_ZERO_CLAMP:
-			qglTexParameterf(image->type, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-			qglTexParameterf(image->type, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-			qglTexParameterfv(image->type, GL_TEXTURE_BORDER_COLOR, alphaZeroClampBorder);
+			glTexParameterf(image->type, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+			glTexParameterf(image->type, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+			glTexParameterfv(image->type, GL_TEXTURE_BORDER_COLOR, alphaZeroClampBorder);
 			break;
 
 		default:
 			ri.Printf(PRINT_WARNING, "WARNING: unknown wrap type for image '%s'\n", image->name);
-			qglTexParameterf(image->type, GL_TEXTURE_WRAP_S, GL_REPEAT);
-			qglTexParameterf(image->type, GL_TEXTURE_WRAP_T, GL_REPEAT);
+			glTexParameterf(image->type, GL_TEXTURE_WRAP_S, GL_REPEAT);
+			glTexParameterf(image->type, GL_TEXTURE_WRAP_T, GL_REPEAT);
 			break;
 	}
 
@@ -1495,7 +1486,7 @@ image_t        *R_AllocImage(const char *name, qboolean linkIntoHashTable)
 #if defined(USE_D3D10)
 	// TODO
 #else
-	qglGenTextures(1, &image->texnum);
+	glGenTextures(1, &image->texnum);
 #endif
 
 	Com_AddToGrowList(&tr.images, image);
@@ -1505,9 +1496,9 @@ image_t        *R_AllocImage(const char *name, qboolean linkIntoHashTable)
 	if(linkIntoHashTable)
 	{
 		Q_strncpyz(buffer, name, sizeof(buffer));
-		hash = generateHashValue(buffer);
-		image->next = hashTable[hash];
-		hashTable[hash] = image;
+		hash = GenerateImageHashValue(buffer);
+		image->next = r_imageHashTable[hash];
+		r_imageHashTable[hash] = image;
 	}
 
 	return image;
@@ -1553,7 +1544,7 @@ image_t        *R_CreateImage(const char *name,
 	// TODO
 #else
 	//GL_Unbind();
-	qglBindTexture(image->type, 0);
+	glBindTexture(image->type, 0);
 #endif
 
 	return image;
@@ -1598,7 +1589,7 @@ image_t        *R_CreateCubeImage(const char *name,
 #if defined(USE_D3D10)
 	// TODO
 #else
-	qglBindTexture(image->type, 0);
+	glBindTexture(image->type, 0);
 #endif
 
 	return image;
@@ -1607,10 +1598,10 @@ image_t        *R_CreateCubeImage(const char *name,
 
 
 
-static void     R_LoadImage(char **buffer, byte ** pic, int *width, int *height, int *bits);
+static void     R_LoadImage(char **buffer, byte ** pic, int *width, int *height, int *bits, const char *materialName);
 image_t        *R_LoadDDSImage(const char *name, int bits, filterType_t filterType, wrapType_t wrapType);
 
-static void ParseHeightMap(char **text, byte ** pic, int *width, int *height, int *bits)
+static qboolean ParseHeightMap(char **text, byte ** pic, int *width, int *height, int *bits, const char *materialName)
 {
 	char           *token;
 	float           scale;
@@ -1619,21 +1610,21 @@ static void ParseHeightMap(char **text, byte ** pic, int *width, int *height, in
 	if(token[0] != '(')
 	{
 		ri.Printf(PRINT_WARNING, "WARNING: expecting '(', found '%s' for heightMap\n", token);
-		return;
+		return qfalse;
 	}
 
-	R_LoadImage(text, pic, width, height, bits);
+	R_LoadImage(text, pic, width, height, bits, materialName);
 	if(!pic)
 	{
 		ri.Printf(PRINT_WARNING, "WARNING: failed loading of image for heightMap\n", token);
-		return;
+		return qfalse;
 	}
 
 	token = Com_ParseExt(text, qfalse);
 	if(token[0] != ',')
 	{
 		ri.Printf(PRINT_WARNING, "WARNING: no matching ',' found\n");
-		return;
+		return qfalse;
 	}
 
 	token = Com_ParseExt(text, qfalse);
@@ -1643,17 +1634,18 @@ static void ParseHeightMap(char **text, byte ** pic, int *width, int *height, in
 	if(token[0] != ')')
 	{
 		ri.Printf(PRINT_WARNING, "WARNING: expecting ')', found '%s' for heightMap\n", token);
-		return;
+		return qfalse;
 	}
 
 	R_HeightMapToNormalMap(*pic, *width, *height, scale);
 
-	*bits &= ~IF_INTENSITY;
 	*bits &= ~IF_ALPHA;
 	*bits |= IF_NORMALMAP;
+
+	return qtrue;
 }
 
-static void ParseDisplaceMap(char **text, byte ** pic, int *width, int *height, int *bits)
+static qboolean ParseDisplaceMap(char **text, byte ** pic, int *width, int *height, int *bits, const char *materialName)
 {
 	char           *token;
 	byte           *pic2;
@@ -1663,28 +1655,28 @@ static void ParseDisplaceMap(char **text, byte ** pic, int *width, int *height, 
 	if(token[0] != '(')
 	{
 		ri.Printf(PRINT_WARNING, "WARNING: expecting '(', found '%s' for displaceMap\n", token);
-		return;
+		return qfalse;
 	}
 
-	R_LoadImage(text, pic, width, height, bits);
+	R_LoadImage(text, pic, width, height, bits, materialName);
 	if(!pic)
 	{
 		ri.Printf(PRINT_WARNING, "WARNING: failed loading of first image for displaceMap\n");
-		return;
+		return qfalse;
 	}
 
 	token = Com_ParseExt(text, qfalse);
 	if(token[0] != ',')
 	{
 		ri.Printf(PRINT_WARNING, "WARNING: no matching ',' found\n");
-		return;
+		return qfalse;
 	}
 
-	R_LoadImage(text, &pic2, &width2, &height2, bits);
+	R_LoadImage(text, &pic2, &width2, &height2, bits, materialName);
 	if(!pic2)
 	{
 		ri.Printf(PRINT_WARNING, "WARNING: failed loading of second image for displaceMap\n");
-		return;
+		return qfalse;
 	}
 
 	token = Com_ParseExt(text, qfalse);
@@ -1702,20 +1694,21 @@ static void ParseDisplaceMap(char **text, byte ** pic, int *width, int *height, 
 		//*pic = NULL;
 
 		ri.Free(pic2);
-		return;
+		return qfalse;
 	}
 
 	R_DisplaceMap(*pic, pic2, *width, *height);
 
 	ri.Free(pic2);
 
-	*bits &= ~IF_INTENSITY;
 	*bits &= ~IF_ALPHA;
 	*bits |= IF_NORMALMAP;
 	*bits |= IF_DISPLACEMAP;
+
+	return qtrue;
 }
 
-static void ParseAddNormals(char **text, byte ** pic, int *width, int *height, int *bits)
+static qboolean ParseAddNormals(char **text, byte ** pic, int *width, int *height, int *bits, const char *materialName)
 {
 	char           *token;
 	byte           *pic2;
@@ -1725,28 +1718,28 @@ static void ParseAddNormals(char **text, byte ** pic, int *width, int *height, i
 	if(token[0] != '(')
 	{
 		ri.Printf(PRINT_WARNING, "WARNING: expecting '(', found '%s' for addNormals\n", token);
-		return;
+		return qfalse;
 	}
 
-	R_LoadImage(text, pic, width, height, bits);
+	R_LoadImage(text, pic, width, height, bits, materialName);
 	if(!pic)
 	{
 		ri.Printf(PRINT_WARNING, "WARNING: failed loading of first image for addNormals\n");
-		return;
+		return qfalse;
 	}
 
 	token = Com_ParseExt(text, qfalse);
 	if(token[0] != ',')
 	{
 		ri.Printf(PRINT_WARNING, "WARNING: no matching ',' found\n");
-		return;
+		return qfalse;
 	}
 
-	R_LoadImage(text, &pic2, &width2, &height2, bits);
+	R_LoadImage(text, &pic2, &width2, &height2, bits, materialName);
 	if(!pic2)
 	{
 		ri.Printf(PRINT_WARNING, "WARNING: failed loading of second image for addNormals\n");
-		return;
+		return qfalse;
 	}
 
 	token = Com_ParseExt(text, qfalse);
@@ -1764,19 +1757,20 @@ static void ParseAddNormals(char **text, byte ** pic, int *width, int *height, i
 		//*pic = NULL;
 
 		ri.Free(pic2);
-		return;
+		return qfalse;
 	}
 
 	R_AddNormals(*pic, pic2, *width, *height);
 
 	ri.Free(pic2);
 
-	*bits &= ~IF_INTENSITY;
 	*bits &= ~IF_ALPHA;
 	*bits |= IF_NORMALMAP;
+
+	return qtrue;
 }
 
-static void ParseInvertAlpha(char **text, byte ** pic, int *width, int *height, int *bits)
+static qboolean ParseInvertAlpha(char **text, byte ** pic, int *width, int *height, int *bits, const char *materialName)
 {
 	char           *token;
 
@@ -1784,27 +1778,29 @@ static void ParseInvertAlpha(char **text, byte ** pic, int *width, int *height, 
 	if(token[0] != '(')
 	{
 		ri.Printf(PRINT_WARNING, "WARNING: expecting '(', found '%s' for invertAlpha\n", token);
-		return;
+		return qfalse;
 	}
 
-	R_LoadImage(text, pic, width, height, bits);
+	R_LoadImage(text, pic, width, height, bits, materialName);
 	if(!pic)
 	{
 		ri.Printf(PRINT_WARNING, "WARNING: failed loading of image for invertAlpha\n");
-		return;
+		return qfalse;
 	}
 
 	token = Com_ParseExt(text, qfalse);
 	if(token[0] != ')')
 	{
 		ri.Printf(PRINT_WARNING, "WARNING: expecting ')', found '%s' for invertAlpha\n", token);
-		return;
+		return qfalse;
 	}
 
 	R_InvertAlpha(*pic, *width, *height);
+
+	return qtrue;
 }
 
-static void ParseInvertColor(char **text, byte ** pic, int *width, int *height, int *bits)
+static qboolean ParseInvertColor(char **text, byte ** pic, int *width, int *height, int *bits, const char *materialName)
 {
 	char           *token;
 
@@ -1812,27 +1808,29 @@ static void ParseInvertColor(char **text, byte ** pic, int *width, int *height, 
 	if(token[0] != '(')
 	{
 		ri.Printf(PRINT_WARNING, "WARNING: expecting '(', found '%s' for invertColor\n", token);
-		return;
+		return qfalse;
 	}
 
-	R_LoadImage(text, pic, width, height, bits);
+	R_LoadImage(text, pic, width, height, bits, materialName);
 	if(!pic)
 	{
 		ri.Printf(PRINT_WARNING, "WARNING: failed loading of image for invertColor\n");
-		return;
+		return qfalse;
 	}
 
 	token = Com_ParseExt(text, qfalse);
 	if(token[0] != ')')
 	{
 		ri.Printf(PRINT_WARNING, "WARNING: expecting ')', found '%s' for invertColor\n", token);
-		return;
+		return qfalse;
 	}
 
 	R_InvertColor(*pic, *width, *height);
+
+	return qtrue;
 }
 
-static void ParseMakeIntensity(char **text, byte ** pic, int *width, int *height, int *bits)
+static qboolean ParseMakeIntensity(char **text, byte ** pic, int *width, int *height, int *bits, const char *materialName)
 {
 	char           *token;
 
@@ -1840,31 +1838,32 @@ static void ParseMakeIntensity(char **text, byte ** pic, int *width, int *height
 	if(token[0] != '(')
 	{
 		ri.Printf(PRINT_WARNING, "WARNING: expecting '(', found '%s' for makeIntensity\n", token);
-		return;
+		return qfalse;
 	}
 
-	R_LoadImage(text, pic, width, height, bits);
+	R_LoadImage(text, pic, width, height, bits, materialName);
 	if(!pic)
 	{
 		ri.Printf(PRINT_WARNING, "WARNING: failed loading of image for makeIntensity\n");
-		return;
+		return qfalse;
 	}
 
 	token = Com_ParseExt(text, qfalse);
 	if(token[0] != ')')
 	{
 		ri.Printf(PRINT_WARNING, "WARNING: expecting ')', found '%s' for makeIntensity\n", token);
-		return;
+		return qfalse;
 	}
 
 	R_MakeIntensity(*pic, *width, *height);
 
-//	*bits |= IF_INTENSITY;
 	*bits &= ~IF_ALPHA;
 	*bits &= ~IF_NORMALMAP;
+
+	return qtrue;
 }
 
-static void ParseMakeAlpha(char **text, byte ** pic, int *width, int *height, int *bits)
+static qboolean ParseMakeAlpha(char **text, byte ** pic, int *width, int *height, int *bits, const char *materialName)
 {
 	char           *token;
 
@@ -1872,28 +1871,29 @@ static void ParseMakeAlpha(char **text, byte ** pic, int *width, int *height, in
 	if(token[0] != '(')
 	{
 		ri.Printf(PRINT_WARNING, "WARNING: expecting '(', found '%s' for makeAlpha\n", token);
-		return;
+		return qfalse;
 	}
 
-	R_LoadImage(text, pic, width, height, bits);
+	R_LoadImage(text, pic, width, height, bits, materialName);
 	if(!pic)
 	{
 		ri.Printf(PRINT_WARNING, "WARNING: failed loading of image for makeAlpha\n");
-		return;
+		return qfalse;
 	}
 
 	token = Com_ParseExt(text, qfalse);
 	if(token[0] != ')')
 	{
 		ri.Printf(PRINT_WARNING, "WARNING: expecting ')', found '%s' for makeAlpha\n", token);
-		return;
+		return qfalse;
 	}
 
 	R_MakeAlpha(*pic, *width, *height);
 
-	*bits &= ~IF_INTENSITY;
 //	*bits |= IF_ALPHA;
 	*bits &= IF_NORMALMAP;
+
+	return qtrue;
 }
 
 typedef struct
@@ -1923,7 +1923,7 @@ Loads any of the supported image types into a canonical
 32 bit format.
 =================
 */
-static void R_LoadImage(char **buffer, byte ** pic, int *width, int *height, int *bits)
+static void R_LoadImage(char **buffer, byte ** pic, int *width, int *height, int *bits, const char *materialName)
 {
 	char           *token;
 
@@ -1943,17 +1943,35 @@ static void R_LoadImage(char **buffer, byte ** pic, int *width, int *height, int
 	// heightMap(<map>, <float>)  Turns a grayscale height map into a normal map. <float> varies the bumpiness
 	if(!Q_stricmp(token, "heightMap"))
 	{
-		ParseHeightMap(buffer, pic, width, height, bits);
+		if(!ParseHeightMap(buffer, pic, width, height, bits, materialName))
+		{
+			if(materialName && materialName[0] != '\0')
+			{
+				ri.Printf(PRINT_WARNING, "WARNING: failed to parse heightMap(<map>, <float>) expression for shader '%s'\n", materialName);
+			}
+		}
 	}
 	// displaceMap(<map>, <map>)  Sets the alpha channel to an average of the second image's RGB channels.
 	else if(!Q_stricmp(token, "displaceMap"))
 	{
-		ParseDisplaceMap(buffer, pic, width, height, bits);
+		if(!ParseDisplaceMap(buffer, pic, width, height, bits, materialName))
+		{
+			if(materialName && materialName[0] != '\0')
+			{
+				ri.Printf(PRINT_WARNING, "WARNING: failed to parse displaceMap(<map>, <map>) expression for shader '%s'\n", materialName);
+			}
+		}
 	}
 	// addNormals(<map>, <map>)  Adds two normal maps together. Result is normalized.
 	else if(!Q_stricmp(token, "addNormals"))
 	{
-		ParseAddNormals(buffer, pic, width, height, bits);
+		if(!ParseAddNormals(buffer, pic, width, height, bits, materialName))
+		{
+			if(materialName && materialName[0] != '\0')
+			{
+				ri.Printf(PRINT_WARNING, "WARNING: failed to parse addNormals(<map>, <map>) expression for shader '%s'\n", materialName);
+			}
+		}
 	}
 	// smoothNormals(<map>)  Does a box filter on the normal map, and normalizes the result.
 	else if(!Q_stricmp(token, "smoothNormals"))
@@ -1973,22 +1991,46 @@ static void R_LoadImage(char **buffer, byte ** pic, int *width, int *height, int
 	// invertAlpha(<map>)  Inverts the alpha channel (0 becomes 1, 1 becomes 0)
 	else if(!Q_stricmp(token, "invertAlpha"))
 	{
-		ParseInvertAlpha(buffer, pic, width, height, bits);
+		if(!ParseInvertAlpha(buffer, pic, width, height, bits, materialName))
+		{
+			if(materialName && materialName[0] != '\0')
+			{
+				ri.Printf(PRINT_WARNING, "WARNING: failed to parse invertAlpha(<map>) expression for shader '%s'\n", materialName);
+			}
+		}
 	}
 	// invertColor(<map>)  Inverts the R, G, and B channels
 	else if(!Q_stricmp(token, "invertColor"))
 	{
-		ParseInvertColor(buffer, pic, width, height, bits);
+		if(!ParseInvertColor(buffer, pic, width, height, bits, materialName))
+		{
+			if(materialName && materialName[0] != '\0')
+			{
+				ri.Printf(PRINT_WARNING, "WARNING: failed to parse invertColor(<map>) expression for shader '%s'\n", materialName);
+			}
+		}
 	}
 	// makeIntensity(<map>)  Copies the red channel to the G, B, and A channels
 	else if(!Q_stricmp(token, "makeIntensity"))
 	{
-		ParseMakeIntensity(buffer, pic, width, height, bits);
+		if(!ParseMakeIntensity(buffer, pic, width, height, bits, materialName))
+		{
+			if(materialName && materialName[0] != '\0')
+			{
+				ri.Printf(PRINT_WARNING, "WARNING: failed to parse makeIntensity(<map>) expression for shader '%s'\n", materialName);
+			}
+		}
 	}
 	// makeAlpha(<map>)  Sets the alpha channel to an average of the RGB channels. Sets the RGB channels to white.
 	else if(!Q_stricmp(token, "makeAlpha"))
 	{
-		ParseMakeAlpha(buffer, pic, width, height, bits);
+		if(!ParseMakeAlpha(buffer, pic, width, height, bits, materialName))
+		{
+			if(materialName && materialName[0] != '\0')
+			{
+				ri.Printf(PRINT_WARNING, "WARNING: failed to parse makeAlpha(<map>) expression for shader '%s'\n", materialName);
+			}
+		}
 	}
 	else
 	{
@@ -2069,7 +2111,7 @@ Finds or loads the given image.
 Returns NULL if it fails, not a default image.
 ==============
 */
-image_t        *R_FindImageFile(const char *name, int bits, filterType_t filterType, wrapType_t wrapType)
+image_t        *R_FindImageFile(const char *imageName, int bits, filterType_t filterType, wrapType_t wrapType, const char *materialName)
 {
 	image_t        *image = NULL;
 	int             width = 0, height = 0;
@@ -2080,18 +2122,18 @@ image_t        *R_FindImageFile(const char *name, int bits, filterType_t filterT
 	char           *buffer_p;
 	unsigned long   diff;
 
-	if(!name)
+	if(!imageName)
 	{
 		return NULL;
 	}
 
-	Q_strncpyz(buffer, name, sizeof(buffer));
-	hash = generateHashValue(buffer);
+	Q_strncpyz(buffer, imageName, sizeof(buffer));
+	hash = GenerateImageHashValue(buffer);
 
 //  ri.Printf(PRINT_ALL, "R_FindImageFile: buffer '%s'\n", buffer);
 
 	// see if the image is already loaded
-	for(image = hashTable[hash]; image; image = image->next)
+	for(image = r_imageHashTable[hash]; image; image = image->next)
 	{
 		if(!Q_stricmpn(buffer, image->name, sizeof(image->name)))
 		{
@@ -2109,12 +2151,12 @@ image_t        *R_FindImageFile(const char *name, int bits, filterType_t filterT
 
 				if(diff & IF_NOPICMIP)
 				{
-					ri.Printf(PRINT_DEVELOPER, "WARNING: reused image %s with mixed allowPicmip parm\n", name);
+					ri.Printf(PRINT_DEVELOPER, "WARNING: reused image '%s' with mixed allowPicmip parm for shader '%s\n", imageName, materialName);
 				}
 
 				if(image->wrapType != wrapType)
 				{
-					ri.Printf(PRINT_ALL, "WARNING: reused image %s with mixed glWrapType parm\n", name);
+					ri.Printf(PRINT_ALL, "WARNING: reused image '%s' with mixed glWrapType parm for shader '%s'\n", imageName, materialName);
 				}
 			}
 			return image;
@@ -2124,9 +2166,9 @@ image_t        *R_FindImageFile(const char *name, int bits, filterType_t filterT
 #if defined(USE_D3D10)
 	// TODO
 #else
-	if(glConfig.textureCompression == TC_S3TC && !(bits & IF_NOCOMPRESSION) && Q_stricmpn(name, "fonts", 5))
+	if(glConfig.textureCompression == TC_S3TC && !(bits & IF_NOCOMPRESSION) && Q_stricmpn(imageName, "fonts", 5))
 	{
-		Q_strncpyz(ddsName, name, sizeof(ddsName));
+		Q_strncpyz(ddsName, imageName, sizeof(ddsName));
 		Com_StripExtension(ddsName, ddsName, sizeof(ddsName));
 		Q_strcat(ddsName, sizeof(ddsName), ".dds");
 
@@ -2160,7 +2202,7 @@ image_t        *R_FindImageFile(const char *name, int bits, filterType_t filterT
 
 	// load the pic from disk
 	buffer_p = &buffer[0];
-	R_LoadImage(&buffer_p, &pic, &width, &height, &bits);
+	R_LoadImage(&buffer_p, &pic, &width, &height, &bits, materialName);
 	if(pic == NULL)
 	{
 		return NULL;
@@ -2355,7 +2397,7 @@ Returns NULL if it fails, not a default image.
 Tr3B: fear the use of goto
 ==============
 */
-image_t        *R_FindCubeImage(const char *name, int bits, filterType_t filterType, wrapType_t wrapType)
+image_t        *R_FindCubeImage(const char *imageName, int bits, filterType_t filterType, wrapType_t wrapType, const char *materialName)
 {
 	int             i;
 	image_t        *image = NULL;
@@ -2402,16 +2444,16 @@ image_t        *R_FindCubeImage(const char *name, int bits, filterType_t filterT
 	char            ddsName[1024];
 	char           *filename_p;
 
-	if(!name)
+	if(!imageName)
 	{
 		return NULL;
 	}
 
-	Q_strncpyz(buffer, name, sizeof(buffer));
-	hash = generateHashValue(buffer);
+	Q_strncpyz(buffer, imageName, sizeof(buffer));
+	hash = GenerateImageHashValue(buffer);
 
 	// see if the image is already loaded
-	for(image = hashTable[hash]; image; image = image->next)
+	for(image = r_imageHashTable[hash]; image; image = image->next)
 	{
 		if(!Q_stricmp(buffer, image->name))
 		{
@@ -2423,9 +2465,9 @@ image_t        *R_FindCubeImage(const char *name, int bits, filterType_t filterT
 #if defined(USE_D3D10)
 	// TODO
 #else
-	if(glConfig.textureCompression == TC_S3TC && !(bits & IF_NOCOMPRESSION) && Q_stricmpn(name, "fonts", 5))
+	if(glConfig.textureCompression == TC_S3TC && !(bits & IF_NOCOMPRESSION) && Q_stricmpn(imageName, "fonts", 5))
 	{
-		Q_strncpyz(ddsName, name, sizeof(ddsName));
+		Q_strncpyz(ddsName, imageName, sizeof(ddsName));
 		Com_StripExtension(ddsName, ddsName, sizeof(ddsName));
 		Q_strcat(ddsName, sizeof(ddsName), ".dds");
 
@@ -2467,7 +2509,7 @@ image_t        *R_FindCubeImage(const char *name, int bits, filterType_t filterT
 		Com_sprintf(filename, sizeof(filename), "%s_%s", buffer, openglSuffices[i]);
 
 		filename_p = &filename[0];
-		R_LoadImage(&filename_p, &pic[i], &width, &height, &bitsIgnore);
+		R_LoadImage(&filename_p, &pic[i], &width, &height, &bitsIgnore, materialName);
 
 		if(!pic[i] || width != height)
 		{
@@ -2483,7 +2525,7 @@ image_t        *R_FindCubeImage(const char *name, int bits, filterType_t filterT
   		Com_sprintf(filename, sizeof(filename), "%s_%s", buffer, doom3Suffices[i]);
 
   		filename_p = &filename[0];
-  		R_LoadImage(&filename_p, &pic[i], &width, &height, &bitsIgnore);
+  		R_LoadImage(&filename_p, &pic[i], &width, &height, &bitsIgnore, materialName);
 
   		if(!pic[i] || width != height)
 		{
@@ -2511,7 +2553,7 @@ image_t        *R_FindCubeImage(const char *name, int bits, filterType_t filterT
 		Com_sprintf(filename, sizeof(filename), "%s_%s", buffer, quakeSuffices[i]);
 
 		filename_p = &filename[0];
-		R_LoadImage(&filename_p, &pic[i], &width, &height, &bitsIgnore);
+		R_LoadImage(&filename_p, &pic[i], &width, &height, &bitsIgnore, materialName);
 
 		if(!pic[i] || width != height)
 		{
@@ -2544,6 +2586,114 @@ image_t        *R_FindCubeImage(const char *name, int bits, filterType_t filterT
 	return image;
 }
 
+
+
+/*
+=================
+R_InitFogTable
+=================
+*/
+void R_InitFogTable(void)
+{
+	int             i;
+	float           d;
+	float           exp;
+
+	exp = 0.5;
+
+	for(i = 0; i < FOG_TABLE_SIZE; i++)
+	{
+		d = pow((float)i / (FOG_TABLE_SIZE - 1), exp);
+
+		tr.fogTable[i] = d;
+	}
+}
+
+
+/*
+================
+R_FogFactor
+
+Returns a 0.0 to 1.0 fog density value
+This is called for each texel of the fog texture on startup
+and for each vertex of transparent shaders in fog dynamically
+================
+*/
+float R_FogFactor(float s, float t)
+{
+	float           d;
+
+	s -= 1.0 / 512;
+	if(s < 0)
+	{
+		return 0;
+	}
+	if(t < 1.0 / 32)
+	{
+		return 0;
+	}
+	if(t < 31.0 / 32)
+	{
+		s *= (t - 1.0f / 32.0f) / (30.0f / 32.0f);
+	}
+
+	// we need to leave a lot of clamp range
+	s *= 8;
+
+	if(s > 1.0)
+	{
+		s = 1.0;
+	}
+
+	d = tr.fogTable[(int)(s * (FOG_TABLE_SIZE - 1))];
+
+	return d;
+}
+
+
+/*
+================
+R_CreateFogImage
+================
+*/
+#define	FOG_S	256
+#define	FOG_T	32
+static void R_CreateFogImage(void)
+{
+	int             x, y;
+	byte           *data;
+	float           g;
+	float           d;
+	float           borderColor[4];
+
+	data = ri.Hunk_AllocateTempMemory(FOG_S * FOG_T * 4);
+
+	g = 2.0;
+
+	// S is distance, T is depth
+	for(x = 0; x < FOG_S; x++)
+	{
+		for(y = 0; y < FOG_T; y++)
+		{
+			d = R_FogFactor((x + 0.5f) / FOG_S, (y + 0.5f) / FOG_T);
+
+			data[(y * FOG_S + x) * 4 + 0] = data[(y * FOG_S + x) * 4 + 1] = data[(y * FOG_S + x) * 4 + 2] = 255;
+			data[(y * FOG_S + x) * 4 + 3] = 255 * d;
+		}
+	}
+	// standard openGL clamping doesn't really do what we want -- it includes
+	// the border color at the edges.  OpenGL 1.2 has clamp-to-edge, which does
+	// what we want.
+	tr.fogImage = R_CreateImage("_fog", (byte *) data, FOG_S, FOG_T, IF_NOPICMIP, FT_LINEAR, WT_CLAMP);
+	ri.Hunk_FreeTempMemory(data);
+
+	borderColor[0] = 1.0;
+	borderColor[1] = 1.0;
+	borderColor[2] = 1.0;
+	borderColor[3] = 1;
+
+	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+}
 
 
 /*
@@ -2987,7 +3137,7 @@ static void R_CreateShadowMapFBOImage(void)
 	int             width, height;
 	byte           *data;
 
-	if(!glConfig.textureFloatAvailable || r_shadows->integer <= 3)
+	if(!glConfig.textureFloatAvailable || r_shadows->integer <= SHADOWING_STENCIL)
 		return;
 
 	for(i = 0; i < MAX_SHADOWMAPS; i++)
@@ -3000,15 +3150,15 @@ static void R_CreateShadowMapFBOImage(void)
 		{
 			tr.shadowMapFBOImage[i] = R_CreateImage(va("_shadowMapFBO%d", i), data, width, height, IF_NOPICMIP | IF_RGBA16, (r_shadowMapLinearFilter->integer ? FT_LINEAR : FT_NEAREST), WT_EDGE_CLAMP);
 		}
-		else if((glConfig.hardwareType == GLHW_NV_DX10 || glConfig.hardwareType == GLHW_ATI_DX10) && r_shadows->integer == 4)
+		else if((glConfig.hardwareType == GLHW_NV_DX10 || glConfig.hardwareType == GLHW_ATI_DX10) && r_shadows->integer == SHADOWING_VSM16)
 		{
 			tr.shadowMapFBOImage[i] = R_CreateImage(va("_shadowMapFBO%d", i), data, width, height, IF_NOPICMIP | IF_LA16F, (r_shadowMapLinearFilter->integer ? FT_LINEAR : FT_NEAREST), WT_EDGE_CLAMP);
 		}
-		else if((glConfig.hardwareType == GLHW_NV_DX10 || glConfig.hardwareType == GLHW_ATI_DX10) && r_shadows->integer == 5)
+		else if((glConfig.hardwareType == GLHW_NV_DX10 || glConfig.hardwareType == GLHW_ATI_DX10) && r_shadows->integer == SHADOWING_VSM32)
 		{
 			tr.shadowMapFBOImage[i] = R_CreateImage(va("_shadowMapFBO%d", i), data, width, height, IF_NOPICMIP | IF_LA32F, (r_shadowMapLinearFilter->integer ? FT_LINEAR : FT_NEAREST), WT_EDGE_CLAMP);
 		}
-		else if((glConfig.hardwareType == GLHW_NV_DX10 || glConfig.hardwareType == GLHW_ATI_DX10) && r_shadows->integer == 6)
+		else if((glConfig.hardwareType == GLHW_NV_DX10 || glConfig.hardwareType == GLHW_ATI_DX10) && r_shadows->integer == SHADOWING_ESM)
 		{
 			tr.shadowMapFBOImage[i] = R_CreateImage(va("_shadowMapFBO%d", i), data, width, height, IF_NOPICMIP | IF_ALPHA32F, (r_shadowMapLinearFilter->integer ? FT_LINEAR : FT_NEAREST), WT_EDGE_CLAMP);
 		}
@@ -3029,7 +3179,7 @@ static void R_CreateShadowCubeFBOImage(void)
 	int             width, height;
 	byte           *data[6];
 
-	if(!glConfig.textureFloatAvailable || r_shadows->integer <= 3)
+	if(!glConfig.textureFloatAvailable || r_shadows->integer <= SHADOWING_STENCIL)
 		return;
 
 	for(j = 0; j < 5; j++)
@@ -3045,15 +3195,15 @@ static void R_CreateShadowCubeFBOImage(void)
 		{
 			tr.shadowCubeFBOImage[j] = R_CreateCubeImage(va("_shadowCubeFBO%d", j), (const byte **)data, width, height, IF_NOPICMIP | IF_RGBA16, (r_shadowMapLinearFilter->integer ? FT_LINEAR : FT_NEAREST), WT_EDGE_CLAMP);
 		}
-		else if((glConfig.hardwareType == GLHW_NV_DX10 || glConfig.hardwareType == GLHW_ATI_DX10) && r_shadows->integer == 4)
+		else if((glConfig.hardwareType == GLHW_NV_DX10 || glConfig.hardwareType == GLHW_ATI_DX10) && r_shadows->integer == SHADOWING_VSM16)
 		{
 			tr.shadowCubeFBOImage[j] = R_CreateCubeImage(va("_shadowCubeFBO%d", j), (const byte **)data, width, height, IF_NOPICMIP | IF_LA16F, (r_shadowMapLinearFilter->integer ? FT_LINEAR : FT_NEAREST), WT_EDGE_CLAMP);
 		}
-		else if((glConfig.hardwareType == GLHW_NV_DX10 || glConfig.hardwareType == GLHW_ATI_DX10) && r_shadows->integer == 5)
+		else if((glConfig.hardwareType == GLHW_NV_DX10 || glConfig.hardwareType == GLHW_ATI_DX10) && r_shadows->integer == SHADOWING_VSM32)
 		{
 			tr.shadowCubeFBOImage[j] = R_CreateCubeImage(va("_shadowCubeFBO%d", j), (const byte **)data, width, height, IF_NOPICMIP | IF_LA32F, (r_shadowMapLinearFilter->integer ? FT_LINEAR : FT_NEAREST), WT_EDGE_CLAMP);
 		}
-		else if((glConfig.hardwareType == GLHW_NV_DX10 || glConfig.hardwareType == GLHW_ATI_DX10) && r_shadows->integer == 6)
+		else if((glConfig.hardwareType == GLHW_NV_DX10 || glConfig.hardwareType == GLHW_ATI_DX10) && r_shadows->integer == SHADOWING_ESM)
 		{
 			tr.shadowCubeFBOImage[j] = R_CreateCubeImage(va("_shadowCubeFBO%d", j), (const byte **)data, width, height, IF_NOPICMIP | IF_ALPHA32F, (r_shadowMapLinearFilter->integer ? FT_LINEAR : FT_NEAREST), WT_EDGE_CLAMP);
 		}
@@ -3088,6 +3238,31 @@ static void R_CreateBlackCubeImage(void)
 
 	tr.blackCubeImage = R_CreateCubeImage("_blackCube", (const byte **)data, width, height, IF_NOPICMIP, FT_LINEAR, WT_EDGE_CLAMP);
 	tr.autoCubeImage = R_CreateCubeImage("_autoCube", (const byte **)data, width, height, IF_NOPICMIP, FT_LINEAR, WT_EDGE_CLAMP);
+
+	for(i = 5; i >= 0; i--)
+	{
+		ri.Hunk_FreeTempMemory(data[i]);
+	}
+}
+// *INDENT-ON*
+
+// *INDENT-OFF*
+static void R_CreateWhiteCubeImage(void)
+{
+	int             i;
+	int             width, height;
+	byte           *data[6];
+
+	width = REF_CUBEMAP_SIZE;
+	height = REF_CUBEMAP_SIZE;
+
+	for(i = 0; i < 6; i++)
+	{
+		data[i] = ri.Hunk_AllocateTempMemory(width * height * 4);
+		Com_Memset(data[i], 0xFF, width * height * 4);
+	}
+
+	tr.whiteCubeImage = R_CreateCubeImage("_whiteCube", (const byte **)data, width, height, IF_NOPICMIP, FT_LINEAR, WT_EDGE_CLAMP);
 
 	for(i = 5; i >= 0; i--)
 	{
@@ -3139,13 +3314,13 @@ void R_CreateBuiltinImages(void)
 	}
 
 	out = &data[0][0][0];
-	for(y = 0; y < 8; y++)
+	for(y = 0; y < DEFAULT_SIZE; y++)
 	{
-		for(x = 0; x < 32; x++, out += 4)
+		for(x = 0; x < DEFAULT_SIZE; x++, out += 4)
 		{
-			s = (((float)x + 0.5f) * (2.0f / 32) - 1.0f);
+			s = (((float)x + 0.5f) * (2.0f / DEFAULT_SIZE) - 1.0f);
 
-			s = Q_fabs(s) - (1.0f / 32);
+			s = Q_fabs(s) - (1.0f / DEFAULT_SIZE);
 
 			value = 1.0f - (s * 2.0f) + (s * s);
 
@@ -3162,6 +3337,7 @@ void R_CreateBuiltinImages(void)
 		R_CreateImage("_quadratic", (byte *) data, DEFAULT_SIZE, DEFAULT_SIZE, IF_NOPICMIP | IF_NOCOMPRESSION, FT_LINEAR,
 					  WT_CLAMP);
 
+	R_CreateFogImage();
 	R_CreateNoFalloffImage();
 	R_CreateAttenuationXYImage();
 	R_CreateContrastRenderFBOImage();
@@ -3176,6 +3352,7 @@ void R_CreateBuiltinImages(void)
 	R_CreateShadowMapFBOImage();
 	R_CreateShadowCubeFBOImage();
 	R_CreateBlackCubeImage();
+	R_CreateWhiteCubeImage();
 }
 
 
@@ -3192,6 +3369,8 @@ void R_SetColorMappings(void)
 	float           g;
 	int             inf;
 	int             shift;
+
+	tr.mapOverBrightBits = r_mapOverBrightBits->integer;
 
 	// setup the overbright lighting
 	tr.overbrightBits = r_overBrightBits->integer;
@@ -3298,7 +3477,7 @@ void R_InitImages(void)
 
 	ri.Printf(PRINT_ALL, "------- R_InitImages -------\n");
 
-	Com_Memset(hashTable, 0, sizeof(hashTable));
+	Com_Memset(r_imageHashTable, 0, sizeof(r_imageHashTable));
 	Com_InitGrowList(&tr.images, 4096);
 	Com_InitGrowList(&tr.lightmaps, 128);
 	Com_InitGrowList(&tr.deluxemaps, 128);
@@ -3309,19 +3488,19 @@ void R_InitImages(void)
 	// create default texture and white texture
 	R_CreateBuiltinImages();
 
-	tr.charsetImage = R_FindImageFile(charsetImage, IF_NOCOMPRESSION | IF_NOPICMIP, FT_DEFAULT, WT_CLAMP);
+	tr.charsetImage = R_FindImageFile(charsetImage, IF_NOCOMPRESSION | IF_NOPICMIP, FT_DEFAULT, WT_CLAMP, NULL);
 	if(!tr.charsetImage)
 	{
 		ri.Error(ERR_FATAL, "R_InitImages: could not load '%s'", charsetImage);
 	}
 
-	tr.grainImage = R_FindImageFile(grainImage, IF_NOCOMPRESSION | IF_NOPICMIP, FT_DEFAULT, WT_REPEAT);
+	tr.grainImage = R_FindImageFile(grainImage, IF_NOCOMPRESSION | IF_NOPICMIP, FT_DEFAULT, WT_REPEAT, NULL);
 	if(!tr.grainImage)
 	{
 		ri.Error(ERR_FATAL, "R_InitImages: could not load '%s'", grainImage);
 	}
 
-	tr.vignetteImage = R_FindImageFile(vignetteImage, IF_NOCOMPRESSION | IF_NOPICMIP, FT_DEFAULT, WT_CLAMP);
+	tr.vignetteImage = R_FindImageFile(vignetteImage, IF_NOCOMPRESSION | IF_NOPICMIP, FT_DEFAULT, WT_CLAMP, NULL);
 	if(!tr.vignetteImage)
 	{
 		ri.Error(ERR_FATAL, "R_InitImages: could not load '%s'", vignetteImage);
@@ -3348,7 +3527,7 @@ void R_ShutdownImages(void)
 #if defined(USE_D3D10)
 		// TODO
 #else
-		qglDeleteTextures(1, &image->texnum);
+		glDeleteTextures(1, &image->texnum);
 #endif
 	}
 
@@ -3356,21 +3535,23 @@ void R_ShutdownImages(void)
 	// TODO
 #else
 	Com_Memset(glState.currenttextures, 0, sizeof(glState.currenttextures));
-	if(qglBindTexture)
+	/*
+	if(glBindTexture)
 	{
-		if(qglActiveTextureARB)
+		if(glActiveTextureARB)
 		{
 			for(i = 8 - 1; i >= 0; i--)
 			{
 				GL_SelectTexture(i);
-				qglBindTexture(GL_TEXTURE_2D, 0);
+				glBindTexture(GL_TEXTURE_2D, 0);
 			}
 		}
 		else
 		{
-			qglBindTexture(GL_TEXTURE_2D, 0);
+			glBindTexture(GL_TEXTURE_2D, 0);
 		}
 	}
+	*/
 #endif
 
 	Com_DestroyGrowList(&tr.images);
@@ -3382,318 +3563,38 @@ void R_ShutdownImages(void)
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-============================================================================
-
-SKINS
-
-============================================================================
-*/
-
-/*
-==================
-CommaParse
-
-This is unfortunate, but the skin files aren't
-compatable with our normal parsing rules.
-==================
-*/
-static char    *CommaParse(char **data_p)
+int RE_GetTextureId(const char *name)
 {
-	int             c = 0, len;
-	char           *data;
-	static char     com_token[MAX_TOKEN_CHARS];
+	int             i;
+	image_t			*image;
 
-	data = *data_p;
-	len = 0;
-	com_token[0] = 0;
+	ri.Printf(PRINT_ALL, S_COLOR_YELLOW "RE_GetTextureId [%s].\n", name);
 
-	// make sure incoming data is valid
-	if(!data)
+	for(i = 0; i < tr.images.currentElements; i++)
 	{
-		*data_p = NULL;
-		return com_token;
-	}
+		image = Com_GrowListElement(&tr.images, i);
 
-	while(1)
-	{
-		// skip whitespace
-		while((c = *data) <= ' ')
+		if(!strcmp(name, image->name))
 		{
-			if(!c)
-			{
-				break;
-			}
-			data++;
-		}
-
-
-		c = *data;
-
-		// skip double slash comments
-		if(c == '/' && data[1] == '/')
-		{
-			while(*data && *data != '\n')
-				data++;
-		}
-		// skip /* */ comments
-		else if(c == '/' && data[1] == '*')
-		{
-			while(*data && (*data != '*' || data[1] != '/'))
-			{
-				data++;
-			}
-			if(*data)
-			{
-				data += 2;
-			}
-		}
-		else
-		{
-			break;
+//          ri.Printf(PRINT_ALL, "Found textureid %d\n", i);
+			return i;
 		}
 	}
 
-	if(c == 0)
-	{
-		return "";
-	}
-
-	// handle quoted strings
-	if(c == '\"')
-	{
-		data++;
-		while(1)
-		{
-			c = *data++;
-			if(c == '\"' || !c)
-			{
-				com_token[len] = 0;
-				*data_p = (char *)data;
-				return com_token;
-			}
-			if(len < MAX_TOKEN_CHARS)
-			{
-				com_token[len] = c;
-				len++;
-			}
-		}
-	}
-
-	// parse a regular word
-	do
-	{
-		if(len < MAX_TOKEN_CHARS)
-		{
-			com_token[len] = c;
-			len++;
-		}
-		data++;
-		c = *data;
-	} while(c > 32 && c != ',');
-
-	if(len == MAX_TOKEN_CHARS)
-	{
-//      Com_Printf ("Token exceeded %i chars, discarded.\n", MAX_TOKEN_CHARS);
-		len = 0;
-	}
-	com_token[len] = 0;
-
-	*data_p = (char *)data;
-	return com_token;
+//  ri.Printf(PRINT_ALL, "Image not found.\n");
+	return -1;
 }
 
 
 
-/*
-===============
-RE_RegisterSkin
-
-===============
-*/
-qhandle_t RE_RegisterSkin(const char *name)
-{
-	qhandle_t       hSkin;
-	skin_t         *skin;
-	skinSurface_t  *surf;
-	char           *text, *text_p;
-	char           *token;
-	char            surfName[MAX_QPATH];
-
-	if(!name || !name[0])
-	{
-		Com_Printf("Empty name passed to RE_RegisterSkin\n");
-		return 0;
-	}
-
-	if(strlen(name) >= MAX_QPATH)
-	{
-		Com_Printf("Skin name exceeds MAX_QPATH\n");
-		return 0;
-	}
-
-
-	// see if the skin is already loaded
-	for(hSkin = 1; hSkin < tr.numSkins; hSkin++)
-	{
-		skin = tr.skins[hSkin];
-		if(!Q_stricmp(skin->name, name))
-		{
-			if(skin->numSurfaces == 0)
-			{
-				return 0;		// default skin
-			}
-			return hSkin;
-		}
-	}
-
-	// allocate a new skin
-	if(tr.numSkins == MAX_SKINS)
-	{
-		ri.Printf(PRINT_WARNING, "WARNING: RE_RegisterSkin( '%s' ) MAX_SKINS hit\n", name);
-		return 0;
-	}
-	tr.numSkins++;
-	skin = ri.Hunk_Alloc(sizeof(skin_t), h_low);
-	tr.skins[hSkin] = skin;
-	Q_strncpyz(skin->name, name, sizeof(skin->name));
-	skin->numSurfaces = 0;
-
-	// make sure the render thread is stopped
-	R_SyncRenderThread();
-
-	// If not a .skin file, load as a single shader
-	if(strcmp(name + strlen(name) - 5, ".skin"))
-	{
-		skin->numSurfaces = 1;
-		skin->surfaces[0] = ri.Hunk_Alloc(sizeof(skin->surfaces[0]), h_low);
-		skin->surfaces[0]->shader = R_FindShader(name, SHADER_3D_DYNAMIC, qtrue);
-		return hSkin;
-	}
-
-	// load and parse the skin file
-	ri.FS_ReadFile(name, (void **)&text);
-	if(!text)
-	{
-		return 0;
-	}
-
-	text_p = text;
-	while(text_p && *text_p)
-	{
-		// get surface name
-		token = CommaParse(&text_p);
-		Q_strncpyz(surfName, token, sizeof(surfName));
-
-		if(!token[0])
-		{
-			break;
-		}
-		// lowercase the surface name so skin compares are faster
-		Q_strlwr(surfName);
-
-		if(*text_p == ',')
-		{
-			text_p++;
-		}
-
-		if(strstr(token, "tag_"))
-		{
-			continue;
-		}
-
-		// parse the shader name
-		token = CommaParse(&text_p);
-
-		surf = skin->surfaces[skin->numSurfaces] = ri.Hunk_Alloc(sizeof(*skin->surfaces[0]), h_low);
-		Q_strncpyz(surf->name, surfName, sizeof(surf->name));
-		surf->shader = R_FindShader(token, SHADER_3D_DYNAMIC, qtrue);
-		skin->numSurfaces++;
-	}
-
-	ri.FS_FreeFile(text);
-
-
-	// never let a skin have 0 shaders
-	if(skin->numSurfaces == 0)
-	{
-		return 0;				// use default skin
-	}
-
-	return hSkin;
-}
 
 
 
-/*
-===============
-R_InitSkins
-===============
-*/
-void R_InitSkins(void)
-{
-	skin_t         *skin;
 
-	tr.numSkins = 1;
 
-	// make the default skin have all default shaders
-	skin = tr.skins[0] = ri.Hunk_Alloc(sizeof(skin_t), h_low);
-	Q_strncpyz(skin->name, "<default skin>", sizeof(skin->name));
-	skin->numSurfaces = 1;
-	skin->surfaces[0] = ri.Hunk_Alloc(sizeof(*skin->surfaces), h_low);
-	skin->surfaces[0]->shader = tr.defaultShader;
-}
 
-/*
-===============
-R_GetSkinByHandle
-===============
-*/
-skin_t         *R_GetSkinByHandle(qhandle_t hSkin)
-{
-	if(hSkin < 1 || hSkin >= tr.numSkins)
-	{
-		return tr.skins[0];
-	}
-	return tr.skins[hSkin];
-}
 
-/*
-===============
-R_SkinList_f
-===============
-*/
-void R_SkinList_f(void)
-{
-	int             i, j;
-	skin_t         *skin;
 
-	ri.Printf(PRINT_ALL, "------------------\n");
 
-	for(i = 0; i < tr.numSkins; i++)
-	{
-		skin = tr.skins[i];
 
-		ri.Printf(PRINT_ALL, "%3i:%s\n", i, skin->name);
-		for(j = 0; j < skin->numSurfaces; j++)
-		{
-			ri.Printf(PRINT_ALL, "       %s = %s\n", skin->surfaces[j]->name, skin->surfaces[j]->shader->name);
-		}
-	}
-	ri.Printf(PRINT_ALL, "------------------\n");
-}
+

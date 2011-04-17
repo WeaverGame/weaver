@@ -331,8 +331,8 @@ void CG_DrawOSD(void)
 		{
 			entry = &group->entrys[n];
 
-			VectorSet4(color, 1.0f, 1.0f, 1.0f, group->alpha);
-			VectorSet4(fontcolor, 1.0f, 1.0f, 1.0f, group->alpha);
+			Vector4Set(color, 1.0f, 1.0f, 1.0f, group->alpha);
+			Vector4Set(fontcolor, 1.0f, 1.0f, 1.0f, group->alpha);
 
 
 			color[3] *= (1.0f - entry->scale);

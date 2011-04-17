@@ -68,28 +68,39 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	CONTENTS_NOHUMANBUILD	0x2000	// disallow alien building
 #define	CONTENTS_NOBUILD		0x4000	// disallow alien building
 
-#define	SURF_NODAMAGE			0x1	// never give falling damage
-#define	SURF_SLICK				0x2	// effects game physics
-#define	SURF_SKY				0x4	// lighting from environment map
-#define	SURF_LADDER				0x8
-#define	SURF_NOIMPACT			0x10	// don't make missile explosions
-#define	SURF_NOMARKS			0x20	// don't leave missile marks
-#define	SURF_FLESH				0x40	// make flesh sounds and effects
-#define	SURF_NODRAW				0x80	// don't generate a drawsurface at all
-#define	SURF_HINT				0x100	// make a primary bsp splitter
-#define	SURF_SKIP				0x200	// completely ignore, allowing non-closed brushes
-#define	SURF_NOLIGHTMAP			0x400	// surface doesn't need a lightmap
-#define	SURF_POINTLIGHT			0x800	// generate lighting info at vertexes
-#define	SURF_METALSTEPS			0x1000	// clanking footsteps
-#define	SURF_NOSTEPS			0x2000	// no footstep sounds
-#define	SURF_NONSOLID			0x4000	// don't collide against curves with this set
-#define	SURF_LIGHTFILTER		0x8000	// act as a light filter during xmap -light
-#define	SURF_ALPHASHADOW		0x10000	// do per-pixel light shadow casting in xmap
-#define	SURF_COLLISION			0x20000	// don't draw but use for per polygon collision detection
-#define SURF_DUST				0x40000	// leave a dust trail when walking on this surface
+#define	SURF_NODAMAGE			0x00000001	// never give falling damage
+#define	SURF_SLICK				0x00000002	// effects game physics
+#define	SURF_SKY				0x00000004	// lighting from environment map
+#define	SURF_LADDER				0x00000008
+#define	SURF_NOIMPACT			0x00000010	// don't make missile explosions
+#define	SURF_NOMARKS			0x00000020	// don't leave missile marks
+#define	SURF_FLESH				0x00000040	// make flesh sounds and effects
+#define	SURF_NODRAW				0x00000080	// don't generate a drawsurface at all
+#define	SURF_HINT				0x00000100	// make a primary bsp splitter
+#define	SURF_SKIP				0x00000200	// completely ignore, allowing non-closed brushes
+#define	SURF_NOLIGHTMAP			0x00000400	// surface doesn't need a lightmap
+#define	SURF_POINTLIGHT			0x00000800	// generate lighting info at vertexes
+#define	SURF_METALSTEPS			0x00001000	// clanking footsteps
+#define	SURF_NOSTEPS			0x00002000	// no footstep sounds
+#define	SURF_NONSOLID			0x00004000	// don't collide against curves with this set
+#define	SURF_LIGHTFILTER		0x00008000	// act as a light filter during xmap -light
+#define	SURF_ALPHASHADOW		0x00010000	// do per-pixel light shadow casting in xmap
+#define	SURF_COLLISION			0x00020000	// don't draw but use for per polygon collision detection
+#define SURF_DUST				0x00040000	// leave a dust trail when walking on this surface
 // TA: custominfoparms below
-#define	SURF_NOALIENBUILD		0x80000	// disallow alien building
-#define	SURF_NOHUMANBUILD		0x100000	// disallow alien building
-#define	SURF_NOBUILD			0x200000	// disallow alien building
+#define	SURF_NOALIENBUILD		0x00080000	// disallow alien building
+#define	SURF_NOHUMANBUILD		0x00100000	// disallow alien building
+#define	SURF_NOBUILD			0x00200000	// disallow alien building
 // Tr3B: add new parms below so the Tremulous stuff doesn't break
-#define SURF_WALLWALK			0x400000	// allows player to walk on walls
+#define SURF_WALLWALK			0x00400000	// allows player to walk on walls
+
+#define SURF_WOOD               0x00800000
+#define SURF_GRASS              0x01000000
+#define SURF_GRAVEL             0x02000000
+#define SURF_GLASS              0x04000000
+#define SURF_SNOW               0x08000000
+#define SURF_ROOF               0x10000000
+#define SURF_RUBBLE             0x20000000
+#define SURF_CARPET             0x40000000
+#define SURF_SPLASH             0x80000000
+

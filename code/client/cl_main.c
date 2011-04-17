@@ -3185,10 +3185,17 @@ void CL_StartHunkUsers(qboolean rendererOnly)
 CL_RefMalloc
 ============
 */
+#ifdef ZONE_DEBUG
+void           *CL_RefMallocDebug(int size, char *label, char *file, int line)
+{
+	return Z_TagMallocDebug(size, TAG_RENDERER, label, file, line);
+}
+#else
 void           *CL_RefMalloc(int size)
 {
 	return Z_TagMalloc(size, TAG_RENDERER);
 }
+#endif
 
 int CL_ScaledMilliseconds(void)
 {
@@ -3266,7 +3273,11 @@ void CL_InitRef(void)
 	ri.Milliseconds = CL_ScaledMilliseconds;
 	ri.RealTime = Com_RealTime;
 
-	ri.Malloc = CL_RefMalloc;
+#ifdef ZONE_DEBUG
+	ri.Z_MallocDebug = CL_RefMallocDebug;
+#else
+	ri.Z_Malloc = CL_RefMalloc;
+#endif
 	ri.Free = Z_Free;
 
 #ifdef HUNK_DEBUG
@@ -3301,6 +3312,7 @@ void CL_InitRef(void)
 	ri.CIN_PlayCinematic = CIN_PlayCinematic;
 	ri.CIN_RunCinematic = CIN_RunCinematic;
 
+	ri.CL_VideoRecording = CL_VideoRecording;
 	ri.CL_WriteAVIVideoFrame = CL_WriteAVIVideoFrame;
 
 	ri.IN_Init = IN_Init;

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9.00"
+	Version="9,00"
 	Name="rendererD3D10"
 	ProjectGUID="{80793EFF-ACAB-4583-B11A-51EF358B0EE9}"
 	RootNamespace="rendererD3D10"
@@ -326,7 +326,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\tr_shade_d3d10.c"
+				RelativePath=".\tr_shade_d3d10.cpp"
 				>
 			</File>
 			<File
@@ -338,6 +338,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\tr_skin.c"
+				>
+			</File>
+			<File
+				RelativePath=".\tr_sky.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\tr_surface.c"
 				>
 			</File>
@@ -346,7 +354,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\tr_world.c"
+				RelativePath=".\tr_world.cpp"
 				>
 			</File>
 		</Filter>

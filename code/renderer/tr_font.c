@@ -78,9 +78,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <freetype/freetype.h>
 #include <freetype/ftoutln.h>
 
-#define _FLOOR(x)  ((x) & -64)
-#define _CEIL(x)   (((x)+63) & -64)
-#define _TRUNC(x)  ((x) >> 6)
+#define _FLOOR( x )  ( ( x ) & - 64 )
+#define _CEIL( x )   ( ( ( x ) + 63 ) & - 64 )
+#define _TRUNC( x )  ( ( x ) >> 6 )
 
 FT_Library      ftLibrary = NULL;
 #endif
@@ -118,14 +118,14 @@ FT_Bitmap      *R_RenderGlyph(FT_GlyphSlot glyph, glyphInfo_t * glyphOut)
 	{
 		size = pitch * height;
 
-		bit2 = ri.Malloc(sizeof(FT_Bitmap));
+		bit2 = ri.Z_Malloc(sizeof(FT_Bitmap));
 
 		bit2->width = width;
 		bit2->rows = height;
 		bit2->pitch = pitch;
 		bit2->pixel_mode = ft_pixel_mode_grays;
 		//bit2->pixel_mode = ft_pixel_mode_mono;
-		bit2->buffer = ri.Malloc(pitch * height);
+		bit2->buffer = ri.Z_Malloc(pitch * height);
 		bit2->num_grays = 256;
 
 		Com_Memset(bit2->buffer, 0, size);
@@ -380,7 +380,7 @@ void RE_RegisterFont(const char *fontName, int pointSize, fontInfo_t * font)
 		}
 	}
 
-#if 0
+#if 1 //defined(COMPAT_Q3A)
 	len = ri.FS_ReadFile(fileName, NULL);
 	if(len == sizeof(fontInfo_t))
 	{
@@ -452,7 +452,7 @@ void RE_RegisterFont(const char *fontName, int pointSize, fontInfo_t * font)
 	// make a 256x256 image buffer, once it is full, register it, clean it and keep going
 	// until all glyphs are rendered
 
-	out = ri.Malloc(1024 * 1024);
+	out = ri.Z_Malloc(1024 * 1024);
 	if(out == NULL)
 	{
 		ri.Printf(PRINT_WARNING, "RE_RegisterFont: ri.Malloc failure during output image creation.\n");
@@ -489,7 +489,7 @@ void RE_RegisterFont(const char *fontName, int pointSize, fontInfo_t * font)
 			// we need to create an image from the bitmap, set all the handles in the glyphs to this point
 			scaledSize = FONT_SIZE * FONT_SIZE;
 			newSize = scaledSize * 4;
-			imageBuff = ri.Malloc(newSize);
+			imageBuff = ri.Z_Malloc(newSize);
 			left = 0;
 			max = 0;
 			satLevels = 255;

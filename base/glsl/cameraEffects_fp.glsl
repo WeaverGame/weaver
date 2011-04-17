@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2009 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2009-2010 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -26,6 +26,8 @@ uniform sampler2D	u_CurrentMap;
 uniform sampler2D	u_GrainMap;
 uniform sampler2D	u_VignetteMap;
 
+varying vec2		var_Tex;
+
 void	main()
 {
 	// calculate the screen texcoord in the 0.0 to 1.0 range
@@ -39,6 +41,7 @@ void	main()
 	vec4 color = original;
 
 	// calculate chromatic aberration
+#if 0
 	vec2 redOffset = vec2(0.5, 0.25);
 	vec2 greenOffset = vec2(0.0, 0.0);
 	vec2 blueOffset = vec2(-0.5, -0.25);
@@ -46,14 +49,16 @@ void	main()
 	color.r = texture2D(u_CurrentMap, st + redOffset * r_FBufScale).r;
 	color.g = texture2D(u_CurrentMap, st + greenOffset * r_FBufScale).g;
 	color.b = texture2D(u_CurrentMap, st + blueOffset * r_FBufScale).b;
+#endif
 
 	// blend the vignette
 	vec4 vignette = texture2D(u_VignetteMap, stClamped);
 	color.rgb *= vignette.rgb; 
 	
 	// add grain
-	vec4 grain = texture2D(u_GrainMap, st * vec2(3.0, 3.0));
+	vec4 grain = texture2D(u_GrainMap, var_Tex);
 	color.rgb = (color.rgb + (grain.rgb * vec3(0.035, 0.065, 0.09))) + (color.rgb * (grain.rgb * vec3(0.035, 0.065, 0.09)));
+	//color.rgb = grain.rgb;
 
 	gl_FragColor = color;
 }

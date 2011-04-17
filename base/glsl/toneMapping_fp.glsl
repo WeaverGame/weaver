@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2008-2009 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2008-2011 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -35,6 +35,11 @@ void	main()
 	// calculate the screen texcoord in the 0.0 to 1.0 range
 	vec2 st = gl_FragCoord.st * r_FBufScale;
 	
+#if defined(BRIGHTPASS_FILTER)
+	// multiply with 4 because the FBO is only 1/4th of the screen resolution
+	st *= vec2(4.0, 4.0);
+#endif
+	
 	// scale by the screen non-power-of-two-adjust
 	st *= r_NPOTScale;
 	
@@ -58,7 +63,8 @@ void	main()
 	
 #elif defined(r_HDRToneMappingOperator_1)
 	
-	float L = 1.0 - exp(-Yr);
+	// recommended by Wolgang Engel
+	float L = Yr * (1.0 + Yr / (Ymax * Ymax)) / (1.0 + Yr);
 
 #elif defined(r_HDRToneMappingOperator_2)
 
@@ -84,14 +90,26 @@ void	main()
 	float L = Yr / (1.0 + Yr) * (1.0 + Yr / (Ymax * Ymax));
 	
 #else
-	
-	// recommended by Wolgang Engel
-	float L = Yr * (1.0 + Yr / (Ymax * Ymax)) / (1.0 + Yr);
+	float L = 1.0 - exp(-Yr);
 #endif
 	
-	color.rgb *= L;
 	
-#if defined(r_HDRGamma)
+#if defined(BRIGHTPASS_FILTER)
+#if defined(r_HDRRendering)
+	// adjust contrast
+	// L = pow(L, 1.32);
+	
+	float T = max(L - r_HDRContrastThreshold, 0.0);
+	//float T = max(1.0 - exp(-Yr) - r_HDRContrastThreshold, 0.0);
+	float B = T / (r_HDRContrastOffset + T);
+	
+	color.rgb *= B;
+#endif
+#else
+	color.rgb *= L;
+#endif
+	
+#if 0 // defined(r_HDRGamma)
 	float gamma = 1.0 / r_HDRGamma;
 	color.r = pow(color.r, gamma);
 	color.g = pow(color.g, gamma);
@@ -99,4 +117,8 @@ void	main()
 #endif
 	
 	gl_FragColor = color;
+	
+#if 0
+	gl_FragColor = vec4(L, L, L, 1.0);
+#endif
 }

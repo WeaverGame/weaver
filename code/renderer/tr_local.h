@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2006-2009 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2011 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -42,7 +42,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <SDL_syswm.h>
 #include <SDL_thread.h>
 #else
-#include "qgl.h"
+#include <GL/glew.h>
 #endif
 
 
@@ -71,10 +71,6 @@ typedef unsigned short glIndex_t;
 #define MAX_SHADER_TABLES		1024
 #define MAX_SHADER_STAGES		16
 
-//#define MAX_SHADER_STATES 2048
-#define MAX_STATES_PER_SHADER 32
-#define MAX_STATE_NAME 32
-
 #define MAX_OCCLUSION_QUERIES	4096
 
 #define	MAX_FBOS				64
@@ -95,12 +91,27 @@ typedef unsigned short glIndex_t;
 
 //#define DEFERRED_SHADING_Z_PREPASS 1
 
+#define GLSL_COMPILE_STARTUP_ONLY 1
+
 typedef enum
 {
 	DS_DISABLED,				// traditional Doom 3 style rendering
 	DS_STANDARD,				// deferred rendering like in Stalker
 	DS_PREPASS_LIGHTING			// light pre pass rendering like in Cry Engine 3
 } deferredShading_t;
+
+typedef enum
+{
+	SHADOWING_BLOB,
+	SHADOWING_PLANAR,
+	SHADOWING_STENCIL,
+	SHADOWING_VSM16,
+	SHADOWING_VSM32,
+	SHADOWING_ESM
+} shadowingMode_t;
+
+
+#if !defined(GLSL_COMPILE_STARTUP_ONLY)
 
 #define DS_STANDARD_ENABLED() ((r_deferredShading->integer == DS_STANDARD && glConfig.maxColorAttachments >= 4 && glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4 && glConfig.framebufferPackedDepthStencilAvailable && glConfig.driverType != GLDRV_MESA))
 
@@ -110,9 +121,23 @@ typedef enum
 #define DS_PREPASS_LIGHTING_ENABLED() ((r_deferredShading->integer == DS_PREPASS_LIGHTING))
 #endif
 
+#else // #if !defined(GLSL_COMPILE_STARTUP_ONLY)
+
+#define DS_STANDARD_ENABLED() (1 == 0)
+
+#if defined(OFFSCREEN_PREPASS_LIGHTING)
+#define DS_PREPASS_LIGHTING_ENABLED() (1 == 0)
+#else
+#define DS_PREPASS_LIGHTING_ENABLED() (1 == 0)
+#endif
+
+#endif // #if !defined(GLSL_COMPILE_STARTUP_ONLY)
+
 #define HDR_ENABLED() ((r_hdrRendering->integer && glConfig.textureFloatAvailable && glConfig.framebufferObjectAvailable && glConfig.framebufferBlitAvailable && glConfig.driverType != GLDRV_MESA))
 
-#define REF_CUBEMAP_SIZE	128
+
+
+#define REF_CUBEMAP_SIZE	32
 #define REF_CUBEMAP_STORE_SIZE	1024
 #define REF_CUBEMAP_STORE_SIDE	(REF_CUBEMAP_STORE_SIZE/REF_CUBEMAP_SIZE)
 
@@ -419,6 +444,12 @@ typedef struct
 	vec3_t          localBounds[2];
 	vec3_t          worldBounds[2];	// only set when not completely culled. use them for light interactions
 	vec3_t          worldCorners[8];
+
+	// GPU occlusion culling
+	qboolean		noOcclusionQueries;
+	uint32_t        occlusionQueryObject;
+	uint32_t        occlusionQuerySamples;
+	link_t			multiQuery;				// CHC++: list of all nodes that are used by the same occlusion query
 } trRefEntity_t;
 
 typedef struct
@@ -446,24 +477,23 @@ enum
 	IF_NONE,
 	IF_NOPICMIP = BIT(0),
 	IF_NOCOMPRESSION = BIT(1),
-	IF_INTENSITY = BIT(2),
-	IF_ALPHA = BIT(3),
-	IF_NORMALMAP = BIT(4),
-	IF_RGBA16F = BIT(5),
-	IF_RGBA32F = BIT(6),
-	IF_LA16F = BIT(7),
-	IF_LA32F = BIT(8),
-	IF_ALPHA16F = BIT(9),
-	IF_ALPHA32F = BIT(10),
-	IF_DEPTH16 = BIT(11),
-	IF_DEPTH24 = BIT(12),
-	IF_DEPTH32 = BIT(13),
-	IF_PACKED_DEPTH24_STENCIL8 = BIT(14),
-	IF_LIGHTMAP = BIT(15),
-	IF_RGBA16 = BIT(16),
-	IF_RGBE = BIT(17),
-	IF_ALPHATEST = BIT(18),
-	IF_DISPLACEMAP = BIT(19)
+	IF_ALPHA = BIT(2),
+	IF_NORMALMAP = BIT(3),
+	IF_RGBA16F = BIT(4),
+	IF_RGBA32F = BIT(5),
+	IF_LA16F = BIT(6),
+	IF_LA32F = BIT(7),
+	IF_ALPHA16F = BIT(8),
+	IF_ALPHA32F = BIT(9),
+	IF_DEPTH16 = BIT(10),
+	IF_DEPTH24 = BIT(11),
+	IF_DEPTH32 = BIT(12),
+	IF_PACKED_DEPTH24_STENCIL8 = BIT(13),
+	IF_LIGHTMAP = BIT(14),
+	IF_RGBA16 = BIT(15),
+	IF_RGBE = BIT(16),
+	IF_ALPHATEST = BIT(17),
+	IF_DISPLACEMAP = BIT(18)
 };
 
 typedef enum
@@ -543,7 +573,8 @@ typedef struct VBO_s
 	char            name[MAX_QPATH];
 
 	uint32_t        vertexesVBO;
-	int             vertexesSize;	// amount of memory data allocated for all vertices in bytes
+	uint32_t        vertexesSize;	// amount of memory data allocated for all vertices in bytes
+	uint32_t		vertexesNum;
 	uint32_t        ofsXYZ;
 	uint32_t        ofsTexCoords;
 	uint32_t        ofsLightCoords;
@@ -556,7 +587,12 @@ typedef struct VBO_s
 	uint32_t        ofsBoneIndexes;
 	uint32_t        ofsBoneWeights;
 
-	int             attribs;
+	uint32_t		sizeXYZ;
+	uint32_t		sizeTangents;
+	uint32_t		sizeBinormals;
+	uint32_t		sizeNormals;
+
+	uint32_t        attribs;
 } VBO_t;
 
 typedef struct IBO_s
@@ -564,7 +600,9 @@ typedef struct IBO_s
 	char            name[MAX_QPATH];
 
 	uint32_t        indexesVBO;
-	int             indexesSize;	// amount of memory data allocated for all triangles in bytes
+	uint32_t        indexesSize;	// amount of memory data allocated for all triangles in bytes
+	uint32_t		indexesNum;
+
 //  uint32_t        ofsIndexes;
 } IBO_t;
 
@@ -709,6 +747,14 @@ typedef enum
 
 typedef enum
 {
+	ACFF_NONE,
+	ACFF_MODULATE_RGB,
+	ACFF_MODULATE_RGBA,
+	ACFF_MODULATE_ALPHA
+} acff_t;
+
+typedef enum
+{
 	ATEST_NONE,
 	ATEST_GT_0,
 	ATEST_LT_128,
@@ -823,6 +869,7 @@ typedef enum
 } texMod_t;
 
 #define	MAX_SHADER_DEFORMS	3
+#define	MAX_SHADER_DEFORM_PARMS	(1 + MAX_SHADER_DEFORMS + MAX_SHADER_DEFORMS * 8)
 typedef struct
 {
 	deform_t        deformation;	// vertex coordinate modification type
@@ -909,7 +956,7 @@ typedef enum
 	ST_HEATHAZEMAP,				// heatHaze post process effect
 	ST_LIQUIDMAP,
 
-#if defined(COMPAT_Q3A)
+#if defined(COMPAT_Q3A) || defined(COMPAT_ET)
 	ST_LIGHTMAP,
 #endif
 
@@ -960,6 +1007,8 @@ typedef struct
 
 	uint32_t        stateBits;	// GLS_xxxx mask
 
+	acff_t          adjustColorsForFog;
+
 	qboolean        overrideNoPicMip;	// for images that must always be full resolution
 	qboolean        overrideFilterType;	// for console fonts, 2D elements, etc.
 	filterType_t    filterType;
@@ -993,6 +1042,8 @@ typedef struct
 	expression_t    blurMagnitudeExp;
 
 	expression_t    wrapAroundLightingExp;
+
+	qboolean        isFogged;	// used only for shaders that have fog disabled, so we can enable it for individual stages
 } shaderStage_t;
 
 struct shaderCommands_s;
@@ -1004,6 +1055,13 @@ typedef enum
 	CT_TWO_SIDED
 } cullType_t;
 
+typedef enum
+{
+	FP_NONE,					// surface is translucent and will just be adjusted properly
+	FP_EQUAL,					// surface is opaque but possibly alpha tested
+	FP_LE						// surface is translucent, but still needs a fog pass (fog surface)
+} fogPass_t;
+
 typedef struct
 {
 	float           cloudHeight;
@@ -1013,7 +1071,7 @@ typedef struct
 typedef struct
 {
 	vec3_t          color;
-	float           density;
+	float           depthForOpaque;
 } fogParms_t;
 
 typedef enum
@@ -1051,6 +1109,8 @@ typedef struct shader_s
 
 	qboolean		fogVolume;		// surface encapsulates a fog volume
 	fogParms_t		fogParms;
+	fogPass_t       fogPass;		// draw a blended pass, possibly with depth test equals
+	qboolean		noFog;
 
 	qboolean		parallax;		// material has normalmaps suited for parallax mapping
 
@@ -1074,6 +1134,7 @@ typedef struct shader_s
 	qboolean        polygonOffset;	// set for decals and other items that must be offset
 	float           polygonOffsetValue;
 
+	qboolean		uncompressed;
 	qboolean        noPicMip;	// for images that must always be full resolution
 	filterType_t    filterType;	// for console fonts, 2D elements, etc.
 	wrapType_t      wrapType;
@@ -1098,8 +1159,6 @@ typedef struct shader_s
 
 	struct shader_s *remappedShader;	// current shader this one is remapped too
 
-	int             shaderStates[MAX_STATES_PER_SHADER];	// index to valid shader states
-
 	struct shader_s *next;
 } shader_t;
 
@@ -1107,30 +1166,29 @@ static ID_INLINE qboolean ShaderRequiresCPUDeforms(const shader_t * shader)
 {
 	if(shader->numDeforms)
 	{
-		const deformStage_t *ds = &shader->deforms[0];
-
-		switch (ds->deformation)
+		int			i;
+		qboolean	cpuDeforms = qfalse;
+	
+		for(i = 0; i < shader->numDeforms; i++)
 		{
-			case DEFORM_WAVE:
-			case DEFORM_BULGE:
-				return qfalse;
+			const deformStage_t *ds = &shader->deforms[0];
 
-			default:
-				return qtrue;
+			switch (ds->deformation)
+			{
+				case DEFORM_WAVE:
+				case DEFORM_BULGE:
+					break;
+
+				default:
+					cpuDeforms = qtrue;
+			}
 		}
+
+		return cpuDeforms;
 	}
 
 	return qfalse;
 }
-
-typedef struct shaderState_s
-{
-	char            shaderName[MAX_QPATH];	// name of shader this state belongs to
-	char            name[MAX_STATE_NAME];	// name of this state
-	char            stateShader[MAX_QPATH];	// shader this name invokes
-	int             cycleTime;	// time this cycle lasts, <= 0 is forever
-	shader_t       *shader;
-} shaderState_t;
 
 #if 0
 enum
@@ -1152,17 +1210,25 @@ enum
 #else
 enum
 {
-	ATTR_INDEX_POSITION = 0,
-	ATTR_INDEX_TEXCOORD0 = 1,
-	ATTR_INDEX_TEXCOORD1 = 2,
-	ATTR_INDEX_TANGENT = 3,
-	ATTR_INDEX_BINORMAL = 4,
-	ATTR_INDEX_NORMAL = 5,
-	ATTR_INDEX_COLOR = 6,
-	ATTR_INDEX_PAINTCOLOR = 7,
-	ATTR_INDEX_LIGHTDIRECTION = 8,
-	ATTR_INDEX_BONE_INDEXES = 9,
-	ATTR_INDEX_BONE_WEIGHTS = 10,
+	ATTR_INDEX_POSITION,
+	ATTR_INDEX_TEXCOORD0,
+	ATTR_INDEX_TEXCOORD1,
+	ATTR_INDEX_TANGENT,
+	ATTR_INDEX_BINORMAL,
+	ATTR_INDEX_NORMAL,
+	ATTR_INDEX_COLOR,
+	ATTR_INDEX_PAINTCOLOR,
+	ATTR_INDEX_LIGHTDIRECTION,
+
+	// GPU vertex skinning
+	ATTR_INDEX_BONE_INDEXES,
+	ATTR_INDEX_BONE_WEIGHTS,
+
+	// GPU vertex animations
+	ATTR_INDEX_POSITION2,
+	ATTR_INDEX_TANGENT2,
+	ATTR_INDEX_BINORMAL2,
+	ATTR_INDEX_NORMAL2,
 };
 #endif
 
@@ -1256,10 +1322,19 @@ enum
 	ATTR_COLOR = BIT(6),
 	ATTR_PAINTCOLOR = BIT(7),
 	ATTR_LIGHTDIRECTION = BIT(8),
+	
 	ATTR_BONE_INDEXES = BIT(9),
 	ATTR_BONE_WEIGHTS = BIT(10),
 
-	ATTR_DEFAULT = ATTR_POSITION,
+	// for .md3 interpolation
+	ATTR_POSITION2 = BIT(11),
+	ATTR_TANGENT2 = BIT(12),
+	ATTR_BINORMAL2 = BIT(13),
+	ATTR_NORMAL2 = BIT(14),
+
+	// FIXME XBSP format with ATTR_LIGHTDIRECTION and ATTR_PAINTCOLOR
+	//ATTR_DEFAULT = ATTR_POSITION | ATTR_TEXCOORD | ATTR_TANGENT | ATTR_BINORMAL | ATTR_COLOR,
+
 	ATTR_BITS =	ATTR_POSITION |
 				ATTR_TEXCOORD |
 				ATTR_LIGHTCOORD |
@@ -1276,9 +1351,11 @@ enum
 // Tr3B - shaderProgram_t represents a pair of one
 // GLSL vertex and one GLSL fragment shader
 #if !defined(USE_D3D10)
+
 typedef struct shaderProgram_s
 {
 	char            name[MAX_QPATH];
+	char           *compileMacros;
 
 	GLhandleARB     program;
 	uint32_t        attribs;	// vertex array attributes
@@ -1304,6 +1381,8 @@ typedef struct shaderProgram_s
 	GLint           u_ShadowMap2;
 	GLint           u_ShadowMap3;
 	GLint           u_ShadowMap4;
+	GLint           u_EnvironmentMap0;
+	GLint           u_EnvironmentMap1;
 
 	GLint           u_GrainMap;
 	GLint           u_VignetteMap;
@@ -1326,20 +1405,7 @@ typedef struct shaderProgram_s
 	GLint           u_ViewOrigin;
 	vec3_t			t_ViewOrigin;
 
-	GLint           u_TCGen_Environment;
-	qboolean		t_TCGen_Environment;
-
-	GLint           u_DeformGen;
-	deformGen_t		t_DeformGen;
-
-	GLint           u_DeformWave;
-	vec4_t			t_DeformWave;
-
-	GLint           u_DeformBulge;
-	vec3_t			t_DeformBulge;
-
-	GLint           u_DeformSpread;
-	float			t_DeformSpread;
+	GLint			u_DeformParms;
 
 	GLint           u_ColorGen;
 	colorGen_t		t_ColorGen;
@@ -1349,6 +1415,9 @@ typedef struct shaderProgram_s
 
 	GLint           u_Color;
 	vec4_t			t_Color;
+
+	GLint           u_ColorModulate;
+	vec4_t			t_ColorModulate;
 
 	GLint           u_AmbientColor;
 	vec3_t			t_AmbientColor;
@@ -1380,7 +1449,6 @@ typedef struct shaderProgram_s
 	GLint           u_LightFrustum;
 	vec4_t			t_LightFrustum;
 
-
 	GLint           u_ShadowMatrix;
 	matrix_t		t_ShadowMatrix;
 
@@ -1410,6 +1478,15 @@ typedef struct shaderProgram_s
 	GLint           u_FogDensity;
 	GLint           u_FogColor;
 
+	GLint			u_FogDistanceVector;
+	vec4_t			t_FogDistanceVector;
+
+	GLint			u_FogDepthVector;
+	vec4_t			t_FogDepthVector;
+
+	GLint			u_FogEyeT;
+	float			t_FogEyeT;
+
 	GLint           u_SSAOJitter;
 	GLint           u_SSAORadius;
 
@@ -1429,13 +1506,20 @@ typedef struct shaderProgram_s
 	GLint           u_PortalRange;
 	float			t_PortalRange;
 
+	GLint			u_EnvironmentInterpolation;
+	float			t_EnvironmentInterpolation;
 
 	GLint			u_HDRKey;
+	float			t_HDRKey;
+
 	GLint			u_HDRAverageLuminance;
+	float			t_HDRAverageLuminance;
+
 	GLint			u_HDRMaxLuminance;
+	float			t_HDRMaxLuminance;
 
 	GLint           u_DeformMagnitude;
-	GLint           u_BlurMagnitude;
+	float			t_DeformMagnitude;
 
 
 	GLint           u_ModelMatrix;	// model -> world
@@ -1465,11 +1549,16 @@ typedef struct shaderProgram_s
 	GLint           u_VertexSkinning;
 	qboolean		t_VertexSkinning;
 
+	GLint			u_VertexInterpolation;
+	float			t_VertexInterpolation;
+
 	GLint           u_BoneMatrix;
 
 	GLint           u_Time;
 	float			t_Time;
 } shaderProgram_t;
+
+#define	SHADER_PROGRAM_T_OFS(x) ((size_t)&(((shaderProgram_t *)0)->x))
 
 //
 // Tr3B: these are fire wall functions to avoid expensive redundant glUniform* calls
@@ -1492,7 +1581,7 @@ static ID_INLINE void GLSL_SetUniform_ColorTextureMatrix(shaderProgram_t * progr
 	MatrixCopy(m, program->t_ColorTextureMatrix);
 #endif
 
-	qglUniformMatrix4fvARB(program->u_ColorTextureMatrix, 1, GL_FALSE, m);
+	glUniformMatrix4fvARB(program->u_ColorTextureMatrix, 1, GL_FALSE, m);
 }
 
 static ID_INLINE void GLSL_SetUniform_DiffuseTextureMatrix(shaderProgram_t * program, const matrix_t m)
@@ -1504,7 +1593,7 @@ static ID_INLINE void GLSL_SetUniform_DiffuseTextureMatrix(shaderProgram_t * pro
 	MatrixCopy(m, program->t_DiffuseTextureMatrix);
 #endif
 
-	qglUniformMatrix4fvARB(program->u_DiffuseTextureMatrix, 1, GL_FALSE, m);
+	glUniformMatrix4fvARB(program->u_DiffuseTextureMatrix, 1, GL_FALSE, m);
 }
 
 static ID_INLINE void GLSL_SetUniform_NormalTextureMatrix(shaderProgram_t * program, const matrix_t m)
@@ -1516,7 +1605,7 @@ static ID_INLINE void GLSL_SetUniform_NormalTextureMatrix(shaderProgram_t * prog
 	MatrixCopy(m, program->t_NormalTextureMatrix);
 #endif
 
-	qglUniformMatrix4fvARB(program->u_NormalTextureMatrix, 1, GL_FALSE, m);
+	glUniformMatrix4fvARB(program->u_NormalTextureMatrix, 1, GL_FALSE, m);
 }
 
 static ID_INLINE void GLSL_SetUniform_SpecularTextureMatrix(shaderProgram_t * program, const matrix_t m)
@@ -1528,7 +1617,7 @@ static ID_INLINE void GLSL_SetUniform_SpecularTextureMatrix(shaderProgram_t * pr
 	MatrixCopy(m, program->t_SpecularTextureMatrix);
 #endif
 
-	qglUniformMatrix4fvARB(program->u_SpecularTextureMatrix, 1, GL_FALSE, m);
+	glUniformMatrix4fvARB(program->u_SpecularTextureMatrix, 1, GL_FALSE, m);
 }
 
 
@@ -1573,7 +1662,7 @@ static ID_INLINE void GLSL_SetUniform_AlphaTest(shaderProgram_t * program, uint3
 	program->t_AlphaTest = value;
 #endif
 
-	qglUniform1iARB(program->u_AlphaTest, value);
+	glUniform1iARB(program->u_AlphaTest, value);
 }
 
 static ID_INLINE void GLSL_SetUniform_ViewOrigin(shaderProgram_t * program, const vec3_t v)
@@ -1592,111 +1681,10 @@ static ID_INLINE void GLSL_SetUniform_ViewOrigin(shaderProgram_t * program, cons
 	}
 #endif
 
-	qglUniform3fARB(program->u_ViewOrigin, v[0], v[1], v[2]);
+	glUniform3fARB(program->u_ViewOrigin, v[0], v[1], v[2]);
 }
 
-static ID_INLINE void GLSL_SetUniform_TCGen_Environment(shaderProgram_t * program, qboolean value)
-{
-#if defined(USE_UNIFORM_FIREWALL)
-	if(program->t_TCGen_Environment == value)
-		return;
 
-	program->t_TCGen_Environment = value;
-#endif
-
-#if defined(LOG_GLSL_UNIFORMS)
-	if(r_logFile->integer)
-	{
-		GLimp_LogComment(va("--- GLSL_SetUniform_TCGen_Environment( program = %s, value = %i ) ---\n", program->name, value));
-	}
-#endif
-
-	qglUniform1iARB(program->u_TCGen_Environment, value);
-}
-
-static ID_INLINE void GLSL_SetUniform_DeformGen(shaderProgram_t * program, deformGen_t value)
-{
-#if defined(USE_UNIFORM_FIREWALL)
-	if(program->t_DeformGen == value)
-		return;
-
-	program->t_DeformGen = value;
-#endif
-
-#if defined(LOG_GLSL_UNIFORMS)
-	if(r_logFile->integer)
-	{
-		GLimp_LogComment(va("--- GLSL_SetUniform_DeformGen( program = %s, value = %i ) ---\n", program->name, value));
-	}
-#endif
-
-	qglUniform1iARB(program->u_DeformGen, value);
-}
-
-static ID_INLINE void GLSL_SetUniform_DeformWave(shaderProgram_t * program, const waveForm_t * wf)
-{
-	vec4_t v;
-
-	VectorSet4(v, wf->base, wf->amplitude, wf->phase, wf->frequency);
-
-#if defined(USE_UNIFORM_FIREWALL)
-	if(VectorCompare4(program->t_DeformWave, v))
-		return;
-
-	VectorCopy4(v, program->t_DeformWave);
-#endif
-
-#if defined(LOG_GLSL_UNIFORMS)
-	if(r_logFile->integer)
-	{
-		GLimp_LogComment(va("--- GLSL_SetUniform_DeformWave( program = %s, wave form = ( %5.3f, %5.3f, %5.3f, %5.3f ) ) ---\n", program->name, v[0], v[1], v[2], v[3]));
-	}
-#endif
-
-	qglUniform4fARB(program->u_DeformWave, v[0], v[1], v[2], v[3]);
-}
-
-static ID_INLINE void GLSL_SetUniform_DeformBulge(shaderProgram_t * program, const deformStage_t * ds)
-{
-	vec3_t v;
-
-	VectorSet(v, ds->bulgeWidth, ds->bulgeHeight, ds->bulgeSpeed);
-
-#if defined(USE_UNIFORM_FIREWALL)
-	if(VectorCompare(program->t_DeformBulge, v))
-		return;
-
-	VectorCopy(v, program->t_DeformBulge);
-#endif
-
-#if defined(LOG_GLSL_UNIFORMS)
-	if(r_logFile->integer)
-	{
-		GLimp_LogComment(va("--- GLSL_SetUniform_DeformBulge( program = %s, bulge = ( %5.3f, %5.3f, %5.3f ) ) ---\n", program->name, v[0], v[1], v[2]));
-	}
-#endif
-
-	qglUniform3fARB(program->u_DeformBulge, v[0], v[1], v[2]);
-}
-
-static ID_INLINE void GLSL_SetUniform_DeformSpread(shaderProgram_t * program, float value)
-{
-#if defined(USE_UNIFORM_FIREWALL)
-	if(program->t_DeformSpread == value)
-		return;
-
-	program->t_DeformSpread = value;
-#endif
-
-#if defined(LOG_GLSL_UNIFORMS)
-	if(r_logFile->integer)
-	{
-		GLimp_LogComment(va("--- GLSL_SetUniform_DeformSpread( program = %s, value = %f ) ---\n", program->name, value));
-	}
-#endif
-
-	qglUniform1fARB(program->u_DeformSpread, value);
-}
 
 static ID_INLINE void GLSL_SetUniform_ColorGen(shaderProgram_t * program, colorGen_t value)
 {
@@ -1725,7 +1713,7 @@ static ID_INLINE void GLSL_SetUniform_ColorGen(shaderProgram_t * program, colorG
 	program->t_ColorGen = floatValue;
 #endif
 
-	qglUniform1fARB(program->u_ColorGen, floatValue);
+	glUniform1fARB(program->u_ColorGen, floatValue);
 #else
 #if defined(USE_UNIFORM_FIREWALL)
 	if(program->t_ColorGen == value)
@@ -1741,7 +1729,7 @@ static ID_INLINE void GLSL_SetUniform_ColorGen(shaderProgram_t * program, colorG
 	}
 #endif
 
-	qglUniform1iARB(program->u_ColorGen, value);
+	glUniform1iARB(program->u_ColorGen, value);
 #endif
 }
 
@@ -1772,7 +1760,7 @@ static ID_INLINE void GLSL_SetUniform_AlphaGen(shaderProgram_t * program, alphaG
 	program->t_AlphaGen = floatValue;
 #endif
 
-	qglUniform1fARB(program->u_AlphaGen, floatValue);
+	glUniform1fARB(program->u_AlphaGen, floatValue);
 
 #else
 #if defined(USE_UNIFORM_FIREWALL)
@@ -1789,17 +1777,17 @@ static ID_INLINE void GLSL_SetUniform_AlphaGen(shaderProgram_t * program, alphaG
 	}
 #endif
 
-	qglUniform1iARB(program->u_AlphaGen, value);
+	glUniform1iARB(program->u_AlphaGen, value);
 #endif
 }
 
 static ID_INLINE void GLSL_SetUniform_Color(shaderProgram_t * program, const vec4_t v)
 {
 #if defined(USE_UNIFORM_FIREWALL)
-	if(VectorCompare4(program->t_Color, v))
+	if(Vector4Compare(program->t_Color, v))
 		return;
 
-	VectorCopy4(v, program->t_Color);
+	Vector4Copy(v, program->t_Color);
 #endif
 
 #if defined(LOG_GLSL_UNIFORMS)
@@ -1809,7 +1797,26 @@ static ID_INLINE void GLSL_SetUniform_Color(shaderProgram_t * program, const vec
 	}
 #endif
 
-	qglUniform4fARB(program->u_Color, v[0], v[1], v[2], v[3]);
+	glUniform4fARB(program->u_Color, v[0], v[1], v[2], v[3]);
+}
+
+static ID_INLINE void GLSL_SetUniform_ColorModulate(shaderProgram_t * program, const vec4_t v)
+{
+#if defined(USE_UNIFORM_FIREWALL)
+	if(Vector4Compare(program->t_ColorModulate, v))
+		return;
+
+	Vector4Copy(v, program->t_ColorModulate);
+#endif
+
+#if defined(LOG_GLSL_UNIFORMS)
+	if(r_logFile->integer)
+	{
+		GLimp_LogComment(va("--- GLSL_SetUniform_ColorModulate( program = %s, color = ( %5.3f, %5.3f, %5.3f, %5.3f ) ) ---\n", program->name, v[0], v[1], v[2], v[3]));
+	}
+#endif
+
+	glUniform4fARB(program->u_ColorModulate, v[0], v[1], v[2], v[3]);
 }
 
 static ID_INLINE void GLSL_SetUniform_AmbientColor(shaderProgram_t * program, const vec3_t v)
@@ -1828,7 +1835,7 @@ static ID_INLINE void GLSL_SetUniform_AmbientColor(shaderProgram_t * program, co
 	}
 #endif
 
-	qglUniform3fARB(program->u_AmbientColor, v[0], v[1], v[2]);
+	glUniform3fARB(program->u_AmbientColor, v[0], v[1], v[2]);
 }
 
 static ID_INLINE void GLSL_SetUniform_LightDir(shaderProgram_t * program, const vec3_t v)
@@ -1847,7 +1854,7 @@ static ID_INLINE void GLSL_SetUniform_LightDir(shaderProgram_t * program, const 
 	}
 #endif
 
-	qglUniform3fARB(program->u_LightDir, v[0], v[1], v[2]);
+	glUniform3fARB(program->u_LightDir, v[0], v[1], v[2]);
 }
 
 static ID_INLINE void GLSL_SetUniform_LightOrigin(shaderProgram_t * program, const vec3_t v)
@@ -1866,7 +1873,7 @@ static ID_INLINE void GLSL_SetUniform_LightOrigin(shaderProgram_t * program, con
 	}
 #endif
 
-	qglUniform3fARB(program->u_LightOrigin, v[0], v[1], v[2]);
+	glUniform3fARB(program->u_LightOrigin, v[0], v[1], v[2]);
 }
 
 static ID_INLINE void GLSL_SetUniform_LightColor(shaderProgram_t * program, const vec3_t v)
@@ -1885,7 +1892,7 @@ static ID_INLINE void GLSL_SetUniform_LightColor(shaderProgram_t * program, cons
 	}
 #endif
 
-	qglUniform3fARB(program->u_LightColor, v[0], v[1], v[2]);
+	glUniform3fARB(program->u_LightColor, v[0], v[1], v[2]);
 }
 
 static ID_INLINE void GLSL_SetUniform_LightRadius(shaderProgram_t * program, float value)
@@ -1904,7 +1911,7 @@ static ID_INLINE void GLSL_SetUniform_LightRadius(shaderProgram_t * program, flo
 	}
 #endif
 
-	qglUniform1fARB(program->u_LightRadius, value);
+	glUniform1fARB(program->u_LightRadius, value);
 }
 
 static ID_INLINE void GLSL_SetUniform_LightParallel(shaderProgram_t * program, qboolean value)
@@ -1923,7 +1930,7 @@ static ID_INLINE void GLSL_SetUniform_LightParallel(shaderProgram_t * program, q
 	}
 #endif
 
-	qglUniform1iARB(program->u_LightParallel, value);
+	glUniform1iARB(program->u_LightParallel, value);
 }
 
 static ID_INLINE void GLSL_SetUniform_LightScale(shaderProgram_t * program, float value)
@@ -1950,7 +1957,7 @@ static ID_INLINE void GLSL_SetUniform_LightScale(shaderProgram_t * program, floa
 	}
 #endif
 
-	qglUniform1fARB(program->u_LightScale, value);
+	glUniform1fARB(program->u_LightScale, value);
 }
 
 static ID_INLINE void GLSL_SetUniform_LightWrapAround(shaderProgram_t * program, float value)
@@ -1969,7 +1976,7 @@ static ID_INLINE void GLSL_SetUniform_LightWrapAround(shaderProgram_t * program,
 	}
 #endif
 
-	qglUniform1fARB(program->u_LightWrapAround, value);
+	glUniform1fARB(program->u_LightWrapAround, value);
 }
 
 static ID_INLINE void GLSL_SetUniform_LightAttenuationMatrix(shaderProgram_t * program, const matrix_t m)
@@ -1981,7 +1988,7 @@ static ID_INLINE void GLSL_SetUniform_LightAttenuationMatrix(shaderProgram_t * p
 	MatrixCopy(m, program->t_LightAttenuationMatrix);
 #endif
 
-	qglUniformMatrix4fvARB(program->u_LightAttenuationMatrix, 1, GL_FALSE, m);
+	glUniformMatrix4fvARB(program->u_LightAttenuationMatrix, 1, GL_FALSE, m);
 }
 
 /*
@@ -1993,7 +2000,7 @@ static ID_INLINE void GLSL_SetUniform_LightFrustum(shaderProgram_t * program, ve
 		return;
 #endif
 
-	qglUniform4fvARB(tr.deferredLightingShader_DBS_omni.u_LightFrustum, 6, &lightFrustum[0][0]);
+	glUniform4fvARB(tr.deferredLightingShader_DBS_omni.u_LightFrustum, 6, &lightFrustum[0][0]);
 }
 */
 
@@ -2032,7 +2039,7 @@ static ID_INLINE void GLSL_SetUniform_ShadowMatrix(shaderProgram_t * program, ma
 	}
 #endif
 
-	qglUniformMatrix4fvARB(program->u_ShadowMatrix, MAX_SHADOWMAPS, GL_FALSE, &m[0][0]);
+	glUniformMatrix4fvARB(program->u_ShadowMatrix, MAX_SHADOWMAPS, GL_FALSE, &m[0][0]);
 }
 
 static ID_INLINE void GLSL_SetUniform_ShadowCompare(shaderProgram_t * program, qboolean value)
@@ -2051,7 +2058,7 @@ static ID_INLINE void GLSL_SetUniform_ShadowCompare(shaderProgram_t * program, q
 	}
 #endif
 
-	qglUniform1iARB(program->u_ShadowCompare, value);
+	glUniform1iARB(program->u_ShadowCompare, value);
 }
 
 static ID_INLINE void GLSL_SetUniform_ShadowTexelSize(shaderProgram_t * program, float value)
@@ -2070,7 +2077,7 @@ static ID_INLINE void GLSL_SetUniform_ShadowTexelSize(shaderProgram_t * program,
 	}
 #endif
 
-	qglUniform1fARB(program->u_ShadowTexelSize, value);
+	glUniform1fARB(program->u_ShadowTexelSize, value);
 }
 
 static ID_INLINE void GLSL_SetUniform_ShadowBlur(shaderProgram_t * program, float value)
@@ -2089,16 +2096,16 @@ static ID_INLINE void GLSL_SetUniform_ShadowBlur(shaderProgram_t * program, floa
 	}
 #endif
 
-	qglUniform1fARB(program->u_ShadowBlur, value);
+	glUniform1fARB(program->u_ShadowBlur, value);
 }
 
 static ID_INLINE void GLSL_SetUniform_ShadowParallelSplitDistances(shaderProgram_t * program, const vec4_t v)
 {
 #if defined(USE_UNIFORM_FIREWALL)
-	if(VectorCompare4(program->t_ShadowParallelSplitDistances, v))
+	if(Vector4Compare(program->t_ShadowParallelSplitDistances, v))
 		return;
 
-	VectorCopy4(v, program->t_ShadowParallelSplitDistances);
+	Vector4Copy(v, program->t_ShadowParallelSplitDistances);
 #endif
 
 #if defined(LOG_GLSL_UNIFORMS)
@@ -2108,7 +2115,7 @@ static ID_INLINE void GLSL_SetUniform_ShadowParallelSplitDistances(shaderProgram
 	}
 #endif
 
-	qglUniform4fARB(program->u_ShadowParallelSplitDistances, v[0], v[1], v[2], v[3]);
+	glUniform4fARB(program->u_ShadowParallelSplitDistances, v[0], v[1], v[2], v[3]);
 }
 
 static ID_INLINE void GLSL_SetUniform_RefractionIndex(shaderProgram_t * program, float value)
@@ -2127,7 +2134,7 @@ static ID_INLINE void GLSL_SetUniform_RefractionIndex(shaderProgram_t * program,
 	}
 #endif
 
-	qglUniform1fARB(program->u_RefractionIndex, value);
+	glUniform1fARB(program->u_RefractionIndex, value);
 }
 
 static ID_INLINE void GLSL_SetUniform_ParallaxMapping(shaderProgram_t * program, qboolean value)
@@ -2146,7 +2153,7 @@ static ID_INLINE void GLSL_SetUniform_ParallaxMapping(shaderProgram_t * program,
 	}
 #endif
 
-	qglUniform1iARB(program->u_ParallaxMapping, value);
+	glUniform1iARB(program->u_ParallaxMapping, value);
 }
 
 static ID_INLINE void GLSL_SetUniform_DepthScale(shaderProgram_t * program, float value)
@@ -2165,7 +2172,26 @@ static ID_INLINE void GLSL_SetUniform_DepthScale(shaderProgram_t * program, floa
 	}
 #endif
 
-	qglUniform1fARB(program->u_DepthScale, value);
+	glUniform1fARB(program->u_DepthScale, value);
+}
+
+static ID_INLINE void GLSL_SetUniform_EnvironmentInterpolation(shaderProgram_t * program, float value)
+{
+#if defined(USE_UNIFORM_FIREWALL)
+	if(program->t_EnvironmentInterpolation == value)
+		return;
+
+	program->t_EnvironmentInterpolation = value;
+#endif
+
+#if defined(LOG_GLSL_UNIFORMS)
+	if(r_logFile->integer)
+	{
+		GLimp_LogComment(va("--- GLSL_SetUniform_EnvironmentInterpolation( program = %s, value = %f ) ---\n", program->name, value));
+	}
+#endif
+
+	glUniform1fARB(program->u_EnvironmentInterpolation, value);
 }
 
 static ID_INLINE void GLSL_SetUniform_PortalClipping(shaderProgram_t * program, qboolean value)
@@ -2184,13 +2210,13 @@ static ID_INLINE void GLSL_SetUniform_PortalClipping(shaderProgram_t * program, 
 	}
 #endif
 
-	qglUniform1iARB(program->u_PortalClipping, value);
+	glUniform1iARB(program->u_PortalClipping, value);
 }
 
 static ID_INLINE void GLSL_SetUniform_PortalPlane(shaderProgram_t * program, const vec4_t v)
 {
 #if defined(USE_UNIFORM_FIREWALL)
-	if(VectorCompare4(program->t_PortalPlane, v))
+	if(Vector4Compare(program->t_PortalPlane, v))
 		return;
 
 	VectorCopy(v, program->t_PortalPlane);
@@ -2203,7 +2229,7 @@ static ID_INLINE void GLSL_SetUniform_PortalPlane(shaderProgram_t * program, con
 	}
 #endif
 
-	qglUniform4fARB(program->u_PortalPlane, v[0], v[1], v[2], v[3]);
+	glUniform4fARB(program->u_PortalPlane, v[0], v[1], v[2], v[3]);
 }
 
 static ID_INLINE void GLSL_SetUniform_PortalRange(shaderProgram_t * program, float value)
@@ -2222,7 +2248,7 @@ static ID_INLINE void GLSL_SetUniform_PortalRange(shaderProgram_t * program, flo
 	}
 #endif
 
-	qglUniform1fARB(program->u_PortalRange, value);
+	glUniform1fARB(program->u_PortalRange, value);
 }
 
 static ID_INLINE void GLSL_SetUniform_ModelMatrix(shaderProgram_t * program, const matrix_t m)
@@ -2251,7 +2277,7 @@ static ID_INLINE void GLSL_SetUniform_ModelMatrix(shaderProgram_t * program, con
 	}
 #endif
 
-	qglUniformMatrix4fvARB(program->u_ModelMatrix, 1, GL_FALSE, m);
+	glUniformMatrix4fvARB(program->u_ModelMatrix, 1, GL_FALSE, m);
 }
 
 static ID_INLINE void GLSL_SetUniform_ViewMatrix(shaderProgram_t * program, const matrix_t m)
@@ -2263,7 +2289,7 @@ static ID_INLINE void GLSL_SetUniform_ViewMatrix(shaderProgram_t * program, cons
 	MatrixCopy(m, program->t_ViewMatrix);
 #endif
 
-	qglUniformMatrix4fvARB(program->u_ViewMatrix, 1, GL_FALSE, m);
+	glUniformMatrix4fvARB(program->u_ViewMatrix, 1, GL_FALSE, m);
 }
 
 static ID_INLINE void GLSL_SetUniform_ModelViewMatrix(shaderProgram_t * program, const matrix_t m)
@@ -2275,7 +2301,7 @@ static ID_INLINE void GLSL_SetUniform_ModelViewMatrix(shaderProgram_t * program,
 	MatrixCopy(m, program->t_ModelViewMatrix);
 #endif
 
-	qglUniformMatrix4fvARB(program->u_ModelViewMatrix, 1, GL_FALSE, m);
+	glUniformMatrix4fvARB(program->u_ModelViewMatrix, 1, GL_FALSE, m);
 }
 
 static ID_INLINE void GLSL_SetUniform_ModelViewMatrixTranspose(shaderProgram_t * program, const matrix_t m)
@@ -2287,7 +2313,7 @@ static ID_INLINE void GLSL_SetUniform_ModelViewMatrixTranspose(shaderProgram_t *
 	MatrixCopy(m, program->t_ModelViewMatrixTranspose);
 #endif
 
-	qglUniformMatrix4fvARB(program->u_ModelViewMatrixTranspose, 1, GL_TRUE, m);
+	glUniformMatrix4fvARB(program->u_ModelViewMatrixTranspose, 1, GL_TRUE, m);
 }
 
 static ID_INLINE void GLSL_SetUniform_ProjectionMatrix(shaderProgram_t * program, const matrix_t m)
@@ -2299,7 +2325,7 @@ static ID_INLINE void GLSL_SetUniform_ProjectionMatrix(shaderProgram_t * program
 	MatrixCopy(m, program->t_ProjectionMatrix);
 #endif
 
-	qglUniformMatrix4fvARB(program->u_ProjectionMatrix, 1, GL_FALSE, m);
+	glUniformMatrix4fvARB(program->u_ProjectionMatrix, 1, GL_FALSE, m);
 }
 
 static ID_INLINE void GLSL_SetUniform_ProjectionMatrixTranspose(shaderProgram_t * program, const matrix_t m)
@@ -2311,7 +2337,7 @@ static ID_INLINE void GLSL_SetUniform_ProjectionMatrixTranspose(shaderProgram_t 
 	MatrixCopy(m, program->t_ProjectionMatrixTranspose);
 #endif
 
-	qglUniformMatrix4fvARB(program->u_ProjectionMatrixTranspose, 1, GL_TRUE, m);
+	glUniformMatrix4fvARB(program->u_ProjectionMatrixTranspose, 1, GL_TRUE, m);
 }
 
 static ID_INLINE void GLSL_SetUniform_ModelViewProjectionMatrix(shaderProgram_t * program, const matrix_t m)
@@ -2340,7 +2366,7 @@ static ID_INLINE void GLSL_SetUniform_ModelViewProjectionMatrix(shaderProgram_t 
 	}
 #endif
 
-	qglUniformMatrix4fvARB(program->u_ModelViewProjectionMatrix, 1, GL_FALSE, m);
+	glUniformMatrix4fvARB(program->u_ModelViewProjectionMatrix, 1, GL_FALSE, m);
 }
 
 static ID_INLINE void GLSL_SetUniform_UnprojectMatrix(shaderProgram_t * program, const matrix_t m)
@@ -2352,7 +2378,7 @@ static ID_INLINE void GLSL_SetUniform_UnprojectMatrix(shaderProgram_t * program,
 	MatrixCopy(m, program->t_UnprojectMatrix);
 #endif
 
-	qglUniformMatrix4fvARB(program->u_UnprojectMatrix, 1, GL_FALSE, m);
+	glUniformMatrix4fvARB(program->u_UnprojectMatrix, 1, GL_FALSE, m);
 }
 
 static ID_INLINE void GLSL_SetUniform_VertexSkinning(shaderProgram_t * program, qboolean value)
@@ -2371,7 +2397,26 @@ static ID_INLINE void GLSL_SetUniform_VertexSkinning(shaderProgram_t * program, 
 	}
 #endif
 
-	qglUniform1iARB(program->u_VertexSkinning, value);
+	glUniform1iARB(program->u_VertexSkinning, value);
+}
+
+static ID_INLINE void GLSL_SetUniform_VertexInterpolation(shaderProgram_t * program, float value)
+{
+#if defined(USE_UNIFORM_FIREWALL)
+	if(program->t_VertexInterpolation == value)
+		return;
+
+	program->t_VertexInterpolation = value;
+#endif
+
+#if defined(LOG_GLSL_UNIFORMS)
+	if(r_logFile->integer)
+	{
+		GLimp_LogComment(va("--- GLSL_SetUniform_VertexInterpolation( program = %s, value = %f ) ---\n", program->name, value));
+	}
+#endif
+
+	glUniform1fARB(program->u_VertexInterpolation, value);
 }
 
 static ID_INLINE void GLSL_SetUniform_Time(shaderProgram_t * program, float value)
@@ -2390,7 +2435,7 @@ static ID_INLINE void GLSL_SetUniform_Time(shaderProgram_t * program, float valu
 	}
 #endif
 
-	qglUniform1fARB(program->u_Time, value);
+	glUniform1fARB(program->u_Time, value);
 }
 
 // *INDENT-ON*
@@ -2436,6 +2481,16 @@ typedef struct
 	int             numPolys;
 	struct srfPoly_s *polys;
 
+	int             numPolybuffers;
+	struct srfPolyBuffer_s *polybuffers;
+
+	int             decalBits;	// ydnar: optimization
+	int             numDecalProjectors;
+	struct decalProjector_s *decalProjectors;
+
+	int             numDecals;
+	struct srfDecal_s *decals;
+
 	int             numDrawSurfs;
 	struct drawSurf_s *drawSurfs;
 
@@ -2450,6 +2505,36 @@ typedef struct
 
 //=================================================================================
 
+// ydnar: decal projection
+typedef struct decalProjector_s
+{
+	shader_t       *shader;
+	byte            color[4];
+	int             fadeStartTime, fadeEndTime;
+	vec3_t          mins, maxs;
+	vec3_t          center;
+	float           radius, radius2;
+	qboolean        omnidirectional;
+	int             numPlanes;	// either 5 or 6, for quad or triangle projectors
+	vec4_t          planes[6];
+	vec4_t          texMat[3][2];
+}
+decalProjector_t;
+
+typedef struct corona_s
+{
+	vec3_t          origin;
+	vec3_t          color;		// range from 0.0 to 1.0, should be color normalized
+	vec3_t          transformed;	// origin in local coordinate system
+	float           scale;		// uses r_flaresize as the baseline (1.0)
+	int             id;
+	qboolean        visible;	// still send the corona request, even if not visible, for proper fading
+} corona_t;
+
+
+//=================================================================================
+
+
 // skins allow models to be retextured without modifying the model file
 typedef struct
 {
@@ -2457,12 +2542,43 @@ typedef struct
 	shader_t       *shader;
 } skinSurface_t;
 
+//----(SA) modified
+#define MAX_PART_MODELS 5
+
+typedef struct
+{
+	char            type[MAX_QPATH];	// md3_lower, md3_lbelt, md3_rbelt, etc.
+	char            model[MAX_QPATH];	// lower.md3, belt1.md3, etc.
+	int             hash;
+} skinModel_t;
+
 typedef struct skin_s
 {
 	char            name[MAX_QPATH];	// game path, including extension
 	int             numSurfaces;
+	int             numModels;
 	skinSurface_t  *surfaces[MD3_MAX_SURFACES];
+	skinModel_t    *models[MAX_PART_MODELS];
 } skin_t;
+
+//----(SA) end
+
+
+//=================================================================================
+
+typedef struct
+{
+	int             originalBrushNumber;
+	vec3_t          bounds[2];
+
+	vec4_t			color;		// in packed byte format
+	float           tcScale;	// texture coordinate vector scales
+	fogParms_t      parms;
+
+	// for clipping distance in fog when outside
+	qboolean        hasSurface;
+	float           surface[4];
+} fog_t;
 
 typedef struct
 {
@@ -2516,16 +2632,26 @@ typedef enum
 {
 	SF_BAD,
 	SF_SKIP,					// ignore
+	
 	SF_FACE,
 	SF_GRID,
 	SF_TRIANGLES,
+	
 	SF_POLY,
-	SF_MDX,
+	SF_POLYBUFFER,
+	SF_DECAL,					// ydnar: decal surfaces
+
+	SF_MDV,
+	//SF_MDM,
 	SF_MD5,
+
 	SF_FLARE,
 	SF_ENTITY,					// beams, rails, lightning, etc that can be determined by entity
+
 	SF_VBO_MESH,
 	SF_VBO_MD5MESH,
+	//SF_VBO_MDMMESH,
+	SF_VBO_MDVMESH,
 	SF_VBO_SHADOW_VOLUME,
 
 	SF_NUM_SURFACE_TYPES,
@@ -2537,6 +2663,7 @@ typedef struct drawSurf_s
 	trRefEntity_t  *entity;
 	uint32_t        shaderNum;
 	int16_t         lightmapNum;
+	int16_t			fogNum;
 
 	surfaceType_t  *surface;	// any of surface*_t
 } drawSurf_t;
@@ -2613,7 +2740,7 @@ typedef struct
 	int             indexes[SHADER_MAX_INDEXES];
 } shadowState_t;
 
-extern shadowState_t sh;
+extern shadowState_t shadowState;
 
 
 #define	MAX_FACE_POINTS		64
@@ -2628,8 +2755,28 @@ typedef struct srfPoly_s
 	surfaceType_t   surfaceType;
 	qhandle_t       hShader;
 	int16_t         numVerts;
+	int16_t			fogIndex;
 	polyVert_t     *verts;
 } srfPoly_t;
+
+typedef struct srfPolyBuffer_s
+{
+	surfaceType_t   surfaceType;
+	int16_t         fogIndex;
+	polyBuffer_t   *pPolyBuffer;
+} srfPolyBuffer_t;
+
+// ydnar: decals
+#define MAX_DECAL_VERTS         10	// worst case is triangle clipped by 6 planes
+#define MAX_WORLD_DECALS        1024
+#define MAX_ENTITY_DECALS       128
+typedef struct srfDecal_s
+{
+	surfaceType_t   surfaceType;
+	int             numVerts;
+	polyVert_t      verts[MAX_DECAL_VERTS];
+}
+srfDecal_t;
 
 typedef struct srfFlare_s
 {
@@ -2665,14 +2812,33 @@ typedef struct
 	qboolean        degenerated;
 } srfTriangle_t;
 
-typedef struct srfGridMesh_s
+// ydnar: normal map drawsurfaces must match this header
+typedef struct srfGeneric_s
 {
 	surfaceType_t   surfaceType;
 
 	// culling information
-	vec3_t          meshBounds[2];
-	vec3_t          localOrigin;
-	float           meshRadius;
+	vec3_t          bounds[2];
+	vec3_t          origin;
+	float           radius;
+	cplane_t        plane;
+
+	// dynamic lighting information
+//	int             dlightBits[SMP_FRAMES];
+}
+srfGeneric_t;
+
+typedef struct srfGridMesh_s
+{
+	// srfGeneric_t BEGIN
+	surfaceType_t   surfaceType;
+
+	vec3_t          bounds[2];
+	vec3_t          origin;
+	float           radius;
+	cplane_t        plane;
+
+	// srfGeneric_t END
 
 	// lod information, which may be different
 	// than the culling information to allow for
@@ -2704,11 +2870,15 @@ typedef struct srfGridMesh_s
 
 typedef struct
 {
+	// srfGeneric_t BEGIN
 	surfaceType_t   surfaceType;
 
-	// culling information
-	cplane_t        plane;
 	vec3_t          bounds[2];
+	vec3_t          origin;
+	float           radius;
+	cplane_t        plane;
+
+	// srfGeneric_t END
 
 	// triangle definitions
 	int             numTriangles;
@@ -2730,10 +2900,15 @@ typedef struct
 // misc_models in maps are turned into direct geometry by xmap
 typedef struct
 {
+	// srfGeneric_t BEGIN
 	surfaceType_t   surfaceType;
 
-	// culling information
 	vec3_t          bounds[2];
+	vec3_t          origin;
+	float           radius;
+	cplane_t        plane;
+
+	// srfGeneric_t END
 
 	// triangle definitions
 	int             numTriangles;
@@ -2792,6 +2967,45 @@ typedef struct srfVBOMD5Mesh_s
 	IBO_t          *ibo;
 } srfVBOMD5Mesh_t;
 
+typedef struct srfVBOMDMMesh_s
+{
+	surfaceType_t   surfaceType;
+
+	struct mdmModel_s *mdmModel;
+	struct mdmSurfaceIntern_s *mdmSurface;
+	struct shader_s *shader;	// FIXME move this to somewhere else
+
+	int				skinIndex;
+
+	int				numBoneRemap;
+	int				boneRemap[MAX_BONES];
+	int				boneRemapInverse[MAX_BONES];
+
+	// backEnd stats
+	int             numIndexes;
+	int             numVerts;
+
+	// static render data
+	VBO_t          *vbo;
+	IBO_t          *ibo;
+} srfVBOMDMMesh_t;
+
+typedef struct srfVBOMDVMesh_s
+{
+	surfaceType_t   surfaceType;
+
+	struct mdvModel_s *mdvModel;
+	struct mdvSurface_s *mdvSurface;
+
+	// backEnd stats
+	int             numIndexes;
+	int             numVerts;
+
+	// static render data
+	VBO_t          *vbo;
+	IBO_t          *ibo;
+} srfVBOMDVMesh_t;
+
 typedef struct srfVBOShadowVolume_s
 {
 	surfaceType_t   surfaceType;
@@ -2819,9 +3033,22 @@ typedef struct bspSurface_s
 	int             lightCount;
 	struct shader_s *shader;
 	int16_t         lightmapNum;	// -1 = no lightmap
+	int16_t			fogIndex;
 
 	surfaceType_t  *data;		// any of srf*_t
 } bspSurface_t;
+
+// ydnar: bsp model decal surfaces
+typedef struct decal_s
+{
+	bspSurface_t   *parent;
+	shader_t       *shader;
+	float           fadeStartTime, fadeEndTime;
+	int16_t         fogIndex;
+	int             numVerts;
+	polyVert_t      verts[MAX_DECAL_VERTS];
+}
+decal_t;
 
 
 #define	CONTENTS_NODE		-1
@@ -2832,6 +3059,7 @@ typedef struct bspNode_s
 	int             visCounts[MAX_VISCOUNTS];	// node needs to be traversed if current
 	int             lightCount;
 	vec3_t          mins, maxs;	// for bounding box culling
+	vec3_t          surfMins, surfMaxs;	// ydnar: bounding box including surfaces
 	vec3_t			origin;		// center of the bounding box
 	struct bspNode_s *parent;
 
@@ -2904,14 +3132,21 @@ typedef struct
 
 	uint32_t        numVBOSurfaces;
 	srfVBOMesh_t  **vboSurfaces;
+
+	// ydnar: decals
+	decal_t        *decals;
 } bspModel_t;
 
 typedef struct
 {
-	vec4_t          ambient;
-	vec4_t          directed;
-	byte            latLong[2];
+	vec3_t			origin;
+	vec4_t          ambientColor;
+	vec4_t          directedColor;
+	vec3_t			direction;
 } bspGridPoint_t;
+
+// ydnar: optimization
+#define WORLD_MAX_SKY_NODES 32
 
 typedef struct
 {
@@ -2933,6 +3168,9 @@ typedef struct
 	int             numDecisionNodes;
 	bspNode_t      *nodes;
 
+	int             numSkyNodes;
+	bspNode_t     **skyNodes;	// ydnar: don't walk the entire bsp when rendering sky
+
 	int             numVerts;
 	srfVert_t      *verts;
 	int             redundantVertsCalculationNeeded;
@@ -2940,6 +3178,7 @@ typedef struct
 	int            *redundantShadowVerts;
 	int            *redundantShadowAlphaTestVerts;
 	VBO_t          *vbo;
+	IBO_t          *ibo;
 
 	int             numTriangles;
 	srfTriangle_t  *triangles;
@@ -2958,11 +3197,15 @@ typedef struct
 	int             numMarkSurfaces;
 	bspSurface_t  **markSurfaces;
 
+	int				numFogs;
+	fog_t          *fogs;
+
 	vec3_t          lightGridOrigin;
 	vec3_t          lightGridSize;
 	vec3_t          lightGridInverseSize;
 	int             lightGridBounds[3];
 	bspGridPoint_t *lightGridData;
+	int				numLightGridPoints;
 
 	int             numLights;
 	trRefLight_t   *lights;
@@ -2987,7 +3230,7 @@ typedef struct
 
 /*
 ==============================================================================
-MDX MODELS - meta format for .md2, .md3, .mdc and so on
+MDV MODELS - meta format for vertex animation models like .md2, .md3, .mdc
 ==============================================================================
 */
 typedef struct
@@ -2995,26 +3238,33 @@ typedef struct
 	float           bounds[2][3];
 	float           localOrigin[3];
 	float           radius;
-} mdxFrame_t;
+} mdvFrame_t;
+
+typedef struct
+{
+	float           origin[3];
+	float           axis[3][3];
+} mdvTag_t;
 
 typedef struct
 {
 	char            name[MAX_QPATH];	// tag name
-	float           origin[3];
-	float           axis[3][3];
-} mdxTag_t;
+} mdvTagName_t;
 
 typedef struct
 {
-	short           xyz[3];
-} mdxVertex_t;
+	vec3_t          xyz;
+	vec3_t          normal;
+	vec3_t          tangent;
+	vec3_t          binormal;
+} mdvVertex_t;
 
 typedef struct
 {
 	float           st[2];
-} mdxSt_t;
+} mdvSt_t;
 
-typedef struct
+typedef struct mdvSurface_s
 {
 	surfaceType_t   surfaceType;
 
@@ -3023,31 +3273,32 @@ typedef struct
 	shader_t       *shader;
 
 	int             numVerts;
-	mdxVertex_t    *verts;
-	mdxSt_t        *st;
+	mdvVertex_t    *verts;
+	mdvSt_t        *st;
 
 	int             numTriangles;
 	srfTriangle_t  *triangles;
 
-	struct mdxModel_s *model;
-} mdxSurface_t;
+	struct mdvModel_s *model;
+} mdvSurface_t;
 
-typedef struct mdxModel_s
+typedef struct mdvModel_s
 {
 	int             numFrames;
-	mdxFrame_t     *frames;
+	mdvFrame_t     *frames;
 
 	int             numTags;
-	mdxTag_t       *tags;
+	mdvTag_t       *tags;
+	mdvTagName_t   *tagNames;
 
 	int             numSurfaces;
-	mdxSurface_t   *surfaces;
+	mdvSurface_t   *surfaces;
 
 	int             numVBOSurfaces;
-	srfVBOMesh_t  **vboSurfaces;
+	srfVBOMDVMesh_t  **vboSurfaces;
 
 	int             numSkins;
-} mdxModel_t;
+} mdvModel_t;
 
 
 /*
@@ -3130,6 +3381,73 @@ typedef struct md5Model_s
 } md5Model_t;
 
 
+
+
+
+
+typedef struct
+{
+	char            name[64];	// name of tag
+	vec3_t          axis[3];
+
+	int             boneIndex;
+	vec3_t          offset;
+
+	int             numBoneReferences;
+	int            *boneReferences;
+} mdmTagIntern_t;
+
+typedef struct mdmSurfaceIntern_s
+{
+	surfaceType_t   surfaceType;
+
+	char            name[MAX_QPATH];    // polyset name
+	char            shader[MAX_QPATH];
+	int             shaderIndex;	// for in-game use
+
+	int             minLod;
+
+	uint32_t        numVerts;
+	md5Vertex_t    *verts;
+
+	uint32_t        numTriangles;
+	srfTriangle_t  *triangles;
+
+//	uint32_t        numWeights;
+//	md5Weight_t    *weights;
+
+	int             numBoneReferences;
+	int            *boneReferences;
+
+	int            *collapseMap;	// numVerts many
+
+	struct mdmModel_s *model;
+} mdmSurfaceIntern_t;
+
+typedef struct mdmModel_s
+{
+//	uint16_t        numBones;
+//	md5Bone_t      *bones;
+
+	float           lodScale;
+	float           lodBias;
+
+	uint16_t		numTags;
+	mdmTagIntern_t *tags;
+
+	uint16_t        numSurfaces;
+	mdmSurfaceIntern_t *surfaces;
+
+	uint16_t        numVBOSurfaces;
+	srfVBOMDMMesh_t **vboSurfaces;
+
+	int				numBoneReferences;
+	int32_t        *boneReferences;
+
+	vec3_t          bounds[2];
+} mdmModel_t;
+
+
 typedef enum
 {
 	AT_BAD,
@@ -3201,6 +3519,13 @@ typedef struct
 
 } skelAnimation_t;
 
+typedef struct
+{
+	int             indexes[3];
+	md5Vertex_t    *vertexes[3];
+	qboolean		referenced;
+} skelTriangle_t;
+
 
 //======================================================================
 
@@ -3208,6 +3533,7 @@ typedef enum
 {
 	MOD_BAD,
 	MOD_BSP,
+	MOD_MESH,
 	MOD_MDX,
 	MOD_MD5
 } modtype_t;
@@ -3220,7 +3546,7 @@ typedef struct model_s
 
 	int             dataSize;	// just for listing purposes
 	bspModel_t     *bsp;		// only if type == MOD_BSP
-	mdxModel_t     *mdx[MD3_MAX_LODS];	// only if type == MOD_MD3
+	mdvModel_t     *mdv[MD3_MAX_LODS];	// only if type == MOD_MESH
 	md5Model_t     *md5;		// only if type == MOD_MD5
 
 	int             numLods;
@@ -3229,7 +3555,7 @@ typedef struct model_s
 void            R_ModelInit(void);
 model_t        *R_GetModelByHandle(qhandle_t hModel);
 
-int             RE_LerpTag(orientation_t * tag, qhandle_t handle, int startFrame, int endFrame, float frac, const char *tagName);
+int             RE_LerpTag(orientation_t * tag, qhandle_t handle, int startFrame, int endFrame, float frac, const char *tagNameIn);
 
 int             RE_BoneIndex(qhandle_t hModel, const char *boneName);
 
@@ -3260,6 +3586,9 @@ extern int      gl_filter_min, gl_filter_max;
 */
 typedef struct
 {
+	int             c_sphere_cull_in, c_sphere_cull_out;
+	int             c_plane_cull_in, c_plane_cull_out;
+
 	int             c_sphere_cull_patch_in, c_sphere_cull_patch_clip, c_sphere_cull_patch_out;
 	int             c_box_cull_patch_in, c_box_cull_patch_clip, c_box_cull_patch_out;
 	int             c_sphere_cull_mdx_in, c_sphere_cull_mdx_clip, c_sphere_cull_mdx_out;
@@ -3289,8 +3618,11 @@ typedef struct
 	int				c_occlusionQueriesMulti;
 	int				c_occlusionQueriesSaved;
 	int             c_CHCTime;
+
+	int             c_decalProjectors, c_decalTestSurfaces, c_decalClipSurfaces, c_decalSurfaces, c_decalSurfacesCreated;
 } frontEndCounters_t;
 
+#define	FOG_TABLE_SIZE		256
 #define FUNCTABLE_SIZE		1024
 #define FUNCTABLE_SIZE2		10
 #define FUNCTABLE_MASK		(FUNCTABLE_SIZE-1)
@@ -3347,6 +3679,9 @@ typedef struct
 	uint32_t        glStateBits;
 	uint32_t		vertexAttribsState;
 	uint32_t		vertexAttribPointersSet;
+	float			vertexAttribsInterpolation;	// 0 = no interpolation, 1 = final position
+	uint32_t		vertexAttribsNewFrame;		// offset for VBO vertex animations
+	uint32_t		vertexAttribsOldFrame;		// offset for VBO vertex animations
 	shaderProgram_t *currentProgram;
 	FBO_t          *currentFBO;
 	VBO_t          *currentVBO;
@@ -3369,6 +3704,9 @@ typedef struct
 	int             c_vboVertexes;
 	int             c_vboIndexes;
 
+	int             c_fogSurfaces;
+	int             c_fogBatches;
+
 	int             c_flareAdds;
 	int             c_flareTests;
 	int             c_flareRenders;
@@ -3378,6 +3716,7 @@ typedef struct
 	int				c_occlusionQueriesSaved;
 	int             c_occlusionQueriesAvailable;
 	int             c_occlusionQueriesLightsCulled;
+	int             c_occlusionQueriesEntitiesCulled;
 	int             c_occlusionQueriesLeafsCulled;
 	int             c_occlusionQueriesInteractionsCulled;
 	int             c_occlusionQueriesResponseTime;
@@ -3389,6 +3728,10 @@ typedef struct
 
 	int             c_deferredGBufferTime;
 	int             c_deferredLightingTime;
+
+	int				c_multiDrawElements;
+	int				c_multiDrawPrimitives;
+	int				c_multiVboIndexes;
 
 	int             msec;		// total msec for backend run
 } backEndCounters_t;
@@ -3410,6 +3753,7 @@ typedef struct
 	float			hdrAverageLuminance;
 	float			hdrMaxLuminance;
 	float			hdrTime;
+	float			hdrKey;
 
 	qboolean        projection2D;	// if qtrue, drawstretchpic doesn't need to change modes
 	vec4_t          color2D;
@@ -3422,6 +3766,12 @@ typedef struct
 	vec3_t          origin;
 	image_t        *cubemap;
 } cubemapProbe_t;
+
+
+#if defined(__cplusplus)
+class GLShader;
+class GLShader_vertexLighting_DBS_entity;
+#endif
 
 
 /*
@@ -3464,6 +3814,7 @@ typedef struct
 
 	image_t        *defaultImage;
 	image_t        *scratchImage[32];
+	image_t        *fogImage;
 	image_t        *quadraticImage;
 	image_t        *whiteImage;	// full of 0xff
 	image_t        *blackImage;	// full of 0x0
@@ -3471,6 +3822,7 @@ typedef struct
 	image_t        *noFalloffImage;
 	image_t        *attenuationXYImage;
 	image_t        *blackCubeImage;
+	image_t        *whiteCubeImage;
 	image_t        *autoCubeImage;			// special pointer to the nearest cubemap probe
 
 	image_t        *contrastRenderFBOImage;
@@ -3515,6 +3867,10 @@ typedef struct
 	FBO_t          *bloomRenderFBO[2];
 	FBO_t          *shadowMapFBO[MAX_SHADOWMAPS];
 
+	// vertex buffer objects
+	VBO_t          *unitCubeVBO;
+	IBO_t          *unitCubeIBO;
+
 	// internal shaders
 	shader_t       *defaultShader;
 	shader_t       *defaultPointLightShader;
@@ -3525,6 +3881,7 @@ typedef struct
 	shader_t       *projectionShadowShader;
 	shader_t       *flareShader;
 	shader_t       *sunShader;
+	char           *sunShaderName;
 
 	growList_t      lightmaps;
 	growList_t      deluxemaps;
@@ -3545,21 +3902,8 @@ typedef struct
 	// GPU shader programs
 	//
 #if !defined(USE_D3D10)
-	// Q3A standard simple vertex color rendering
-	shaderProgram_t genericSingleShader;
 
-	// simple vertex color shading for entities
-	shaderProgram_t vertexLightingShader_DBS_entity;
-
-	// simple vertex color shading for the world
-	shaderProgram_t vertexLightingShader_DBS_world;
-
-	// standard light mapping
-	shaderProgram_t lightMappingShader;
-
-	// directional light mapping
-	shaderProgram_t deluxeMappingShader;
-
+#if !defined(GLSL_COMPILE_STARTUP_ONLY)
 	// deferred Geometric-Buffer processing
 	shaderProgram_t geometricFillShader_DBS;
 
@@ -3568,25 +3912,11 @@ typedef struct
 	shaderProgram_t deferredLightingShader_DBS_proj;
 	shaderProgram_t deferredLightingShader_DBS_directional;
 
-	// black depth fill rendering with textures
-	shaderProgram_t depthFillShader;
-
-	// colored depth test rendering with textures into gl_FragData[1]
-	shaderProgram_t depthTestShader;
-
 	// depth to color encoding
 	shaderProgram_t depthToColorShader;
 
 	// stencil shadow volume extrusion
 	shaderProgram_t shadowExtrudeShader;
-
-	// shadowmap distance compression
-	shaderProgram_t shadowFillShader;
-
-	// Doom3 style omni-directional multi-pass lighting
-	shaderProgram_t forwardLightingShader_DBS_omni;
-	shaderProgram_t forwardLightingShader_DBS_proj;
-	shaderProgram_t forwardLightingShader_DBS_directional;
 
 	// forward shading using the pre pass light buffer
 	shaderProgram_t forwardLightingShader_DBS_post;
@@ -3599,25 +3929,9 @@ typedef struct
 	// UT3 style player shadowing
 	shaderProgram_t deferredShadowingShader_proj;
 
-	// environment mapping effects
-	shaderProgram_t reflectionShader_C;
-	shaderProgram_t reflectionShader_CB;
-	shaderProgram_t refractionShader_C;
-	shaderProgram_t dispersionShader_C;
-	shaderProgram_t skyBoxShader;
-
 	// post process effects
-	shaderProgram_t heatHazeShader;
-	shaderProgram_t bloomShader;
-	shaderProgram_t contrastShader;
-	shaderProgram_t blurXShader;
-	shaderProgram_t blurYShader;
 	shaderProgram_t rotoscopeShader;
-	shaderProgram_t cameraEffectsShader;
-	shaderProgram_t screenShader;
-	shaderProgram_t portalShader;
 	shaderProgram_t liquidShader;
-	shaderProgram_t uniformFogShader;
 	shaderProgram_t volumetricFogShader;
 #ifdef EXPERIMENTAL
 	shaderProgram_t screenSpaceAmbientOcclusionShader;
@@ -3625,8 +3939,9 @@ typedef struct
 #ifdef EXPERIMENTAL
 	shaderProgram_t depthOfFieldShader;
 #endif
-	shaderProgram_t toneMappingShader;
 	shaderProgram_t debugShadowMapShader;
+
+#endif // GLSL_COMPILE_STARTUP_ONLY
 
 #endif // !defined(USE_D3D10)
 
@@ -3636,6 +3951,7 @@ typedef struct
 
 	float           identityLight;	// 1.0 / ( 1 << overbrightBits )
 	int             overbrightBits;	// r_overbrightBits->integer, but set to 0 if no hw gamma
+	int				mapOverBrightBits;	// r_mapOverbrightBits->integer, but can be overriden by mapper using the worldspawn
 
 	orientationr_t  orientation;			// for current entity
 
@@ -3643,6 +3959,11 @@ typedef struct
 
 	vec3_t          sunLight;	// from the sky shader for this level
 	vec3_t          sunDirection;
+
+//----(SA)  added
+	float           lightGridMulAmbient;	// lightgrid multipliers specified in sky shader
+	float           lightGridMulDirected;	//
+//----(SA)  end
 
 	vec3_t          fogColor;
 	float           fogDensity;
@@ -3664,6 +3985,10 @@ typedef struct
 
 	int             numFBOs;
 	FBO_t          *fbos[MAX_FBOS];
+
+#if !defined(USE_D3D10)
+	GLuint			vao;
+#endif
 
 	growList_t      vbos;
 	growList_t      ibos;
@@ -3690,6 +4015,7 @@ typedef struct
 	float           triangleTable[FUNCTABLE_SIZE];
 	float           sawToothTable[FUNCTABLE_SIZE];
 	float           inverseSawToothTable[FUNCTABLE_SIZE];
+	float           fogTable[FOG_TABLE_SIZE];
 
 	uint32_t        occlusionQueryObjects[MAX_OCCLUSION_QUERIES];
 	int				numUsedOcclusionQueryObjects;
@@ -3717,6 +4043,10 @@ extern float    displayAspect;	// FIXME
 //
 // cvars
 //
+extern cvar_t  *r_glCoreProfile;
+extern cvar_t  *r_glMinMajorVersion;
+extern cvar_t  *r_glMinMinorVersion;
+
 extern cvar_t  *r_flares;		// light flares
 extern cvar_t  *r_flareSize;
 extern cvar_t  *r_flareFade;
@@ -3784,7 +4114,7 @@ extern cvar_t  *r_gamma;
 extern cvar_t  *r_displayRefresh;	// optional display refresh option
 extern cvar_t  *r_ignorehwgamma;	// overrides hardware gamma capabilities
 
-extern cvar_t  *r_ext_texture_compression;	// these control use of specific extensions
+extern cvar_t  *r_ext_compressed_textures;	// these control use of specific extensions
 extern cvar_t  *r_ext_occlusion_query;
 extern cvar_t  *r_ext_texture_non_power_of_two;
 extern cvar_t  *r_ext_draw_buffers;
@@ -3816,11 +4146,14 @@ extern cvar_t  *r_offsetFactor;
 extern cvar_t  *r_offsetUnits;
 extern cvar_t  *r_forceSpecular;
 extern cvar_t  *r_specularExponent;
+extern cvar_t  *r_specularExponent2;
 extern cvar_t  *r_specularScale;
 extern cvar_t  *r_normalScale;
 extern cvar_t  *r_normalMapping;
 extern cvar_t  *r_wrapAroundLighting;
 extern cvar_t  *r_halfLambertLighting;
+extern cvar_t  *r_rimLighting;
+extern cvar_t  *r_rimExponent;
 
 extern cvar_t  *r_uiFullScreen;	// ui is running fullscreen
 
@@ -3901,6 +4234,7 @@ extern cvar_t  *r_showLightTransforms;
 extern cvar_t  *r_showLightInteractions;
 extern cvar_t  *r_showLightScissors;
 extern cvar_t  *r_showLightBatches;
+extern cvar_t  *r_showLightGrid;
 extern cvar_t  *r_showOcclusionQueries;
 extern cvar_t  *r_showBatches;
 extern cvar_t  *r_showLightMaps;	// render lightmaps only
@@ -3909,6 +4243,7 @@ extern cvar_t  *r_showAreaPortals;
 extern cvar_t  *r_showCubeProbes;
 extern cvar_t  *r_showBspNodes;
 extern cvar_t  *r_showParallelShadowSplits;
+extern cvar_t  *r_showDecalProjectors;
 
 extern cvar_t  *r_showDeferredDiffuse;
 extern cvar_t  *r_showDeferredNormal;
@@ -3938,6 +4273,7 @@ extern cvar_t  *r_parallaxMapping;
 extern cvar_t  *r_parallaxDepthScale;
 
 extern cvar_t  *r_dynamicBspOcclusionCulling;
+extern cvar_t  *r_dynamicEntityOcclusionCulling;
 extern cvar_t  *r_chcMaxPrevInvisNodesBatchSize;
 extern cvar_t  *r_chcMaxVisibleFrames;
 extern cvar_t  *r_chcVisibilityThreshold;
@@ -3954,6 +4290,7 @@ extern cvar_t  *r_hdrLightmapGamma;
 extern cvar_t  *r_hdrLightmapCompensate;
 extern cvar_t  *r_hdrToneMappingOperator;
 extern cvar_t  *r_hdrGamma;
+extern cvar_t  *r_hdrDebug;
 
 #ifdef EXPERIMENTAL
 extern cvar_t  *r_screenSpaceAmbientOcclusion;
@@ -3970,8 +4307,16 @@ extern cvar_t  *r_bloomBlur;
 extern cvar_t  *r_bloomPasses;
 extern cvar_t  *r_rotoscope;
 extern cvar_t  *r_cameraPostFX;
+extern cvar_t  *r_cameraVignette;
+extern cvar_t  *r_cameraFilmGrain;
+extern cvar_t  *r_cameraFilmGrainScale;
 
 //====================================================================
+
+#define IMAGE_FILE_HASH_SIZE      4096
+extern image_t *r_imageHashTable[IMAGE_FILE_HASH_SIZE];
+
+extern long		GenerateImageHashValue(const char *fname);
 
 float           R_NoiseGet4f(float x, float y, float z, float t);
 void            R_NoiseInit(void);
@@ -3980,24 +4325,29 @@ void            R_SwapBuffers(int);
 
 void            R_RenderView(viewParms_t * parms);
 
-void            R_AddMDXSurfaces(trRefEntity_t * e);
-void            R_AddMDXInteractions(trRefEntity_t * e, trRefLight_t * light);
+void            R_AddMDVSurfaces(trRefEntity_t * e);
+void            R_AddMDVInteractions(trRefEntity_t * e, trRefLight_t * light);
 void            R_AddNullModelSurfaces(trRefEntity_t * e);
 void            R_AddBeamSurfaces(trRefEntity_t * e);
 void            R_AddRailSurfaces(trRefEntity_t * e, qboolean isUnderwater);
 void            R_AddLightningBoltSurfaces(trRefEntity_t * e);
 
 void            R_AddPolygonSurfaces(void);
+void            R_AddPolygonBufferSurfaces(void);
 
-void            R_AddDrawSurf(surfaceType_t * surface, shader_t * shader, int lightmapNum);
+void            R_AddDrawSurf(surfaceType_t * surface, shader_t * shader, int lightmapNum, int fogNum);
 
 
 void            R_LocalNormalToWorld(const vec3_t local, vec3_t world);
 void            R_LocalPointToWorld(const vec3_t local, vec3_t world);
 
-int             R_CullLocalBox(vec3_t bounds[2]);
+cullResult_t    R_CullLocalBox(vec3_t bounds[2]);
 int             R_CullLocalPointAndRadius(vec3_t origin, float radius);
 int             R_CullPointAndRadius(vec3_t origin, float radius);
+
+int             R_FogLocalPointAndRadius(const vec3_t pt, float radius);
+int             R_FogPointAndRadius(const vec3_t pt, float radius);
+int             R_FogWorldBox(vec3_t bounds[2]);
 
 void            R_SetupEntityWorldBounds(trRefEntity_t * ent);
 
@@ -4040,9 +4390,18 @@ float           R_CalcFov(float fovX, float width, float height);
 // Tr3B - visualisation tools to help debugging the renderer frontend
 void            R_DebugAxis(const vec3_t origin, const matrix_t transformMatrix);
 void            R_DebugBoundingBox(const vec3_t origin, const vec3_t mins, const vec3_t maxs, vec4_t color);
+void			R_DebugPolygon(int color, int numPoints, float *points);
+void			R_DebugText(const vec3_t org, float r, float g, float b, const char *text, qboolean neverOcclude);
+
+
+
 
 /*
-** GL wrapper/helper functions
+====================================================================
+
+OpenGL WRAPPERS, tr_backend.c
+
+====================================================================
 */
 #if !defined(USE_D3D10)
 void            GL_Bind(image_t * image);
@@ -4085,6 +4444,16 @@ void			GL_VertexAttribPointers(uint32_t attribBits);
 void            GL_Cull(int cullType);
 #endif // !defined(USE_D3D10)
 
+
+
+/*
+====================================================================
+
+
+
+====================================================================
+*/
+
 void            RE_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte * data, int client, qboolean dirty);
 void            RE_UploadCinematic(int w, int h, int cols, int rows, const byte * data, int client, qboolean dirty);
 
@@ -4096,22 +4465,19 @@ qhandle_t       RE_RegisterModel(const char *name, qboolean forceStatic);
 qhandle_t       RE_RegisterSkin(const char *name);
 void            RE_Shutdown(qboolean destroyWindow);
 
+//----(SA)
+qboolean        RE_GetSkinModel(qhandle_t skinid, const char *type, char *name);
+qhandle_t       RE_GetShaderFromModel(qhandle_t modelid, int surfnum, int withlightmap);	//----(SA)
+//----(SA) end
+
 qboolean        R_GetEntityToken(char *buffer, int size);
+float           R_ProcessLightmap(byte ** pic, int in_padding, int width, int height, byte ** pic_out);	// Arnout
 
 model_t        *R_AllocModel(void);
-image_t        *R_AllocImage(const char *name, qboolean linkIntoHashTable);
-void			R_UploadImage(const byte ** dataArray, int numData, image_t * image);
+
 
 void            R_Init(void);
-image_t        *R_FindImageFile(const char *name, int bits, filterType_t filterType, wrapType_t wrapType);
-image_t        *R_FindCubeImage(const char *name, int bits, filterType_t filterType, wrapType_t wrapType);
 
-image_t        *R_CreateImage(const char *name, const byte * pic, int width, int height, int bits, filterType_t filterType,
-							  wrapType_t wrapType);
-
-image_t        *R_CreateCubeImage(const char *name,
-								  const byte * pic[6],
-								  int width, int height, int bits, filterType_t filterType, wrapType_t wrapType);
 
 qboolean        R_GetModeInfo(int *width, int *height, float *windowAspect, int mode);
 
@@ -4126,21 +4492,57 @@ void            R_SubImageCpy(byte *dest, size_t destx, size_t desty, size_t des
 // https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=516
 const void     *RB_TakeScreenshotCmd(const void *data);
 
-void            R_InitImages(void);
-void            R_ShutdownImages(void);
-int             R_SumOfUsedImages(void);
+
 void            R_InitSkins(void);
 skin_t         *R_GetSkinByHandle(qhandle_t hSkin);
 
 void            R_DeleteSurfaceVBOs();
 
-//
-// tr_shader.c
-//
+
+/*
+====================================================================
+
+IMAGES, tr_image.c
+
+====================================================================
+*/
+
+void            R_InitImages(void);
+void            R_ShutdownImages(void);
+int             R_SumOfUsedImages(void);
+
+image_t        *R_FindImageFile(const char *name, int bits, filterType_t filterType, wrapType_t wrapType, const char *materialName);
+image_t        *R_FindCubeImage(const char *name, int bits, filterType_t filterType, wrapType_t wrapType, const char *materialName);
+
+image_t        *R_CreateImage(const char *name, const byte * pic, int width, int height, int bits, filterType_t filterType,
+							  wrapType_t wrapType);
+
+image_t        *R_CreateCubeImage(const char *name,
+								  const byte * pic[6],
+								  int width, int height, int bits, filterType_t filterType, wrapType_t wrapType);
+
+image_t        *R_AllocImage(const char *name, qboolean linkIntoHashTable);
+void			R_UploadImage(const byte ** dataArray, int numData, image_t * image);
+
+int				RE_GetTextureId(const char *name);
+
+
+void            R_InitFogTable(void);
+float           R_FogFactor(float s, float t);
+
+
+/*
+====================================================================
+
+SHADERS, tr_shader.c
+
+====================================================================
+*/
 qhandle_t       RE_RegisterShader(const char *name);
 qhandle_t       RE_RegisterShaderNoMip(const char *name);
 qhandle_t       RE_RegisterShaderLightAttenuation(const char *name);
 qhandle_t       RE_RegisterShaderFromImage(const char *name, image_t * image, qboolean mipRawImage);
+qboolean		RE_LoadDynamicShader(const char *shadername, const char *shadertext);
 
 shader_t       *R_FindShader(const char *name, shaderType_t type, qboolean mipRawImage);
 shader_t       *R_GetShaderByHandle(qhandle_t hShader);
@@ -4194,6 +4596,8 @@ typedef struct stageVars
 	matrix_t        texMatrices[MAX_TEXTURE_BUNDLES];
 } stageVars_t;
 
+#define MAX_MULTIDRAW_PRIMITIVES	1000
+
 typedef struct shaderCommands_s
 {
 	vec4_t          xyz[SHADER_MAX_VERTEXES];
@@ -4219,11 +4623,17 @@ typedef struct shaderCommands_s
 	shader_t       *lightShader;
 
 	qboolean        skipTangentSpaces;
+	qboolean		skipVBO;
 	qboolean        shadowVolume;
 	int16_t         lightmapNum;
+	int16_t			fogNum;
 
 	uint32_t        numIndexes;
 	uint32_t        numVertexes;
+
+	int				multiDrawPrimitives;
+	glIndex_t*		multiDrawIndexes[MAX_MULTIDRAW_PRIMITIVES];
+	int				multiDrawCounts[MAX_MULTIDRAW_PRIMITIVES];
 
 	qboolean        vboVertexSkinning;
 	matrix_t        boneMatrices[MAX_BONES];
@@ -4245,17 +4655,22 @@ void            GLSL_ShutdownGPUShaders();
 
 // *INDENT-OFF*
 void            Tess_Begin(	void (*stageIteratorFunc)(),
+						    void (*stageIteratorFunc2)(),
 							shader_t * surfaceShader, shader_t * lightShader,
 							qboolean skipTangentSpaces,
+							qboolean skipVBO,
 							qboolean shadowVolume,
-							int lightmapNum);
+							int lightmapNum,
+							int	fogNum);
 // *INDENT-ON*
 void            Tess_End(void);
+void			Tess_EndBegin();
 void            Tess_DrawElements();
 void            Tess_CheckOverflow(int verts, int indexes);
 
 void            Tess_ComputeColor(shaderStage_t * pStage);
 
+void            Tess_StageIteratorDebug();
 void            Tess_StageIteratorGeneric();
 void            Tess_StageIteratorGBuffer();
 void            Tess_StageIteratorDepthFill();
@@ -4279,7 +4694,7 @@ Add a polyhedron that is composed of four triangular faces
 void            Tess_AddTetrahedron(vec4_t tetraVerts[4], vec4_t const color);
 
 void			Tess_AddCube(const vec3_t position, const vec3_t minSize, const vec3_t maxSize, const vec4_t color);
-void			Tess_AddCubeNormals(const vec3_t position, const vec3_t minSize, const vec3_t maxSize, const vec4_t color);
+void			Tess_AddCubeWithNormals(const vec3_t position, const vec3_t minSize, const vec3_t maxSize, const vec4_t color);
 
 void            Tess_InstantQuad(vec4_t quadVerts[4]);
 void            Tess_UpdateVBOs(uint32_t attribBits);
@@ -4290,7 +4705,7 @@ void            RB_ShowImages(void);
 /*
 ============================================================
 
-WORLD MAP
+WORLD MAP, tr_world.c
 
 ============================================================
 */
@@ -4306,27 +4721,27 @@ void            R_ShutdownVBOs();
 /*
 ============================================================
 
-FLARES
+FLARES, tr_flares.c
 
 ============================================================
 */
 
 void            R_ClearFlares(void);
 
-void            RB_AddFlare(void *surface, vec3_t point, vec3_t color, vec3_t normal);
+void            RB_AddFlare(void *surface, int fogNum, vec3_t point, vec3_t color, vec3_t normal);
 void            RB_AddLightFlares(void);
 void            RB_RenderFlares(void);
 
 /*
 ============================================================
 
-LIGHTS
+LIGHTS, tr_light.c
 
 ============================================================
 */
 
 void            R_AddBrushModelInteractions(trRefEntity_t * ent, trRefLight_t * light);
-void            R_SetupEntityLighting(const trRefdef_t * refdef, trRefEntity_t * ent);
+void            R_SetupEntityLighting(const trRefdef_t * refdef, trRefEntity_t * ent, vec3_t forcedOrigin);
 int             R_LightForPoint(vec3_t point, vec3_t ambientLight, vec3_t directedLight, vec3_t lightDir);
 
 void            R_SetupLightOrigin(trRefLight_t * light);
@@ -4359,7 +4774,21 @@ void            R_ComputeFinalAttenuation(shaderStage_t * pStage, trRefLight_t *
 /*
 ============================================================
 
-SHADOWS
+FOG, tr_fog.c
+
+============================================================
+*/
+
+void			RE_SetFog(int fogvar, int var1, int var2, float r, float g, float b, float density);
+void			RE_SetGlobalFog(qboolean restore, int duration, float r, float g, float b, float depthForOpaque);
+
+
+
+
+/*
+============================================================
+
+SHADOWS, tr_shadows.c
 
 ============================================================
 */
@@ -4380,7 +4809,7 @@ void            RB_DrawSun(void);
 /*
 ============================================================
 
-CURVE TESSELATION
+CURVE TESSELATION, tr_curve.c
 
 ============================================================
 */
@@ -4393,7 +4822,7 @@ void            R_FreeSurfaceGridMesh(srfGridMesh_t * grid);
 /*
 ============================================================
 
-MARKERS, POLYGON PROJECTION ON WORLD POLYGONS
+MARKERS, POLYGON PROJECTION ON WORLD POLYGONS, tr_marks.c
 
 ============================================================
 */
@@ -4405,7 +4834,7 @@ int             R_MarkFragments(int numPoints, const vec3_t * points, const vec3
 /*
 ============================================================
 
-FRAME BUFFER OBJECTS
+FRAME BUFFER OBJECTS, tr_fbo.c
 
 ============================================================
 */
@@ -4433,7 +4862,7 @@ void            R_FBOList_f(void);
 /*
 ============================================================
 
-VERTEX BUFFER OBJECTS
+VERTEX BUFFER OBJECTS, tr_vbo.c
 
 ============================================================
 */
@@ -4454,11 +4883,10 @@ void            R_ShutdownVBOs(void);
 void            R_VBOList_f(void);
 
 
-
 /*
 ============================================================
 
-SCENE GENERATION
+SCENE GENERATION, tr_scene.c
 
 ============================================================
 */
@@ -4469,9 +4897,15 @@ void            RE_ClearScene(void);
 void            RE_AddRefEntityToScene(const refEntity_t * ent);
 void            RE_AddRefLightToScene(const refLight_t * light);
 void            RE_AddPolyToScene(qhandle_t hShader, int numVerts, const polyVert_t * verts, int num);
-void            RE_AddLightToScene(const vec3_t org, float intensity, float r, float g, float b);
-void            RE_AddAdditiveLightToScene(const vec3_t org, float intensity, float r, float g, float b);
+void            RE_AddPolyBufferToScene(polyBuffer_t * pPolyBuffer);
+
+void            RE_AddDynamicLightToSceneET(const vec3_t org, float radius, float intensity, float r, float g, float b, qhandle_t hShader, int flags);
+void            RE_AddDynamicLightToSceneQ3A(const vec3_t org, float intensity, float r, float g, float b);
+
+void            RE_AddCoronaToScene(const vec3_t org, float r, float g, float b, float scale, int id, qboolean visible);
 void            RE_RenderScene(const refdef_t * fd);
+void            RE_SaveViewParms();
+void            RE_RestoreViewParms();
 
 /*
 =============================================================
@@ -4482,21 +4916,41 @@ ANIMATED MODELS
 */
 
 void            R_InitAnimations(void);
+
+#if defined(USE_REFENTITY_ANIMATIONSYSTEM)
 qhandle_t       RE_RegisterAnimation(const char *name);
+#endif
+
 skelAnimation_t *R_GetAnimationByHandle(qhandle_t hAnim);
 void            R_AnimationList_f(void);
-
-void            R_AddMDSSurfaces(trRefEntity_t * ent);
 
 void            R_AddMD5Surfaces(trRefEntity_t * ent);
 void            R_AddMD5Interactions(trRefEntity_t * ent, trRefLight_t * light);
 
+#if defined(USE_REFENTITY_ANIMATIONSYSTEM)
 int				RE_CheckSkeleton(refSkeleton_t * skel, qhandle_t hModel, qhandle_t hAnim);
 int             RE_BuildSkeleton(refSkeleton_t * skel, qhandle_t anim, int startFrame, int endFrame, float frac,
 								 qboolean clearOrigin);
 int             RE_BlendSkeleton(refSkeleton_t * skel, const refSkeleton_t * blend, float frac);
 int             RE_AnimNumFrames(qhandle_t hAnim);
 int             RE_AnimFrameRate(qhandle_t hAnim);
+#endif
+
+/*
+=============================================================
+
+ANIMATED MODELS WOLFENSTEIN
+
+=============================================================
+*/
+
+/*
+void            R_MakeAnimModel(model_t * model);
+void            R_AddAnimSurfaces(trRefEntity_t * ent);
+void            RB_SurfaceAnim(mdsSurface_t * surfType);
+int             R_GetBoneTag(orientation_t * outTag, mdsHeader_t * mds, int startTagIndex, const refEntity_t * refent,
+							 const char *tagName);
+							 */
 
 /*
 =============================================================
@@ -4587,8 +5041,19 @@ typedef struct
 	float           w, h;
 	float           s1, t1;
 	float           s2, t2;
-	float           angle;
+
+	byte            gradientColor[4];	// color values 0-255
+	int             gradientType;	//----(SA)  added
+	float           angle;		// NERVE - SMF
 } stretchPicCommand_t;
+
+typedef struct
+{
+	int             commandId;
+	polyVert_t     *verts;
+	int             numverts;
+	shader_t       *shader;
+} poly2dCommand_t;
 
 typedef struct
 {
@@ -4596,6 +5061,16 @@ typedef struct
 	trRefdef_t      refdef;
 	viewParms_t     viewParms;
 } drawViewCommand_t;
+
+typedef struct
+{
+	int             commandId;
+	image_t        *image;
+	int             x;
+	int             y;
+	int             w;
+	int             h;
+} renderToTextureCommand_t;
 
 
 typedef enum
@@ -4626,18 +5101,34 @@ typedef struct
 	qboolean        motionJpeg;
 } videoFrameCommand_t;
 
+typedef struct
+{
+	int             commandId;
+} renderFinishCommand_t;
+
 typedef enum
 {
 	RC_END_OF_LIST,
 	RC_SET_COLOR,
 	RC_STRETCH_PIC,
+	RC_2DPOLYS,
 	RC_ROTATED_PIC,
+	RC_STRETCH_PIC_GRADIENT,	// (SA) added
 	RC_DRAW_VIEW,
 	RC_DRAW_BUFFER,
 	RC_SWAP_BUFFERS,
 	RC_SCREENSHOT,
-	RC_VIDEOFRAME
+	RC_VIDEOFRAME,
+	RC_RENDERTOTEXTURE,			//bani
+	RC_FINISH					//bani
 } renderCommand_t;
+
+
+// ydnar: max decal projectors per frame, each can generate lots of polys
+#define MAX_DECAL_PROJECTORS    32	// uses bitmasks, don't increase
+#define DECAL_PROJECTOR_MASK    ( MAX_DECAL_PROJECTORS - 1 )
+#define MAX_DECALS              1024
+#define DECAL_MASK              ( MAX_DECALS - 1 )
 
 
 // all of the information needed by the back end must be
@@ -4654,12 +5145,13 @@ typedef struct
 
 	srfPoly_t      *polys;		//[MAX_POLYS];
 	polyVert_t     *polyVerts;	//[MAX_POLYVERTS];
+	srfPolyBuffer_t *polybuffers; //[MAX_POLYS];
+
+	decalProjector_t decalProjectors[MAX_DECAL_PROJECTORS];
+	srfDecal_t      decals[MAX_DECALS];
 
 	renderCommandList_t commands;
 } backEndData_t;
-
-extern int      max_polys;
-extern int      max_polyverts;
 
 extern backEndData_t *backEndData[SMP_FRAMES];	// the second one may not be allocated
 
@@ -4680,7 +5172,14 @@ void            R_AddDrawViewCmd(void);
 
 void            RE_SetColor(const float *rgba);
 void            RE_StretchPic(float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader);
-void            RE_RotatedPic(float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader, float angle);
+void            RE_RotatedPic(float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader, float angle);	// NERVE - SMF
+void            RE_StretchPicGradient(float x, float y, float w, float h,
+									  float s1, float t1, float s2, float t2, qhandle_t hShader, const float *gradientColor,
+									  int gradientType);
+void            RE_2DPolyies(polyVert_t * verts, int numverts, qhandle_t hShader);
+
+
+
 void            RE_BeginFrame(stereoFrame_t stereoFrame);
 void            RE_EndFrame(int *frontEndMsec, int *backEndMsec);
 
@@ -4700,6 +5199,7 @@ void            RE_TakeVideoFrame(int width, int height, byte * captureBuffer, b
 
 // cubemap reflections stuff
 void            R_BuildCubeMaps(void);
+void			R_FindTwoNearestCubeMaps(const vec3_t position, cubemapProbe_t **cubeProbeNearest, cubemapProbe_t **cubeProbeSecondNearest);
 
 void            FreeVertexHashTable(vertexHash_t ** hashTable);
 
@@ -4707,6 +5207,10 @@ void            FreeVertexHashTable(vertexHash_t ** hashTable);
 void            R_InitFreeType();
 void            R_DoneFreeType();
 void            RE_RegisterFont(const char *fontName, int pointSize, fontInfo_t * font);
+
+// bani
+void			RE_RenderToTexture(int textureid, int x, int y, int w, int h);
+void			RE_Finish(void);
 
 
 #if defined(__cplusplus)

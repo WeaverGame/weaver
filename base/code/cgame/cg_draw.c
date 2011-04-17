@@ -845,11 +845,11 @@ static void CG_DrawLagometer(void)
 	y = 480 - 140;
 
 	if(ps->persistant[PERS_TEAM] == TEAM_BLUE)
-		VectorCopy4(blueTeamColor, basecolor);
+		Vector4Copy(blueTeamColor, basecolor);
 	else if(ps->persistant[PERS_TEAM] == TEAM_RED)
-		VectorCopy4(redTeamColor, basecolor);
+		Vector4Copy(redTeamColor, basecolor);
 	else
-		VectorCopy4(baseTeamColor, basecolor);
+		Vector4Copy(baseTeamColor, basecolor);
 
 
 	trap_R_SetColor(basecolor);
@@ -880,7 +880,7 @@ static void CG_DrawLagometer(void)
 			if(color != 1)
 			{
 				color = 1;
-				VectorCopy4(g_color_table[ColorIndex(COLOR_YELLOW)], fadecolor);
+				Vector4Copy(g_color_table[ColorIndex(COLOR_YELLOW)], fadecolor);
 				fadecolor[3] = (float)((aw - a) / aw);
 				trap_R_SetColor(fadecolor);
 			}
@@ -895,7 +895,7 @@ static void CG_DrawLagometer(void)
 			if(color != 2)
 			{
 				color = 2;
-				VectorCopy4(g_color_table[ColorIndex(COLOR_BLUE)], fadecolor);
+				Vector4Copy(g_color_table[ColorIndex(COLOR_BLUE)], fadecolor);
 				fadecolor[3] = (float)((aw - a) / aw);
 				trap_R_SetColor(fadecolor);
 
@@ -924,7 +924,7 @@ static void CG_DrawLagometer(void)
 				if(color != 5)
 				{
 					color = 5;	// YELLOW for rate delay
-					VectorCopy4(g_color_table[ColorIndex(COLOR_YELLOW)], fadecolor);
+					Vector4Copy(g_color_table[ColorIndex(COLOR_YELLOW)], fadecolor);
 					fadecolor[3] = (float)((aw - a) / aw);
 					trap_R_SetColor(fadecolor);
 				}
@@ -934,7 +934,7 @@ static void CG_DrawLagometer(void)
 				if(color != 3)
 				{
 					color = 3;
-					VectorCopy4(g_color_table[ColorIndex(COLOR_GREEN)], fadecolor);
+					Vector4Copy(g_color_table[ColorIndex(COLOR_GREEN)], fadecolor);
 					fadecolor[3] = (float)((aw - a) / aw) * 0.5f;
 					trap_R_SetColor(fadecolor);
 				}
@@ -951,7 +951,7 @@ static void CG_DrawLagometer(void)
 			if(color != 4)
 			{
 				color = 4;		// RED for dropped snapshots
-				VectorCopy4(g_color_table[ColorIndex(COLOR_RED)], fadecolor);
+				Vector4Copy(g_color_table[ColorIndex(COLOR_RED)], fadecolor);
 				//fadecolor[3] = (float)((aw - a) / aw);
 				fadecolor[3] = 1.0f;
 				trap_R_SetColor(fadecolor);
@@ -1889,7 +1889,7 @@ static void CG_Draw2D(void)
 		return;
 	}
 
-	VectorSet4(baseTeamColor, cg_hudRed.value, cg_hudGreen.value, cg_hudBlue.value, cg_hudAlpha.value);
+	Vector4Set(baseTeamColor, cg_hudRed.value, cg_hudGreen.value, cg_hudBlue.value, cg_hudAlpha.value);
 
 	redTeamColor[3] = cg_hudAlpha.value;
 	blueTeamColor[3] = cg_hudAlpha.value;

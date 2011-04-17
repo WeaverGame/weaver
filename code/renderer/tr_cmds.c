@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2006-2008 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2011 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -61,9 +61,17 @@ void R_PerformanceCounters(void)
 				  tr.pc.c_CHCTime,
 				  backEnd.pc.c_vboVertexBuffers, backEnd.pc.c_vboIndexBuffers,
 				  backEnd.pc.c_vboVertexes, backEnd.pc.c_vboIndexes / 3);
+
+		ri.Printf(PRINT_ALL, "%i multidraws %i primitives %i tris\n",
+				  backEnd.pc.c_multiDrawElements,
+				  backEnd.pc.c_multiDrawPrimitives,
+				  backEnd.pc.c_multiVboIndexes / 3);
 	}
 	else if(r_speeds->integer == 2)
 	{
+		ri.Printf(PRINT_ALL, "(gen) %i sin %i sout %i pin %i pout\n",
+				  tr.pc.c_sphere_cull_in, tr.pc.c_sphere_cull_out, tr.pc.c_plane_cull_in, tr.pc.c_plane_cull_out);
+
 		ri.Printf(PRINT_ALL, "(patch) %i sin %i sclip %i sout %i bin %i bclip %i bout\n",
 				  tr.pc.c_sphere_cull_patch_in, tr.pc.c_sphere_cull_patch_clip,
 				  tr.pc.c_sphere_cull_patch_out, tr.pc.c_box_cull_patch_in,
@@ -95,25 +103,30 @@ void R_PerformanceCounters(void)
 	}
 	else if(r_speeds->integer == 6)
 	{
-		ri.Printf(PRINT_ALL, "flare adds:%i tests:%i renders:%i\n",
-				  backEnd.pc.c_flareAdds, backEnd.pc.c_flareTests, backEnd.pc.c_flareRenders);
+		ri.Printf(PRINT_ALL, "fog srf:%i batches:%i\n", backEnd.pc.c_fogSurfaces, backEnd.pc.c_fogBatches);
 	}
 	else if(r_speeds->integer == 7)
 	{
-		ri.Printf(PRINT_ALL, "occlusion queries:%i multi:%i saved:%i culled lights:%i culled leafs:%i response time:%i fetch time:%i\n",
+		ri.Printf(PRINT_ALL, "flare adds:%i tests:%i renders:%i\n",
+				  backEnd.pc.c_flareAdds, backEnd.pc.c_flareTests, backEnd.pc.c_flareRenders);
+	}
+	else if(r_speeds->integer == 8)
+	{
+		ri.Printf(PRINT_ALL, "occlusion queries:%i multi:%i saved:%i culled lights:%i culled entities:%i culled leafs:%i response time:%i fetch time:%i\n",
 				  backEnd.pc.c_occlusionQueries,
 				  backEnd.pc.c_occlusionQueriesMulti,
 				  backEnd.pc.c_occlusionQueriesSaved,
 				  backEnd.pc.c_occlusionQueriesLightsCulled,
+				  backEnd.pc.c_occlusionQueriesEntitiesCulled,
 				  backEnd.pc.c_occlusionQueriesLeafsCulled,
 				  backEnd.pc.c_occlusionQueriesResponseTime,
 				  backEnd.pc.c_occlusionQueriesFetchTime);
 	}
-	else if(r_speeds->integer == 8)
+	else if(r_speeds->integer == 9)
 	{
 		ri.Printf(PRINT_ALL, "depth bounds tests:%i rejected:%i\n", tr.pc.c_depthBoundsTests, tr.pc.c_depthBoundsTestsRejected);
 	}
-	else if(r_speeds->integer == 9)
+	else if(r_speeds->integer == 10)
 	{
 		if(DS_STANDARD_ENABLED())
 			ri.Printf(PRINT_ALL, "deferred shading times: g-buffer:%i lighting:%i\n", backEnd.pc.c_deferredGBufferTime,
@@ -126,7 +139,7 @@ void R_PerformanceCounters(void)
 			ri.Printf(PRINT_ALL, "forward shading times: ambient:%i lighting:%i\n", backEnd.pc.c_forwardAmbientTime,
 					  backEnd.pc.c_forwardLightingTime);
 	}
-	else if(r_speeds->integer == 10)
+	else if(r_speeds->integer == 11)
 	{
 		ri.Printf(PRINT_ALL, "%i CHC++ ms %i queries %i multi queries %i saved\n",
 						  tr.pc.c_CHCTime,
@@ -134,9 +147,15 @@ void R_PerformanceCounters(void)
 						  tr.pc.c_occlusionQueriesMulti,
 						  tr.pc.c_occlusionQueriesSaved);
 	}
-	else if(r_speeds->integer == 11)
+	else if(r_speeds->integer == 12)
 	{
 		ri.Printf(PRINT_ALL, "zNear: %.0f zFar: %.0f\n", tr.viewParms.zNear, tr.viewParms.zFar);
+	}
+	else if(r_speeds->integer == 13)
+	{
+		ri.Printf(PRINT_ALL, "decal projectors: %d test surfs: %d clip surfs: %d decal surfs: %d created: %d\n",
+				  tr.pc.c_decalProjectors, tr.pc.c_decalTestSurfaces, tr.pc.c_decalClipSurfaces, tr.pc.c_decalSurfaces,
+				  tr.pc.c_decalSurfacesCreated);
 	}
 
 	Com_Memset(&tr.pc, 0, sizeof(tr.pc));
@@ -391,6 +410,37 @@ void RE_StretchPic(float x, float y, float w, float h, float s1, float t1, float
 	cmd->t2 = t2;
 }
 
+/*
+=============
+RE_2DPolyies
+=============
+*/
+extern int      r_numPolyVerts;
+
+void RE_2DPolyies(polyVert_t * verts, int numverts, qhandle_t hShader)
+{
+	poly2dCommand_t *cmd;
+
+	if(r_numPolyVerts + numverts > r_maxPolyVerts->integer)
+	{
+		return;
+	}
+
+	cmd = R_GetCommandBuffer(sizeof(*cmd));
+	if(!cmd)
+	{
+		return;
+	}
+
+	cmd->commandId = RC_2DPOLYS;
+	cmd->verts = &backEndData[tr.smpFrame]->polyVerts[r_numPolyVerts];
+	cmd->numverts = numverts;
+	memcpy(cmd->verts, verts, sizeof(polyVert_t) * numverts);
+	cmd->shader = R_GetShaderByHandle(hShader);
+
+	r_numPolyVerts += numverts;
+}
+
 
 /*
 =============
@@ -428,6 +478,112 @@ void RE_RotatedPic(float x, float y, float w, float h, float s1, float t1, float
 	cmd->t2 = t2;
 }
 
+//----(SA)  added
+/*
+==============
+RE_StretchPicGradient
+==============
+*/
+void RE_StretchPicGradient(float x, float y, float w, float h,
+						   float s1, float t1, float s2, float t2, qhandle_t hShader, const float *gradientColor,
+						   int gradientType)
+{
+	stretchPicCommand_t *cmd;
+
+	cmd = R_GetCommandBuffer(sizeof(*cmd));
+	if(!cmd)
+	{
+		return;
+	}
+	cmd->commandId = RC_STRETCH_PIC_GRADIENT;
+	cmd->shader = R_GetShaderByHandle(hShader);
+	cmd->x = x;
+	cmd->y = y;
+	cmd->w = w;
+	cmd->h = h;
+	cmd->s1 = s1;
+	cmd->t1 = t1;
+	cmd->s2 = s2;
+	cmd->t2 = t2;
+
+	if(!gradientColor)
+	{
+		static float    colorWhite[4] = { 1, 1, 1, 1 };
+
+		gradientColor = colorWhite;
+	}
+
+	cmd->gradientColor[0] = gradientColor[0] * 255;
+	cmd->gradientColor[1] = gradientColor[1] * 255;
+	cmd->gradientColor[2] = gradientColor[2] * 255;
+	cmd->gradientColor[3] = gradientColor[3] * 255;
+	cmd->gradientType = gradientType;
+}
+
+//----(SA)  end
+
+/*
+====================
+RE_SetGlobalFog
+	rgb = colour
+	depthForOpaque is depth for opaque
+
+	the restore flag can be used to restore the original level fog
+	duration can be set to fade over a certain period
+====================
+*/
+void RE_SetGlobalFog(qboolean restore, int duration, float r, float g, float b, float depthForOpaque)
+{
+#if 0
+	if(restore)
+	{
+		if(duration > 0)
+		{
+			VectorCopy(tr.world->fogs[tr.world->globalFog].shader->fogParms.color, tr.world->globalTransStartFog);
+			tr.world->globalTransStartFog[3] = tr.world->fogs[tr.world->globalFog].shader->fogParms.depthForOpaque;
+
+			Vector4Copy(tr.world->globalOriginalFog, tr.world->globalTransEndFog);
+
+			tr.world->globalFogTransStartTime = tr.refdef.time;
+			tr.world->globalFogTransEndTime = tr.refdef.time + duration;
+		}
+		else
+		{
+			VectorCopy(tr.world->globalOriginalFog, tr.world->fogs[tr.world->globalFog].shader->fogParms.color);
+			tr.world->fogs[tr.world->globalFog].shader->fogParms.colorInt =
+				ColorBytes4(tr.world->globalOriginalFog[0] * tr.identityLight, tr.world->globalOriginalFog[1] * tr.identityLight,
+							tr.world->globalOriginalFog[2] * tr.identityLight, 1.0);
+			tr.world->fogs[tr.world->globalFog].shader->fogParms.depthForOpaque = tr.world->globalOriginalFog[3];
+			tr.world->fogs[tr.world->globalFog].shader->fogParms.tcScale =
+				1.0f / (tr.world->fogs[tr.world->globalFog].shader->fogParms.depthForOpaque);
+		}
+	}
+	else
+	{
+		if(duration > 0)
+		{
+			VectorCopy(tr.world->fogs[tr.world->globalFog].shader->fogParms.color, tr.world->globalTransStartFog);
+			tr.world->globalTransStartFog[3] = tr.world->fogs[tr.world->globalFog].shader->fogParms.depthForOpaque;
+
+			VectorSet(tr.world->globalTransEndFog, r, g, b);
+			tr.world->globalTransEndFog[3] = depthForOpaque < 1 ? 1 : depthForOpaque;
+
+			tr.world->globalFogTransStartTime = tr.refdef.time;
+			tr.world->globalFogTransEndTime = tr.refdef.time + duration;
+		}
+		else
+		{
+			VectorSet(tr.world->fogs[tr.world->globalFog].shader->fogParms.color, r, g, b);
+			tr.world->fogs[tr.world->globalFog].shader->fogParms.colorInt = ColorBytes4(r * tr.identityLight,
+																						g * tr.identityLight,
+																						b * tr.identityLight, 1.0);
+			tr.world->fogs[tr.world->globalFog].shader->fogParms.depthForOpaque = depthForOpaque < 1 ? 1 : depthForOpaque;
+			tr.world->fogs[tr.world->globalFog].shader->fogParms.tcScale =
+				1.0f / (tr.world->fogs[tr.world->globalFog].shader->fogParms.depthForOpaque);
+		}
+	}
+#endif
+}
 
 /*
 ====================
@@ -477,7 +633,7 @@ void RE_BeginFrame(stereoFrame_t stereoFrame)
 			ri.Cvar_Set("r_measureOverdraw", "0");
 			r_measureOverdraw->modified = qfalse;
 		}
-		else if(r_shadows->integer == 3)
+		else if(r_shadows->integer == SHADOWING_STENCIL)
 		{
 			ri.Printf(PRINT_ALL, "Warning: stencil shadows and overdraw measurement are mutually exclusive\n");
 			ri.Cvar_Set("r_measureOverdraw", "0");
@@ -486,11 +642,11 @@ void RE_BeginFrame(stereoFrame_t stereoFrame)
 		else
 		{
 			R_SyncRenderThread();
-			qglEnable(GL_STENCIL_TEST);
-			qglStencilMask(~0U);
+			glEnable(GL_STENCIL_TEST);
+			glStencilMask(~0U);
 			GL_ClearStencil(0U);
-			qglStencilFunc(GL_ALWAYS, 0U, ~0U);
-			qglStencilOp(GL_KEEP, GL_INCR, GL_INCR);
+			glStencilFunc(GL_ALWAYS, 0U, ~0U);
+			glStencilOp(GL_KEEP, GL_INCR, GL_INCR);
 		}
 		r_measureOverdraw->modified = qfalse;
 	}
@@ -500,7 +656,7 @@ void RE_BeginFrame(stereoFrame_t stereoFrame)
 		if(r_measureOverdraw->modified)
 		{
 			R_SyncRenderThread();
-			qglDisable(GL_STENCIL_TEST);
+			glDisable(GL_STENCIL_TEST);
 		}
 		r_measureOverdraw->modified = qfalse;
 	}
@@ -530,7 +686,7 @@ void RE_BeginFrame(stereoFrame_t stereoFrame)
 
 		R_SyncRenderThread();
 
-		if((err = qglGetError()) != GL_NO_ERROR)
+		if((err = glGetError()) != GL_NO_ERROR)
 		{
 			switch (err)
 			{
@@ -677,4 +833,56 @@ void RE_TakeVideoFrame(int width, int height, byte * captureBuffer, byte * encod
 	cmd->captureBuffer = captureBuffer;
 	cmd->encodeBuffer = encodeBuffer;
 	cmd->motionJpeg = motionJpeg;
+}
+
+//bani
+/*
+==================
+RE_RenderToTexture
+==================
+*/
+void RE_RenderToTexture(int textureid, int x, int y, int w, int h)
+{
+	renderToTextureCommand_t *cmd;
+
+	ri.Printf(PRINT_ALL, S_COLOR_RED "TODO RE_RenderToTexture\n");
+
+#if 0
+	if(textureid > tr.numImages || textureid < 0)
+	{
+		ri.Printf(PRINT_ALL, "Warning: trap_R_RenderToTexture textureid %d out of range.\n", textureid);
+		return;
+	}
+
+	cmd = R_GetCommandBuffer(sizeof(*cmd));
+	if(!cmd)
+	{
+		return;
+	}
+	cmd->commandId = RC_RENDERTOTEXTURE;
+	cmd->image = tr.images[textureid];
+	cmd->x = x;
+	cmd->y = y;
+	cmd->w = w;
+	cmd->h = h;
+#endif
+}
+
+/*
+==================
+RE_Finish
+==================
+*/
+void RE_Finish(void)
+{
+	renderFinishCommand_t *cmd;
+
+	ri.Printf(PRINT_ALL, "RE_Finish\n");
+
+	cmd = R_GetCommandBuffer(sizeof(*cmd));
+	if(!cmd)
+	{
+		return;
+	}
+	cmd->commandId = RC_FINISH;
 }

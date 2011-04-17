@@ -20,38 +20,52 @@ along with XreaL source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-//
+
 #ifndef __TR_TYPES_H
 #define __TR_TYPES_H
 
 
+// XreaL BEGIN
 #define	MAX_REF_LIGHTS		1024
 #define	MAX_REF_ENTITIES	1023	// can't be increased without changing drawsurf bit packing
-#define MAX_BONES      	 	120
-#define MAX_WEIGHTS			4	// GPU vertex skinning limit, never change this without rewriting many GLSL shaders
+#define MAX_BONES			128		// RB: same as MDX_MAX_BONES
+#define MAX_WEIGHTS			4		// GPU vertex skinning limit, never change this without rewriting many GLSL shaders
+// XreaL END
+
 
 // renderfx flags
-#define	RF_MINLIGHT			1	// allways have some light (viewmodel, some items)
-#define	RF_THIRD_PERSON		2	// don't draw through eyes, only mirrors (player bodies, chat sprites)
-#define	RF_FIRST_PERSON		4	// only draw through eyes (view weapon, damage blood blob)
-#define	RF_DEPTHHACK		8	// for view weapon Z crunching
-#define	RF_NOSHADOW			64	// don't add stencil shadows
+#define	RF_MINLIGHT			0x00000001	// allways have some light (viewmodel, some items)
+#define	RF_THIRD_PERSON		0x00000002	// don't draw through eyes, only mirrors (player bodies, chat sprites)
+#define	RF_FIRST_PERSON		0x00000004	// only draw through eyes (view weapon, damage blood blob)
+#define	RF_DEPTHHACK		0x00000008	// for view weapon Z crunching
+#define	RF_NOSHADOW			0x00000010	// don't add stencil shadows
 
-#define RF_LIGHTING_ORIGIN	128	// use refEntity->lightingOrigin instead of refEntity->origin
-									// for lighting.  This allows entities to sink into the floor
-									// with their origin going solid, and allows all parts of a
-									// player to get the same lighting
-#define	RF_SHADOW_PLANE		256	// use refEntity->shadowPlane
-#define	RF_WRAP_FRAMES		512	// mod the model frames by the maxframes to allow continuous
-									// animation without needing to know the frame count
+#define RF_LIGHTING_ORIGIN	0x00000020	// use refEntity->lightingOrigin instead of refEntity->origin
+											// for lighting.  This allows entities to sink into the floor
+											// with their origin going solid, and allows all parts of a
+											// player to get the same lighting
+#define	RF_SHADOW_PLANE		0x00000040	// use refEntity->shadowPlane
+#define	RF_WRAP_FRAMES		0x00000080	// mod the model frames by the maxframes to allow continuous
+											// animation without needing to know the frame count
+#define RF_HILIGHT			0x00000100	// more than RF_MINLIGHT.  For when an object is "Highlighted" (looked at/training identification/etc)
+#define RF_BLINK			0x00000200	// eyes in 'blink' state
+#define RF_FORCENOLOD		0x00000400
 
 // refdef flags
-#define RDF_NOWORLDMODEL	1	// used for player configuration screen
-#define RDF_NOSHADOWS		2	// force renderer to use faster lighting only path
-#define RDF_HYPERSPACE		4	// teleportation effect
-#define RDF_NOCUBEMAP       8	// don't use cubemaps
-#define RDF_NOBLOOM			16
-#define RDF_UNDERWATER		32	// enable automatic underwater caustics and fog
+#define RDF_NOWORLDMODEL	( 1 << 0 )	// used for player configuration screen
+#define RDF_NOSHADOWS		( 1 << 1 )	// force renderer to use faster lighting only path
+#define RDF_HYPERSPACE		( 1 << 2 )	// teleportation effect
+#define RDF_SKYBOXPORTAL    ( 1 << 3 )
+
+#define RDF_UNDERWATER		( 1 << 4 )	// enable automatic underwater caustics and fog
+#define RDF_DRAWINGSKY		( 1 << 5 )
+#define RDF_SNOOPERVIEW     ( 1 << 6 )
+
+// XreaL BEGIN
+#define RDF_NOCUBEMAP       ( 1 << 7 )	// RB: don't use cubemaps
+#define RDF_NOBLOOM         ( 1 << 8 )	// RB: disable bloom. useful for hud models
+// XreaL END
+
 
 typedef struct
 {
@@ -63,7 +77,7 @@ typedef struct
 typedef struct poly_s
 {
 	qhandle_t       hShader;
-	short           numVerts;
+	int             numVerts;
 	polyVert_t     *verts;
 } poly_t;
 
@@ -72,8 +86,10 @@ typedef enum
 	RT_MODEL,
 	RT_POLY,
 	RT_SPRITE,
+	RT_SPLASH,					// ripple effect
 	RT_BEAM,
 	RT_RAIL_CORE,
+	RT_RAIL_CORE_TAPER,			// a modified core that creates a properly texture mapped core that's wider at one end
 	RT_RAIL_RINGS,
 	RT_LIGHTNING,
 	RT_PORTALSURFACE,			// doesn't draw anything, just info for portals
@@ -81,12 +97,22 @@ typedef enum
 	RT_MAX_REF_ENTITY_TYPE
 } refEntityType_t;
 
+// XreaL BEGIN
 
-// Tr3B: having bone names for each refEntity_t takes several MiBs
+#define USE_REFLIGHT 1
+
+// RB: defining any of the following macros would break the compatibility to old ET mods
+#define USE_REFENTITY_ANIMATIONSYSTEM 1
+#define USE_REFENTITY_NOSHADOWID 1
+
+
+// RB: having bone names for each refEntity_t takes several MiBs
 // in backEndData_t so only use it for debugging and development
 // enabling this will show the bone names with r_showSkeleton 1
+
 #define REFBONE_NAMES 1
 
+#if defined(USE_REFENTITY_ANIMATIONSYSTEM)
 typedef struct
 {
 #if defined(REFBONE_NAMES)
@@ -114,6 +140,9 @@ typedef struct
 	vec3_t          bounds[2];	// bounds of all applied animations
 	vec3_t          scale;
 } refSkeleton_t;
+#endif
+
+// XreaL END
 
 typedef struct
 {
@@ -150,15 +179,41 @@ typedef struct
 	float           radius;
 	float           rotation;
 
+	// Ridah
+	vec3_t          fireRiseDir;
+
+	// Ridah, entity fading (gibs, debris, etc)
+	int             fadeStartTime, fadeEndTime;
+
+	float           hilightIntensity;	//----(SA)  added
+
+	int             reFlags;
+
+	int             entityNum;	// currentState.number, so we can attach rendering effects to specific entities (Zombie)
+
+
+
+// XreaL BEGIN
+
+#if defined(USE_REFENTITY_ANIMATIONSYSTEM)
 	// extra animation information
 	refSkeleton_t   skeleton;
+#endif
 
+#if defined(USE_REFENTITY_NOSHADOWID)
 	// extra light interaction information
 	short           noShadowID;
+#endif
+
+// XreaL END
+
 } refEntity_t;
 
 
+// ================================================================================================
 
+
+// XreaL BEGIN
 
 typedef enum
 {
@@ -199,6 +254,8 @@ typedef struct
 	qboolean        inverseShadows;	// don't cast light and draw shadows by darken the scene
 	// this is useful for drawing player shadows with shadow mapping
 } refLight_t;
+
+// XreaL END
 
 
 #define	MAX_RENDER_STRINGS			8
@@ -242,22 +299,29 @@ typedef enum
 typedef enum
 {
 	TC_NONE,
-	TC_S3TC
+	TC_S3TC,
+	TC_EXT_COMP_S3TC
 } textureCompression_t;
 
 typedef enum
 {
 	GLDRV_DEFAULT,				// old OpenGL system
+// XreaL BEGIN
 	GLDRV_OPENGL3,				// new driver system
 	GLDRV_MESA,					// crap
+// XreaL END
+
 } glDriverType_t;
 
 typedef enum
 {
 	GLHW_GENERIC,				// where everthing works the way it should
+// XreaL BEGIN
 	GLHW_ATI,					// where you don't have proper GLSL support
 	GLHW_ATI_DX10,				// ATI Radeon HD series DX10 hardware
-	GLHW_NV_DX10,				// Geforce 8/9 class DX10 hardware
+	GLHW_NV_DX10				// Geforce 8/9 class DX10 hardware
+// XreaL END
+
 } glHardwareType_t;
 
 typedef struct
@@ -268,7 +332,7 @@ typedef struct
 	char            extensions_string[BIG_INFO_STRING];
 
 	int             maxTextureSize;	// queried from GL
-	int             maxTextureUnits;	// multitexture ability
+	int             maxActiveTextures;	// multitexture ability
 
 	int             colorBits, depthBits, stencilBits;
 
@@ -277,6 +341,21 @@ typedef struct
 
 	qboolean        deviceSupportsGamma;
 	textureCompression_t textureCompression;
+
+	int             vidWidth, vidHeight;
+	// aspect is the screen's physical width / height, which may be different
+	// than scrWidth / scrHeight if the pixels are non-square
+	// normal screens should be 4/3, but wide aspect monitors may be 16/9
+	float           windowAspect;
+
+	int             displayFrequency;
+
+	// synonymous with "does rendering consume the entire screen?"
+	qboolean        isFullscreen;
+	qboolean        stereoEnabled;
+	qboolean        smpActive;	// dual processor
+
+	// XreaL BEGIN
 	qboolean		ARBTextureCompressionAvailable;
 
 	int             maxCubeMapTextureSize;
@@ -315,19 +394,28 @@ typedef struct
 	qboolean        framebufferMixedFormatsAvailable;
 
 	qboolean        generateMipmapAvailable;
-
-	int             vidWidth, vidHeight;
-	// aspect is the screen's physical width / height, which may be different
-	// than scrWidth / scrHeight if the pixels are non-square
-	// normal screens should be 4/3, but wide aspect monitors may be 16/9
-	float           windowAspect;
-
-	int             displayFrequency;
-
-	// synonymous with "does rendering consume the entire screen?"
-	qboolean        isFullscreen;
-	qboolean        stereoEnabled;
-	qboolean        smpActive;	// dual processor
+	// XreaL END
 } glConfig_t;
+
+
+// =========================================
+// Gordon, these MUST NOT exceed the values for SHADER_MAX_VERTEXES/SHADER_MAX_INDEXES
+#define MAX_PB_VERTS    1025
+#define MAX_PB_INDICIES ( MAX_PB_VERTS * 6 )
+
+typedef struct polyBuffer_s
+{
+	vec4_t          xyz[MAX_PB_VERTS];
+	vec2_t          st[MAX_PB_VERTS];
+	byte            color[MAX_PB_VERTS][4];
+	int             numVerts;
+
+	int             indicies[MAX_PB_INDICIES];
+	int             numIndicies;
+
+	qhandle_t       shader;
+} polyBuffer_t;
+
+// =========================================
 
 #endif							// __TR_TYPES_H

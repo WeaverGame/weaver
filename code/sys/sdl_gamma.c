@@ -49,7 +49,7 @@ void GLimp_SetGamma(unsigned char red[256], unsigned char green[256], unsigned c
 		table[2][i] = (((Uint16) blue[i]) << 8) | blue[i];
 	}
 
-#ifdef _WIN32
+#if 0 //def _WIN32
 #include <windows.h>
 
 	// Win2K and newer put this odd restriction on gamma ramps...

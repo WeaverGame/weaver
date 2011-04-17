@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9.00"
+	Version="9,00"
 	Name="xreal"
 	ProjectGUID="{81CB51C4-B434-4E12-B69B-BAEE102F2852}"
 	RootNamespace="xreal"
@@ -1814,18 +1814,6 @@
 					<File
 						RelativePath=".\speex\sb_celp.c"
 						>
-						<FileConfiguration
-							Name="Debug|Win32"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-								WarningLevel="1"
-							/>
-						</FileConfiguration>
-					</File>
-					<File
-						RelativePath=".\speex\smallft.c"
-						>
 					</File>
 					<File
 						RelativePath=".\speex\speex.c"
@@ -1845,6 +1833,10 @@
 					</File>
 					<File
 						RelativePath=".\speex\speex_lsp.c"
+						>
+					</File>
+					<File
+						RelativePath=".\speex\speex_smallft.c"
 						>
 					</File>
 					<File

@@ -23,11 +23,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 /* contrast_fp.glsl */
 
 uniform sampler2D	u_ColorMap;
-#if defined(r_HDRRendering)
-uniform float		u_HDRKey;
-uniform float		u_HDRAverageLuminance;
-uniform float		u_HDRMaxLuminance;
-#endif
 
 const vec4			LUMINANCE_VECTOR = vec4(0.2125, 0.7154, 0.0721, 0.0);
 
@@ -43,67 +38,6 @@ void	main()
 	
 	// scale by the screen non-power-of-two-adjust
 	st *= r_NPOTScale;
-	
-	
-#if defined(r_HDRRendering)
-
-	vec4 color = texture2D(u_ColorMap, st);
-
-	float Y = dot(LUMINANCE_VECTOR, color);
-
-	float Yr = u_HDRKey * Y / u_HDRAverageLuminance;
-	float Ymax = u_HDRMaxLuminance;
-	
-#if defined(r_HDRToneMappingOperator_0)
-	
-	// simple tone map operator
-	float L = Yr / (1.0 + Yr);
-	
-#elif defined(r_HDRToneMappingOperator_1)
-	
-	float L = 1.0 - exp(-Yr);
-
-#elif defined(r_HDRToneMappingOperator_2)
-
-	float Cmax = color.r;
-	if(color.g > Cmax)
-		Cmax = color.g;
-	if(color.b > Cmax)
-		Cmax = color.b;
-
-	float L = 1.0 - exp(-Yr * Cmax);
-
-	if(Cmax > 0.0)
-	{
-		L = L / Cmax;
-	}
-	else
-	{
-		L = 0.0;
-	}
-
-#elif defined(r_HDRToneMappingOperator_3)
-	
-	float L = Yr / (1.0 + Yr) * (1.0 + Yr / (Ymax * Ymax));
-	
-#else
-	
-	// recommended by Wolgang Engel
-	float L = Yr * (1.0 + Yr / (Ymax * Ymax)) / (1.0 + Yr);
-#endif
-	
-	// adjust contrast
-	L = pow(L, 1.32);
-	
-	float T = max(L - r_HDRContrastThreshold, 0.0);
-	float B = T / (r_HDRContrastOffset + T);
-	
-	color.rgb *= B;
-
-	gl_FragColor = color;
-
-#else
-	// LDR path
 	
 	// calculate contrast color
 #if 0
@@ -127,5 +61,4 @@ void	main()
 	color.rgb *= T;
 	
 	gl_FragColor = color;
-#endif
 }

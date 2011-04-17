@@ -43,13 +43,14 @@ void R_AddBrushModelInteractions(trRefEntity_t * ent, trRefLight_t * light)
 	// and we don't care about proper shadowing
 	if(ent->cull == CULL_OUT)
 	{
-		if(r_shadows->integer <= 2 || light->l.noShadows)
+		if(r_shadows->integer <= SHADOWING_PLANAR || light->l.noShadows)
 			return;
 		else
 			iaType = IA_SHADOWONLY;
 	}
 
 	// avoid drawing of certain objects
+#if defined(USE_REFENTITY_NOSHADOWID)
 	if(light->l.inverseShadows)
 	{
 		if(iaType != IA_LIGHTONLY && (light->l.noShadowID && (light->l.noShadowID != ent->e.noShadowID)))
@@ -60,6 +61,7 @@ void R_AddBrushModelInteractions(trRefEntity_t * ent, trRefLight_t * light)
 		if(iaType != IA_LIGHTONLY && (light->l.noShadowID && (light->l.noShadowID == ent->e.noShadowID)))
 			return;
 	}
+#endif
 
 	pModel = R_GetModelByHandle(ent->e.hModel);
 	bspModel = pModel->bsp;
@@ -153,7 +155,7 @@ LIGHT SAMPLING
 R_SetupEntityLightingGrid
 =================
 */
-static void R_SetupEntityLightingGrid(trRefEntity_t * ent)
+static void R_SetupEntityLightingGrid(trRefEntity_t * ent, vec3_t forcedOrigin)
 {
 	vec3_t          lightOrigin;
 	int             pos[3];
@@ -165,16 +167,23 @@ static void R_SetupEntityLightingGrid(trRefEntity_t * ent)
 	vec3_t          direction;
 	float           totalFactor;
 
-	if(ent->e.renderfx & RF_LIGHTING_ORIGIN)
+	if(forcedOrigin)
 	{
-		// seperate lightOrigins are needed so an object that is
-		// sinking into the ground can still be lit, and so
-		// multi-part models can be lit identically
-		VectorCopy(ent->e.lightingOrigin, lightOrigin);
+		VectorCopy(forcedOrigin, lightOrigin);
 	}
 	else
 	{
-		VectorCopy(ent->e.origin, lightOrigin);
+		if(ent->e.renderfx & RF_LIGHTING_ORIGIN)
+		{
+			// seperate lightOrigins are needed so an object that is
+			// sinking into the ground can still be lit, and so
+			// multi-part models can be lit identically
+			VectorCopy(ent->e.lightingOrigin, lightOrigin);
+		}
+		else
+		{
+			VectorCopy(ent->e.origin, lightOrigin);
+		}
 	}
 
 	VectorSubtract(lightOrigin, tr.world->lightGridOrigin, lightOrigin);
@@ -209,8 +218,6 @@ static void R_SetupEntityLightingGrid(trRefEntity_t * ent)
 	for(i = 0; i < 8; i++)
 	{
 		float           factor;
-		int             lat, lng;
-		vec3_t          normal;
 
 		factor = 1.0;
 		gridPoint2 = gridPoint;
@@ -227,35 +234,22 @@ static void R_SetupEntityLightingGrid(trRefEntity_t * ent)
 			}
 		}
 
-		if(!(gridPoint2->ambient[0] + gridPoint2->ambient[1] + gridPoint2->ambient[2]))
+		if(!(gridPoint2->ambientColor[0] + gridPoint2->ambientColor[1] + gridPoint2->ambientColor[2]))
 		{
 			continue;			// ignore samples in walls
 		}
 
 		totalFactor += factor;
 
-		ent->ambientLight[0] += factor * gridPoint2->ambient[0];
-		ent->ambientLight[1] += factor * gridPoint2->ambient[1];
-		ent->ambientLight[2] += factor * gridPoint2->ambient[2];
+		ent->ambientLight[0] += factor * gridPoint2->ambientColor[0];
+		ent->ambientLight[1] += factor * gridPoint2->ambientColor[1];
+		ent->ambientLight[2] += factor * gridPoint2->ambientColor[2];
 
-		ent->directedLight[0] += factor * gridPoint2->directed[0];
-		ent->directedLight[1] += factor * gridPoint2->directed[1];
-		ent->directedLight[2] += factor * gridPoint2->directed[2];
-
-		lat = gridPoint2->latLong[0];
-		lng = gridPoint2->latLong[1];
-		lat *= (FUNCTABLE_SIZE / 256);
-		lng *= (FUNCTABLE_SIZE / 256);
-
-		// decode X as cos( lat ) * sin( long )
-		// decode Y as sin( lat ) * sin( long )
-		// decode Z as cos( long )
-
-		normal[0] = tr.sinTable[(lat + (FUNCTABLE_SIZE / 4)) & FUNCTABLE_MASK] * tr.sinTable[lng];
-		normal[1] = tr.sinTable[lat] * tr.sinTable[lng];
-		normal[2] = tr.sinTable[(lng + (FUNCTABLE_SIZE / 4)) & FUNCTABLE_MASK];
-
-		VectorMA(direction, factor, normal, direction);
+		ent->directedLight[0] += factor * gridPoint2->directedColor[0];
+		ent->directedLight[1] += factor * gridPoint2->directedColor[1];
+		ent->directedLight[2] += factor * gridPoint2->directedColor[2];
+		
+		VectorMA(direction, factor, gridPoint2->direction, direction);
 	}
 
 #if 1
@@ -275,6 +269,18 @@ static void R_SetupEntityLightingGrid(trRefEntity_t * ent)
 		ent->ambientLight[1] = r_forceAmbient->value;
 		ent->ambientLight[2] = r_forceAmbient->value;
 	}
+
+//----(SA)  added
+	// cheats?  check for single player?
+	if(tr.lightGridMulDirected)
+	{
+		VectorScale(ent->directedLight, tr.lightGridMulDirected, ent->directedLight);
+	}
+	if(tr.lightGridMulAmbient)
+	{
+		VectorScale(ent->ambientLight, tr.lightGridMulAmbient, ent->ambientLight);
+	}
+//----(SA)  end
 }
 
 
@@ -323,11 +329,11 @@ Calculates all the lighting values that will be used
 by the Calc_* functions
 =================
 */
-void R_SetupEntityLighting(const trRefdef_t * refdef, trRefEntity_t * ent)
+void R_SetupEntityLighting(const trRefdef_t * refdef, trRefEntity_t * ent, vec3_t forcedOrigin)
 {
-	vec3_t          lightDir;
-	vec3_t          lightOrigin;
-	float           d;
+	//vec3_t          lightDir;
+	//vec3_t          lightOrigin;
+	//float           d;
 
 	// lighting calculations
 	if(ent->lightingCalculated)
@@ -336,26 +342,36 @@ void R_SetupEntityLighting(const trRefdef_t * refdef, trRefEntity_t * ent)
 	}
 	ent->lightingCalculated = qtrue;
 
-	// trace a sample point down to find ambient light
-	if(ent->e.renderfx & RF_LIGHTING_ORIGIN)
+	/*
+	if(forcedOrigin)
 	{
-		// seperate lightOrigins are needed so an object that is
-		// sinking into the ground can still be lit, and so
-		// multi-part models can be lit identically
-		VectorCopy(ent->e.lightingOrigin, lightOrigin);
+		VectorCopy(forcedOrigin, lightOrigin);
 	}
 	else
 	{
-		VectorCopy(ent->e.origin, lightOrigin);
+		// trace a sample point down to find ambient light
+		if(ent->e.renderfx & RF_LIGHTING_ORIGIN)
+		{
+			// seperate lightOrigins are needed so an object that is
+			// sinking into the ground can still be lit, and so
+			// multi-part models can be lit identically
+			VectorCopy(ent->e.lightingOrigin, lightOrigin);
+		}
+		else
+		{
+			VectorCopy(ent->e.origin, lightOrigin);
+		}
 	}
+	*/
 
 	// if NOWORLDMODEL, only use dynamic lights (menu system, etc)
-	if(!(refdef->rdflags & RDF_NOWORLDMODEL) && tr.world->lightGridData)
+	if(!(refdef->rdflags & RDF_NOWORLDMODEL) && tr.world && tr.world->lightGridData)
 	{
-		R_SetupEntityLightingGrid(ent);
+		R_SetupEntityLightingGrid(ent, forcedOrigin);
 	}
 	else
 	{
+#if 0
 		if(!(refdef->rdflags & RDF_NOWORLDMODEL))
 		{
 			ent->ambientLight[0] = tr.worldEntity.ambientLight[0];
@@ -380,11 +396,32 @@ void R_SetupEntityLighting(const trRefdef_t * refdef, trRefEntity_t * ent)
 		{
 			VectorCopy(tr.sunDirection, ent->lightDir);
 		}
+#else
+		//% ent->ambientLight[0] = ent->ambientLight[1] = ent->ambientLight[2] = tr.identityLight * 150;
+		//% ent->directedLight[0] = ent->directedLight[1] = ent->directedLight[2] = tr.identityLight * 150;
+		//% VectorCopy( tr.sunDirection, ent->lightDir );
+		ent->ambientLight[0] = tr.identityLight * (64.0f / 255.0f);
+		ent->ambientLight[1] = tr.identityLight * (64.0f / 255.0f);
+		ent->ambientLight[2] = tr.identityLight * (96.0f / 255.0f);
+
+		ent->directedLight[0] = tr.identityLight * (255.0f / 255.0f);
+		ent->directedLight[1] = tr.identityLight * (232.0f / 255.0f);
+		ent->directedLight[2] = tr.identityLight * (224.0f / 255.0f);
+
+		VectorSet(ent->lightDir, -1, 1, 1.25);
+		VectorNormalize(ent->lightDir);
+#endif
 	}
 
-#if 0
-	// bonus items and view weapons have a fixed minimum add
-	if((ent->e.renderfx & RF_MINLIGHT) && VectorLength(ent->ambientLight) <= 0)
+#if 1
+	if(ent->e.hilightIntensity)
+	{
+		// level of intensity was set because the item was looked at
+		ent->ambientLight[0] += tr.identityLight * 0.5f * ent->e.hilightIntensity;
+		ent->ambientLight[1] += tr.identityLight * 0.5f * ent->e.hilightIntensity;
+		ent->ambientLight[2] += tr.identityLight * 0.5f * ent->e.hilightIntensity;
+	}
+	else if((ent->e.renderfx & RF_MINLIGHT))// && VectorLength(ent->ambientLight) <= 0)
 	{
 		// give everything a minimum light add
 		ent->ambientLight[0] += tr.identityLight * 0.125f;
@@ -404,20 +441,24 @@ void R_SetupEntityLighting(const trRefdef_t * refdef, trRefEntity_t * ent)
 	}
 #endif
 
-	if(r_debugLight->integer)
+	/*
+	if(ent->e.entityNum < MAX_CLIENTS && (refdef->rdflags & RDF_SNOOPERVIEW))
 	{
-		LogLight(ent);
+		VectorSet(ent->ambientLight, 0.96f, 0.96f, 0.96f);	// allow a little room for flicker from directed light
 	}
+	*/
+
+
+	// Tr3B: keep it in world space
 
 	// transform the direction to local space
-	d = VectorLength(ent->directedLight);
-	VectorScale(ent->lightDir, d, lightDir);
-	VectorNormalize(lightDir);
+	//% d = VectorLength(ent->directedLight);
+	//% VectorScale(ent->lightDir, d, lightDir);
+	//% VectorNormalize(lightDir);
 
-	// keep it in world space
-//	ent->lightDir[0] = DotProduct(lightDir, ent->e.axis[0]);
-//	ent->lightDir[1] = DotProduct(lightDir, ent->e.axis[1]);
-//	ent->lightDir[2] = DotProduct(lightDir, ent->e.axis[2]);
+	//% ent->lightDir[0] = DotProduct(lightDir, ent->e.axis[0]);
+	//% ent->lightDir[1] = DotProduct(lightDir, ent->e.axis[1]);
+	//%	ent->lightDir[2] = DotProduct(lightDir, ent->e.axis[2]);
 }
 
 /*
@@ -435,7 +476,7 @@ int R_LightForPoint(vec3_t point, vec3_t ambientLight, vec3_t directedLight, vec
 
 	Com_Memset(&ent, 0, sizeof(ent));
 	VectorCopy(point, ent.e.origin);
-	R_SetupEntityLightingGrid(&ent);
+	R_SetupEntityLightingGrid(&ent, NULL);
 	VectorCopy(ent.ambientLight, ambientLight);
 	VectorCopy(ent.directedLight, directedLight);
 	VectorCopy(ent.lightDir, lightDir);
@@ -733,6 +774,7 @@ void R_SetupLightFrustum(trRefLight_t * light)
 		if(glConfig.smpActive)
 			ri.Error(ERR_FATAL, "R_SetupLightFrustum: FIXME SMP");
 
+		tess.multiDrawPrimitives = 0;
 		tess.numIndexes = 0;
 		tess.numVertexes = 0;
 
@@ -803,25 +845,25 @@ void R_SetupLightFrustum(trRefLight_t * light)
 					// draw outer surfaces
 					for(j = 0; j < 4; j++)
 					{
-						VectorSet4(quadVerts[0], nearCorners[j][0], nearCorners[j][1], nearCorners[j][2], 1);
-						VectorSet4(quadVerts[1], farCorners[j][0], farCorners[j][1], farCorners[j][2], 1);
-						VectorSet4(quadVerts[2], farCorners[(j + 1) % 4][0], farCorners[(j + 1) % 4][1], farCorners[(j + 1) % 4][2], 1);
-						VectorSet4(quadVerts[3], nearCorners[(j + 1) % 4][0], nearCorners[(j + 1) % 4][1], nearCorners[(j + 1) % 4][2], 1);
+						Vector4Set(quadVerts[0], nearCorners[j][0], nearCorners[j][1], nearCorners[j][2], 1);
+						Vector4Set(quadVerts[1], farCorners[j][0], farCorners[j][1], farCorners[j][2], 1);
+						Vector4Set(quadVerts[2], farCorners[(j + 1) % 4][0], farCorners[(j + 1) % 4][1], farCorners[(j + 1) % 4][2], 1);
+						Vector4Set(quadVerts[3], nearCorners[(j + 1) % 4][0], nearCorners[(j + 1) % 4][1], nearCorners[(j + 1) % 4][2], 1);
 						Tess_AddQuadStamp2(quadVerts, colorCyan);
 					}
 
 					// draw far cap
-					VectorSet4(quadVerts[0], farCorners[3][0], farCorners[3][1], farCorners[3][2], 1);
-					VectorSet4(quadVerts[1], farCorners[2][0], farCorners[2][1], farCorners[2][2], 1);
-					VectorSet4(quadVerts[2], farCorners[1][0], farCorners[1][1], farCorners[1][2], 1);
-					VectorSet4(quadVerts[3], farCorners[0][0], farCorners[0][1], farCorners[0][2], 1);
+					Vector4Set(quadVerts[0], farCorners[3][0], farCorners[3][1], farCorners[3][2], 1);
+					Vector4Set(quadVerts[1], farCorners[2][0], farCorners[2][1], farCorners[2][2], 1);
+					Vector4Set(quadVerts[2], farCorners[1][0], farCorners[1][1], farCorners[1][2], 1);
+					Vector4Set(quadVerts[3], farCorners[0][0], farCorners[0][1], farCorners[0][2], 1);
 					Tess_AddQuadStamp2(quadVerts, colorRed);
 
 					// draw near cap
-					VectorSet4(quadVerts[0], nearCorners[0][0], nearCorners[0][1], nearCorners[0][2], 1);
-					VectorSet4(quadVerts[1], nearCorners[1][0], nearCorners[1][1], nearCorners[1][2], 1);
-					VectorSet4(quadVerts[2], nearCorners[2][0], nearCorners[2][1], nearCorners[2][2], 1);
-					VectorSet4(quadVerts[3], nearCorners[3][0], nearCorners[3][1], nearCorners[3][2], 1);
+					Vector4Set(quadVerts[0], nearCorners[0][0], nearCorners[0][1], nearCorners[0][2], 1);
+					Vector4Set(quadVerts[1], nearCorners[1][0], nearCorners[1][1], nearCorners[1][2], 1);
+					Vector4Set(quadVerts[2], nearCorners[2][0], nearCorners[2][1], nearCorners[2][2], 1);
+					Vector4Set(quadVerts[3], nearCorners[3][0], nearCorners[3][1], nearCorners[3][2], 1);
 					Tess_AddQuadStamp2(quadVerts, colorGreen);
 
 				}
@@ -836,25 +878,25 @@ void R_SetupLightFrustum(trRefLight_t * light)
 					for(j = 0; j < 4; j++)
 					{
 						VectorCopy(farCorners[j], tess.xyz[tess.numVertexes]);
-						VectorCopy4(colorCyan, tess.colors[tess.numVertexes]);
+						Vector4Copy(colorCyan, tess.colors[tess.numVertexes]);
 						tess.indexes[tess.numIndexes++] = tess.numVertexes;
 						tess.numVertexes++;
 
 						VectorCopy(farCorners[(j + 1) % 4], tess.xyz[tess.numVertexes]);
-						VectorCopy4(colorCyan, tess.colors[tess.numVertexes]);
+						Vector4Copy(colorCyan, tess.colors[tess.numVertexes]);
 						tess.indexes[tess.numIndexes++] = tess.numVertexes;
 						tess.numVertexes++;
 
 						VectorCopy(top, tess.xyz[tess.numVertexes]);
-						VectorCopy4(colorCyan, tess.colors[tess.numVertexes]);
+						Vector4Copy(colorCyan, tess.colors[tess.numVertexes]);
 						tess.indexes[tess.numIndexes++] = tess.numVertexes;
 						tess.numVertexes++;
 					}
 
-					VectorSet4(quadVerts[0], farCorners[3][0], farCorners[3][1], farCorners[3][2], 1);
-					VectorSet4(quadVerts[1], farCorners[2][0], farCorners[2][1], farCorners[2][2], 1);
-					VectorSet4(quadVerts[2], farCorners[1][0], farCorners[1][1], farCorners[1][2], 1);
-					VectorSet4(quadVerts[3], farCorners[0][0], farCorners[0][1], farCorners[0][2], 1);
+					Vector4Set(quadVerts[0], farCorners[3][0], farCorners[3][1], farCorners[3][2], 1);
+					Vector4Set(quadVerts[1], farCorners[2][0], farCorners[2][1], farCorners[2][2], 1);
+					Vector4Set(quadVerts[2], farCorners[1][0], farCorners[1][1], farCorners[1][2], 1);
+					Vector4Set(quadVerts[3], farCorners[0][0], farCorners[0][1], farCorners[0][2], 1);
 					Tess_AddQuadStamp2(quadVerts, colorRed);
 				}
 
@@ -888,6 +930,7 @@ void R_SetupLightFrustum(trRefLight_t * light)
 				break;
 		}
 
+		tess.multiDrawPrimitives = 0;
 		tess.numIndexes = 0;
 		tess.numVertexes = 0;
 	}
@@ -948,9 +991,9 @@ void R_SetupLightProjection(trRefLight_t * light)
 			VectorScale(right, ( 0.5f * dist ) / rLen, right);
 			VectorScale(up, -( 0.5f * dist ) / uLen, up);
 
-			VectorSet4(lightProject[0], right[0], right[1], right[2], 0);
-			VectorSet4(lightProject[1], up[0], up[1], up[2], 0);
-			VectorSet4(lightProject[2], normal[0], normal[1], normal[2], 0);
+			Vector4Set(lightProject[0], right[0], right[1], right[2], 0);
+			Vector4Set(lightProject[1], up[0], up[1], up[2], 0);
+			Vector4Set(lightProject[2], normal[0], normal[1], normal[2], 0);
 
 			// now offset to center
 			VectorCopy(light->l.projTarget, targetGlobal);
@@ -960,14 +1003,14 @@ void R_SetupLightProjection(trRefLight_t * light)
 				b = DotProduct4(targetGlobal, lightProject[2]);
 				ofs = 0.5 - a / b;
 
-				VectorMA4(lightProject[0], ofs, lightProject[2], lightProject[0]);
+				Vector4MA(lightProject[0], ofs, lightProject[2], lightProject[0]);
 			}
 			{
 				a = DotProduct4(targetGlobal, lightProject[1]);
 				b = DotProduct4(targetGlobal, lightProject[2]);
 				ofs = 0.5 - a / b;
 
-				VectorMA4(lightProject[1], ofs, lightProject[2], lightProject[1]);
+				Vector4MA(lightProject[1], ofs, lightProject[2], lightProject[1]);
 			}
 
 			if(!VectorCompare(light->l.projStart, vec3_origin))
@@ -1000,11 +1043,11 @@ void R_SetupLightProjection(trRefLight_t * light)
 
 			//light->falloffLength = 1;
 
-			VectorSet4(lightProject[3], falloff[0], falloff[1], falloff[2], -DotProduct(start, falloff));
+			Vector4Set(lightProject[3], falloff[0], falloff[1], falloff[2], -DotProduct(start, falloff));
 
 			// we want the planes of s=0, s=q, t=0, and t=q
-			VectorCopy4(lightProject[0], frustum[FRUSTUM_LEFT]);
-			VectorCopy4(lightProject[1], frustum[FRUSTUM_BOTTOM]);
+			Vector4Copy(lightProject[0], frustum[FRUSTUM_LEFT]);
+			Vector4Copy(lightProject[1], frustum[FRUSTUM_BOTTOM]);
 
 			VectorSubtract(lightProject[2], lightProject[0], frustum[FRUSTUM_RIGHT]);
 			frustum[FRUSTUM_RIGHT][3] = lightProject[2][3] - lightProject[0][3];
@@ -1139,7 +1182,7 @@ qboolean R_AddLightInteraction(trRefLight_t * light, surfaceType_t * surface, sh
 #if defined(USE_D3D10)
 	// TODO
 #else
-	if(r_shadows->integer == 3 && qglDepthBoundsEXT)
+	if(r_shadows->integer == SHADOWING_STENCIL && glDepthBoundsEXT)
 	{
 		ia->depthNear = light->depthNear;
 		ia->depthFar = light->depthFar;
@@ -1381,7 +1424,7 @@ void R_SetupLightScissor(trRefLight_t * light)
 	}
 
 #if 0
-	if(r_shadows->integer != 3)
+	if(r_shadows->integer != SHADOWING_STENCIL)
 	{
 		// we don't need it for any other mode ...
 		return;
@@ -1533,7 +1576,7 @@ void R_SetupLightDepthBounds(trRefLight_t * light)
 #if defined(USE_D3D10)
 	// TODO
 #else
-	if(r_shadows->integer == 3 && qglDepthBoundsEXT)
+	if(r_shadows->integer == SHADOWING_STENCIL && glDepthBoundsEXT)
 	{
 		tr.pc.c_depthBoundsTestsRejected++;
 
@@ -1631,7 +1674,7 @@ byte R_CalcLightCubeSideBits(trRefLight_t * light, vec3_t worldBounds[2])
 	return cubeSideBits;
 #endif
 
-	if(light->l.rlType != RL_OMNI || r_shadows->integer < 4 || r_noShadowPyramids->integer)
+	if(light->l.rlType != RL_OMNI || r_shadows->integer < SHADOWING_VSM16 || r_noShadowPyramids->integer)
 		return CUBESIDE_CLIPALL;
 
 	cubeSideBits = 0;

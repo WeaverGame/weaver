@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2006-2009 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2011 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -43,6 +43,7 @@ void	main()
 	// calculate the screen texcoord in the 0.0 to 1.0 range
 	vec2 st = gl_FragCoord.st * r_FBufScale;
 
+#if defined(USE_ALPHA_TESTING)
 	if(u_AlphaTest == ATEST_GT_0 && color0.a <= 0.0)
 	{
 		discard;
@@ -58,6 +59,7 @@ void	main()
 		discard;
 		return;
 	}
+#endif
 	
 	// offset by the scaled normal and clamp it to 0.0 - 1.0
 	st += N.xy * var_Deform;
@@ -82,6 +84,12 @@ void	main()
 		color0 = texture2D(u_CurrentMap, st);
 		color1 = vec4(1.0, 0.0, 0.0, color0.a);
 	}
+	
+#if 0
+	gl_FragColor = texture2D(u_ContrastMap, gl_FragCoord.st * r_FBufScale * r_NPOTScale);
+	return;
+#endif
+	
 #else
 	color0 = texture2D(u_CurrentMap, st);
 #endif

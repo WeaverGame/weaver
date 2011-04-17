@@ -173,6 +173,14 @@ if env['arch'] == 'freebsd-i386':
 	xmap2_env.Append(LIBS=['m', 'pthread', 'GL', 'GLU'])
 	xmap2_env.Program('xmap2', xmap2_src)
 	xmap2_env.InstallAs('#xmap2.i386', 'xmap2')
+
+if env['arch'] == 'freebsd-amd64':
+	xmap2_env.ParseConfig('pkg-config libxml-2.0 --cflags --libs')
+	xmap2_env.ParseConfig('pkg-config glib-2.0 --cflags --libs')
+	xmap2_env.ParseConfig('sdl-config --cflags --libs')
+	xmap2_env.Append(LIBS=['m', 'pthread', 'GL', 'GLU'])
+	xmap2_env.Program('xmap2', xmap2_src)
+	xmap2_env.InstallAs('#xmap2.amd64', 'xmap2')
 	
 if env['arch'] == 'opensolaris-i386':
 	xmap2_env.Append(CCFLAGS='-Usun')

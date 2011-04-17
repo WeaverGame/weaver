@@ -105,12 +105,12 @@ static void CG_DrawProgress(void)
 
 	for(i = 0; i < cg.progress; i++)
 	{
-		VectorCopy4(colorProgress, color);
+		Vector4Copy(colorProgress, color);
 
 		if(i == cg.progress - 1)
 		{
 			style = UI_DROPSHADOW;
-			VectorCopy4(text_color_highlight, color);
+			Vector4Copy(text_color_highlight, color);
 		}
 		else if(cg.progressInfo[i].strong)
 		{

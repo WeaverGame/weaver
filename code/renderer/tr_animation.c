@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2006-2009 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2011 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -33,6 +33,8 @@ orientation of the bone in the base frame to the orientation in this
 frame.
 ===========================================================================
 */
+
+#if defined(USE_REFENTITY_ANIMATIONSYSTEM)
 
 static skelAnimation_t *R_AllocAnimation(void)
 {
@@ -906,6 +908,7 @@ void R_AddMD5Surfaces(trRefEntity_t * ent)
 	shader_t       *shader;
 	int             i;
 	qboolean        personalModel;
+	int				fogNum;
 
 	model = tr.currentModel->md5;
 
@@ -924,10 +927,13 @@ void R_AddMD5Surfaces(trRefEntity_t * ent)
 	R_SetupEntityWorldBounds(ent);
 
 	// set up lighting now that we know we aren't culled
-	if(!personalModel || r_shadows->integer > 1)
+	if(!personalModel || r_shadows->integer > SHADOWING_BLOB)
 	{
-		R_SetupEntityLighting(&tr.refdef, ent);
+		R_SetupEntityLighting(&tr.refdef, ent, NULL);
 	}
+
+	// see if we are in a fog volume
+	fogNum = R_FogWorldBox(ent->worldBounds);
 
 	if(!r_vboModels->integer || !model->numVBOSurfaces ||
 	   (!glConfig.vboVertexSkinningAvailable && ent->e.skeleton.type == SK_ABSOLUTE))
@@ -970,15 +976,15 @@ void R_AddMD5Surfaces(trRefEntity_t * ent)
 			// we will add shadows even if the main object isn't visible in the view
 
 			// projection shadows work fine with personal models
-			if(r_shadows->integer == 2 && (ent->e.renderfx & RF_SHADOW_PLANE) && shader->sort == SS_OPAQUE)
+			if(r_shadows->integer == SHADOWING_PLANAR && (ent->e.renderfx & RF_SHADOW_PLANE) && shader->sort == SS_OPAQUE)
 			{
-				R_AddDrawSurf((void *)surface, tr.projectionShadowShader, -1);
+				R_AddDrawSurf((void *)surface, tr.projectionShadowShader, -1, 0);
 			}
 
 			// don't add third_person objects if not viewing through a portal
 			if(!personalModel)
 			{
-				R_AddDrawSurf((void *)surface, shader, -1);
+				R_AddDrawSurf((void *)surface, shader, -1, fogNum);
 			}
 		}
 	}
@@ -1029,7 +1035,7 @@ void R_AddMD5Surfaces(trRefEntity_t * ent)
 			// don't add third_person objects if not viewing through a portal
 			if(!personalModel)
 			{
-				R_AddDrawSurf((void *)vboSurface, shader, -1);
+				R_AddDrawSurf((void *)vboSurface, shader, -1, fogNum);
 			}
 		}
 	}
@@ -1054,13 +1060,14 @@ void R_AddMD5Interactions(trRefEntity_t * ent, trRefLight_t * light)
 	// is outside the view frustum and we don't care about proper shadowing
 	if(ent->cull == CULL_OUT)
 	{
-		if(r_shadows->integer <= 2 || light->l.noShadows)
+		if(r_shadows->integer <= SHADOWING_PLANAR || light->l.noShadows)
 			return;
 		else
 			iaType = IA_SHADOWONLY;
 	}
 
 	// avoid drawing of certain objects
+#if defined(USE_REFENTITY_NOSHADOWID)
 	if(light->l.inverseShadows)
 	{
 		if(iaType != IA_LIGHTONLY && (light->l.noShadowID && (light->l.noShadowID != ent->e.noShadowID)))
@@ -1071,6 +1078,7 @@ void R_AddMD5Interactions(trRefEntity_t * ent, trRefLight_t * light)
 		if(iaType != IA_LIGHTONLY && (light->l.noShadowID && (light->l.noShadowID == ent->e.noShadowID)))
 			return;
 	}
+#endif
 
 	// don't add third_person objects if not in a portal
 	personalModel = (ent->e.renderfx & RF_THIRD_PERSON) && !tr.viewParms.isPortal;
@@ -1632,3 +1640,6 @@ int RE_AnimFrameRate(qhandle_t hAnim)
 
 	return 0;
 }
+
+
+#endif

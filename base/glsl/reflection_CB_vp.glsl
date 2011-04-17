@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2006-2008 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2011 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -27,6 +27,12 @@ attribute vec4		attr_TexCoord0;
 attribute vec3		attr_Tangent;
 attribute vec3		attr_Binormal;
 attribute vec3		attr_Normal;
+
+attribute vec4		attr_Position2;
+attribute vec3		attr_Tangent2;
+attribute vec3		attr_Binormal2;
+attribute vec3		attr_Normal2;
+
 #if defined(r_VertexSkinning)
 attribute vec4		attr_BoneIndexes;
 attribute vec4		attr_BoneWeights;
@@ -34,9 +40,12 @@ uniform int			u_VertexSkinning;
 uniform mat4		u_BoneMatrix[MAX_GLSL_BONES];
 #endif
 
+uniform float		u_VertexInterpolation;
 uniform mat4		u_NormalTextureMatrix;
 uniform mat4		u_ModelMatrix;
 uniform mat4		u_ModelViewProjectionMatrix;
+
+uniform float		u_Time;
 
 varying vec3		var_Position;
 varying vec2		var_TexNormal;
@@ -46,13 +55,14 @@ varying vec4		var_Normal;
 
 void	main()
 {
-#if defined(r_VertexSkinning)
-	if(bool(u_VertexSkinning))
+	vec4 position;
+	vec3 tangent = vec3(0.0);
+	vec3 binormal = vec3(0.0);
+	vec3 normal = vec3(0.0);
+
+#if defined(USE_VERTEX_SKINNING)
 	{
-		vec4 vertex = vec4(0.0);
-		vec3 tangent = vec3(0.0);
-		vec3 binormal = vec3(0.0);
-		vec3 normal = vec3(0.0);
+		position = vec4(0.0);
 
 		for(int i = 0; i < 4; i++)
 		{
@@ -60,38 +70,82 @@ void	main()
 			float boneWeight = attr_BoneWeights[i];
 			mat4  boneMatrix = u_BoneMatrix[boneIndex];
 			
-			vertex += (boneMatrix * attr_Position) * boneWeight;
-		
+			position += (boneMatrix * attr_Position) * boneWeight;
+			
+			#if defined(USE_NORMAL_MAPPING)
 			tangent += (boneMatrix * vec4(attr_Tangent, 0.0)).xyz * boneWeight;
 			binormal += (boneMatrix * vec4(attr_Binormal, 0.0)).xyz * boneWeight;
+			#endif
+			
 			normal += (boneMatrix * vec4(attr_Normal, 0.0)).xyz * boneWeight;
 		}
-
-		// transform vertex position into homogenous clip-space
-		gl_Position = u_ModelViewProjectionMatrix * vertex;
-		
-		// transform position into world space
-		var_Position = (u_ModelMatrix * vertex).xyz;
-		
-		var_Tangent.xyz = (u_ModelMatrix * vec4(tangent, 0.0)).xyz;
-		var_Binormal.xyz = (u_ModelMatrix * vec4(binormal, 0.0)).xyz;
-		var_Normal.xyz = (u_ModelMatrix * vec4(normal, 0.0)).xyz;
 	}
-	else
-#endif
+#elif defined(USE_VERTEX_ANIMATION)
 	{
-		// transform vertex position into homogenous clip-space
-		gl_Position = u_ModelViewProjectionMatrix * attr_Position;
-		
-		// transform position into world space
-		var_Position = (u_ModelMatrix * attr_Position).xyz;
-	
-		var_Tangent.xyz = (u_ModelMatrix * vec4(attr_Tangent, 0.0)).xyz;
-		var_Binormal.xyz = (u_ModelMatrix * vec4(attr_Binormal, 0.0)).xyz;
-		var_Normal.xyz = (u_ModelMatrix * vec4(attr_Normal, 0.0)).xyz;
+		if(u_VertexInterpolation > 0.0)
+		{
+			#if defined(USE_NORMAL_MAPPING)
+			VertexAnimation_P_TBN(	attr_Position, attr_Position2,
+									attr_Tangent, attr_Tangent2,
+									attr_Binormal, attr_Binormal2,
+									attr_Normal, attr_Normal2,
+									u_VertexInterpolation,
+									position, tangent, binormal, normal);
+			#else
+			VertexAnimation_P_N(attr_Position, attr_Position2,
+								attr_Normal, attr_Normal2,
+								u_VertexInterpolation,
+								position, normal);
+			#endif
+		}
+		else
+		{
+			position = attr_Position;
+			
+			#if defined(USE_NORMAL_MAPPING)
+			tangent = attr_Tangent;
+			binormal = attr_Binormal;
+			#endif
+			
+			normal = attr_Normal;
+		}
 	}
+#else
+	{
+		position = attr_Position;
+		
+		#if defined(USE_NORMAL_MAPPING)
+		tangent = attr_Tangent;
+		binormal = attr_Binormal;
+		#endif
+		
+		normal = attr_Normal;
+	}
+#endif
+
+#if defined(USE_DEFORM_VERTEXES)
+	position = DeformPosition2(	position,
+								normal,
+								attr_TexCoord0.st,
+								u_Time);
+#endif
+
+	// transform vertex position into homogenous clip-space
+	gl_Position = u_ModelViewProjectionMatrix * position;
 	
+	// transform position into world space
+	var_Position = (u_ModelMatrix * position).xyz;
+
+	#if defined(USE_NORMAL_MAPPING)
+	var_Tangent.xyz = (u_ModelMatrix * vec4(tangent, 0.0)).xyz;
+	var_Binormal.xyz = (u_ModelMatrix * vec4(binormal, 0.0)).xyz;
+	#endif
+	
+	var_Normal.xyz = (u_ModelMatrix * vec4(normal, 0.0)).xyz;
+	
+#if defined(USE_NORMAL_MAPPING)
 	// transform normalmap texcoords
 	var_TexNormal = (u_NormalTextureMatrix * attr_TexCoord0).st;
+#endif
 }
 

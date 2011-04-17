@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2006-2008 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2011 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -35,14 +35,13 @@ varying vec4		var_Normal;
 
 void	main()
 {
-	vec3 I, N, R;
-	vec4 reflectColor;
-
 	// compute incident ray in world space
-	I = normalize(var_Position - u_ViewOrigin);
+	vec3 I = normalize(var_Position - u_ViewOrigin);
 	
+
+#if defined(USE_NORMAL_MAPPING)
 	// compute normal in tangent space from normalmap
-	N = 2.0 * (texture2D(u_NormalMap, var_TexNormal.st).xyz - 0.5);
+	vec3 N = 2.0 * (texture2D(u_NormalMap, var_TexNormal.st).xyz - 0.5);
 	#if defined(r_NormalScale)
 	N.z *= r_NormalScale;
 	normalize(N);
@@ -50,22 +49,24 @@ void	main()
 		
 	// invert tangent space for twosided surfaces
 	mat3 tangentToWorldMatrix;
+#if defined(TWOSIDED)
 	if(gl_FrontFacing)
 		tangentToWorldMatrix = mat3(-var_Tangent.xyz, -var_Binormal.xyz, -var_Normal.xyz);
 	else
+#endif
 		tangentToWorldMatrix = mat3(var_Tangent.xyz, var_Binormal.xyz, var_Normal.xyz);
 	
 	// transform normal into world space
 	N = tangentToWorldMatrix * N;
+
+#else
+
+	vec3 N = normalize(var_Normal.xyz);
+#endif
 	
 	// compute reflection ray
-	R = reflect(I, N);
+	vec3 R = reflect(I, N);
 	
-	// compute reflection color
-	reflectColor = textureCube(u_ColorMap, R).rgba;
-
-	// compute final color
-	vec4 color = reflectColor;
-	
-	gl_FragColor = color;
+	gl_FragColor = textureCube(u_ColorMap, R).rgba;
+	// gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
 }

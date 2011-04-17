@@ -2,7 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2006 Tim Angus
-Copyright (C) 2006-2008 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2011 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -156,20 +156,18 @@ extern "C" {
 #ifdef Q3_VM
 typedef int     intptr_t;
 #else
-#ifndef _MSC_VER
-#include <stdint.h>
-#else
-#ifndef __cplusplus
+#if defined(_MSC_VER)
 #include <io.h>
-typedef __int64 int64_t;
-typedef __int32 int32_t;
-typedef __int16 int16_t;
-typedef __int8  int8_t;
+typedef signed __int64 int64_t;
+typedef signed __int32 int32_t;
+typedef signed __int16 int16_t;
+typedef signed __int8  int8_t;
 typedef unsigned __int64 uint64_t;
 typedef unsigned __int32 uint32_t;
 typedef unsigned __int16 uint16_t;
 typedef unsigned __int8 uint8_t;
-#endif
+#else
+#include <stdint.h>
 #endif
 #endif
 
@@ -611,16 +609,14 @@ void            ByteToDir(int b, vec3_t dir);
 #define VectorSet(v, x, y, z)	((v)[0]=(x),(v)[1]=(y),(v)[2]=(z))
 
 #define DotProduct4(x,y)		((x)[0]*(y)[0]+(x)[1]*(y)[1]+(x)[2]*(y)[2]+(x)[3]*(y)[3])
-#define VectorSubtract4(a,b,c)	((c)[0]=(a)[0]-(b)[0],(c)[1]=(a)[1]-(b)[1],(c)[2]=(a)[2]-(b)[2],(c)[3]=(a)[3]-(b)[3])
-#define VectorAdd4(a,b,c)		((c)[0]=(a)[0]+(b)[0],(c)[1]=(a)[1]+(b)[1],(c)[2]=(a)[2]+(b)[2],(c)[3]=(a)[3]+(b)[3])
-#define VectorCopy4(a,b)		((b)[0]=(a)[0],(b)[1]=(a)[1],(b)[2]=(a)[2],(b)[3]=(a)[3])
-#define	VectorScale4(v, s, o)	((o)[0]=(v)[0]*(s),(o)[1]=(v)[1]*(s),(o)[2]=(v)[2]*(s),(o)[3]=(v)[3]*(s))
-#define	VectorMA4(v, s, b, o)	((o)[0]=(v)[0]+(b)[0]*(s),(o)[1]=(v)[1]+(b)[1]*(s),(o)[2]=(v)[2]+(b)[2]*(s),(o)[3]=(v)[3]+(b)[3]*(s))
-#define VectorClear4(a)			((a)[0]=(a)[1]=(a)[2]=(a)[3]=0)
-#define VectorNegate4(a,b)		((b)[0]=-(a)[0],(b)[1]=-(a)[1],(b)[2]=-(a)[2],(b)[3]=-(a)[3])
-#define VectorSet4(v,x,y,z,w)	((v)[0]=(x),(v)[1]=(y),(v)[2]=(z),(v)[3]=(w))
-
-
+#define Vector4Subtract(a,b,c)	((c)[0]=(a)[0]-(b)[0],(c)[1]=(a)[1]-(b)[1],(c)[2]=(a)[2]-(b)[2],(c)[3]=(a)[3]-(b)[3])
+#define Vector4Add(a,b,c)		((c)[0]=(a)[0]+(b)[0],(c)[1]=(a)[1]+(b)[1],(c)[2]=(a)[2]+(b)[2],(c)[3]=(a)[3]+(b)[3])
+#define Vector4Copy(a,b)		((b)[0]=(a)[0],(b)[1]=(a)[1],(b)[2]=(a)[2],(b)[3]=(a)[3])
+#define Vector4Scale(v, s, o)	((o)[0]=(v)[0]*(s),(o)[1]=(v)[1]*(s),(o)[2]=(v)[2]*(s),(o)[3]=(v)[3]*(s))
+#define Vector4MA(v, s, b, o)	((o)[0]=(v)[0]+(b)[0]*(s),(o)[1]=(v)[1]+(b)[1]*(s),(o)[2]=(v)[2]+(b)[2]*(s),(o)[3]=(v)[3]+(b)[3]*(s))
+#define Vector4Clear(a)			((a)[0]=(a)[1]=(a)[2]=(a)[3]=0)
+#define Vector4Negate(a,b)		((b)[0]=-(a)[0],(b)[1]=-(a)[1],(b)[2]=-(a)[2],(b)[3]=-(a)[3])
+#define Vector4Set(v,x,y,z,w)	((v)[0]=(x),(v)[1]=(y),(v)[2]=(z),(v)[3]=(w))
 
 #if 1
 #define VectorClear(a)			((a)[0]=(a)[1]=(a)[2]=0)
@@ -911,7 +907,7 @@ static ID_INLINE int VectorCompare(const vec3_t v1, const vec3_t v2)
 	return 1;
 }
 
-static ID_INLINE int VectorCompare4(const vec4_t v1, const vec4_t v2)
+static ID_INLINE int Vector4Compare(const vec4_t v1, const vec4_t v2)
 {
 	if(v1[0] != v2[0] || v1[1] != v2[1] || v1[2] != v2[2] || v1[3] != v2[3])
 	{
@@ -1083,6 +1079,9 @@ float           Q_crandom(int *seed);
 
 void            AnglesToAxis(const vec3_t angles, vec3_t axis[3]);
 void            AxisToAngles(vec3_t axis[3], vec3_t angles);
+vec_t           VectorDistance(vec3_t v1, vec3_t v2);
+vec_t           VectorDistanceSquared(vec3_t v1, vec3_t v2);
+
 
 void            AxisClear(vec3_t axis[3]);
 void            AxisCopy(vec3_t in[3], vec3_t out[3]);
@@ -1141,6 +1140,11 @@ vec_t           DistanceBetweenLineSegmentsSquared(const vec3_t sP0, const vec3_
 												   const vec3_t tP0, const vec3_t tP1, float *s, float *t);
 vec_t           DistanceBetweenLineSegments(const vec3_t sP0, const vec3_t sP1,
 											const vec3_t tP0, const vec3_t tP1, float *s, float *t);
+
+
+//=============================================
+
+// RB: XreaL matrix math functions required by the renderer
 
 void            MatrixIdentity(matrix_t m);
 void            MatrixClear(matrix_t m);
@@ -1249,6 +1253,10 @@ static ID_INLINE void VectorRandomUniform(vec3_t a, const vec3_t maxs)
 	a[2] += crandom() * maxs[2];
 }
 
+//=============================================
+
+// RB: XreaL quaternion math functions required by the renderer
+
 #define QuatSet(q,x,y,z,w)	((q)[0]=(x),(q)[1]=(y),(q)[2]=(z),(q)[3]=(w))
 #define QuatCopy(a,b)		((b)[0]=(a)[0],(b)[1]=(a)[1],(b)[2]=(a)[2],(b)[3]=(a)[3])
 
@@ -1345,6 +1353,7 @@ void            QuatTransformVector(const quat_t q, const vec3_t in, vec3_t out)
 
 //=============================================
 
+
 typedef struct
 {
 	qboolean        frameMemory;
@@ -1404,6 +1413,8 @@ const char     *Com_GetExtension(const char *name);
 void            Com_StripExtension(const char *src, char *dest, int destsize);
 void            Com_DefaultExtension(char *path, int maxSize, const char *extension);
 
+int             Com_HashKey(char *string, int maxlength);
+
 void            Com_BeginParseSession(const char *name);
 int             Com_GetCurrentParseLine(void);
 char           *Com_Parse(char **data_p);
@@ -1432,7 +1443,6 @@ typedef struct pc_token_s
 	float           floatvalue;
 	char            string[MAX_TOKENLENGTH];
 } pc_token_t;
-
 
 // data is an in/out parm, returns a parsed out token
 
@@ -1549,9 +1559,16 @@ qboolean        Info_Validate(const char *s);
 void            Info_NextPair(const char **s, char *key, char *value);
 
 // this is only here so the functions in q_shared.c and bg_*.c can link
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 void QDECL      Com_Error(int level, const char *error, ...) __attribute__ ((format(printf, 2, 3)));
 void QDECL      Com_Printf(const char *msg, ...) __attribute__ ((format(printf, 1, 2)));
-
+void QDECL		Com_DPrintf(const char *fmt, ...) __attribute__ ((format(printf, 1, 2)));
+#if defined(__cplusplus)
+}
+#endif
 
 /*
 ==========================================================
@@ -1642,8 +1659,16 @@ typedef enum
 	PLANE_X = 0,
 	PLANE_Y = 1,
 	PLANE_Z = 2,
-	PLANE_NON_AXIAL = 3
+	PLANE_NON_AXIAL = 3,
+	PLANE_NON_PLANAR = 4
 } planeType_t;
+
+
+/*
+=================
+PlaneTypeForNormal
+=================
+*/
 
 //#define PlaneTypeForNormal(x) (x[0] == 1.0 ? PLANE_X : (x[1] == 1.0 ? PLANE_Y : (x[2] == 1.0 ? PLANE_Z : PLANE_NON_AXIAL) ) )
 static ID_INLINE int PlaneTypeForNormal(vec3_t normal)
@@ -1656,6 +1681,9 @@ static ID_INLINE int PlaneTypeForNormal(vec3_t normal)
 
 	if(normal[2] == 1.0)
 		return PLANE_Z;
+
+	if(normal[0] == 0.0 && normal[1] == 0.0 && normal[2] == 0.0)
+		return PLANE_NON_PLANAR;
 
 	return PLANE_NON_AXIAL;
 }
@@ -2135,6 +2163,8 @@ typedef enum
 #define CDKEY_LEN 16
 #define CDCHKSUM_LEN 2
 
+
+#define SQR( a ) ( ( a ) * ( a ) )
 
 #if defined(__cplusplus)
 }

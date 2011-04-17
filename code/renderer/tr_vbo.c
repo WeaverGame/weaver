@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2007-2009 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2007-2011 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -76,14 +76,19 @@ VBO_t          *R_CreateVBO(const char *name, byte * vertexes, int vertexesSize,
 	vbo->ofsBoneIndexes = 0;
 	vbo->ofsBoneWeights = 0;
 
+	vbo->sizeXYZ = 0;
+	vbo->sizeTangents = 0;
+	vbo->sizeBinormals = 0;
+	vbo->sizeNormals = 0;
+
 	vbo->vertexesSize = vertexesSize;
 
-	qglGenBuffersARB(1, &vbo->vertexesVBO);
+	glGenBuffersARB(1, &vbo->vertexesVBO);
 
-	qglBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo->vertexesVBO);
-	qglBufferDataARB(GL_ARRAY_BUFFER_ARB, vertexesSize, vertexes, glUsage);
+	glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo->vertexesVBO);
+	glBufferDataARB(GL_ARRAY_BUFFER_ARB, vertexesSize, vertexes, glUsage);
 
-	qglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+	glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 
 	GL_CheckErrors();
 
@@ -94,6 +99,8 @@ VBO_t          *R_CreateVBO(const char *name, byte * vertexes, int vertexesSize,
 /*
 ============
 R_CreateVBO2
+
+RB: OPTIMIZE rewrite to not use memcpy
 ============
 */
 VBO_t          *R_CreateVBO2(const char *name, int numVertexes, srfVert_t * verts, unsigned int stateBits, vboUsage_t usage)
@@ -153,6 +160,11 @@ VBO_t          *R_CreateVBO2(const char *name, int numVertexes, srfVert_t * vert
 	vbo->ofsLightDirections = 0;
 	vbo->ofsBoneIndexes = 0;
 	vbo->ofsBoneWeights = 0;
+
+	vbo->sizeXYZ = 0;
+	vbo->sizeTangents = 0;
+	vbo->sizeBinormals = 0;
+	vbo->sizeNormals = 0;
 
 	// create VBO
 	dataSize = numVertexes * (sizeof(vec4_t) * 9);
@@ -309,13 +321,14 @@ VBO_t          *R_CreateVBO2(const char *name, int numVertexes, srfVert_t * vert
 	}
 
 	vbo->vertexesSize = dataSize;
+	vbo->vertexesNum = numVertexes;
 
-	qglGenBuffersARB(1, &vbo->vertexesVBO);
+	glGenBuffersARB(1, &vbo->vertexesVBO);
 
-	qglBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo->vertexesVBO);
-	qglBufferDataARB(GL_ARRAY_BUFFER_ARB, dataSize, data, glUsage);
+	glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo->vertexesVBO);
+	glBufferDataARB(GL_ARRAY_BUFFER_ARB, dataSize, data, glUsage);
 
-	qglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+	glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 
 	GL_CheckErrors();
 
@@ -369,12 +382,12 @@ IBO_t          *R_CreateIBO(const char *name, byte * indexes, int indexesSize, v
 
 	ibo->indexesSize = indexesSize;
 
-	qglGenBuffersARB(1, &ibo->indexesVBO);
+	glGenBuffersARB(1, &ibo->indexesVBO);
 
-	qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, ibo->indexesVBO);
-	qglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, indexesSize, indexes, glUsage);
+	glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, ibo->indexesVBO);
+	glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, indexesSize, indexes, glUsage);
 
-	qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+	glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
 
 	GL_CheckErrors();
 
@@ -434,9 +447,11 @@ IBO_t          *R_CreateIBO2(const char *name, int numTriangles, srfTriangle_t *
 
 	Q_strncpyz(ibo->name, name, sizeof(ibo->name));
 
-	indexesSize = numTriangles * 3 * sizeof(int);
+	indexesSize = numTriangles * 3 * sizeof(glIndex_t);
 	indexes = ri.Hunk_AllocateTempMemory(indexesSize);
 	indexesOfs = 0;
+
+	//ri.Printf(PRINT_ALL, "sizeof(glIndex_t) = %i\n", sizeof(glIndex_t));
 
 	for(i = 0, tri = triangles; i < numTriangles; i++, tri++)
 	{
@@ -449,13 +464,14 @@ IBO_t          *R_CreateIBO2(const char *name, int numTriangles, srfTriangle_t *
 	}
 
 	ibo->indexesSize = indexesSize;
+	ibo->indexesNum = numTriangles * 3;
 
-	qglGenBuffersARB(1, &ibo->indexesVBO);
+	glGenBuffersARB(1, &ibo->indexesVBO);
 
-	qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, ibo->indexesVBO);
-	qglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, indexesSize, indexes, glUsage);
+	glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, ibo->indexesVBO);
+	glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, indexesSize, indexes, glUsage);
 
-	qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+	glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
 
 	GL_CheckErrors();
 
@@ -493,7 +509,11 @@ void R_BindVBO(VBO_t * vbo)
 		glState.currentVBO = vbo;
 		glState.vertexAttribPointersSet = 0;
 
-		qglBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo->vertexesVBO);
+		glState.vertexAttribsInterpolation = 0;
+		glState.vertexAttribsOldFrame = 0;
+		glState.vertexAttribsNewFrame = 0;
+
+		glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo->vertexesVBO);
 
 		backEnd.pc.c_vboVertexBuffers++;
 	}
@@ -514,7 +534,7 @@ void R_BindNullVBO(void)
 #else
 	if(glState.currentVBO)
 	{
-		qglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+		glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 		glState.currentVBO = NULL;
 	}
 
@@ -547,7 +567,7 @@ void R_BindIBO(IBO_t * ibo)
 #else
 	if(glState.currentIBO != ibo)
 	{
-		qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, ibo->indexesVBO);
+		glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, ibo->indexesVBO);
 
 		glState.currentIBO = ibo;
 
@@ -570,11 +590,56 @@ void R_BindNullIBO(void)
 #else
 	if(glState.currentIBO)
 	{
-		qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+		glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
 		glState.currentIBO = NULL;
 		glState.vertexAttribPointersSet = 0;
 	}
 #endif
+}
+
+static void R_InitUnitCubeVBO()
+{
+	vec3_t			mins = {-1, -1, -1};
+	vec3_t			maxs = { 1,  1,  1};
+	
+	int             i, j;
+	vec4_t          quadVerts[4];
+	srfVert_t      *verts;
+	srfTriangle_t  *triangles;
+
+	if(glConfig.smpActive)
+		ri.Error(ERR_FATAL, "R_InitUnitCubeVBO: FIXME SMP");
+
+	tess.multiDrawPrimitives = 0;
+	tess.numIndexes = 0;
+	tess.numVertexes = 0;
+
+	Tess_AddCube(vec3_origin, mins, maxs, colorWhite);
+
+	verts = ri.Hunk_AllocateTempMemory(tess.numVertexes * sizeof(srfVert_t));
+	triangles = ri.Hunk_AllocateTempMemory((tess.numIndexes / 3) * sizeof(srfTriangle_t));
+
+	for(i = 0; i < tess.numVertexes; i++)
+	{
+		VectorCopy(tess.xyz[i], verts[i].xyz);
+	}
+
+	for(i = 0; i < (tess.numIndexes / 3); i++)
+	{
+		triangles[i].indexes[0] = tess.indexes[i * 3 + 0];
+		triangles[i].indexes[1] = tess.indexes[i * 3 + 1];
+		triangles[i].indexes[2] = tess.indexes[i * 3 + 2];
+	}
+
+	tr.unitCubeVBO = R_CreateVBO2("unitCube_VBO", tess.numVertexes, verts, ATTR_POSITION, VBO_USAGE_STATIC);
+	tr.unitCubeIBO = R_CreateIBO2("unitCube_IBO", tess.numIndexes / 3, triangles, VBO_USAGE_STATIC);
+
+	ri.Hunk_FreeTempMemory(triangles);
+	ri.Hunk_FreeTempMemory(verts);
+
+	tess.multiDrawPrimitives = 0;
+	tess.numIndexes = 0;
+	tess.numVertexes = 0;
 }
 
 /*
@@ -609,6 +674,12 @@ void R_InitVBOs(void)
 	tess.vbo->ofsLightDirections = tess.vbo->ofsPaintColors + sizeof(tess.paintColors);
 	tess.vbo->ofsBoneIndexes = tess.vbo->ofsLightDirections + sizeof(tess.lightDirections);
 	tess.vbo->ofsBoneWeights = tess.vbo->ofsBoneIndexes + sizeof(tess.boneIndexes);
+
+	tess.vbo->sizeXYZ = sizeof(tess.xyz);
+	tess.vbo->sizeTangents = sizeof(tess.tangents);
+	tess.vbo->sizeBinormals = sizeof(tess.binormals);
+	tess.vbo->sizeNormals = sizeof(tess.normals);
+
 #endif
 
 	Com_Dealloc(data);
@@ -620,6 +691,8 @@ void R_InitVBOs(void)
 	tess.ibo = R_CreateIBO("tessVertexArray_IBO", data, dataSize, VBO_USAGE_DYNAMIC);
 
 	Com_Dealloc(data);
+
+	R_InitUnitCubeVBO();
 
 	R_BindNullVBO();
 	R_BindNullIBO();
@@ -657,7 +730,7 @@ void R_ShutdownVBOs(void)
 #else
 		if(vbo->vertexesVBO)
 		{
-			qglDeleteBuffersARB(1, &vbo->vertexesVBO);
+			glDeleteBuffersARB(1, &vbo->vertexesVBO);
 		}
 #endif
 	}
@@ -671,7 +744,7 @@ void R_ShutdownVBOs(void)
 #else
 		if(ibo->indexesVBO)
 		{
-			qglDeleteBuffersARB(1, &ibo->indexesVBO);
+			glDeleteBuffersARB(1, &ibo->indexesVBO);
 		}
 #endif
 	}
@@ -693,7 +766,7 @@ void R_ShutdownVBOs(void)
 #else
 				if(ibo->indexesVBO)
 				{
-					qglDeleteBuffersARB(1, &ibo->indexesVBO);
+					glDeleteBuffersARB(1, &ibo->indexesVBO);
 				}
 #endif
 			}

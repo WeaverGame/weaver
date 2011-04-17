@@ -427,7 +427,7 @@ void CG_DrawScoreboardStat(clientInfo_t * ci, score_t * score, vec4_t color, flo
 	// highlight your position
 	if(score->client == cg.snap->ps.clientNum)
 	{
-		VectorCopy4(color, colorP);
+		Vector4Copy(color, colorP);
 		color[0] = 0.2f;
 		color[2] = 0.2f;
 	}
@@ -482,7 +482,7 @@ void CG_DrawScoreboardStat(clientInfo_t * ci, score_t * score, vec4_t color, flo
 
 	if(score->client == cg.snap->ps.clientNum)
 	{
-		VectorCopy4(colorP, color);
+		Vector4Copy(colorP, color);
 	}
 }
 

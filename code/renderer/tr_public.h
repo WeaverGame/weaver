@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2006-2009 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2011 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -50,7 +50,6 @@ typedef struct
 	// size display elements
 	void            (*BeginRegistration) (glConfig_t * config);
 	qhandle_t		(*RegisterModel) (const char *name, qboolean forceStatic);
-	qhandle_t		(*RegisterAnimation) (const char *name);
 	qhandle_t		(*RegisterSkin) (const char *name);
 	qhandle_t		(*RegisterShader) (const char *name);
 	qhandle_t		(*RegisterShaderNoMip) (const char *name);
@@ -69,16 +68,21 @@ typedef struct
 	// Nothing is drawn until R_RenderScene is called.
 	void            (*ClearScene) (void);
 	void            (*AddRefEntityToScene) (const refEntity_t * ent);
-	void            (*AddRefLightToScene) (const refLight_t * light);
-	void            (*AddPolyToScene) (qhandle_t hShader, int numVerts, const polyVert_t * verts, int num);
+
 	int             (*LightForPoint) (vec3_t point, vec3_t ambientLight, vec3_t directedLight, vec3_t lightDir);
+
+	void            (*AddPolyToScene) (qhandle_t hShader, int numVerts, const polyVert_t * verts, int num);
+	//void            (*AddPolysToScene) (qhandle_t hShader, int numVerts, const polyVert_t * verts, int numPolys);
+	
 	void            (*AddLightToScene) (const vec3_t org, float intensity, float r, float g, float b);
-	void            (*AddAdditiveLightToScene) (const vec3_t org, float intensity, float r, float g, float b);
 	void            (*RenderScene) (const refdef_t * fd);
 
 	void            (*SetColor) (const float *rgba);	// NULL = 1,1,1,1
 	void            (*DrawStretchPic) (float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader);	// 0 = white
 	void            (*DrawRotatedPic) (float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader, float angle);
+	void            (*DrawStretchPicGradient) (float x, float y, float w, float h, float s1, float t1, float s2, float t2,
+											   qhandle_t hShader, const float *gradientColor, int gradientType);
+	void            (*Add2dPolys) (polyVert_t * polys, int numverts, qhandle_t hShader);
 
 	// Draw images for cinematic rendering, pass as 32 bit rgba
 	void            (*DrawStretchRaw) (int x, int y, int w, int h, int cols, int rows, const byte * data, int client,
@@ -90,12 +94,29 @@ typedef struct
 	// if the pointers are not NULL, timing info will be returned
 	void            (*EndFrame) (int *frontEndMsec, int *backEndMsec);
 
+
 	int             (*MarkFragments) (int numPoints, const vec3_t * points, const vec3_t projection,
 									  int maxPoints, vec3_t pointBuffer, int maxFragments, markFragment_t * fragmentBuffer);
 
-	int             (*LerpTag) (orientation_t * tag, qhandle_t model, int startFrame, int endFrame,
-								float frac, const char *tagName);
+	int             (*LerpTag) (orientation_t * tag, qhandle_t model, int startFrame, int endFrame, float frac, const char *tagName);
 
+	void            (*ModelBounds) (qhandle_t model, vec3_t mins, vec3_t maxs);
+
+	void            (*RemapShader) (const char *oldShader, const char *newShader, const char *offsetTime);
+	qboolean		(*GetEntityToken) (char *buffer, int size);
+	qboolean		(*inPVS) (const vec3_t p1, const vec3_t p2);
+
+	void            (*RegisterFont) (const char *fontName, int pointSize, fontInfo_t * font);
+	// XreaL BEGIN
+	void            (*TakeVideoFrame) (int h, int w, byte * captureBuffer, byte * encodeBuffer, qboolean motionJpeg);
+
+#if defined(USE_REFLIGHT)
+	void            (*AddRefLightToScene) (const refLight_t * light);
+#endif
+
+	// RB: alternative skeletal animation system
+#if defined(USE_REFENTITY_ANIMATIONSYSTEM)
+	qhandle_t		(*RegisterAnimation) (const char *name);
 	int				(*CheckSkeleton) (refSkeleton_t * skel, qhandle_t model, qhandle_t anim);
 	int             (*BuildSkeleton) (refSkeleton_t * skel, qhandle_t anim, int startFrame, int endFrame, float frac,
 									  qboolean clearOrigin);
@@ -103,15 +124,11 @@ typedef struct
 	int             (*BoneIndex) (qhandle_t hModel, const char *boneName);
 	int             (*AnimNumFrames) (qhandle_t hAnim);
 	int             (*AnimFrameRate) (qhandle_t hAnim);
+#endif
 
-	void            (*ModelBounds) (qhandle_t model, vec3_t mins, vec3_t maxs);
+	// XreaL END
 
-	void            (*RegisterFont) (const char *fontName, int pointSize, fontInfo_t * font);
-	void            (*RemapShader) (const char *oldShader, const char *newShader, const char *offsetTime);
-	qboolean		(*GetEntityToken) (char *buffer, int size);
-	qboolean		(*inPVS) (const vec3_t p1, const vec3_t p2);
-
-	void            (*TakeVideoFrame) (int h, int w, byte * captureBuffer, byte * encodeBuffer, qboolean motionJpeg);
+	void            (*TakeScreenshotPNG) (int x, int y, int width, int height, char *fileName);
 } refexport_t;
 
 //
@@ -133,6 +150,7 @@ typedef struct
 
 	// stack based memory allocation for per-level things that
 	// won't be freed
+	void            (*Hunk_Clear) (void);
 #ifdef HUNK_DEBUG
 	void           *(*Hunk_AllocDebug) (int size, ha_pref pref, char *label, char *file, int line);
 #else
@@ -142,8 +160,13 @@ typedef struct
 	void            (*Hunk_FreeTempMemory) (void *block);
 
 	// dynamic memory allocator for things that need to be freed
-	void           *(*Malloc) (int bytes);
+#ifdef ZONE_DEBUG
+	void           *(*Z_MallocDebug) (int bytes, char *label, char *file, int line);
+#else
+	void           *(*Z_Malloc) (int bytes);
+#endif
 	void            (*Free) (void *buf);
+	void            (*Tag_Free) (void);
 
 	cvar_t         *(*Cvar_Get) (const char *name, const char *value, int flags);
 	void            (*Cvar_Set) (const char *name, const char *value);
@@ -167,7 +190,7 @@ typedef struct
 
 	// a -1 return means the file does not exist
 	// NULL can be passed for buf to just determine existance
-	int             (*FS_FileIsInPAK) (const char *name, int *pCheckSum);
+	int             (*FS_FileIsInPAK) (const char *name, int *pChecksum);
 	int             (*FS_ReadFile) (const char *name, void **buf);
 	void            (*FS_FreeFile) (void *buf);
 	char          **(*FS_ListFiles) (const char *name, const char *extension, int *numfilesfound);
@@ -179,9 +202,14 @@ typedef struct
 	// cinematic stuff
 	void            (*CIN_UploadCinematic) (int handle);
 	int             (*CIN_PlayCinematic) (const char *arg0, int xpos, int ypos, int width, int height, int bits);
-	                e_status(*CIN_RunCinematic) (int handle);
+	e_status        (*CIN_RunCinematic) (int handle);
 
+	// XreaL BEGIN
+	void           *(*Sys_GetSystemHandles) (void);
+	
+	qboolean        (*CL_VideoRecording) (void);
 	void            (*CL_WriteAVIVideoFrame) (const byte * buffer, int size);
+	// XreaL END
 
 	// input event handling
 	void            (*IN_Init)(void);
@@ -195,6 +223,8 @@ typedef struct
 // this is the only function actually exported at the linker level
 // If the module can't init to a valid rendering state, NULL will be
 // returned.
-typedef	refexport_t* (QCALL *GetRefAPI_t) (int apiVersion, refimport_t * rimp);
+
+// RB: changed to GetRefAPI_t
+typedef refexport_t* (*GetRefAPI_t) (int apiVersion, refimport_t * rimp);
 
 #endif							// __TR_PUBLIC_H

@@ -391,7 +391,7 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_noTaunt, "cg_noTaunt", "0", CVAR_ARCHIVE},
 	{&cg_noProjectileTrail, "cg_noProjectileTrail", "0", CVAR_ARCHIVE},
 
-	{&cg_railType, "cg_railType", "1", CVAR_ARCHIVE},
+	{&cg_railType, "cg_railType", "2", CVAR_CHEAT},
 	{&cg_trueLightning, "cg_trueLightning", "0.0", CVAR_ARCHIVE},
 	{&cg_particles, "cg_particles", "1", CVAR_ARCHIVE},
 	{&cg_particleCollision, "cg_particleCollision", "0", CVAR_ARCHIVE},
@@ -403,7 +403,6 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&pm_fixedPmoveFPS, "pm_fixedPmoveFPS", "125", 0},
 
 	{&cg_gravity, "g_gravity", "0", 0},	// communicated by systeminfo
-	{&cg_drawPlayerCollision, "cg_drawPlayerCollision", "0", CVAR_CHEAT},
 
 //unlagged - client options
 	{&cg_delag, "cg_delag", "1", CVAR_ARCHIVE | CVAR_USERINFO},

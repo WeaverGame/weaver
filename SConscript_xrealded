@@ -77,6 +77,17 @@ elif env['arch'] == 'linux-x86_64':
 	xrealded_env.Program('xrealded', [xrealded_src, unix_src])
 	xrealded_env.InstallAs('#xrealded.x86_64', 'xrealded')
 
+if env['arch'] == 'freebsd-i386':
+	xrealded_env.Append(LIBS=['m'])
+	xrealded_env.Program('xrealded', [xrealded_src, unix_src])
+	xrealded_env.InstallAs('#xrealded.i386', 'xrealded')
+
+elif env['arch'] == 'freebsd-amd64':
+	xrealded_env.Append(CCFLAGS='-DC_ONLY')
+	xrealded_env.Append(LIBS=['m'])
+	xrealded_env.Program('xrealded', [xrealded_src, unix_src])
+	xrealded_env.InstallAs('#xrealded.amd64', 'xrealded')
+
 elif env['arch'] == 'netbsd-i386':
 	xrealded_env.Append(LIBS=['m'])
 	xrealded_env.Program('xrealded', [xrealded_src, unix_src])

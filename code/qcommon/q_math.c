@@ -31,7 +31,6 @@ int             nonansicast = 0;
 
 // *INDENT-OFF*
 vec3_t          vec3_origin = { 0, 0, 0 };
-
 vec3_t  axisDefault[3] = {{ 1, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 }};
 
 matrix_t matrixIdentity = {	1, 0, 0, 0,
@@ -168,6 +167,7 @@ float Q_crandom(int *seed)
 {
 	return 2.0 * (Q_random(seed) - 0.5);
 }
+
 
 //=======================================================
 
@@ -393,7 +393,6 @@ qboolean PlaneFromPoints(vec4_t plane, const vec3_t a, const vec3_t b, const vec
 	return qtrue;
 }
 
-
 qboolean PlanesGetIntersectionPoint(const vec4_t plane1, const vec4_t plane2, const vec4_t plane3, vec3_t out)
 {
 	// http://www.cgafaq.info/wiki/Intersection_of_three_planes
@@ -442,7 +441,6 @@ void PlaneIntersectRay(const vec3_t rayPos, const vec3_t rayDir, const vec4_t pl
 	VectorScale(dir, sect, dir);
 	VectorAdd(rayPos, dir, res);
 }
-
 /*
 ===============
 RotatePointAroundVector
@@ -727,11 +725,7 @@ void ProjectPointOnPlane(vec3_t dst, const vec3_t p, const vec3_t normal)
 	vec3_t          n;
 	float           inv_denom;
 
-	inv_denom = DotProduct(normal, normal);
-#ifndef Q3_VM
-	//assert(Q_fabs(inv_denom) != 0.0f);    // bk010122 - zero vectors get here
-#endif
-	inv_denom = 1.0f / inv_denom;
+	inv_denom = 1.0F / DotProduct(normal, normal);
 
 	d = DotProduct(normal, p) * inv_denom;
 
@@ -1519,9 +1513,6 @@ vec_t VectorNormalize2(const vec3_t v, vec3_t out)
 
 	if(length)
 	{
-#ifndef Q3_VM					// bk0101022 - FPE related
-//    assert( ((Q_fabs(v[0])!=0.0f) || (Q_fabs(v[1])!=0.0f) || (Q_fabs(v[2])!=0.0f)) );
-#endif
 		ilength = 1 / length;
 		out[0] = v[0] * ilength;
 		out[1] = v[1] * ilength;
@@ -1529,18 +1520,12 @@ vec_t VectorNormalize2(const vec3_t v, vec3_t out)
 	}
 	else
 	{
-#ifndef Q3_VM					// bk0101022 - FPE related
-//    assert( ((Q_fabs(v[0])==0.0f) && (Q_fabs(v[1])==0.0f) && (Q_fabs(v[2])==0.0f)) );
-#endif
 		VectorClear(out);
 	}
 
 	return length;
 
 }
-
-
-
 
 int NearestPowerOfTwo(int val)
 {
@@ -1565,6 +1550,12 @@ int Q_log2(int val)
 
 
 
+
+/*
+================
+AxisMultiply
+================
+*/
 void AxisMultiply(axis_t in1, axis_t in2, axis_t out)
 {
 	out[0][0] = in1[0][0] * in2[0][0] + in1[0][1] * in2[1][0] + in1[0][2] * in2[2][0];
@@ -1601,9 +1592,11 @@ void AngleVectors(const vec3_t angles, vec3_t forward, vec3_t right, vec3_t up)
 	angle = angles[YAW] * (M_PI * 2 / 360);
 	sy = sin(angle);
 	cy = cos(angle);
+
 	angle = angles[PITCH] * (M_PI * 2 / 360);
 	sp = sin(angle);
 	cp = cos(angle);
+
 	angle = angles[ROLL] * (M_PI * 2 / 360);
 	sr = sin(angle);
 	cr = cos(angle);
@@ -1886,6 +1879,29 @@ vec_t DistanceBetweenLineSegments(const vec3_t sP0, const vec3_t sP1, const vec3
 {
 	return (vec_t) sqrt(DistanceBetweenLineSegmentsSquared(sP0, sP1, tP0, tP1, s, t));
 }
+
+vec_t VectorDistance(vec3_t v1, vec3_t v2)
+{
+	vec3_t          dir;
+
+	VectorSubtract(v2, v1, dir);
+	return VectorLength(dir);
+}
+
+vec_t VectorDistanceSquared(vec3_t v1, vec3_t v2)
+{
+	vec3_t          dir;
+
+	VectorSubtract(v2, v1, dir);
+	return VectorLengthSquared(dir);
+}
+
+
+//=============================================
+
+// RB: XreaL matrix math functions
+
+
 
 // *INDENT-OFF*
 void MatrixIdentity(matrix_t m)
@@ -2737,7 +2753,7 @@ void MatrixTransformPlane2(const matrix_t m, vec4_t inout)
 	vec4_t			tmp;
 
 	MatrixTransformPlane(m, inout, tmp);
-	VectorCopy4(tmp, inout);
+	Vector4Copy(tmp, inout);
 }
 
 
@@ -2883,7 +2899,7 @@ http://msdn.microsoft.com/en-us/library/bb205356%28v=VS.85%29.aspx
 void MatrixPlaneReflection(matrix_t m, const vec4_t plane)
 {
 	vec4_t P;
-	VectorCopy4(plane, P);
+	Vector4Copy(plane, P);
 
 	PlaneNormalize(P);
 
@@ -2997,6 +3013,11 @@ void MatrixCrop(matrix_t m, const vec3_t mins, const vec3_t maxs)
 	m[ 2] = 0;			m[ 6] = 0;      	m[10] = scaleZ;		m[14] = offsetZ;
 	m[ 3] = 0;			m[ 7] = 0;			m[11] = 0;			m[15] = 1;
 }
+
+
+//=============================================
+
+// RB: XreaL quaternion math functions
 
 
 // *INDENT-ON*

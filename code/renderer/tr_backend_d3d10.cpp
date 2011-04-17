@@ -187,9 +187,9 @@ static void RB_RenderDrawSurfaces(qboolean opaque, qboolean depthFill)
 			}
 
 			if(depthFill)
-				Tess_Begin(Tess_StageIteratorDepthFill, shader, NULL, qtrue, qfalse, lightmapNum);
+				Tess_Begin(Tess_StageIteratorDepthFill, NULL, shader, NULL, qtrue, qfalse, lightmapNum);
 			else
-				Tess_Begin(Tess_StageIteratorGeneric, shader, NULL, qfalse, qfalse, lightmapNum);
+				Tess_Begin(Tess_StageIteratorGeneric, NULL, shader, NULL, qfalse, qfalse, lightmapNum);
 
 			oldShader = shader;
 			oldLightmapNum = lightmapNum;
@@ -811,7 +811,7 @@ const void     *RB_StretchPic(const void *data)
 			Tess_End();
 		}
 		backEnd.currentEntity = &backEnd.entity2D;
-		Tess_Begin(Tess_StageIteratorGeneric, shader, NULL, qfalse, qfalse, -1);
+		Tess_Begin(Tess_StageIteratorGeneric, NULL, shader, NULL, qfalse, qfalse, -1);
 	}
 
 	Tess_CheckOverflow(4, 6);

@@ -1,7 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2006-2008 Robert Beckebans <trebor_7@users.sourceforge.net>
-Copyright (C) 2006 defconx          <defcon-x@ns-co.net>
+Copyright (C) 2006-2011 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -24,13 +23,22 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 /* heatHaze_vp.glsl */
 
 attribute vec4		attr_Position;
+attribute vec3		attr_Normal;
 attribute vec4		attr_TexCoord0;
-#if defined(r_VertexSkinning)
+
+attribute vec4		attr_Position2;
+attribute vec3		attr_Normal2;
+
+//#if defined(r_VertexSkinning)
 attribute vec4		attr_BoneIndexes;
 attribute vec4		attr_BoneWeights;
 uniform int			u_VertexSkinning;
 uniform mat4		u_BoneMatrix[MAX_GLSL_BONES];
-#endif
+//#endif
+
+uniform float		u_VertexInterpolation;
+
+uniform float		u_Time;
 
 uniform mat4		u_NormalTextureMatrix;
 uniform mat4		u_ProjectionMatrixTranspose;
@@ -46,38 +54,57 @@ void	main()
 {
 	vec4            deformVec;
     float           d1, d2;	
+	
+	vec4 position = vec4(0.0);
+	vec3 normal = vec3(0.0);
 
-#if defined(r_VertexSkinning)
-	if(bool(u_VertexSkinning))
+#if defined(USE_VERTEX_SKINNING)
 	{
-		vec4 vertex = vec4(0.0);
-		
 		for(int i = 0; i < 4; i++)
 		{
 			int boneIndex = int(attr_BoneIndexes[i]);
 			float boneWeight = attr_BoneWeights[i];
 			mat4  boneMatrix = u_BoneMatrix[boneIndex];
 			
-			vertex += (boneMatrix * attr_Position) * boneWeight;
+			position += (boneMatrix * attr_Position) * boneWeight;
+			normal += (boneMatrix * vec4(attr_Normal, 0.0)).xyz * boneWeight;
 		}
-
-		// transform vertex position into homogenous clip-space
-		gl_Position = u_ModelViewProjectionMatrix * vertex;
-		
-		// take the deform magnitude and scale it by the projection distance
-		deformVec = vec4(1, 0, 0, 1);
-		deformVec.z = dot(u_ModelViewMatrixTranspose[2], vertex);
 	}
-	else
-#endif
+#elif defined(USE_VERTEX_ANIMATION)
 	{
-		// transform vertex position into homogenous clip-space
-		gl_Position = u_ModelViewProjectionMatrix * attr_Position;
-		
-		// take the deform magnitude and scale it by the projection distance
-		deformVec = vec4(1, 0, 0, 1);
-		deformVec.z = dot(u_ModelViewMatrixTranspose[2], attr_Position);
+		if(u_VertexInterpolation > 0.0)
+		{
+			VertexAnimation_P_N(attr_Position, attr_Position2,
+								attr_Normal, attr_Normal2,
+								u_VertexInterpolation,
+								position, normal);
+		}
+		else
+		{
+			position = attr_Position;
+			normal = attr_Normal;
+		}
 	}
+#else
+	{
+		position = attr_Position;
+		normal = attr_Normal;
+	}
+#endif
+	
+#if defined(USE_DEFORM_VERTEXES)
+	position = DeformPosition2(	position,
+								normal,
+								attr_TexCoord0.st,
+								u_Time);
+#endif
+
+	// transform vertex position into homogenous clip-space
+	gl_Position = u_ModelViewProjectionMatrix * position;
+
+	// take the deform magnitude and scale it by the projection distance
+	deformVec = vec4(1, 0, 0, 1);
+	deformVec.z = dot(u_ModelViewMatrixTranspose[2], position);
 	
 	// transform normalmap texcoords
 	var_TexNormal = (u_NormalTextureMatrix * attr_TexCoord0).st;

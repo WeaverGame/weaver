@@ -194,7 +194,7 @@ static void ScrollingCredits_Draw(void)
 		else
 			textScale = 0.2f;
 
-		VectorSet4(color, credits[n].color[0], credits[n].color[1], credits[n].color[2], 0.0f);
+		Vector4Set(color, credits[n].color[0], credits[n].color[1], credits[n].color[2], 0.0f);
 
 		if(y <= 0 || y >= (uis.screenYSize - 64))
 		{

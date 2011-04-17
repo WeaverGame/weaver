@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
+# Visual C++ Express 2008
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xmap2", "xmap2.vcproj", "{8ED67991-58A6-44AA-9B3A-3217085EF187}"
 EndProject
 Global
@@ -16,10 +16,5 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(ExtensibilityGlobals) = postSolution
-		AMDCaPersistentConfig = Debug|Win32
-		AMDCaPersistentStartup = xmap2
-		AMDCaProjectFile = C:\weaver\code\xmap2\CodeAnalyst\xmap2.caw
 	EndGlobalSection
 EndGlobal
