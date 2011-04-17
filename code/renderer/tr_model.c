@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	LL(x) x=LittleLong(x)
 #define	LF(x) x=LittleFloat(x)
 
-qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, int bufferSize, const char *name, qboolean forceStatic);
+qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, int bufferSize, const char *name);
 //qboolean R_LoadMDC(model_t * mod, int lod, void *buffer, int bufferSize, const char *name);
 //qboolean R_LoadMDM(model_t * mod, void *buffer, const char *name);
 //static qboolean R_LoadMDX(model_t * mod, void *buffer, const char *name);
@@ -88,7 +88,7 @@ optimization to prevent disk rescanning if they are
 asked for again.
 ====================
 */
-qhandle_t RE_RegisterModel(const char *name, qboolean forceStatic)
+qhandle_t RE_RegisterModel(const char *name)
 {
 	model_t        *mod;
 	unsigned       *buffer;
@@ -143,8 +143,11 @@ qhandle_t RE_RegisterModel(const char *name, qboolean forceStatic)
 	// load the files
 	numLoaded = 0;
 
-#if !defined(USE_D3D10)
+#if defined(COMPAT_ET)
+	if(strstr(name, ".mds") || strstr(name, ".mdm") || strstr(name, ".mdx") || strstr(name, ".md5mesh") || strstr(name, ".psk"))
+#else
 	if(strstr(name, ".md5mesh") || strstr(name, ".psk"))
+#endif
 	{
 		// try loading skeletal file
 
@@ -155,6 +158,22 @@ qhandle_t RE_RegisterModel(const char *name, qboolean forceStatic)
 			loadmodel = mod;
 
 			ident = LittleLong(*(unsigned *)buffer);
+#if defined(COMPAT_ET)
+#if 0
+			if(ident == MDS_IDENT)
+			{
+				loaded = R_LoadMDS(mod, buffer, name);
+			} else
+#endif
+			if(ident == MDM_IDENT)
+			{
+				loaded = R_LoadMDM(mod, buffer, name);
+			}
+			else if(ident == MDX_IDENT)
+			{
+				loaded = R_LoadMDX(mod, buffer, name);
+			}
+#endif
 
 #if defined(USE_REFENTITY_ANIMATIONSYSTEM)
 			if(!Q_stricmpn((const char *)buffer, "MD5Version", 10))
@@ -217,9 +236,16 @@ qhandle_t RE_RegisterModel(const char *name, qboolean forceStatic)
 
 		if(ident == MD3_IDENT)
 		{
-			loaded = R_LoadMD3(mod, lod, buffer, bufferLen, name, forceStatic);
+			loaded = R_LoadMD3(mod, lod, buffer, bufferLen, name);
 			ri.FS_FreeFile(buffer);
 		}
+		/*
+		else if(ident == MDC_IDENT)
+		{
+			loaded = R_LoadMDC(mod, lod, buffer, bufferLen, name);
+			ri.FS_FreeFile(buffer);
+		}
+		*/
 		else
 		{
 			ri.FS_FreeFile(buffer);
@@ -255,7 +281,6 @@ qhandle_t RE_RegisterModel(const char *name, qboolean forceStatic)
 //          }
 		}
 	}
-#endif // #if !defined(USE_D3D10)
 
 	// make sure the VBO glState entries are save
 	R_BindNullVBO();
@@ -291,6 +316,92 @@ qhandle_t RE_RegisterModel(const char *name, qboolean forceStatic)
 
 	return 0;
 }
+
+
+
+
+
+/*
+=================
+R_LoadMDX
+=================
+*/
+#if defined(COMPAT_ET)
+static qboolean R_LoadMDX(model_t * mod, void *buffer, const char *mod_name)
+{
+	int             i, j;
+	mdxHeader_t    *pinmodel, *mdx;
+	mdxFrame_t     *frame;
+	short          *bframe;
+	mdxBoneInfo_t  *bi;
+	int             version;
+	int             size;
+	int             frameSize;
+
+	pinmodel = (mdxHeader_t *) buffer;
+
+	version = LittleLong(pinmodel->version);
+	if(version != MDX_VERSION)
+	{
+		ri.Printf(PRINT_WARNING, "R_LoadMDX: %s has wrong version (%i should be %i)\n", mod_name, version, MDX_VERSION);
+		return qfalse;
+	}
+
+	mod->type = MOD_MDX;
+	size = LittleLong(pinmodel->ofsEnd);
+	mod->dataSize += size;
+	mdx = mod->mdx = ri.Hunk_Alloc(size, h_low);
+
+	memcpy(mdx, buffer, LittleLong(pinmodel->ofsEnd));
+
+	LL(mdx->ident);
+	LL(mdx->version);
+	LL(mdx->numFrames);
+	LL(mdx->numBones);
+	LL(mdx->ofsFrames);
+	LL(mdx->ofsBones);
+	LL(mdx->ofsEnd);
+	LL(mdx->torsoParent);
+
+	if(LittleLong(1) != 1)
+	{
+		// swap all the frames
+		frameSize = (int)(sizeof(mdxBoneFrameCompressed_t)) * mdx->numBones;
+		for(i = 0; i < mdx->numFrames; i++)
+		{
+			frame = (mdxFrame_t *) ((byte *) mdx + mdx->ofsFrames + i * frameSize + i * sizeof(mdxFrame_t));
+			frame->radius = LittleFloat(frame->radius);
+			for(j = 0; j < 3; j++)
+			{
+				frame->bounds[0][j] = LittleFloat(frame->bounds[0][j]);
+				frame->bounds[1][j] = LittleFloat(frame->bounds[1][j]);
+				frame->localOrigin[j] = LittleFloat(frame->localOrigin[j]);
+				frame->parentOffset[j] = LittleFloat(frame->parentOffset[j]);
+			}
+
+			bframe = (short *)((byte *) mdx + mdx->ofsFrames + i * frameSize + ((i + 1) * sizeof(mdxFrame_t)));
+			for(j = 0; j < mdx->numBones * sizeof(mdxBoneFrameCompressed_t) / sizeof(short); j++)
+			{
+				((short *)bframe)[j] = LittleShort(((short *)bframe)[j]);
+			}
+		}
+
+		// swap all the bones
+		for(i = 0; i < mdx->numBones; i++)
+		{
+			bi = (mdxBoneInfo_t *) ((byte *) mdx + mdx->ofsBones + i * sizeof(mdxBoneInfo_t));
+			LL(bi->parent);
+			bi->torsoWeight = LittleFloat(bi->torsoWeight);
+			bi->parentDist = LittleFloat(bi->parentDist);
+			LL(bi->flags);
+		}
+	}
+
+	return qtrue;
+}
+#endif // #if defined(COMPAT_ET)
+
+
 
 //=============================================================================
 
@@ -365,11 +476,12 @@ static qboolean R_LoadDAE(model_t * mod, void *buffer, int bufferLen, const char
 /*
 ** RE_BeginRegistration
 */
-void RE_BeginRegistration(glConfig_t * glconfigOut)
+void RE_BeginRegistration(glconfig_t * glconfigOut, glconfig2_t * glconfigOut2)
 {
 	R_Init();
 
 	*glconfigOut = glConfig;
+	*glconfigOut2 = glConfig2;
 
 	R_SyncRenderThread();
 
@@ -556,14 +668,12 @@ static int R_GetTag(mdvModel_t * model, int frame, const char *_tagName, int sta
 	return -1;
 }
 
-//FIXME: workout which of these is correct
-#if 1
 /*
 ================
-RE_LerpTag
+RE_LerpTagQ3A
 ================
 */
-int RE_LerpTag(orientation_t * tag, qhandle_t handle, int startFrame, int endFrame, float frac, const char *tagNameIn)
+int RE_LerpTagQ3A(orientation_t * tag, qhandle_t handle, int startFrame, int endFrame, float frac, const char *tagNameIn)
 {
 	mdvTag_t       *start, *end;
 	int             i;
@@ -608,13 +718,14 @@ int RE_LerpTag(orientation_t * tag, qhandle_t handle, int startFrame, int endFra
 	VectorNormalize(tag->axis[2]);
 	return retval;
 }
-#else
+
 /*
 ================
 RE_LerpTag
 ================
 */
-int RE_LerpTag(orientation_t * tag, const refEntity_t * refent, const char *tagNameIn, int startIndex)
+#if defined(COMPAT_ET)
+int RE_LerpTagET(orientation_t * tag, const refEntity_t * refent, const char *tagNameIn, int startIndex)
 {
 	mdvTag_t       *start, *end;
 	int             i;
@@ -678,6 +789,20 @@ int RE_LerpTag(orientation_t * tag, const refEntity_t * refent, const char *tagN
 
 	}
 	*/
+	else if(model->type == MOD_MDM)
+	{
+		// use bone lerping
+		retval = R_MDM_GetBoneTag(tag, model->mdm, startIndex, refent, tagNameIn);
+
+		if(retval >= 0)
+		{
+			return retval;
+		}
+
+		// failed
+		return -1;
+
+	}
 	/*
 	else
 	{

@@ -871,7 +871,7 @@ static void GraphicsOptions_ApplyChanges(void *unused, int notification)
 		trap_Cvar_Set("r_textureMode", "GL_LINEAR_MIPMAP_NEAREST");
 	}
 
-	trap_Cvar_SetValue("r_ext_texture_compression", s_graphicsoptions.compression.curvalue);
+	trap_Cvar_SetValue("r_ext_compressed_textures", s_graphicsoptions.compression.curvalue);
 	trap_Cvar_SetValue("r_ext_texture_filter_anisotropic", s_graphicsoptions.anisotropicFilter.curvalue);
 
 	trap_Cvar_SetValue("cg_shadows", s_graphicsoptions.shadowType.curvalue);
@@ -1179,9 +1179,9 @@ static void GraphicsOptions_SetMenuItems(void)
 	{
 		s_graphicsoptions.anisotropicFilter.curvalue = 0;
 	}
-	else if(s_graphicsoptions.anisotropicFilter.curvalue > uis.glconfig.maxTextureAnisotropy)
+	else if(s_graphicsoptions.anisotropicFilter.curvalue > uis.glconfig2.maxTextureAnisotropy)
 	{
-		s_graphicsoptions.anisotropicFilter.curvalue = uis.glconfig.maxTextureAnisotropy;
+		s_graphicsoptions.anisotropicFilter.curvalue = uis.glconfig2.maxTextureAnisotropy;
 	}
 
 	s_graphicsoptions.shadowType.curvalue = trap_Cvar_VariableValue("cg_shadows");
@@ -1191,7 +1191,7 @@ static void GraphicsOptions_SetMenuItems(void)
 	}
 	else if(s_graphicsoptions.shadowType.curvalue > 3)
 	{
-		if(!uis.glconfig.framebufferObjectAvailable || !uis.glconfig.textureFloatAvailable)
+		if(!uis.glconfig2.framebufferObjectAvailable || !uis.glconfig2.textureFloatAvailable)
 		{
 			s_graphicsoptions.shadowType.curvalue = 3;
 		}
@@ -1209,7 +1209,7 @@ static void GraphicsOptions_SetMenuItems(void)
 	s_graphicsoptions.hdr.curvalue = trap_Cvar_VariableValue("r_hdrRendering");
 	if(s_graphicsoptions.hdr.curvalue > 0)
 	{
-		if(!uis.glconfig.framebufferObjectAvailable || !uis.glconfig.textureFloatAvailable || !uis.glconfig.framebufferBlitAvailable)
+		if(!uis.glconfig2.framebufferObjectAvailable || !uis.glconfig2.textureFloatAvailable || !uis.glconfig2.framebufferBlitAvailable)
 		{
 			s_graphicsoptions.hdr.curvalue = 0;
 		}
@@ -1574,7 +1574,7 @@ otty: do we need this ?
 		s_graphicsoptions.anisotropicFilter.generic.x = uis.screenXSize / 2;
 		s_graphicsoptions.anisotropicFilter.generic.y = y;
 		s_graphicsoptions.anisotropicFilter.minvalue = 0;
-		s_graphicsoptions.anisotropicFilter.maxvalue = uis.glconfig.maxTextureAnisotropy;
+		s_graphicsoptions.anisotropicFilter.maxvalue = uis.glconfig2.maxTextureAnisotropy;
 		s_graphicsoptions.anisotropicFilter.generic.callback = GraphicsOptions_AnisotropicFilterEvent;
 		y += BIGCHAR_HEIGHT + 2;
 	}

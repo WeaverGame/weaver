@@ -389,7 +389,7 @@ qboolean CG_RegisterClientModel(clientInfo_t * ci, const char *modelName, const 
 	char            filename[MAX_QPATH * 2];
 
 	Com_sprintf(filename, sizeof(filename), "models/players/%s/body.md5mesh", modelName);
-	ci->bodyModel = trap_R_RegisterModel(filename, qfalse);
+	ci->bodyModel = trap_R_RegisterModel(filename);
 
 	if(!ci->bodyModel)
 	{

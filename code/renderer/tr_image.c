@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2006-2009 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2011 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -103,7 +103,6 @@ long GenerateImageHashValue(const char *fname)
 GL_TextureMode
 ===============
 */
-#if !defined(USE_D3D10)
 void GL_TextureMode(const char *string)
 {
 	int             i;
@@ -127,11 +126,11 @@ void GL_TextureMode(const char *string)
 	gl_filter_max = modes[i].maximize;
 
 	// bound texture anisotropy
-	if(glConfig.textureAnisotropyAvailable)
+	if(glConfig2.textureAnisotropyAvailable)
 	{
-		if(r_ext_texture_filter_anisotropic->value > glConfig.maxTextureAnisotropy)
+		if(r_ext_texture_filter_anisotropic->value > glConfig2.maxTextureAnisotropy)
 		{
-			ri.Cvar_Set("r_ext_texture_filter_anisotropic", va("%f", glConfig.maxTextureAnisotropy));
+			ri.Cvar_Set("r_ext_texture_filter_anisotropic", va("%f", glConfig2.maxTextureAnisotropy));
 		}
 		else if(r_ext_texture_filter_anisotropic->value < 1.0)
 		{
@@ -153,12 +152,11 @@ void GL_TextureMode(const char *string)
 			glTexParameterf(image->type, GL_TEXTURE_MAG_FILTER, gl_filter_max);
 
 			// set texture anisotropy
-			if(glConfig.textureAnisotropyAvailable)
+			if(glConfig2.textureAnisotropyAvailable)
 				glTexParameterf(image->type, GL_TEXTURE_MAX_ANISOTROPY_EXT, r_ext_texture_filter_anisotropic->value);
 		}
 	}
 }
-#endif // defined(USE_D3D10)
 
 /*
 ===============
@@ -1066,7 +1064,7 @@ void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 	vec4_t          zeroClampBorder = { 0, 0, 0, 1 };
 	vec4_t          alphaZeroClampBorder = { 0, 0, 0, 0 };
 
-	if(glConfig.textureNPOTAvailable)
+	if(glConfig2.textureNPOTAvailable)
 	{
 		scaledWidth = image->width;
 		scaledHeight = image->height;
@@ -1107,7 +1105,7 @@ void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 	// deal with a half mip resampling
 	if(image->type == GL_TEXTURE_CUBE_MAP_ARB)
 	{
-		while(scaledWidth > glConfig.maxCubeMapTextureSize || scaledHeight > glConfig.maxCubeMapTextureSize)
+		while(scaledWidth > glConfig2.maxCubeMapTextureSize || scaledHeight > glConfig2.maxCubeMapTextureSize)
 		{
 			scaledWidth >>= 1;
 			scaledHeight >>= 1;
@@ -1163,7 +1161,7 @@ void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 		format = GL_DEPTH_STENCIL_EXT;
 		internalFormat = GL_DEPTH24_STENCIL8_EXT;
 	}
-	else if(glConfig.textureFloatAvailable &&
+	else if(glConfig2.textureFloatAvailable &&
 			(image->bits & (IF_RGBA16F | IF_RGBA32F | IF_RGBA16 | IF_LA16F | IF_LA32F | IF_ALPHA16F | IF_ALPHA32F)))
 	{
 		if(image->bits & IF_RGBA16F)
@@ -1309,7 +1307,7 @@ void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 		image->uploadHeight = scaledHeight;
 		image->internalFormat = internalFormat;
 
-		if(image->filterType == FT_DEFAULT && glConfig.generateMipmapAvailable)
+		if(image->filterType == FT_DEFAULT && glConfig2.generateMipmapAvailable)
 		{
 			// raynorpat: if hardware mipmap generation is available, use it
 			//glHint(GL_GENERATE_MIPMAP_HINT_SGIS, GL_NICEST);	// make sure its nice
@@ -1336,7 +1334,7 @@ void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 				break;
 		}
 
-		if(!glConfig.generateMipmapAvailable)
+		if(!glConfig2.generateMipmapAvailable)
 		{
 			if(image->filterType == FT_DEFAULT && !(image->bits & (IF_DEPTH16 | IF_DEPTH24 | IF_DEPTH32 | IF_PACKED_DEPTH24_STENCIL8)))
 			{
@@ -1394,7 +1392,7 @@ void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 	{
 		case FT_DEFAULT:
 			// set texture anisotropy
-			if(glConfig.textureAnisotropyAvailable)
+			if(glConfig2.textureAnisotropyAvailable)
 				glTexParameterf(image->type, GL_TEXTURE_MAX_ANISOTROPY_EXT, r_ext_texture_filter_anisotropic->value);
 
 			glTexParameterf(image->type, GL_TEXTURE_MIN_FILTER, gl_filter_min);
@@ -2208,6 +2206,15 @@ image_t        *R_FindImageFile(const char *imageName, int bits, filterType_t fi
 		return NULL;
 	}
 
+#if defined(COMPAT_ET)
+	if(bits & IF_LIGHTMAP)
+	{
+		R_ProcessLightmap(&pic, 4, width, height, &pic);
+
+		bits |= IF_NOCOMPRESSION;
+	}
+#endif
+
 #if 0
 	//if(r_tryCachedDDSImages->integer && !(bits & IF_NOCOMPRESSION) && Q_strncasecmp(name, "fonts", 5))
 	{
@@ -2771,7 +2778,7 @@ static void R_CreateContrastRenderFBOImage(void)
 	int             width, height;
 	byte           *data;
 
-	if(glConfig.textureNPOTAvailable)
+	if(glConfig2.textureNPOTAvailable)
 	{
 		width = glConfig.vidWidth * 0.25f;
 		height = glConfig.vidHeight * 0.25f;
@@ -2784,7 +2791,7 @@ static void R_CreateContrastRenderFBOImage(void)
 
 	data = ri.Hunk_AllocateTempMemory(width * height * 4);
 
-	if(r_hdrRendering->integer && glConfig.textureFloatAvailable)
+	if(r_hdrRendering->integer && glConfig2.textureFloatAvailable)
 	{
 		tr.contrastRenderFBOImage = R_CreateImage("_contrastRenderFBO", data, width, height, IF_NOPICMIP | IF_NOCOMPRESSION | IF_RGBA16F, FT_LINEAR, WT_CLAMP);
 	}
@@ -2802,7 +2809,7 @@ static void R_CreateBloomRenderFBOImage(void)
 	int             width, height;
 	byte           *data;
 
-	if(glConfig.textureNPOTAvailable)
+	if(glConfig2.textureNPOTAvailable)
 	{
 		width = glConfig.vidWidth * 0.25f;
 		height = glConfig.vidHeight * 0.25f;
@@ -2817,7 +2824,7 @@ static void R_CreateBloomRenderFBOImage(void)
 
 	for(i = 0; i < 2; i++)
 	{
-		if(r_hdrRendering->integer && glConfig.textureFloatAvailable)
+		if(r_hdrRendering->integer && glConfig2.textureFloatAvailable)
 		{
 			tr.bloomRenderFBOImage[i] = R_CreateImage(va("_bloomRenderFBO%d", i), data, width, height, IF_NOPICMIP | IF_NOCOMPRESSION | IF_RGBA16F, FT_LINEAR, WT_CLAMP);
 		}
@@ -2835,7 +2842,7 @@ static void R_CreateCurrentRenderImage(void)
 	int             width, height;
 	byte           *data;
 
-	if(glConfig.textureNPOTAvailable)
+	if(glConfig2.textureNPOTAvailable)
 	{
 		width = glConfig.vidWidth;
 		height = glConfig.vidHeight;
@@ -2858,7 +2865,7 @@ static void R_CreateDepthRenderImage(void)
 	int             width, height;
 	byte           *data;
 
-	if(glConfig.textureNPOTAvailable)
+	if(glConfig2.textureNPOTAvailable)
 	{
 		width = glConfig.vidWidth;
 		height = glConfig.vidHeight;
@@ -2871,7 +2878,7 @@ static void R_CreateDepthRenderImage(void)
 
 	data = ri.Hunk_AllocateTempMemory(width * height * 4);
 
-	if(glConfig.framebufferPackedDepthStencilAvailable)
+	if(glConfig2.framebufferPackedDepthStencilAvailable)
 	{
 		tr.depthRenderImage = R_CreateImage("_depthRender", data, width, height, IF_NOPICMIP | IF_PACKED_DEPTH24_STENCIL8, FT_NEAREST, WT_CLAMP);
 	}
@@ -2891,7 +2898,7 @@ static void R_CreatePortalRenderImage(void)
 	int             width, height;
 	byte           *data;
 
-	if(glConfig.textureNPOTAvailable)
+	if(glConfig2.textureNPOTAvailable)
 	{
 		width = glConfig.vidWidth;
 		height = glConfig.vidHeight;
@@ -2904,7 +2911,7 @@ static void R_CreatePortalRenderImage(void)
 
 	data = ri.Hunk_AllocateTempMemory(width * height * 4);
 
-	if(r_hdrRendering->integer && glConfig.textureFloatAvailable)
+	if(r_hdrRendering->integer && glConfig2.textureFloatAvailable)
 	{
 		tr.portalRenderImage = R_CreateImage("_portalRender", data, width, height, IF_NOPICMIP | IF_RGBA16F, FT_NEAREST, WT_CLAMP);
 	}
@@ -2921,7 +2928,7 @@ static void R_CreateOcclusionRenderFBOImage(void)
 	int             width, height;
 	byte           *data;
 
-	if(glConfig.textureNPOTAvailable)
+	if(glConfig2.textureNPOTAvailable)
 	{
 		width = glConfig.vidWidth;
 		height = glConfig.vidHeight;
@@ -2940,7 +2947,7 @@ static void R_CreateOcclusionRenderFBOImage(void)
 	{
 		tr.occlusionRenderFBOImage = R_CreateImage("_occlusionFBORender", data, width, height, IF_NOPICMIP | IF_ALPHA16F, FT_NEAREST, WT_CLAMP);
 	}
-	else if(glConfig.framebufferPackedDepthStencilAvailable)
+	else if(glConfig2.framebufferPackedDepthStencilAvailable)
 	{
 		tr.occlusionRenderFBOImage = R_CreateImage("_occlusionFBORender", data, width, height, IF_NOPICMIP | IF_ALPHA32F, FT_NEAREST, WT_CLAMP);
 	}
@@ -2958,7 +2965,7 @@ static void R_CreateDepthToColorFBOImages(void)
 	int             width, height;
 	byte           *data;
 
-	if(glConfig.textureNPOTAvailable)
+	if(glConfig2.textureNPOTAvailable)
 	{
 		width = glConfig.vidWidth;
 		height = glConfig.vidHeight;
@@ -2982,7 +2989,7 @@ static void R_CreateDepthToColorFBOImages(void)
 		tr.depthToColorBackFacesFBOImage = R_CreateImage("_depthToColorBackFacesFBORender", data, width, height, IF_NOPICMIP | IF_ALPHA32F, FT_NEAREST, WT_CLAMP);
 		tr.depthToColorFrontFacesFBOImage = R_CreateImage("_depthToColorFrontFacesFBORender", data, width, height, IF_NOPICMIP | IF_ALPHA32F, FT_NEAREST, WT_CLAMP);
 	}
-	else if(glConfig.framebufferPackedDepthStencilAvailable)
+	else if(glConfig2.framebufferPackedDepthStencilAvailable)
 	{
 		tr.depthToColorBackFacesFBOImage = R_CreateImage("_depthToColorBackFacesFBORender", data, width, height, IF_NOPICMIP | IF_ALPHA32F, FT_NEAREST, WT_CLAMP);
 		tr.depthToColorFrontFacesFBOImage = R_CreateImage("_depthToColorFrontFacesFBORender", data, width, height, IF_NOPICMIP | IF_ALPHA32F, FT_NEAREST, WT_CLAMP);
@@ -3004,7 +3011,7 @@ static void R_CreateDownScaleFBOImages(void)
 	int				width, height;
 
 
-	if(glConfig.textureNPOTAvailable)
+	if(glConfig2.textureNPOTAvailable)
 	{
 		width = glConfig.vidWidth * 0.25f;
 		height = glConfig.vidHeight * 0.25f;
@@ -3016,7 +3023,7 @@ static void R_CreateDownScaleFBOImages(void)
 	}
 
 	data = ri.Hunk_AllocateTempMemory(width * height * 4);
-	if(r_hdrRendering->integer && glConfig.textureFloatAvailable)
+	if(r_hdrRendering->integer && glConfig2.textureFloatAvailable)
 	{
 		tr.downScaleFBOImage_quarter = R_CreateImage("_downScaleFBOImage_quarter", data, width, height, IF_NOPICMIP | IF_RGBA16F, FT_NEAREST, WT_CLAMP);
 	}
@@ -3029,7 +3036,7 @@ static void R_CreateDownScaleFBOImages(void)
 
 	width = height = 64;
 	data = ri.Hunk_AllocateTempMemory(width * height * 4);
-	if(r_hdrRendering->integer && glConfig.textureFloatAvailable)
+	if(r_hdrRendering->integer && glConfig2.textureFloatAvailable)
 	{
 		tr.downScaleFBOImage_64x64 = R_CreateImage("_downScaleFBOImage_64x64", data, width, height, IF_NOPICMIP | IF_RGBA16F, FT_NEAREST, WT_CLAMP);
 	}
@@ -3042,7 +3049,7 @@ static void R_CreateDownScaleFBOImages(void)
 #if 0
 	width = height = 16;
 	data = ri.Hunk_AllocateTempMemory(width * height * 4);
-	if(r_hdrRendering->integer && glConfig.textureFloatAvailable)
+	if(r_hdrRendering->integer && glConfig2.textureFloatAvailable)
 	{
 		tr.downScaleFBOImage_16x16 = R_CreateImage("_downScaleFBOImage_16x16", data, width, height, IF_NOPICMIP | IF_RGBA16F, FT_NEAREST, WT_CLAMP);
 	}
@@ -3055,7 +3062,7 @@ static void R_CreateDownScaleFBOImages(void)
 
 	width = height = 4;
 	data = ri.Hunk_AllocateTempMemory(width * height * 4);
-	if(r_hdrRendering->integer && glConfig.textureFloatAvailable)
+	if(r_hdrRendering->integer && glConfig2.textureFloatAvailable)
 	{
 		tr.downScaleFBOImage_4x4 = R_CreateImage("_downScaleFBOImage_4x4", data, width, height, IF_NOPICMIP | IF_RGBA16F, FT_NEAREST, WT_CLAMP);
 	}
@@ -3068,7 +3075,7 @@ static void R_CreateDownScaleFBOImages(void)
 
 	width = height = 1;
 	data = ri.Hunk_AllocateTempMemory(width * height * 4);
-	if(r_hdrRendering->integer && glConfig.textureFloatAvailable)
+	if(r_hdrRendering->integer && glConfig2.textureFloatAvailable)
 	{
 		tr.downScaleFBOImage_1x1 = R_CreateImage("_downScaleFBOImage_1x1", data, width, height, IF_NOPICMIP | IF_RGBA16F, FT_NEAREST, WT_CLAMP);
 	}
@@ -3085,7 +3092,7 @@ static void R_CreateDeferredRenderFBOImages(void)
 	int             width, height;
 	byte           *data;
 
-	if(glConfig.textureNPOTAvailable)
+	if(glConfig2.textureNPOTAvailable)
 	{
 		width = glConfig.vidWidth;
 		height = glConfig.vidHeight;
@@ -3137,7 +3144,7 @@ static void R_CreateShadowMapFBOImage(void)
 	int             width, height;
 	byte           *data;
 
-	if(!glConfig.textureFloatAvailable || r_shadows->integer <= SHADOWING_STENCIL)
+	if(!glConfig2.textureFloatAvailable || r_shadows->integer <= SHADOWING_STENCIL)
 		return;
 
 	for(i = 0; i < MAX_SHADOWMAPS; i++)
@@ -3179,7 +3186,7 @@ static void R_CreateShadowCubeFBOImage(void)
 	int             width, height;
 	byte           *data[6];
 
-	if(!glConfig.textureFloatAvailable || r_shadows->integer <= SHADOWING_STENCIL)
+	if(!glConfig2.textureFloatAvailable || r_shadows->integer <= SHADOWING_STENCIL)
 		return;
 
 	for(j = 0; j < 5; j++)
@@ -3524,16 +3531,9 @@ void R_ShutdownImages(void)
 	{
 		image = Com_GrowListElement(&tr.images, i);
 
-#if defined(USE_D3D10)
-		// TODO
-#else
 		glDeleteTextures(1, &image->texnum);
-#endif
 	}
 
-#if defined(USE_D3D10)
-	// TODO
-#else
 	Com_Memset(glState.currenttextures, 0, sizeof(glState.currenttextures));
 	/*
 	if(glBindTexture)
@@ -3552,7 +3552,6 @@ void R_ShutdownImages(void)
 		}
 	}
 	*/
-#endif
 
 	Com_DestroyGrowList(&tr.images);
 	Com_DestroyGrowList(&tr.lightmaps);

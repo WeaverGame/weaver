@@ -282,9 +282,9 @@ void trap_R_LoadWorldMap(const char *mapname)
 	syscall(CG_R_LOADWORLDMAP, mapname);
 }
 
-qhandle_t trap_R_RegisterModel(const char *name, qboolean forceStatic)
+qhandle_t trap_R_RegisterModel(const char *name)
 {
-	return syscall(CG_R_REGISTERMODEL, name, forceStatic);
+	return syscall(CG_R_REGISTERMODEL, name);
 }
 
 qhandle_t trap_R_RegisterAnimation(const char *name)
@@ -413,7 +413,7 @@ void trap_R_RemapShader(const char *oldShader, const char *newShader, const char
 	syscall(CG_R_REMAP_SHADER, oldShader, newShader, timeOffset);
 }
 
-void trap_GetGlconfig(glConfig_t * glconfig)
+void trap_GetGlconfig(glconfig_t * glconfig)
 {
 	syscall(CG_GETGLCONFIG, glconfig);
 }

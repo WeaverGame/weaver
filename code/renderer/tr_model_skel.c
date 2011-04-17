@@ -138,7 +138,7 @@ qboolean AddTriangleToVBOTriangleList(growList_t * vboTriangles, skelTriangle_t 
 				if(!boneReferences[boneIndex])
 				{
 					// the bone isn't yet and we have to test if we can give the mesh this bone at all
-					if((*numBoneReferences + numNewReferences) >= glConfig.maxVertexSkinningBones)
+					if((*numBoneReferences + numNewReferences) >= glConfig2.maxVertexSkinningBones)
 					{
 						return qfalse;
 					}

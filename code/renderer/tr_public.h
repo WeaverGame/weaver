@@ -48,8 +48,8 @@ typedef struct
 	// and returns the current gl configuration, including screen width
 	// and height, which can be used by the client to intelligently
 	// size display elements
-	void            (*BeginRegistration) (glConfig_t * config);
-	qhandle_t		(*RegisterModel) (const char *name, qboolean forceStatic);
+	void            (*BeginRegistration) (glconfig_t * config, glconfig2_t * glconfig2);
+	qhandle_t		(*RegisterModel) (const char *name);
 	qhandle_t		(*RegisterSkin) (const char *name);
 	qhandle_t		(*RegisterShader) (const char *name);
 	qhandle_t		(*RegisterShaderNoMip) (const char *name);

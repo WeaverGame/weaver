@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2006-2009 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2011 Robert Beckebans <trebor_7@users.sourceforge.net>
 Copyright (C) 2009 Peter McNeill <n27@bigpond.net.au>
 
 This file is part of XreaL source code.
@@ -101,7 +101,7 @@ void HSVtoRGB(float h, float s, float v, float rgb[3])
 R_ColorShiftLightingBytes
 ===============
 */
-#if defined(COMPAT_Q3A)
+#if defined(COMPAT_Q3A) || defined(COMPAT_ET)
 static void R_ColorShiftLightingBytes(byte in[4], byte out[4])
 {
 	int             shift, r, g, b;
@@ -205,8 +205,8 @@ static void R_HDRTonemapLightingColors(const vec4_t in, vec4_t out, qboolean app
 	VectorScale(sample, finalLuminance, sample);
 	sample[3] = Q_min(1.0f, sample[3]);
 
-	if(!r_hdrRendering->integer || !r_hdrLightmap->integer || !glConfig.framebufferObjectAvailable ||
-	   !glConfig.textureFloatAvailable || !glConfig.framebufferBlitAvailable)
+	if(!r_hdrRendering->integer || !r_hdrLightmap->integer || !glConfig2.framebufferObjectAvailable ||
+	   !glConfig2.textureFloatAvailable || !glConfig2.framebufferBlitAvailable)
 	{
 		float           max;
 
@@ -219,8 +219,8 @@ static void R_HDRTonemapLightingColors(const vec4_t in, vec4_t out, qboolean app
 		Vector4Copy(sample, out);
 	}
 #else
-	if(!r_hdrRendering->integer || !r_hdrLightmap->integer || !glConfig.framebufferObjectAvailable ||
-	   !glConfig.textureFloatAvailable || !glConfig.framebufferBlitAvailable)
+	if(!r_hdrRendering->integer || !r_hdrLightmap->integer || !glConfig2.framebufferObjectAvailable ||
+	   !glConfig2.textureFloatAvailable || !glConfig2.framebufferBlitAvailable)
 	{
 		float           max;
 
@@ -279,7 +279,7 @@ R_ProcessLightmap
 	returns maxIntensity
 ===============
 */
-#if defined(COMPAT_Q3A)
+#if defined(COMPAT_Q3A) || defined(COMPAT_ET)
 float R_ProcessLightmap(byte ** pic, int in_padding, int width, int height, byte ** pic_out)
 {
 	int             j;
@@ -799,14 +799,13 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 		Q_strncpyz(mapName, bspName, sizeof(mapName));
 		Com_StripExtension(mapName, mapName, sizeof(mapName));
 
-#if !defined(USE_D3D10)
 		if(tr.worldHDR_RGBE)
 		{
 			// we are about to upload textures
 			R_SyncRenderThread();
 
 			// load HDR lightmaps
-			lightmapFiles = ri.FS_ListFilteredFiles(mapName, ".hdr", "/lm_*.hdr", &numLightmaps);
+			lightmapFiles = ri.FS_ListFiles(mapName, ".hdr", &numLightmaps);
 
 			qsort(lightmapFiles, numLightmaps, sizeof(char *), LightmapNameCompare);
 
@@ -818,8 +817,8 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 
 			ri.Printf(PRINT_ALL, "...loading %i HDR lightmaps\n", numLightmaps);
 
-			if(r_hdrRendering->integer && r_hdrLightmap->integer && glConfig.framebufferObjectAvailable &&
-			   glConfig.framebufferBlitAvailable && glConfig.textureFloatAvailable && glConfig.textureHalfFloatAvailable)
+			if(r_hdrRendering->integer && r_hdrLightmap->integer && glConfig2.framebufferObjectAvailable &&
+			   glConfig2.framebufferBlitAvailable && glConfig2.textureFloatAvailable && glConfig2.textureHalfFloatAvailable)
 			{
 				int             width, height;
 				unsigned short *hdrImage;
@@ -856,7 +855,7 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 
 					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F_ARB, width, height, 0, GL_RGB, GL_HALF_FLOAT_ARB, hdrImage);
 
-					if(glConfig.generateMipmapAvailable)
+					if(glConfig2.generateMipmapAvailable)
 					{
 						//glHint(GL_GENERATE_MIPMAP_HINT_SGIS, GL_NICEST);    // make sure its nice
 						glTexParameteri(image->type, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
@@ -911,11 +910,11 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 			if(tr.worldDeluxeMapping)
 			{
 				// load deluxemaps
-				lightmapFiles = ri.FS_ListFilteredFiles(mapName, ".png", "/lm_*.png", &numLightmaps);
+				lightmapFiles = ri.FS_ListFiles(mapName, ".png", &numLightmaps);
 
 				if(!lightmapFiles || !numLightmaps)
 				{
-					lightmapFiles = ri.FS_ListFilteredFiles(mapName, ".tga", "/lm_*.png", &numLightmaps);
+					lightmapFiles = ri.FS_ListFiles(mapName, ".tga", &numLightmaps);
 
 					if(!lightmapFiles || !numLightmaps)
 					{
@@ -938,7 +937,6 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 			}
 		}
 		else
-#endif
 		{
 			lightmapFiles = ri.FS_ListFilteredFiles(mapName, ".png", "/lm_*.png", &numLightmaps);
 
@@ -1389,7 +1387,7 @@ static void ParseFace(dsurface_t * ds, drawVert_t * verts, bspSurface_t * surf, 
 		}
 		R_ColorShiftLightingFloats(cv->verts[i].lightColor, cv->verts[i].lightColor);
 
-#elif defined(COMPAT_Q3A)
+#elif defined(COMPAT_Q3A) || defined(COMPAT_ET)
 		for(j = 0; j < 4; j++)
 		{
 			cv->verts[i].lightColor[j] = verts[i].color[j] * (1.0f / 255.0f);
@@ -1593,7 +1591,7 @@ static void ParseMesh(dsurface_t * ds, drawVert_t * verts, bspSurface_t * surf)
 		}
 		R_ColorShiftLightingFloats(points[i].lightColor, points[i].lightColor);
 
-#elif defined(COMPAT_Q3A)
+#elif defined(COMPAT_Q3A) || defined(COMPAT_ET)
 		for(j = 0; j < 4; j++)
 		{
 			points[i].lightColor[j] = verts[i].color[j] * (1.0f / 255.0f);
@@ -1720,7 +1718,7 @@ static void ParseTriSurf(dsurface_t * ds, drawVert_t * verts, bspSurface_t * sur
 			cv->verts[i].lightmap[j] = LittleFloat(verts[i].lightmap[j]);
 		}
 
-#if defined(COMPAT_Q3A)
+#if defined(COMPAT_Q3A) || defined(COMPAT_ET)
 		for(j = 0; j < 4; j++)
 		{
 			cv->verts[i].lightColor[j] = verts[i].color[j] * (1.0f / 255.0f);
@@ -5198,9 +5196,6 @@ static void R_LoadNodesAndLeafs(lump_t * nodeLump, lump_t * leafLump)
 	R_SetParent(s_worldData.nodes, NULL);
 
 	// calculate occlusion query volumes
-#if defined(USE_D3D10)
-	// TODO
-#else
 	for(j = 0, out = &s_worldData.nodes[0]; j < s_worldData.numnodes; j++, out++)
 	{
 		//if(out->contents != -1 && !out->numMarkSurfaces)
@@ -5285,7 +5280,6 @@ static void R_LoadNodesAndLeafs(lump_t * nodeLump, lump_t * leafLump)
 	tess.multiDrawPrimitives = 0;
 	tess.numIndexes = 0;
 	tess.numVertexes = 0;
-#endif
 }
 
 //=============================================================================
@@ -5586,7 +5580,7 @@ void R_LoadLightGrid(lump_t * l)
 
 	for(i = 0; i < w->numLightGridPoints; i++, in++, gridPoint++)
 	{
-#if defined(COMPAT_Q3A)
+#if defined(COMPAT_Q3A) || defined(COMPAT_ET)
 		byte		tmpAmbient[4];
 		byte		tmpDirected[4];
 
@@ -5644,7 +5638,7 @@ void R_LoadLightGrid(lump_t * l)
 			  i, gridPoint->ambient[0], gridPoint->ambient[1], gridPoint->ambient[2], gridPoint->directed[0], gridPoint->directed[1], gridPoint->directed[2]);
 #endif
 
-#if !defined(COMPAT_Q3A)
+#if !defined(COMPAT_Q3A) && !defined(COMPAT_ET)
 		// deal with overbright bits
 		R_HDRTonemapLightingColors(gridPoint->ambientColor, gridPoint->ambientColor, qtrue);
 		R_HDRTonemapLightingColors(gridPoint->directedColor, gridPoint->directedColor, qtrue);
@@ -6116,7 +6110,7 @@ void R_LoadEntities(lump_t * l)
 			{
 				light->l.scale = atof(value);
 
-				if(!r_hdrRendering->integer || !glConfig.textureFloatAvailable || !glConfig.framebufferObjectAvailable || !glConfig.framebufferBlitAvailable)
+				if(!r_hdrRendering->integer || !glConfig2.textureFloatAvailable || !glConfig2.framebufferObjectAvailable || !glConfig2.framebufferBlitAvailable)
 				{
 					if(light->l.scale >= r_lightScale->value)
 					{

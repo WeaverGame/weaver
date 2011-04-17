@@ -82,6 +82,8 @@
 				ModuleDefinitionFile=".\ui.def"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\Release/uix86.pdb"
+				GenerateMapFile="true"
+				MapFileName="$(TargetDir)$(TargetName).map"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
 				ImportLibrary=".\Release/uix86.lib"

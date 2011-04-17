@@ -795,7 +795,7 @@ void CG_RegisterWeapon(int weaponNum)
 		strcpy(path, item->models[0]);
 		Com_StripExtension(path, path, sizeof(path));
 		strcat(path, ".md5mesh");
-		weaponInfo->weaponModel = trap_R_RegisterModel(path, qtrue);
+		weaponInfo->weaponModel = trap_R_RegisterModel(path);
 	}
 
 	// calc midpoint for rotation
@@ -817,28 +817,28 @@ void CG_RegisterWeapon(int weaponNum)
 	}
 	if(ammo->classname && ammo->models[0])
 	{
-		weaponInfo->ammoModel = trap_R_RegisterModel(ammo->models[0], qtrue);
+		weaponInfo->ammoModel = trap_R_RegisterModel(ammo->models[0]);
 	}
 
 	strcpy(path, item->models[0]);
 	Com_StripExtension(path, path, sizeof(path));
 	strcat(path, "_flash.md3");
-	weaponInfo->flashModel = trap_R_RegisterModel(path, qtrue);
+	weaponInfo->flashModel = trap_R_RegisterModel(path);
 
 	strcpy(path, item->models[0]);
 	Com_StripExtension(path, path, sizeof(path));
 	strcat(path, "_barrel.md3");
-	weaponInfo->barrelModel = trap_R_RegisterModel(path, qtrue);
+	weaponInfo->barrelModel = trap_R_RegisterModel(path);
 
 	strcpy(path, item->models[0]);
 	Com_StripExtension(path, path, sizeof(path));
 	strcat(path, "_hand.md3");
-	weaponInfo->handsModel = trap_R_RegisterModel(path, qfalse);
+	weaponInfo->handsModel = trap_R_RegisterModel(path);
 
 	strcpy(path, item->models[0]);
 	Com_StripExtension(path, path, sizeof(path));
 	strcat(path, "_view.md5mesh");
-	weaponInfo->viewModel = trap_R_RegisterModel(path, qfalse);
+	weaponInfo->viewModel = trap_R_RegisterModel(path);
 
 	if(weaponInfo->viewModel)
 	{
@@ -888,7 +888,7 @@ void CG_RegisterWeapon(int weaponNum)
 	{
 		case WP_GAUNTLET:
 			MAKERGB(weaponInfo->flashLightColor, 0.6f, 0.6f, 1.0f);
-			weaponInfo->projectileModel = trap_R_RegisterModel("models/sword/sword.md5mesh", qtrue);
+			weaponInfo->projectileModel = trap_R_RegisterModel("models/weapons/gauntlet/gauntlet_barrel.md3");
 			weaponInfo->projectileTrailFunc = CG_GrappleTrail;
 			weaponInfo->projectileLight = 200;
 			weaponInfo->wiTrailTime = 2000;
@@ -935,7 +935,7 @@ void CG_RegisterItemVisuals(int itemNum)
 	memset(itemInfo, 0, sizeof(&itemInfo));
 	itemInfo->registered = qtrue;
 
-	itemInfo->models[0] = trap_R_RegisterModel(item->models[0], qtrue);
+	itemInfo->models[0] = trap_R_RegisterModel(item->models[0]);
 	if(item->skins[0])
 	{
 		itemInfo->skins[0] = trap_R_RegisterSkin(item->skins[0]);
@@ -953,7 +953,7 @@ void CG_RegisterItemVisuals(int itemNum)
 	{
 		if(item->models[1])
 		{
-			itemInfo->models[1] = trap_R_RegisterModel(item->models[1], qtrue);
+			itemInfo->models[1] = trap_R_RegisterModel(item->models[1]);
 		}
 
 		if(item->skins[1])

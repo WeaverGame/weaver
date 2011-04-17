@@ -27,7 +27,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 extern "C" {
 #endif
 
-glConfig_t      glConfig;
+glconfig_t      glConfig;
+glconfig2_t     glConfig2;
 
 #if defined(USE_D3D10)
 dxGlobals_t     dx;
@@ -398,7 +399,6 @@ static void InitOpenGL(void)
 GL_CheckErrors
 ==================
 */
-#if !defined(USE_D3D10)
 void GL_CheckErrors_(const char *fileName, int line)
 {
 	int             err;
@@ -454,7 +454,6 @@ void GL_CheckErrors_(const char *fileName, int line)
 
 	ri.Error(ERR_FATAL, "caught OpenGL error: %s in file %s line %i", s, fileName, line);
 }
-#endif // #if !defined(USE_D3D10)
 
 
 /*
@@ -1013,11 +1012,7 @@ const void     *RB_TakeVideoFrameCmd(const void *data)
 	// video recording
 	if(ri.CL_VideoRecording())
 	{
-#if !defined(USE_D3D10)
 		glReadPixels(0, 0, cmd->width, cmd->height, GL_RGBA, GL_UNSIGNED_BYTE, cmd->captureBuffer);
-#else
-	// TODO
-#endif
 
 		// gamma correct
 		if((tr.overbrightBits > 0) && glConfig.deviceSupportsGamma)
@@ -1053,7 +1048,6 @@ const void     *RB_TakeVideoFrameCmd(const void *data)
 /*
 ** GL_SetDefaultState
 */
-#if !defined(USE_D3D10)
 void GL_SetDefaultState(void)
 {
 	int             i;
@@ -1091,7 +1085,7 @@ void GL_SetDefaultState(void)
 	}
 	else
 	{
-		if(glActiveTextureARB)
+		if(GLEW_ARB_multitexture)
 		{
 			for(i = glConfig.maxActiveTextures - 1; i >= 0; i--)
 			{
@@ -1139,7 +1133,7 @@ void GL_SetDefaultState(void)
 	   bound.
 	 */
 
-	if(glConfig.framebufferObjectAvailable)
+	if(glConfig2.framebufferObjectAvailable)
 	{
 		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 		glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
@@ -1148,7 +1142,7 @@ void GL_SetDefaultState(void)
 
 
 	/*
-	   if(glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
+	   if(glConfig2.drawBuffersAvailable && glConfig2.maxDrawBuffers >= 4)
 	   {
 	   // enable all attachments as draw buffers
 	   GLenum drawbuffers[] = {GL_DRAW_BUFFER0_ARB,
@@ -1176,7 +1170,6 @@ void GL_SetDefaultState(void)
 		MatrixIdentity(glState.modelViewProjectionMatrix[i]);
 	}
 }
-#endif // #if !defined(USE_D3D10)
 
 
 
@@ -1214,31 +1207,31 @@ void GfxInfo_f(void)
 	   }
 	 */
 
-	ri.Printf(PRINT_ALL, "GL_SHADING_LANGUAGE_VERSION_ARB: %s\n", glConfig.shadingLanguageVersion);
+	ri.Printf(PRINT_ALL, "GL_SHADING_LANGUAGE_VERSION_ARB: %s\n", glConfig2.shadingLanguageVersion);
 
-	ri.Printf(PRINT_ALL, "GL_MAX_VERTEX_UNIFORM_COMPONENTS_ARB %d\n", glConfig.maxVertexUniforms);
-//	ri.Printf(PRINT_ALL, "GL_MAX_VARYING_FLOATS_ARB %d\n", glConfig.maxVaryingFloats);
-	ri.Printf(PRINT_ALL, "GL_MAX_VERTEX_ATTRIBS_ARB %d\n", glConfig.maxVertexAttribs);
+	ri.Printf(PRINT_ALL, "GL_MAX_VERTEX_UNIFORM_COMPONENTS_ARB %d\n", glConfig2.maxVertexUniforms);
+//	ri.Printf(PRINT_ALL, "GL_MAX_VARYING_FLOATS_ARB %d\n", glConfig2.maxVaryingFloats);
+	ri.Printf(PRINT_ALL, "GL_MAX_VERTEX_ATTRIBS_ARB %d\n", glConfig2.maxVertexAttribs);
 
-	if(glConfig.occlusionQueryAvailable)
+	if(glConfig2.occlusionQueryAvailable)
 	{
-		ri.Printf(PRINT_ALL, "%d occlusion query bits\n", glConfig.occlusionQueryBits);
+		ri.Printf(PRINT_ALL, "%d occlusion query bits\n", glConfig2.occlusionQueryBits);
 	}
 
-	if(glConfig.drawBuffersAvailable)
+	if(glConfig2.drawBuffersAvailable)
 	{
-		ri.Printf(PRINT_ALL, "GL_MAX_DRAW_BUFFERS_ARB: %d\n", glConfig.maxDrawBuffers);
+		ri.Printf(PRINT_ALL, "GL_MAX_DRAW_BUFFERS_ARB: %d\n", glConfig2.maxDrawBuffers);
 	}
 
-	if(glConfig.textureAnisotropyAvailable)
+	if(glConfig2.textureAnisotropyAvailable)
 	{
-		ri.Printf(PRINT_ALL, "GL_TEXTURE_MAX_ANISOTROPY_EXT: %f\n", glConfig.maxTextureAnisotropy);
+		ri.Printf(PRINT_ALL, "GL_TEXTURE_MAX_ANISOTROPY_EXT: %f\n", glConfig2.maxTextureAnisotropy);
 	}
 
-	if(glConfig.framebufferObjectAvailable)
+	if(glConfig2.framebufferObjectAvailable)
 	{
-		ri.Printf(PRINT_ALL, "GL_MAX_RENDERBUFFER_SIZE_EXT: %d\n", glConfig.maxRenderbufferSize);
-		ri.Printf(PRINT_ALL, "GL_MAX_COLOR_ATTACHMENTS_EXT: %d\n", glConfig.maxColorAttachments);
+		ri.Printf(PRINT_ALL, "GL_MAX_RENDERBUFFER_SIZE_EXT: %d\n", glConfig2.maxRenderbufferSize);
+		ri.Printf(PRINT_ALL, "GL_MAX_COLOR_ATTACHMENTS_EXT: %d\n", glConfig2.maxColorAttachments);
 	}
 
 	ri.Printf(PRINT_ALL, "\nPIXELFORMAT: color(%d-bits) Z(%d-bit) stencil(%d-bits)\n", glConfig.colorBits,
@@ -1267,12 +1260,11 @@ void GfxInfo_f(void)
 	ri.Printf(PRINT_ALL, "texturemode: %s\n", r_textureMode->string);
 	ri.Printf(PRINT_ALL, "picmip: %d\n", r_picmip->integer);
 
-#if !defined(USE_D3D10)
 	if(glConfig.driverType == GLDRV_OPENGL3)
 	{
 		int				contextFlags, profile;
 
-		ri.Printf(PRINT_ALL, S_COLOR_YELLOW "Using OpenGL 3.x context\n");
+		ri.Printf(PRINT_ALL, S_COLOR_GREEN "Using OpenGL 3.x context\n");
 
 		// check if we have a core-profile
 		glGetIntegerv(GL_CONTEXT_PROFILE_MASK, &profile);
@@ -1296,7 +1288,6 @@ void GfxInfo_f(void)
 			ri.Printf(PRINT_ALL, S_COLOR_RED "Context is NOT forward compatible\n");
 		}
 	}
-#endif // #if !defined(USE_D3D10)
 
 	if(glConfig.hardwareType == GLHW_ATI)
 	{
@@ -1318,9 +1309,9 @@ void GfxInfo_f(void)
 		ri.Printf(PRINT_ALL, "Using NVIDIA DirectX 10 hardware features\n");
 	}
 
-	if(glConfig.vboVertexSkinningAvailable)
+	if(glConfig2.vboVertexSkinningAvailable)
 	{
-		ri.Printf(PRINT_ALL, "Using GPU vertex skinning with max %i bones in a single pass\n", glConfig.maxVertexSkinningBones);
+		ri.Printf(PRINT_ALL, "Using GPU vertex skinning with max %i bones in a single pass\n", glConfig2.maxVertexSkinningBones);
 	}
 
 	if(glConfig.smpActive)
@@ -1708,6 +1699,11 @@ void R_Init(void)
 
 	ri.Printf(PRINT_ALL, "----- R_Init -----\n");
 	
+	// RB: Wolf's q_shared.c requires this
+#if defined(COMPAT_ET)
+	Swap_Init();
+#endif
+
 	// clear all our internal state
 	Com_Memset(&tr, 0, sizeof(tr));
 	Com_Memset(&backEnd, 0, sizeof(backEnd));
@@ -2006,14 +2002,12 @@ void R_Init(void)
 
 	R_InitFBOs();
 
-#if !defined(USE_D3D10)
 	if(glConfig.driverType == GLDRV_OPENGL3)
 	{
 		tr.vao = 0;
 		glGenVertexArrays(1, &tr.vao);
 		glBindVertexArray(tr.vao);
 	}
-#endif
 
 	R_InitVBOs();
 
@@ -2029,13 +2023,13 @@ void R_Init(void)
 
 	R_InitFreeType();
 
-	if(glConfig.textureAnisotropyAvailable)
+	if(glConfig2.textureAnisotropyAvailable)
 	{
-		AssertCvarRange(r_ext_texture_filter_anisotropic, 0, glConfig.maxTextureAnisotropy, qfalse);
+		AssertCvarRange(r_ext_texture_filter_anisotropic, 0, glConfig2.maxTextureAnisotropy, qfalse);
 	}
 
 #if !defined(USE_D3D10)
-	if(glConfig.occlusionQueryBits && glConfig.driverType != GLDRV_MESA)
+	if(glConfig2.occlusionQueryBits && glConfig.driverType != GLDRV_MESA)
 	 {
 		glGenQueriesARB(MAX_OCCLUSION_QUERIES, tr.occlusionQueryObjects);
 	 }
@@ -2088,15 +2082,13 @@ void RE_Shutdown(qboolean destroyWindow)
 		R_ShutdownVBOs();
 		R_ShutdownFBOs();
 
-#if !defined(USE_D3D10)
-
 		if(glConfig.driverType == GLDRV_OPENGL3)
 		{
 			glDeleteVertexArrays(1, &tr.vao);
 			tr.vao = 0;
 		}
 
-		if(glConfig.occlusionQueryBits && glConfig.driverType != GLDRV_MESA)
+		if(glConfig2.occlusionQueryBits && glConfig.driverType != GLDRV_MESA)
 		{
 			glDeleteQueriesARB(MAX_OCCLUSION_QUERIES, tr.occlusionQueryObjects);
 
@@ -2124,12 +2116,8 @@ void RE_Shutdown(qboolean destroyWindow)
 			}
 		}
 
-#if !defined(USE_D3D10)
 #if !defined(GLSL_COMPILE_STARTUP_ONLY)
 		GLSL_ShutdownGPUShaders();
-#endif
-#endif
-
 #endif
 
 		//GLimp_ShutdownRenderThread();
@@ -2149,10 +2137,8 @@ void RE_Shutdown(qboolean destroyWindow)
 #endif
 	{
 
-#if !defined(USE_D3D10)
 #if defined(GLSL_COMPILE_STARTUP_ONLY)
 		GLSL_ShutdownGPUShaders();
-#endif
 #endif
 
 		GLimp_Shutdown();
@@ -2242,7 +2228,9 @@ refexport_t* GetRefAPI(int apiVersion, refimport_t * rimp)
 	re.RegisterSkin = RE_RegisterSkin;
 	re.RegisterShader = RE_RegisterShader;
 	re.RegisterShaderNoMip = RE_RegisterShaderNoMip;
+#if !defined(COMPAT_ET)
 	re.RegisterShaderLightAttenuation = RE_RegisterShaderLightAttenuation;
+#endif
 
 	re.LoadWorld = RE_LoadWorldMap;
 	re.SetWorldVisData = RE_SetWorldVisData;
@@ -2253,16 +2241,26 @@ refexport_t* GetRefAPI(int apiVersion, refimport_t * rimp)
 
 	re.MarkFragments = R_MarkFragments;
 
-	re.LerpTag = RE_LerpTag;
+#if defined(COMPAT_ET)
+	re.LerpTag = RE_LerpTagET;
+#else
+	re.LerpTag = RE_LerpTagQ3A;
+#endif
 
 	re.ModelBounds = R_ModelBounds;
 
 	re.ClearScene = RE_ClearScene;
 	re.AddRefEntityToScene = RE_AddRefEntityToScene;
 
-	re.AddPolyToScene = RE_AddPolyToScene;
-
+#if defined(COMPAT_ET)
+	re.AddPolyToScene = RE_AddPolyToSceneET;
+	re.AddPolysToScene = RE_AddPolysToScene;
+#else
+	re.AddPolyToScene = RE_AddPolyToSceneQ3A;
+#endif
+#if !defined(COMPAT_ET)
 	re.LightForPoint = R_LightForPoint;
+#endif
 
 #if defined(COMPAT_ET)
 	re.AddLightToScene = RE_AddDynamicLightToSceneET;
@@ -2287,10 +2285,41 @@ refexport_t* GetRefAPI(int apiVersion, refimport_t * rimp)
 	re.inPVS = R_inPVS;
 	// Q3A END
 
+	// ET BEGIN
+#if defined(COMPAT_ET)
+	re.GetSkinModel = RE_GetSkinModel;
+	re.GetShaderFromModel = RE_GetShaderFromModel;
+
+	re.ProjectDecal = RE_ProjectDecal;
+	re.ClearDecals = RE_ClearDecals;
+
+	re.DrawDebugPolygon = R_DebugPolygon;
+	re.DrawDebugText = R_DebugText;
+
+	re.SaveViewParms = RE_SaveViewParms;
+	re.RestoreViewParms = RE_RestoreViewParms;
+
+	re.AddCoronaToScene = RE_AddCoronaToScene;
+	re.AddPolyBufferToScene = RE_AddPolyBufferToScene;
+	
+	re.SetFog = RE_SetFog;
+	re.SetGlobalFog = RE_SetGlobalFog;
+
+	re.purgeCache = RE_PurgeCache;
+
+	re.LoadDynamicShader = RE_LoadDynamicShader;
+	re.GetTextureId = RE_GetTextureId;
+	re.RenderToTexture = RE_RenderToTexture;
+	re.Finish = RE_Finish;
+#endif
+	// ET END
+
 	// XreaL BEGIN
 	re.TakeVideoFrame = RE_TakeVideoFrame;
 
+#if !defined(COMPAT_ET)
 	re.TakeScreenshotPNG = RB_TakeScreenshotPNG;
+#endif
 
 #if defined(USE_REFLIGHT)
 	re.RegisterShaderLightAttenuation = RE_RegisterShaderLightAttenuation;

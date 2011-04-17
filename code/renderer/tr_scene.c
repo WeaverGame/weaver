@@ -258,9 +258,24 @@ static void R_AddPolysToScene(qhandle_t hShader, int numVerts, const polyVert_t 
 RE_AddPolyToScene
 =====================
 */
-void RE_AddPolyToScene(qhandle_t hShader, int numVerts, const polyVert_t * verts, int num)
+void RE_AddPolyToSceneQ3A(qhandle_t hShader, int numVerts, const polyVert_t * verts, int num)
 {
 	R_AddPolysToScene(hShader, numVerts, verts, num);
+}
+
+void RE_AddPolyToSceneET(qhandle_t hShader, int numVerts, const polyVert_t * verts)
+{
+	R_AddPolysToScene(hShader, numVerts, verts, 1);
+}
+
+/*
+=====================
+RE_AddPolysToScene
+=====================
+*/
+void RE_AddPolysToScene(qhandle_t hShader, int numVerts, const polyVert_t * verts, int numPolys)
+{
+	R_AddPolysToScene(hShader, numVerts, verts, numPolys);
 }
 
 /*
@@ -389,7 +404,7 @@ void RE_AddRefLightToScene(const refLight_t * l)
 		light->l.scale = r_lightScale->value;
 	}
 
-	if(!r_hdrRendering->integer || !glConfig.textureFloatAvailable || !glConfig.framebufferObjectAvailable || !glConfig.framebufferBlitAvailable)
+	if(!r_hdrRendering->integer || !glConfig2.textureFloatAvailable || !glConfig2.framebufferObjectAvailable || !glConfig2.framebufferBlitAvailable)
 	{
 		if(light->l.scale >= r_lightScale->value)
 		{

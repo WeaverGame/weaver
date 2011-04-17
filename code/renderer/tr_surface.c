@@ -456,7 +456,7 @@ void Tess_UpdateVBOs(unsigned int attribBits)
 
 			if(backEnd.currentEntity == &tr.worldEntity)
 			{
-#if defined(COMPAT_Q3A)
+#if defined(COMPAT_Q3A) || defined(COMPAT_ET)
 				attribBits |= ATTR_LIGHTCOORD;
 #else
 				attribBits |= ATTR_LIGHTCOORD | ATTR_PAINTCOLOR | ATTR_LIGHTDIRECTION;
@@ -537,7 +537,7 @@ void Tess_UpdateVBOs(unsigned int attribBits)
 			glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, tess.vbo->ofsColors, tess.numVertexes * sizeof(vec4_t), tess.colors);
 		}
 
-#if !defined(COMPAT_Q3A)
+#if !defined(COMPAT_Q3A) && !defined(COMPAT_ET)
 		if(attribBits & ATTR_PAINTCOLOR)
 		{
 			if(r_logFile->integer)
@@ -2043,10 +2043,10 @@ static void Tess_SurfaceLightningBolt(void)
 
 /*
 =============
-Tess_SurfaceMDX
+Tess_SurfaceMDV
 =============
 */
-static void Tess_SurfaceMDX(mdvSurface_t * srf)
+static void Tess_SurfaceMDV(mdvSurface_t * srf)
 {
 	int             i, j;
 	int             numIndexes = 0;
@@ -2059,7 +2059,7 @@ static void Tess_SurfaceMDX(mdvSurface_t * srf)
 	float           backlerp;
 	float           oldXyzScale, newXyzScale;
 
-	GLimp_LogComment("--- Tess_SurfaceMDX ---\n");
+	GLimp_LogComment("--- Tess_SurfaceMDV ---\n");
 
 	if(backEnd.currentEntity->e.oldframe == backEnd.currentEntity->e.frame)
 	{
@@ -2968,7 +2968,6 @@ void Tess_SurfaceVBOMDVMesh(srfVBOMDVMesh_t * surface)
 
 	refEnt = &backEnd.currentEntity->e;
 
-#if !defined(USE_D3D10)
 	if(refEnt->oldframe == refEnt->frame)
 	{
 		glState.vertexAttribsInterpolation = 0;
@@ -2980,7 +2979,6 @@ void Tess_SurfaceVBOMDVMesh(srfVBOMDVMesh_t * surface)
 
 	glState.vertexAttribsOldFrame = refEnt->oldframe;
 	glState.vertexAttribsNewFrame = refEnt->frame;
-#endif
 
 	Tess_End();
 }
@@ -3094,16 +3092,19 @@ void            (*rb_surfaceTable[SF_NUM_SURFACE_TYPES]) (void *) =
 		(void (*)(void *))Tess_SurfacePolychain,	// SF_POLY,
 		(void (*)(void *))Tess_SurfacePolybuffer,	// SF_POLYBUFFER,
 		(void (*)(void *))Tess_SurfaceDecal,	// SF_DECAL
-		(void (*)(void *))Tess_SurfaceMDX,	// SF_MDX,
-
-		//(void (*)(void *))Tess_MDM_SurfaceAnim,	// SF_MDM,
+		(void (*)(void *))Tess_SurfaceMDV,	// SF_MDV,
+#if defined(COMPAT_ET)
+		(void (*)(void *))Tess_MDM_SurfaceAnim,	// SF_MDM,
+#endif
 		(void (*)(void *))Tess_SurfaceMD5,	// SF_MD5,
 
 		(void (*)(void *))Tess_SurfaceFlare,	// SF_FLARE,
 		(void (*)(void *))Tess_SurfaceEntity,	// SF_ENTITY
 		(void (*)(void *))Tess_SurfaceVBOMesh,	// SF_VBO_MESH
 		(void (*)(void *))Tess_SurfaceVBOMD5Mesh,	// SF_VBO_MD5MESH
-		//(void (*)(void *))Tess_SurfaceVBOMDMMesh,	// SF_VBO_MD5MESH
+#if defined(COMPAT_ET)
+		(void (*)(void *))Tess_SurfaceVBOMDMMesh,	// SF_VBO_MD5MESH
+#endif
 		(void (*)(void *))Tess_SurfaceVBOMDVMesh,	// SF_VBO_MDVMESH
 		(void (*)(void *))Tess_SurfaceVBOShadowVolume	// SF_VBO_SHADOW_VOLUME
 };

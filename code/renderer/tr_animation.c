@@ -936,7 +936,7 @@ void R_AddMD5Surfaces(trRefEntity_t * ent)
 	fogNum = R_FogWorldBox(ent->worldBounds);
 
 	if(!r_vboModels->integer || !model->numVBOSurfaces ||
-	   (!glConfig.vboVertexSkinningAvailable && ent->e.skeleton.type == SK_ABSOLUTE))
+	   (!glConfig2.vboVertexSkinningAvailable && ent->e.skeleton.type == SK_ABSOLUTE))
 	{
 		// finally add surfaces
 		for(i = 0, surface = model->surfaces; i < model->numSurfaces; i++, surface++)
@@ -1105,7 +1105,7 @@ void R_AddMD5Interactions(trRefEntity_t * ent, trRefLight_t * light)
 	cubeSideBits = R_CalcLightCubeSideBits(light, ent->worldBounds);
 
 	if(!r_vboModels->integer || !model->numVBOSurfaces ||
-	   (!glConfig.vboVertexSkinningAvailable && ent->e.skeleton.type == SK_ABSOLUTE))
+	   (!glConfig2.vboVertexSkinningAvailable && ent->e.skeleton.type == SK_ABSOLUTE))
 	{
 		// generate interactions with all surfaces
 		for(i = 0, surface = model->surfaces; i < model->numSurfaces; i++, surface++)

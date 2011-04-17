@@ -371,7 +371,7 @@ std::string	GLShader::BuildGPUShaderText(	const char *mainShaderName,
 		Q_strcat(bufferExtra, sizeof(bufferExtra),
 				 va("#ifndef r_FBufScale\n#define r_FBufScale vec2(%f, %f)\n#endif\n", fbufWidthScale, fbufHeightScale));
 
-		if(glConfig.textureNPOTAvailable)
+		if(glConfig2.textureNPOTAvailable)
 		{
 			npotWidthScale = 1;
 			npotHeightScale = 1;
@@ -402,7 +402,7 @@ std::string	GLShader::BuildGPUShaderText(	const char *mainShaderName,
 			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef GLHW_NV_DX10\n#define GLHW_NV_DX10 1\n#endif\n");
 		}
 
-		if(r_shadows->integer >= SHADOWING_VSM16 && glConfig.textureFloatAvailable && glConfig.framebufferObjectAvailable)
+		if(r_shadows->integer >= SHADOWING_VSM16 && glConfig2.textureFloatAvailable && glConfig2.framebufferObjectAvailable)
 		{
 			if(r_shadows->integer == SHADOWING_ESM)
 			{
@@ -504,8 +504,8 @@ std::string	GLShader::BuildGPUShaderText(	const char *mainShaderName,
 			}
 		}
 
-		if(r_deferredShading->integer && glConfig.maxColorAttachments >= 4 && glConfig.textureFloatAvailable &&
-		   glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
+		if(r_deferredShading->integer && glConfig2.maxColorAttachments >= 4 && glConfig2.textureFloatAvailable &&
+		   glConfig2.drawBuffersAvailable && glConfig2.maxDrawBuffers >= 4)
 		{
 
 			if(r_deferredShading->integer == DS_PREPASS_LIGHTING)
@@ -522,7 +522,7 @@ std::string	GLShader::BuildGPUShaderText(	const char *mainShaderName,
 			*/
 		}
 
-		if(r_hdrRendering->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable)
+		if(r_hdrRendering->integer && glConfig2.framebufferObjectAvailable && glConfig2.textureFloatAvailable)
 		{
 			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef r_HDRRendering\n#define r_HDRRendering 1\n#endif\n");
 
@@ -549,7 +549,7 @@ std::string	GLShader::BuildGPUShaderText(	const char *mainShaderName,
 					 "#ifndef r_precomputedLighting\n#define r_precomputedLighting 1\n#endif\n");
 		}
 
-		if(r_heatHazeFix->integer && glConfig.framebufferBlitAvailable && /*glConfig.hardwareType != GLHW_ATI && glConfig.hardwareType != GLHW_ATI_DX10 &&*/ glConfig.driverType != GLDRV_MESA)
+		if(r_heatHazeFix->integer && glConfig2.framebufferBlitAvailable && /*glConfig.hardwareType != GLHW_ATI && glConfig.hardwareType != GLHW_ATI_DX10 &&*/ glConfig.driverType != GLDRV_MESA)
 		{
 			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef r_heatHazeFix\n#define r_heatHazeFix 1\n#endif\n");
 		}
@@ -592,12 +592,12 @@ std::string	GLShader::BuildGPUShaderText(	const char *mainShaderName,
 		}
 #endif
 
-		if(glConfig.vboVertexSkinningAvailable)
+		if(glConfig2.vboVertexSkinningAvailable)
 		{
 			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef r_VertexSkinning\n#define r_VertexSkinning 1\n#endif\n");
 
 			Q_strcat(bufferExtra, sizeof(bufferExtra),
-								 va("#ifndef MAX_GLSL_BONES\n#define MAX_GLSL_BONES %i\n#endif\n", glConfig.maxVertexSkinningBones));
+								 va("#ifndef MAX_GLSL_BONES\n#define MAX_GLSL_BONES %i\n#endif\n", glConfig2.maxVertexSkinningBones));
 		}
 
 		/*
@@ -1035,7 +1035,7 @@ void GLShader::BindAttribLocations(GLhandleARB program, uint32_t attribs) const
 	if(attribs & ATTR_LIGHTDIRECTION)
 		glBindAttribLocationARB(program, ATTR_INDEX_LIGHTDIRECTION, "attr_LightDirection");
 
-	if(glConfig.vboVertexSkinningAvailable)
+	if(glConfig2.vboVertexSkinningAvailable)
 	{
 		glBindAttribLocationARB(program, ATTR_INDEX_BONE_INDEXES, "attr_BoneIndexes");
 		glBindAttribLocationARB(program, ATTR_INDEX_BONE_WEIGHTS, "attr_BoneWeights");
@@ -2488,7 +2488,7 @@ GLShader_heatHaze::GLShader_heatHaze():
 
 			shaderProgram->u_NormalMap = glGetUniformLocationARB(shaderProgram->program, "u_NormalMap");
 			shaderProgram->u_CurrentMap = glGetUniformLocationARB(shaderProgram->program, "u_CurrentMap");
-			if(r_heatHazeFix->integer && glConfig.framebufferBlitAvailable && /*glConfig.hardwareType != GLHW_ATI && glConfig.hardwareType != GLHW_ATI_DX10 &&*/ glConfig.driverType != GLDRV_MESA)
+			if(r_heatHazeFix->integer && glConfig2.framebufferBlitAvailable && /*glConfig.hardwareType != GLHW_ATI && glConfig.hardwareType != GLHW_ATI_DX10 &&*/ glConfig.driverType != GLDRV_MESA)
 			{
 				shaderProgram->u_ContrastMap = glGetUniformLocationARB(shaderProgram->program, "u_ContrastMap");
 			}
@@ -2496,7 +2496,7 @@ GLShader_heatHaze::GLShader_heatHaze():
 			glUseProgramObjectARB(shaderProgram->program);
 			glUniform1iARB(shaderProgram->u_NormalMap, 0);
 			glUniform1iARB(shaderProgram->u_CurrentMap, 1);
-			if(r_heatHazeFix->integer && glConfig.framebufferBlitAvailable && /*glConfig.hardwareType != GLHW_ATI && glConfig.hardwareType != GLHW_ATI_DX10 &&*/ glConfig.driverType != GLDRV_MESA)
+			if(r_heatHazeFix->integer && glConfig2.framebufferBlitAvailable && /*glConfig.hardwareType != GLHW_ATI && glConfig.hardwareType != GLHW_ATI_DX10 &&*/ glConfig.driverType != GLDRV_MESA)
 			{
 				glUniform1iARB(shaderProgram->u_ContrastMap, 2);
 			}

@@ -2627,9 +2627,17 @@ void R_AddEntitySurfaces(void)
 					switch (tr.currentModel->type)
 					{
 						case MOD_MESH:
-						case MOD_MDX:
 							R_AddMDVSurfaces(ent);
 							break;
+#if defined(COMPAT_ET)
+						case MOD_MDX:
+							// not a model, just a skeleton
+							break;
+
+						case MOD_MDM:
+							R_MDM_AddAnimSurfaces(ent);
+							break;
+#endif
 
 #if defined(USE_REFENTITY_ANIMATIONSYSTEM)
 						case MOD_MD5:
@@ -2722,9 +2730,18 @@ void R_AddEntityInteractions(trRefLight_t * light)
 					switch (tr.currentModel->type)
 					{
 						case MOD_MESH:
-						case MOD_MDX:
 							R_AddMDVInteractions(ent, light);
 							break;
+
+#if defined(COMPAT_ET)
+						case MOD_MDX:
+							// not a model, just a skeleton
+							break;
+
+						case MOD_MDM:
+							R_AddMDMInteractions(ent, light);
+							break;
+#endif
 
 #if defined(USE_REFENTITY_ANIMATIONSYSTEM)
 						case MOD_MD5:
@@ -2837,7 +2854,7 @@ void R_AddLightInteractions()
 			// ignore if not in PVS
 			if(!r_noLightVisCull->integer)
 			{
-				if(glConfig.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && r_dynamicBspOcclusionCulling->integer)
+				if(glConfig2.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && r_dynamicBspOcclusionCulling->integer)
 				{
 					int numVisibleLeafs = 0;
 
@@ -3074,7 +3091,7 @@ void R_AddLightBoundsToVisBounds()
 			// ignore if not in PVS
 			if(!r_noLightVisCull->integer)
 			{
-				if(glConfig.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && r_dynamicBspOcclusionCulling->integer)
+				if(glConfig2.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && r_dynamicBspOcclusionCulling->integer)
 				{
 					int numVisibleLeafs = 0;
 
@@ -3429,6 +3446,10 @@ void R_RenderView(viewParms_t * parms)
 	R_SetupProjection(qtrue);
 
 	R_SetupFrustum();
+
+	// RB: cull decal projects before calling R_AddWorldSurfaces
+	// because it requires the decalBits
+	R_CullDecalProjectors();
 
 	R_AddWorldSurfaces();
 

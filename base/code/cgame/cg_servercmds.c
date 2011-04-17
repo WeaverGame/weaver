@@ -400,7 +400,7 @@ static void CG_ConfigStringModified(void)
 	}
 	else if(num >= CS_MODELS && num < CS_MODELS + MAX_MODELS)
 	{
-		cgs.gameModels[num - CS_MODELS] = trap_R_RegisterModel(str, qtrue);
+		cgs.gameModels[num - CS_MODELS] = trap_R_RegisterModel(str);
 	}
 	else if(num >= CS_SOUNDS && num < CS_SOUNDS + MAX_SOUNDS)
 	{

@@ -146,9 +146,9 @@ int trap_FS_Seek(fileHandle_t f, long offset, int origin)
 	return syscall(UI_FS_SEEK, f, offset, origin);
 }
 
-qhandle_t trap_R_RegisterModel(const char *name, qboolean forceStatic)
+qhandle_t trap_R_RegisterModel(const char *name)
 {
-	return syscall(UI_R_REGISTERMODEL, name, forceStatic);
+	return syscall(UI_R_REGISTERMODEL, name);
 }
 
 qhandle_t trap_R_RegisterAnimation(const char *name)
@@ -308,9 +308,14 @@ void trap_GetClientState(uiClientState_t * state)
 	syscall(UI_GETCLIENTSTATE, state);
 }
 
-void trap_GetGlconfig(glConfig_t * glconfig)
+void trap_GetGlconfig(glconfig_t * glconfig)
 {
 	syscall(UI_GETGLCONFIG, glconfig);
+}
+
+void trap_GetGlconfig2(glconfig2_t * glconfig)
+{
+	syscall(UI_GETGLCONFIG2, glconfig);
 }
 
 int trap_GetConfigString(int index, char *buff, int buffsize)

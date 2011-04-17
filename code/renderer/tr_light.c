@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2006-2008 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2011 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -441,12 +441,12 @@ void R_SetupEntityLighting(const trRefdef_t * refdef, trRefEntity_t * ent, vec3_
 	}
 #endif
 
-	/*
+#if defined(COMPAT_ET)
 	if(ent->e.entityNum < MAX_CLIENTS && (refdef->rdflags & RDF_SNOOPERVIEW))
 	{
 		VectorSet(ent->ambientLight, 0.96f, 0.96f, 0.96f);	// allow a little room for flicker from directed light
 	}
-	*/
+#endif
 
 
 	// Tr3B: keep it in world space
@@ -1190,7 +1190,7 @@ qboolean R_AddLightInteraction(trRefLight_t * light, surfaceType_t * surface, sh
 	}
 #endif
 
-	if(glConfig.occlusionQueryAvailable)
+	if(glConfig2.occlusionQueryAvailable)
 	{
 		ia->noOcclusionQueries = light->noOcclusionQueries;
 	}
@@ -1356,7 +1356,7 @@ static void R_AddEdgeToLightScissor(trRefLight_t * light, vec3_t local1, vec3_t 
 		side1 = ((DotProduct(frust->normal, world1) - frust->dist) >= 0.0);
 		side2 = ((DotProduct(frust->normal, world2) - frust->dist) >= 0.0);
 
-		if(glConfig.occlusionQueryAvailable && i == FRUSTUM_NEAR)
+		if(glConfig2.occlusionQueryAvailable && i == FRUSTUM_NEAR)
 		{
 			if(!side1 || !side2)
 			{
@@ -1401,7 +1401,7 @@ void R_SetupLightScissor(trRefLight_t * light)
 	light->scissor.coords[2] = tr.viewParms.viewportX + tr.viewParms.viewportWidth;
 	light->scissor.coords[3] = tr.viewParms.viewportY + tr.viewParms.viewportHeight;
 
-	if(glConfig.occlusionQueryAvailable)
+	if(glConfig2.occlusionQueryAvailable)
 	{
 		light->noOcclusionQueries = qfalse;
 	}
@@ -1409,7 +1409,7 @@ void R_SetupLightScissor(trRefLight_t * light)
 	// check if the light volume clips agains the near plane
 	if(r_noLightScissors->integer || BoxOnPlaneSide(light->worldBounds[0], light->worldBounds[1], &tr.viewParms.frustums[0][FRUSTUM_NEAR]) == 3)
 	{
-		if(glConfig.occlusionQueryAvailable)
+		if(glConfig2.occlusionQueryAvailable)
 		{
 			light->noOcclusionQueries = qtrue;
 		}

@@ -23,10 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // tr_world.c
 
 #include "tr_local.h"
-
-#if !defined(USE_D3D10)
 #include "gl_shader.h"
-#endif
 
 
 /*
@@ -321,7 +318,7 @@ R_AddWorldSurface
 */
 static void R_AddWorldSurface(bspSurface_t * surf, int decalBits)
 {
-	int				frontFace;
+	int				i, frontFace;
 	shader_t       *shader;
 
 	if(surf->viewCount == tr.viewCountNoReset)
@@ -329,6 +326,19 @@ static void R_AddWorldSurface(bspSurface_t * surf, int decalBits)
 	surf->viewCount = tr.viewCountNoReset;
 
 	shader = surf->shader;
+
+	// add decals
+	if(decalBits)
+	{
+		// ydnar: project any decals
+		for(i = 0; i < tr.refdef.numDecalProjectors; i++)
+		{
+			if(decalBits & (1 << i))
+			{
+				R_ProjectDecalOntoSurface(&tr.refdef.decalProjectors[i], surf, &tr.world->models[0]);
+			}
+		}
+	}
 
 	if(r_mergeClusterSurfaces->integer &&
 		!r_dynamicBspOcclusionCulling->integer &&
@@ -566,6 +576,25 @@ static void R_RecursiveWorldNode(bspNode_t * node, int planeBits, int decalBits)
 		}
 
 		InsertLink(&node->visChain, &tr.traversalStack);
+
+		// ydnar: cull decals
+		if(decalBits)
+		{
+			int             i;
+
+			for(i = 0; i < tr.refdef.numDecalProjectors; i++)
+			{
+				if(decalBits & (1 << i))
+				{
+					// test decal bounds against node surface bounds
+					if(tr.refdef.decalProjectors[i].shader == NULL ||
+					   !R_TestDecalBoundingBox(&tr.refdef.decalProjectors[i], node->surfMins, node->surfMaxs))
+					{
+						decalBits &= ~(1 << i);
+					}
+				}
+			}
+		}
 
 		if(node->contents != -1)
 		{
@@ -1324,7 +1353,6 @@ static qboolean InsideViewFrustum(bspNode_t * node, int planeBits)
 
 static void DrawNode_r(bspNode_t * node, int planeBits)
 {
-#if !defined(USE_D3D10)
 	do
 	{
 		// if the bounding volume is outside the frustum, nothing
@@ -1375,7 +1403,6 @@ static void DrawNode_r(bspNode_t * node, int planeBits)
 		// tail recurse
 		node = node->children[1];
 	} while(1);
-#endif
 }
 
 
@@ -2398,7 +2425,7 @@ void R_AddWorldSurfaces(void)
 		R_MarkLeaves();
 
 		// update the bsp nodes with the dynamic occlusion query results
-		if(glConfig.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && r_dynamicBspOcclusionCulling->integer)
+		if(glConfig2.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && r_dynamicBspOcclusionCulling->integer)
 		{
 			R_CoherentHierachicalCulling();
 		}
@@ -2411,6 +2438,9 @@ void R_AddWorldSurfaces(void)
 			// update visbounds and add surfaces that weren't cached with VBOs
 			R_RecursiveWorldNode(tr.world->nodes, FRUSTUM_CLIPALL, tr.refdef.decalBits);
 		}
+
+		// ydnar: add decal surfaces
+		R_AddDecalSurfaces(tr.world->models);
 
 		if(r_mergeClusterSurfaces->integer && !r_dynamicBspOcclusionCulling->integer)
 		{

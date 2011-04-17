@@ -220,7 +220,7 @@ qboolean UI_XPPM_RegisterModel(playerInfo_t * pi, const char *modelName, const c
 
 	Com_Printf("UI_XPPM: Loading model %s\n", filename);
 
-	pi->bodyModel = trap_R_RegisterModel(filename, qfalse);
+	pi->bodyModel = trap_R_RegisterModel(filename);
 
 	if(!pi->bodyModel)
 	{

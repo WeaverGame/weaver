@@ -555,7 +555,8 @@ typedef struct
 	int             menusp;
 	menuframework_s *activemenu;
 	menuframework_s *stack[MAX_MENUDEPTH];
-	glConfig_t      glconfig;
+	glconfig_t      glconfig;
+	glconfig2_t     glconfig2;
 	qboolean        debug;
 
 	// weaver main menu
@@ -698,7 +699,7 @@ void            trap_FS_Write(const void *buffer, int len, fileHandle_t f);
 void            trap_FS_FCloseFile(fileHandle_t f);
 int             trap_FS_GetFileList(const char *path, const char *extension, char *listbuf, int bufsize);
 int             trap_FS_Seek(fileHandle_t f, long offset, int origin);	// fsOrigin_t
-qhandle_t       trap_R_RegisterModel(const char *name, qboolean forceStatic);
+qhandle_t       trap_R_RegisterModel(const char *name);
 qhandle_t       trap_R_RegisterAnimation(const char *name);
 int             trap_R_AnimNumFrames(qhandle_t hAnim);
 int             trap_R_AnimFrameRate(qhandle_t hAnim);
@@ -734,7 +735,8 @@ int             trap_Key_GetCatcher(void);
 void            trap_Key_SetCatcher(int catcher);
 void            trap_GetClipboardData(char *buf, int bufsize);
 void            trap_GetClientState(uiClientState_t * state);
-void            trap_GetGlconfig(glConfig_t * glconfig);
+void            trap_GetGlconfig(glconfig_t * glconfig);
+void            trap_GetGlconfig2(glconfig2_t * glconfig);
 int             trap_GetConfigString(int index, char *buff, int buffsize);
 int             trap_LAN_GetServerCount(int source);
 void            trap_LAN_GetServerAddressString(int source, int n, char *buf, int buflen);

@@ -1172,7 +1172,7 @@ static void CG_RegisterGraphics(void)
 		int             j;
 
 		Com_sprintf(name, sizeof(name), "*%i", i);
-		cgs.inlineDrawModel[i] = trap_R_RegisterModel(name, qtrue);
+		cgs.inlineDrawModel[i] = trap_R_RegisterModel(name);
 		trap_R_ModelBounds(cgs.inlineDrawModel[i], mins, maxs);
 		for(j = 0; j < 3; j++)
 		{
@@ -1190,7 +1190,7 @@ static void CG_RegisterGraphics(void)
 		{
 			break;
 		}
-		cgs.gameModels[i] = trap_R_RegisterModel(modelName, qtrue);
+		cgs.gameModels[i] = trap_R_RegisterModel(modelName);
 	}
 
 	CG_LoadingString("Debris", qfalse);
@@ -1198,27 +1198,27 @@ static void CG_RegisterGraphics(void)
 	// Debris models
 	// Consider moving these loads into the code that initializes a func_explosive, so they are only loaded when required.
 	// Also, if theres not enough models, point some of these to others so the code still calls them fine. Eg, Gibs.
-	cgs.media.debrisModels[ENTMAT_WOOD][0][0] = trap_R_RegisterModel("models/debris/wood1a.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_WOOD][0][1] = trap_R_RegisterModel("models/debris/wood1b.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_WOOD][1][0] = trap_R_RegisterModel("models/debris/wood2a.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_WOOD][1][1] = trap_R_RegisterModel("models/debris/wood2b.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_WOOD][2][0] = trap_R_RegisterModel("models/debris/wood3a.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_WOOD][2][1] = trap_R_RegisterModel("models/debris/wood3b.md5mesh", qtrue);
+	cgs.media.debrisModels[ENTMAT_WOOD][0][0] = trap_R_RegisterModel("models/debris/wood1a.md5mesh");
+	cgs.media.debrisModels[ENTMAT_WOOD][0][1] = trap_R_RegisterModel("models/debris/wood1b.md5mesh");
+	cgs.media.debrisModels[ENTMAT_WOOD][1][0] = trap_R_RegisterModel("models/debris/wood2a.md5mesh");
+	cgs.media.debrisModels[ENTMAT_WOOD][1][1] = trap_R_RegisterModel("models/debris/wood2b.md5mesh");
+	cgs.media.debrisModels[ENTMAT_WOOD][2][0] = trap_R_RegisterModel("models/debris/wood3a.md5mesh");
+	cgs.media.debrisModels[ENTMAT_WOOD][2][1] = trap_R_RegisterModel("models/debris/wood3b.md5mesh");
 
 	/*
-	cgs.media.debrisModels[ENTMAT_GLASS][0][0] = trap_R_RegisterModel("models/debris/glass1a.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_GLASS][0][1] = trap_R_RegisterModel("models/debris/glass1b.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_GLASS][1][0] = trap_R_RegisterModel("models/debris/glass2a.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_GLASS][1][1] = trap_R_RegisterModel("models/debris/glass2b.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_GLASS][2][0] = trap_R_RegisterModel("models/debris/glass3a.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_GLASS][2][1] = trap_R_RegisterModel("models/debris/glass3b.md5mesh", qtrue);
+	cgs.media.debrisModels[ENTMAT_GLASS][0][0] = trap_R_RegisterModel("models/debris/glass1a.md5mesh");
+	cgs.media.debrisModels[ENTMAT_GLASS][0][1] = trap_R_RegisterModel("models/debris/glass1b.md5mesh");
+	cgs.media.debrisModels[ENTMAT_GLASS][1][0] = trap_R_RegisterModel("models/debris/glass2a.md5mesh");
+	cgs.media.debrisModels[ENTMAT_GLASS][1][1] = trap_R_RegisterModel("models/debris/glass2b.md5mesh");
+	cgs.media.debrisModels[ENTMAT_GLASS][2][0] = trap_R_RegisterModel("models/debris/glass3a.md5mesh");
+	cgs.media.debrisModels[ENTMAT_GLASS][2][1] = trap_R_RegisterModel("models/debris/glass3b.md5mesh");
 
-	cgs.media.debrisModels[ENTMAT_METAL][0][0] = trap_R_RegisterModel("models/debris/metal1a.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_METAL][0][1] = trap_R_RegisterModel("models/debris/metal1b.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_METAL][1][0] = trap_R_RegisterModel("models/debris/metal2a.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_METAL][1][1] = trap_R_RegisterModel("models/debris/metal2b.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_METAL][2][0] = trap_R_RegisterModel("models/debris/metal3a.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_METAL][2][1] = trap_R_RegisterModel("models/debris/metal3b.md5mesh", qtrue);
+	cgs.media.debrisModels[ENTMAT_METAL][0][0] = trap_R_RegisterModel("models/debris/metal1a.md5mesh");
+	cgs.media.debrisModels[ENTMAT_METAL][0][1] = trap_R_RegisterModel("models/debris/metal1b.md5mesh");
+	cgs.media.debrisModels[ENTMAT_METAL][1][0] = trap_R_RegisterModel("models/debris/metal2a.md5mesh");
+	cgs.media.debrisModels[ENTMAT_METAL][1][1] = trap_R_RegisterModel("models/debris/metal2b.md5mesh");
+	cgs.media.debrisModels[ENTMAT_METAL][2][0] = trap_R_RegisterModel("models/debris/metal3a.md5mesh");
+	cgs.media.debrisModels[ENTMAT_METAL][2][1] = trap_R_RegisterModel("models/debris/metal3b.md5mesh");
 
 	cgs.media.debrisModels[ENTMAT_GIBS][0][0] = cgs.media.gibIntestine;
 	cgs.media.debrisModels[ENTMAT_GIBS][0][1] = cgs.media.gibLeg;
@@ -1227,49 +1227,49 @@ static void CG_RegisterGraphics(void)
 	cgs.media.debrisModels[ENTMAT_GIBS][2][0] = cgs.media.gibAbdomen;
 	cgs.media.debrisModels[ENTMAT_GIBS][2][1] = cgs.media.gibChest;
 
-	cgs.media.debrisModels[ENTMAT_BODY][0][0] = trap_R_RegisterModel("models/debris/body1a.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_BODY][0][1] = trap_R_RegisterModel("models/debris/body1b.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_BODY][1][0] = trap_R_RegisterModel("models/debris/body2a.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_BODY][1][1] = trap_R_RegisterModel("models/debris/body2b.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_BODY][2][0] = trap_R_RegisterModel("models/debris/body3a.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_BODY][2][1] = trap_R_RegisterModel("models/debris/body3b.md5mesh", qtrue);
+	cgs.media.debrisModels[ENTMAT_BODY][0][0] = trap_R_RegisterModel("models/debris/body1a.md5mesh");
+	cgs.media.debrisModels[ENTMAT_BODY][0][1] = trap_R_RegisterModel("models/debris/body1b.md5mesh");
+	cgs.media.debrisModels[ENTMAT_BODY][1][0] = trap_R_RegisterModel("models/debris/body2a.md5mesh");
+	cgs.media.debrisModels[ENTMAT_BODY][1][1] = trap_R_RegisterModel("models/debris/body2b.md5mesh");
+	cgs.media.debrisModels[ENTMAT_BODY][2][0] = trap_R_RegisterModel("models/debris/body3a.md5mesh");
+	cgs.media.debrisModels[ENTMAT_BODY][2][1] = trap_R_RegisterModel("models/debris/body3b.md5mesh");
 	*/
 
-	cgs.media.debrisModels[ENTMAT_BRICK][0][0] = trap_R_RegisterModel("models/debris/brick1a.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_BRICK][0][1] = trap_R_RegisterModel("models/debris/brick1b.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_BRICK][1][0] = trap_R_RegisterModel("models/debris/brick2a.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_BRICK][1][1] = trap_R_RegisterModel("models/debris/brick2b.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_BRICK][2][0] = trap_R_RegisterModel("models/debris/brick3a.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_BRICK][2][1] = trap_R_RegisterModel("models/debris/brick3b.md5mesh", qtrue);
+	cgs.media.debrisModels[ENTMAT_BRICK][0][0] = trap_R_RegisterModel("models/debris/brick1a.md5mesh");
+	cgs.media.debrisModels[ENTMAT_BRICK][0][1] = trap_R_RegisterModel("models/debris/brick1b.md5mesh");
+	cgs.media.debrisModels[ENTMAT_BRICK][1][0] = trap_R_RegisterModel("models/debris/brick2a.md5mesh");
+	cgs.media.debrisModels[ENTMAT_BRICK][1][1] = trap_R_RegisterModel("models/debris/brick2b.md5mesh");
+	cgs.media.debrisModels[ENTMAT_BRICK][2][0] = trap_R_RegisterModel("models/debris/brick3a.md5mesh");
+	cgs.media.debrisModels[ENTMAT_BRICK][2][1] = trap_R_RegisterModel("models/debris/brick3b.md5mesh");
 
-	cgs.media.debrisModels[ENTMAT_STONE][0][0] = trap_R_RegisterModel("models/debris/stone1a.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_STONE][0][1] = trap_R_RegisterModel("models/debris/stone1b.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_STONE][1][0] = trap_R_RegisterModel("models/debris/stone2a.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_STONE][1][1] = trap_R_RegisterModel("models/debris/stone2b.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_STONE][2][0] = trap_R_RegisterModel("models/debris/stone3a.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_STONE][2][1] = trap_R_RegisterModel("models/debris/stone3b.md5mesh", qtrue);
+	cgs.media.debrisModels[ENTMAT_STONE][0][0] = trap_R_RegisterModel("models/debris/stone1a.md5mesh");
+	cgs.media.debrisModels[ENTMAT_STONE][0][1] = trap_R_RegisterModel("models/debris/stone1b.md5mesh");
+	cgs.media.debrisModels[ENTMAT_STONE][1][0] = trap_R_RegisterModel("models/debris/stone2a.md5mesh");
+	cgs.media.debrisModels[ENTMAT_STONE][1][1] = trap_R_RegisterModel("models/debris/stone2b.md5mesh");
+	cgs.media.debrisModels[ENTMAT_STONE][2][0] = trap_R_RegisterModel("models/debris/stone3a.md5mesh");
+	cgs.media.debrisModels[ENTMAT_STONE][2][1] = trap_R_RegisterModel("models/debris/stone3b.md5mesh");
 
 	/*
-	cgs.media.debrisModels[ENTMAT_TILES][0][0] = trap_R_RegisterModel("models/debris/tiles1a.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_TILES][0][1] = trap_R_RegisterModel("models/debris/tiles1b.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_TILES][1][0] = trap_R_RegisterModel("models/debris/tiles2a.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_TILES][1][1] = trap_R_RegisterModel("models/debris/tiles2b.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_TILES][2][0] = trap_R_RegisterModel("models/debris/tiles3a.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_TILES][2][1] = trap_R_RegisterModel("models/debris/tiles3b.md5mesh", qtrue);
+	cgs.media.debrisModels[ENTMAT_TILES][0][0] = trap_R_RegisterModel("models/debris/tiles1a.md5mesh");
+	cgs.media.debrisModels[ENTMAT_TILES][0][1] = trap_R_RegisterModel("models/debris/tiles1b.md5mesh");
+	cgs.media.debrisModels[ENTMAT_TILES][1][0] = trap_R_RegisterModel("models/debris/tiles2a.md5mesh");
+	cgs.media.debrisModels[ENTMAT_TILES][1][1] = trap_R_RegisterModel("models/debris/tiles2b.md5mesh");
+	cgs.media.debrisModels[ENTMAT_TILES][2][0] = trap_R_RegisterModel("models/debris/tiles3a.md5mesh");
+	cgs.media.debrisModels[ENTMAT_TILES][2][1] = trap_R_RegisterModel("models/debris/tiles3b.md5mesh");
 
-	cgs.media.debrisModels[ENTMAT_PLASTER][0][0] = trap_R_RegisterModel("models/debris/plaster1a.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_PLASTER][0][1] = trap_R_RegisterModel("models/debris/plaster1b.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_PLASTER][1][0] = trap_R_RegisterModel("models/debris/plaster2a.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_PLASTER][1][1] = trap_R_RegisterModel("models/debris/plaster2b.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_PLASTER][2][0] = trap_R_RegisterModel("models/debris/plaster3a.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_PLASTER][2][1] = trap_R_RegisterModel("models/debris/plaster3b.md5mesh", qtrue);
+	cgs.media.debrisModels[ENTMAT_PLASTER][0][0] = trap_R_RegisterModel("models/debris/plaster1a.md5mesh");
+	cgs.media.debrisModels[ENTMAT_PLASTER][0][1] = trap_R_RegisterModel("models/debris/plaster1b.md5mesh");
+	cgs.media.debrisModels[ENTMAT_PLASTER][1][0] = trap_R_RegisterModel("models/debris/plaster2a.md5mesh");
+	cgs.media.debrisModels[ENTMAT_PLASTER][1][1] = trap_R_RegisterModel("models/debris/plaster2b.md5mesh");
+	cgs.media.debrisModels[ENTMAT_PLASTER][2][0] = trap_R_RegisterModel("models/debris/plaster3a.md5mesh");
+	cgs.media.debrisModels[ENTMAT_PLASTER][2][1] = trap_R_RegisterModel("models/debris/plaster3b.md5mesh");
 
-	cgs.media.debrisModels[ENTMAT_FIBERS][0][0] = trap_R_RegisterModel("models/debris/fibers1a.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_FIBERS][0][1] = trap_R_RegisterModel("models/debris/fibers1b.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_FIBERS][1][0] = trap_R_RegisterModel("models/debris/fibers2a.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_FIBERS][1][1] = trap_R_RegisterModel("models/debris/fibers2b.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_FIBERS][2][0] = trap_R_RegisterModel("models/debris/fibers3a.md5mesh", qtrue);
-	cgs.media.debrisModels[ENTMAT_FIBERS][2][1] = trap_R_RegisterModel("models/debris/fibers3b.md5mesh", qtrue);
+	cgs.media.debrisModels[ENTMAT_FIBERS][0][0] = trap_R_RegisterModel("models/debris/fibers1a.md5mesh");
+	cgs.media.debrisModels[ENTMAT_FIBERS][0][1] = trap_R_RegisterModel("models/debris/fibers1b.md5mesh");
+	cgs.media.debrisModels[ENTMAT_FIBERS][1][0] = trap_R_RegisterModel("models/debris/fibers2a.md5mesh");
+	cgs.media.debrisModels[ENTMAT_FIBERS][1][1] = trap_R_RegisterModel("models/debris/fibers2b.md5mesh");
+	cgs.media.debrisModels[ENTMAT_FIBERS][2][0] = trap_R_RegisterModel("models/debris/fibers3a.md5mesh");
+	cgs.media.debrisModels[ENTMAT_FIBERS][2][1] = trap_R_RegisterModel("models/debris/fibers3b.md5mesh");
 	*/
 
 	cgs.media.debrisBit = trap_R_RegisterShader("models/debris/debrisbit");
@@ -1284,8 +1284,8 @@ static void CG_RegisterGraphics(void)
 	CG_LoadingString("Misc", qfalse);
 
 	// weaver sword
-	cgs.media.swordModel = trap_R_RegisterModel("models/sword/sword.md5mesh", qtrue);
-	cgs.media.weaverShieldInfo = trap_R_RegisterModel("models/entities/shield_info.md5mesh", qtrue);
+	cgs.media.swordModel = trap_R_RegisterModel("models/sword/sword.md5mesh");
+	cgs.media.weaverShieldInfo = trap_R_RegisterModel("models/entities/shield_info.md5mesh");
 
 	// debug utils
 	cgs.media.lightningShader = trap_R_RegisterShader("lightningBolt");

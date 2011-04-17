@@ -730,7 +730,7 @@ void RB_DrawSun(void)
 	// set uniforms
 	GLSL_SetUniform_TCGen_Environment(&tr.genericShader,  qfalse);
 	GLSL_SetUniform_InverseVertexColor(&tr.genericShader,  qfalse);
-	if(glConfig.vboVertexSkinningAvailable)
+	if(glConfig2.vboVertexSkinningAvailable)
 	{
 		GLSL_SetUniform_VertexSkinning(&tr.genericShader, qfalse);
 	}

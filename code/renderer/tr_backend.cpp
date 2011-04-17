@@ -128,7 +128,7 @@ void GL_TextureFilter(image_t * image, filterType_t filterType)
 			   glTexParameterf(image->type, GL_TEXTURE_MAG_FILTER, gl_filter_max);
 
 			   // set texture anisotropy
-			   if(glConfig.textureAnisotropyAvailable)
+			   if(glConfig2.textureAnisotropyAvailable)
 			   glTexParameterf(image->type, GL_TEXTURE_MAX_ANISOTROPY_EXT, r_ext_texture_filter_anisotropic->value);
 			   break;
 			 */
@@ -678,7 +678,7 @@ void GL_VertexAttribsState(uint32_t stateBits)
 {
 	uint32_t		diff;
 
-	if(glConfig.vboVertexSkinningAvailable && tess.vboVertexSkinning)
+	if(glConfig2.vboVertexSkinningAvailable && tess.vboVertexSkinning)
 		stateBits |= (ATTR_BONE_INDEXES | ATTR_BONE_WEIGHTS);
 
 	GL_VertexAttribPointers(stateBits);
@@ -1006,7 +1006,7 @@ void GL_VertexAttribPointers(uint32_t attribBits)
 		GLimp_LogComment(va("--- GL_VertexAttribPointers( %s ) ---\n", glState.currentVBO->name));
 	}
 
-	if(glConfig.vboVertexSkinningAvailable && tess.vboVertexSkinning)
+	if(glConfig2.vboVertexSkinningAvailable && tess.vboVertexSkinning)
 		attribBits |= (ATTR_BONE_INDEXES | ATTR_BONE_WEIGHTS);
 
 	if((attribBits & ATTR_POSITION) && !(glState.vertexAttribPointersSet & ATTR_POSITION))
@@ -1232,7 +1232,7 @@ static void RB_SetGL2D(void)
 	GLimp_LogComment("--- RB_SetGL2D ---\n");
 
 	// disable offscreen rendering
-	if(glConfig.framebufferObjectAvailable)
+	if(glConfig2.framebufferObjectAvailable)
 	{
 		R_BindNullFBO();
 	}
@@ -1308,7 +1308,7 @@ static void RB_RenderDrawSurfaces(bool opaque, bool depthFill, renderDrawSurface
 				break;
 		};
 
-		if(glConfig.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && r_dynamicEntityOcclusionCulling->integer && !entity->occlusionQuerySamples)
+		if(glConfig2.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && r_dynamicEntityOcclusionCulling->integer && !entity->occlusionQuerySamples)
 		{
 			continue;
 		}
@@ -1676,12 +1676,12 @@ static void Render_lightVolume(interaction_t * ia)
 
 			// bind u_DepthMap
 			GL_SelectTexture(0);
-			if(r_deferredShading->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable &&
-					   glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
+			if(r_deferredShading->integer && glConfig2.framebufferObjectAvailable && glConfig2.textureFloatAvailable &&
+					   glConfig2.drawBuffersAvailable && glConfig2.maxDrawBuffers >= 4)
 			{
 				GL_Bind(tr.depthRenderImage);
 			}
-			else if(r_hdrRendering->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable)
+			else if(r_hdrRendering->integer && glConfig2.framebufferObjectAvailable && glConfig2.textureFloatAvailable)
 			{
 				GL_Bind(tr.depthRenderImage);
 			}
@@ -1956,7 +1956,7 @@ static void RB_RenderInteractions()
 		surface = ia->surface;
 		shader = ia->surfaceShader;
 
-		if(glConfig.occlusionQueryBits && glConfig.driverType != GLDRV_MESA)
+		if(glConfig2.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && !ia->occlusionQuerySamples)
 		{
 			// skip all interactions of this light because it failed the occlusion query
 			if(!ia->occlusionQuerySamples)
@@ -2208,7 +2208,7 @@ static void RB_RenderInteractionsStencilShadowed()
 		surface = ia->surface;
 		shader = ia->surfaceShader;
 
-		if(glConfig.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && !ia->occlusionQuerySamples)
+		if(glConfig2.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && !ia->occlusionQuerySamples)
 		{
 			// skip all interactions of this light because it failed the occlusion query
 			goto skipInteraction;
@@ -2628,7 +2628,7 @@ static void RB_RenderInteractionsShadowMapped()
 								0.0, 0.0, 0.5, 0.0,
 								0.5, 0.5, 0.5, 1.0};
 
-	if(!glConfig.framebufferObjectAvailable || !glConfig.textureFloatAvailable)
+	if(!glConfig2.framebufferObjectAvailable || !glConfig2.textureFloatAvailable)
 	{
 		RB_RenderInteractions();
 		return;
@@ -2674,7 +2674,7 @@ static void RB_RenderInteractionsShadowMapped()
 			deformType = DEFORM_TYPE_NONE;
 		}
 
-		if(glConfig.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && !ia->occlusionQuerySamples)
+		if(glConfig2.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && !ia->occlusionQuerySamples)
 		{
 			// skip all interactions of this light because it failed the occlusion query
 			goto skipInteraction;
@@ -3499,7 +3499,7 @@ static void RB_RenderInteractionsShadowMapped()
 				goto skipInteraction;
 			}
 
-			if(glConfig.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && r_dynamicEntityOcclusionCulling->integer && !entity->occlusionQuerySamples)
+			if(glConfig2.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && r_dynamicEntityOcclusionCulling->integer && !entity->occlusionQuerySamples)
 			{
 				goto skipInteraction;
 			}
@@ -4046,7 +4046,7 @@ void RB_RenderInteractionsDeferred()
 	{
 		backEnd.currentLight = light = ia->light;
 
-		if(glConfig.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && !ia->occlusionQuerySamples)
+		if(glConfig2.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && !ia->occlusionQuerySamples)
 		{
 			// skip all interactions of this light because it failed the occlusion query
 			goto skipInteraction;
@@ -4055,7 +4055,7 @@ void RB_RenderInteractionsDeferred()
 	  skipInteraction:
 		if(!ia->next)
 		{
-			if(glConfig.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && ia->occlusionQuerySamples)
+			if(glConfig2.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && ia->occlusionQuerySamples)
 			{
 				GLimp_LogComment("--- Rendering light volume ---\n");
 
@@ -4250,7 +4250,7 @@ void RB_RenderInteractionsDeferred()
 				}
 				else
 				{
-					if(GLEW_ATI_separate_stencil && glConfig.stencilWrapAvailable)
+					if(GLEW_ATI_separate_stencil && glConfig2.stencilWrapAvailable)
 					{
 						GL_Cull(CT_TWO_SIDED);
 
@@ -4269,7 +4269,7 @@ void RB_RenderInteractionsDeferred()
 						glEnable(GL_STENCIL_TEST_TWO_SIDE_EXT);
 
 						glActiveStencilFaceEXT(GL_BACK);
-						if(glConfig.stencilWrapAvailable)
+						if(glConfig2.stencilWrapAvailable)
 						{
 							glStencilOp(GL_KEEP, GL_DECR_WRAP_EXT, GL_KEEP);
 						}
@@ -4279,7 +4279,7 @@ void RB_RenderInteractionsDeferred()
 						}
 
 						glActiveStencilFaceEXT(GL_FRONT);
-						if(glConfig.stencilWrapAvailable)
+						if(glConfig2.stencilWrapAvailable)
 						{
 							glStencilOp(GL_KEEP, GL_INCR_WRAP_EXT, GL_KEEP);
 						}
@@ -4298,7 +4298,7 @@ void RB_RenderInteractionsDeferred()
 						GL_Cull(CT_FRONT_SIDED);
 
 						// increment the stencil value on zfail
-						if(glConfig.stencilWrapAvailable)
+						if(glConfig2.stencilWrapAvailable)
 						{
 							glStencilOp(GL_KEEP, GL_INCR_WRAP_EXT, GL_KEEP);
 						}
@@ -4313,7 +4313,7 @@ void RB_RenderInteractionsDeferred()
 						GL_Cull(CT_BACK_SIDED);
 
 						// decrement the stencil value on zfail
-						if(glConfig.stencilWrapAvailable)
+						if(glConfig2.stencilWrapAvailable)
 						{
 							glStencilOp(GL_KEEP, GL_DECR_WRAP_EXT, GL_KEEP);
 						}
@@ -4794,7 +4794,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 			deformType = DEFORM_TYPE_NONE;
 		}
 
-		if(glConfig.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && !ia->occlusionQuerySamples)
+		if(glConfig2.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && !ia->occlusionQuerySamples)
 		{
 			// skip all interactions of this light because it failed the occlusion query
 			goto skipInteraction;
@@ -5886,7 +5886,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 				}
 				else
 				{
-					if(GLEW_ATI_separate_stencil && glConfig.stencilWrapAvailable)
+					if(GLEW_ATI_separate_stencil && glConfig2.stencilWrapAvailable)
 					{
 						GL_Cull(CT_TWO_SIDED);
 
@@ -5905,7 +5905,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 						glEnable(GL_STENCIL_TEST_TWO_SIDE_EXT);
 
 						glActiveStencilFaceEXT(GL_BACK);
-						if(glConfig.stencilWrapAvailable)
+						if(glConfig2.stencilWrapAvailable)
 						{
 							glStencilOp(GL_KEEP, GL_DECR_WRAP_EXT, GL_KEEP);
 						}
@@ -5915,7 +5915,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 						}
 
 						glActiveStencilFaceEXT(GL_FRONT);
-						if(glConfig.stencilWrapAvailable)
+						if(glConfig2.stencilWrapAvailable)
 						{
 							glStencilOp(GL_KEEP, GL_INCR_WRAP_EXT, GL_KEEP);
 						}
@@ -5934,7 +5934,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 						GL_Cull(CT_FRONT_SIDED);
 
 						// increment the stencil value on zfail
-						if(glConfig.stencilWrapAvailable)
+						if(glConfig2.stencilWrapAvailable)
 						{
 							glStencilOp(GL_KEEP, GL_INCR_WRAP_EXT, GL_KEEP);
 						}
@@ -5949,7 +5949,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 						GL_Cull(CT_BACK_SIDED);
 
 						// decrement the stencil value on zfail
-						if(glConfig.stencilWrapAvailable)
+						if(glConfig2.stencilWrapAvailable)
 						{
 							glStencilOp(GL_KEEP, GL_DECR_WRAP_EXT, GL_KEEP);
 						}
@@ -6495,7 +6495,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 							GLSL_SetUniform_TCGen_Environment(&tr.genericShader,  qfalse);
 							GLSL_SetUniform_ColorGen(&tr.genericShader, CGEN_VERTEX);
 							GLSL_SetUniform_AlphaGen(&tr.genericShader, AGEN_VERTEX);
-							if(glConfig.vboVertexSkinningAvailable)
+							if(glConfig2.vboVertexSkinningAvailable)
 							{
 								GLSL_SetUniform_VertexSkinning(&tr.genericShader, qfalse);
 							}
@@ -7003,10 +7003,10 @@ static void RB_RenderInteractionsDeferredInverseShadows()
 
 	GLimp_LogComment("--- RB_RenderInteractionsDeferredInverseShadows ---\n");
 
-	if(!glConfig.framebufferObjectAvailable)
+	if(!glConfig2.framebufferObjectAvailable)
 		return;
 
-	if(r_hdrRendering->integer && !glConfig.textureFloatAvailable)
+	if(r_hdrRendering->integer && !glConfig2.textureFloatAvailable)
 		return;
 
 	if(r_speeds->integer == 9)
@@ -7027,13 +7027,13 @@ static void RB_RenderInteractionsDeferredInverseShadows()
 	GL_ClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
 	// update depth render image
-	if(r_deferredShading->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable &&
-					   glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
+	if(r_deferredShading->integer && glConfig2.framebufferObjectAvailable && glConfig2.textureFloatAvailable &&
+					   glConfig2.drawBuffersAvailable && glConfig2.maxDrawBuffers >= 4)
 	{
 		// no update needed FBO handles it
 		R_BindFBO(tr.deferredRenderFBO);
 	}
-	else if(r_hdrRendering->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable)
+	else if(r_hdrRendering->integer && glConfig2.framebufferObjectAvailable && glConfig2.textureFloatAvailable)
 	{
 		// no update needed FBO handles it
 		R_BindFBO(tr.deferredRenderFBO);
@@ -7056,7 +7056,7 @@ static void RB_RenderInteractionsDeferredInverseShadows()
 		shader = ia->surfaceShader;
 		alphaTest = shader->alphaTest;
 
-		if(glConfig.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && !ia->occlusionQuerySamples)
+		if(glConfig2.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && !ia->occlusionQuerySamples)
 		{
 			// skip all interactions of this light because it failed the occlusion query
 			goto skipInteraction;
@@ -7894,12 +7894,12 @@ void RB_RenderDepthOfField()
 
 	// capture current color buffer for u_CurrentMap
 	GL_SelectTexture(0);
-	if(r_deferredShading->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable &&
-				   glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
+	if(r_deferredShading->integer && glConfig2.framebufferObjectAvailable && glConfig2.textureFloatAvailable &&
+				   glConfig2.drawBuffersAvailable && glConfig2.maxDrawBuffers >= 4)
 	{
 		GL_Bind(tr.deferredRenderFBOImage);
 	}
-	else if(r_hdrRendering->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable)
+	else if(r_hdrRendering->integer && glConfig2.framebufferObjectAvailable && glConfig2.textureFloatAvailable)
 	{
 		GL_Bind(tr.deferredRenderFBOImage);
 	}
@@ -7911,12 +7911,12 @@ void RB_RenderDepthOfField()
 
 	// bind u_DepthMap
 	GL_SelectTexture(1);
-	if(r_deferredShading->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable &&
-			   glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
+	if(r_deferredShading->integer && glConfig2.framebufferObjectAvailable && glConfig2.textureFloatAvailable &&
+			   glConfig2.drawBuffersAvailable && glConfig2.maxDrawBuffers >= 4)
 	{
 		GL_Bind(tr.depthRenderImage);
 	}
-	else if(r_hdrRendering->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable)
+	else if(r_hdrRendering->integer && glConfig2.framebufferObjectAvailable && glConfig2.textureFloatAvailable)
 	{
 		GL_Bind(tr.depthRenderImage);
 	}
@@ -7993,12 +7993,12 @@ void RB_RenderGlobalFog()
 
 	// bind u_DepthMap
 	GL_SelectTexture(0);
-	if(r_deferredShading->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable &&
-			   glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4)
+	if(r_deferredShading->integer && glConfig2.framebufferObjectAvailable && glConfig2.textureFloatAvailable &&
+			   glConfig2.drawBuffersAvailable && glConfig2.maxDrawBuffers >= 4)
 	{
 		GL_Bind(tr.depthRenderImage);
 	}
-	else if(r_hdrRendering->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable)
+	else if(r_hdrRendering->integer && glConfig2.framebufferObjectAvailable && glConfig2.textureFloatAvailable)
 	{
 		GL_Bind(tr.depthRenderImage);
 	}
@@ -8036,7 +8036,7 @@ void RB_RenderBloom()
 
 	GLimp_LogComment("--- RB_RenderBloom ---\n");
 
-	if((backEnd.refdef.rdflags & (RDF_NOWORLDMODEL | RDF_NOBLOOM)) || !r_bloom->integer || backEnd.viewParms.isPortal || !glConfig.framebufferObjectAvailable)
+	if((backEnd.refdef.rdflags & (RDF_NOWORLDMODEL | RDF_NOBLOOM)) || !r_bloom->integer || backEnd.viewParms.isPortal || !glConfig2.framebufferObjectAvailable)
 		return;
 
 	// set 2D virtual screen size
@@ -8581,7 +8581,7 @@ void RB_RenderDeferredHDRResultToFrameBuffer()
 
 	GLimp_LogComment("--- RB_RenderDeferredHDRResultToFrameBuffer ---\n");
 
-	if(!r_hdrRendering->integer || !glConfig.framebufferObjectAvailable || !glConfig.textureFloatAvailable)
+	if(!r_hdrRendering->integer || !glConfig2.framebufferObjectAvailable || !glConfig2.textureFloatAvailable)
 		return;
 
 	GL_CheckErrors();
@@ -9026,7 +9026,7 @@ void RB_RenderLightOcclusionQueries()
 {
 	GLimp_LogComment("--- RB_RenderLightOcclusionQueries ---\n");
 
-	if(glConfig.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && !(backEnd.refdef.rdflags & RDF_NOWORLDMODEL))
+	if(glConfig2.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && !(backEnd.refdef.rdflags & RDF_NOWORLDMODEL))
 	{
 		int				i;
 		interaction_t  *ia;
@@ -9613,7 +9613,7 @@ void RB_RenderEntityOcclusionQueries()
 {
 	GLimp_LogComment("--- RB_RenderEntityOcclusionQueries ---\n");
 
-	if(glConfig.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && !(backEnd.refdef.rdflags & RDF_NOWORLDMODEL))
+	if(glConfig2.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && !(backEnd.refdef.rdflags & RDF_NOWORLDMODEL))
 	{
 		int				i;
 		trRefEntity_t   *entity, *multiQueryEntity;
@@ -9809,7 +9809,7 @@ void RB_RenderBspOcclusionQueries()
 {
 	GLimp_LogComment("--- RB_RenderBspOcclusionQueries ---\n");
 
-	if(glConfig.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && r_dynamicBspOcclusionCulling->integer)
+	if(glConfig2.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && r_dynamicBspOcclusionCulling->integer)
 	{
 		//int             j;
 		bspNode_t      *node;
@@ -9824,7 +9824,7 @@ void RB_RenderBspOcclusionQueries()
 		GLSL_SetUniform_TCGen_Environment(&tr.genericShader,  qfalse);
 		GLSL_SetUniform_ColorGen(&tr.genericShader, CGEN_VERTEX);
 		GLSL_SetUniform_AlphaGen(&tr.genericShader, AGEN_VERTEX);
-		if(glConfig.vboVertexSkinningAvailable)
+		if(glConfig2.vboVertexSkinningAvailable)
 		{
 			GLSL_SetUniform_VertexSkinning(&tr.genericShader, qfalse);
 		}
@@ -9890,7 +9890,7 @@ void RB_CollectBspOcclusionQueries()
 {
 	GLimp_LogComment("--- RB_CollectBspOcclusionQueries ---\n");
 
-	if(glConfig.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && r_dynamicBspOcclusionCulling->integer)
+	if(glConfig2.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && r_dynamicBspOcclusionCulling->integer)
 	{
 		//int             j;
 		bspNode_t      *node;
@@ -10857,7 +10857,7 @@ static void RB_RenderDebugUtils()
 
 		for(iaCount = 0, ia = &backEnd.viewParms.interactions[0]; iaCount < backEnd.viewParms.numInteractions;)
 		{
-			if(glConfig.occlusionQueryBits && glConfig.driverType != GLDRV_MESA)
+			if(glConfig2.occlusionQueryBits && glConfig.driverType != GLDRV_MESA)
 			{
 				if(!ia->occlusionQuerySamples)
 				{
@@ -11432,7 +11432,7 @@ static void RB_RenderView(void)
 		}
 		else
 		{
-			if(glConfig.framebufferBlitAvailable)
+			if(glConfig2.framebufferBlitAvailable)
 			{
 				// copy color of the main context to deferredRenderFBO
 				glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, 0);
@@ -11446,7 +11446,7 @@ static void RB_RenderView(void)
 		glClear(clearBits);
 
 #else
-		if(glConfig.framebufferObjectAvailable)
+		if(glConfig2.framebufferObjectAvailable)
 		{
 			R_BindNullFBO();
 		}
@@ -11614,7 +11614,7 @@ static void RB_RenderView(void)
 		// scale down rendered HDR scene to 1 / 4th
 		if(HDR_ENABLED())
 		{
-			if(glConfig.framebufferBlitAvailable)
+			if(glConfig2.framebufferBlitAvailable)
 			{
 				glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
 				glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.downScaleFBO_quarter->frameBuffer);
@@ -11640,7 +11640,7 @@ static void RB_RenderView(void)
 		else
 		{
 #if defined(OFFSCREEN_PREPASS_LIGHTING)
-			if(glConfig.framebufferBlitAvailable)
+			if(glConfig2.framebufferBlitAvailable)
 			{
 				// copy deferredRenderFBO to downScaleFBO_quarter
 				glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
@@ -11657,7 +11657,7 @@ static void RB_RenderView(void)
 #else
 #if 0
 			// FIXME: this trashes the OpenGL context for an unknown reason
-			if(glConfig.framebufferObjectAvailable && glConfig.framebufferBlitAvailable)
+			if(glConfig2.framebufferObjectAvailable && glConfig2.framebufferBlitAvailable)
 			{
 				// copy main context to portalRenderFBO
 				glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, 0);
@@ -11688,7 +11688,7 @@ static void RB_RenderView(void)
 		if(backEnd.viewParms.isPortal)
 		{
 #if defined(OFFSCREEN_PREPASS_LIGHTING)
-			if(glConfig.framebufferBlitAvailable)
+			if(glConfig2.framebufferBlitAvailable)
 			{
 				// copy deferredRenderFBO to portalRenderFBO
 				glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
@@ -11708,7 +11708,7 @@ static void RB_RenderView(void)
 #else
 #if 0
 			// FIXME: this trashes the OpenGL context for an unknown reason
-			if(glConfig.framebufferObjectAvailable && glConfig.framebufferBlitAvailable)
+			if(glConfig2.framebufferObjectAvailable && glConfig2.framebufferBlitAvailable)
 			{
 				// copy main context to portalRenderFBO
 				glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, 0);
@@ -11786,7 +11786,7 @@ static void RB_RenderView(void)
 		}
 		else
 		{
-			if(glConfig.framebufferBlitAvailable)
+			if(glConfig2.framebufferBlitAvailable)
 			{
 				// copy color of the main context to deferredRenderFBO
 				glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, 0);
@@ -11869,7 +11869,7 @@ static void RB_RenderView(void)
 		// scale down rendered HDR scene to 1 / 4th
 		if(r_hdrRendering->integer)
 		{
-			if(glConfig.framebufferBlitAvailable)
+			if(glConfig2.framebufferBlitAvailable)
 			{
 				glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
 				glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.downScaleFBO_quarter->frameBuffer);
@@ -11894,7 +11894,7 @@ static void RB_RenderView(void)
 		}
 		else
 		{
-			if(glConfig.framebufferBlitAvailable)
+			if(glConfig2.framebufferBlitAvailable)
 			{
 				// copy deferredRenderFBO to downScaleFBO_quarter
 				glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
@@ -11920,7 +11920,7 @@ static void RB_RenderView(void)
 
 		if(backEnd.viewParms.isPortal)
 		{
-			if(glConfig.framebufferBlitAvailable)
+			if(glConfig2.framebufferBlitAvailable)
 			{
 				// copy deferredRenderFBO to portalRenderFBO
 				glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
@@ -11962,9 +11962,9 @@ static void RB_RenderView(void)
 		}
 
 		// disable offscreen rendering
-		if(glConfig.framebufferObjectAvailable)
+		if(glConfig2.framebufferObjectAvailable)
 		{
-			if(r_hdrRendering->integer && glConfig.textureFloatAvailable)
+			if(r_hdrRendering->integer && glConfig2.textureFloatAvailable)
 				R_BindFBO(tr.deferredRenderFBO);
 			else
 				R_BindNullFBO();
@@ -12089,7 +12089,7 @@ static void RB_RenderView(void)
 		// render ambient occlusion process effect
 		// Tr3B: needs way more work RB_RenderScreenSpaceAmbientOcclusion(qfalse);
 
-		if(r_hdrRendering->integer && glConfig.framebufferObjectAvailable && glConfig.textureFloatAvailable)
+		if(r_hdrRendering->integer && glConfig2.framebufferObjectAvailable && glConfig2.textureFloatAvailable)
 			R_BindFBO(tr.deferredRenderFBO);
 
 		// draw everything that is translucent
@@ -12099,9 +12099,9 @@ static void RB_RenderView(void)
 		RB_RenderGlobalFog();
 
 		// scale down rendered HDR scene to 1 / 4th
-		if(r_hdrRendering->integer && glConfig.textureFloatAvailable && glConfig.framebufferObjectAvailable)
+		if(r_hdrRendering->integer && glConfig2.textureFloatAvailable && glConfig2.framebufferObjectAvailable)
 		{
-			if(glConfig.framebufferBlitAvailable)
+			if(glConfig2.framebufferBlitAvailable)
 			{
 				glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
 				glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.downScaleFBO_quarter->frameBuffer);
@@ -12130,7 +12130,7 @@ static void RB_RenderView(void)
 			Tr3B: FIXME this causes: caught OpenGL error:
 			GL_INVALID_OPERATION in file code/renderer/tr_backend.c line 6479
 
-			if(glConfig.framebufferBlitAvailable)
+			if(glConfig2.framebufferBlitAvailable)
 			{
 				// copy deferredRenderFBO to downScaleFBO_quarter
 				glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, 0);
@@ -12193,7 +12193,7 @@ static void RB_RenderView(void)
 #endif
 #if 1
 			// FIXME: this trashes the OpenGL context for an unknown reason
-			if(glConfig.framebufferObjectAvailable && glConfig.framebufferBlitAvailable)
+			if(glConfig2.framebufferObjectAvailable && glConfig2.framebufferBlitAvailable)
 			{
 				// copy main context to portalRenderFBO
 				glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, 0);

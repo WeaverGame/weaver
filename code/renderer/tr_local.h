@@ -133,7 +133,7 @@ typedef enum
 
 #endif // #if !defined(GLSL_COMPILE_STARTUP_ONLY)
 
-#define HDR_ENABLED() ((r_hdrRendering->integer && glConfig.textureFloatAvailable && glConfig.framebufferObjectAvailable && glConfig.framebufferBlitAvailable && glConfig.driverType != GLDRV_MESA))
+#define HDR_ENABLED() ((r_hdrRendering->integer && glConfig2.textureFloatAvailable && glConfig2.framebufferObjectAvailable && glConfig2.framebufferBlitAvailable && glConfig.driverType != GLDRV_MESA))
 
 
 
@@ -2642,7 +2642,9 @@ typedef enum
 	SF_DECAL,					// ydnar: decal surfaces
 
 	SF_MDV,
-	//SF_MDM,
+#if defined(COMPAT_ET)
+	SF_MDM,
+#endif
 	SF_MD5,
 
 	SF_FLARE,
@@ -2650,7 +2652,9 @@ typedef enum
 
 	SF_VBO_MESH,
 	SF_VBO_MD5MESH,
-	//SF_VBO_MDMMESH,
+#if defined(COMPAT_ET)
+	SF_VBO_MDMMESH,
+#endif
 	SF_VBO_MDVMESH,
 	SF_VBO_SHADOW_VOLUME,
 
@@ -3534,7 +3538,10 @@ typedef enum
 	MOD_BAD,
 	MOD_BSP,
 	MOD_MESH,
+#if defined(COMPAT_ET)
+	MOD_MDM,
 	MOD_MDX,
+#endif
 	MOD_MD5
 } modtype_t;
 
@@ -3547,6 +3554,10 @@ typedef struct model_s
 	int             dataSize;	// just for listing purposes
 	bspModel_t     *bsp;		// only if type == MOD_BSP
 	mdvModel_t     *mdv[MD3_MAX_LODS];	// only if type == MOD_MESH
+#if defined(COMPAT_ET)
+	mdmModel_t     *mdm;		// only if type == MOD_MDM
+	mdxHeader_t    *mdx;		// only if type == MOD_MDX
+#endif
 	md5Model_t     *md5;		// only if type == MOD_MD5
 
 	int             numLods;
@@ -3555,7 +3566,8 @@ typedef struct model_s
 void            R_ModelInit(void);
 model_t        *R_GetModelByHandle(qhandle_t hModel);
 
-int             RE_LerpTag(orientation_t * tag, qhandle_t handle, int startFrame, int endFrame, float frac, const char *tagNameIn);
+int             RE_LerpTagQ3A(orientation_t * tag, qhandle_t handle, int startFrame, int endFrame, float frac, const char *tagNameIn);
+int             RE_LerpTagET(orientation_t * tag, const refEntity_t * refent, const char *tagNameIn, int startIndex);
 
 int             RE_BoneIndex(qhandle_t hModel, const char *boneName);
 
@@ -3986,9 +3998,7 @@ typedef struct
 	int             numFBOs;
 	FBO_t          *fbos[MAX_FBOS];
 
-#if !defined(USE_D3D10)
 	GLuint			vao;
-#endif
 
 	growList_t      vbos;
 	growList_t      ibos;
@@ -4029,7 +4039,8 @@ extern int      shadowMapResolutions[5];
 
 extern backEndState_t backEnd;
 extern trGlobals_t tr;
-extern glConfig_t glConfig;		// outside of TR since it shouldn't be cleared during ref re-init
+extern glconfig_t glConfig;		// outside of TR since it shouldn't be cleared during ref re-init
+extern glconfig2_t glConfig2;
 
 #if defined(USE_D3D10)
 extern dxGlobals_t dx;
@@ -4458,10 +4469,10 @@ void            RE_StretchRaw(int x, int y, int w, int h, int cols, int rows, co
 void            RE_UploadCinematic(int w, int h, int cols, int rows, const byte * data, int client, qboolean dirty);
 
 void            RE_BeginFrame(stereoFrame_t stereoFrame);
-void            RE_BeginRegistration(glConfig_t * glconfig);
+void            RE_BeginRegistration(glconfig_t * glconfig, glconfig2_t * glconfig2);
 void            RE_LoadWorldMap(const char *mapname);
 void            RE_SetWorldVisData(const byte * vis);
-qhandle_t       RE_RegisterModel(const char *name, qboolean forceStatic);
+qhandle_t       RE_RegisterModel(const char *name);
 qhandle_t       RE_RegisterSkin(const char *name);
 void            RE_Shutdown(qboolean destroyWindow);
 
@@ -4886,6 +4897,31 @@ void            R_VBOList_f(void);
 /*
 ============================================================
 
+DECALS - ydnar, tr_decals.c
+
+============================================================
+*/
+
+void            RE_ProjectDecal(qhandle_t hShader, int numPoints, vec3_t * points, vec4_t projection, vec4_t color, int lifeTime,
+								int fadeTime);
+void            RE_ClearDecals(void);
+
+void            R_AddModelShadow(refEntity_t * ent);
+
+void            R_TransformDecalProjector(decalProjector_t * in, vec3_t axis[3], vec3_t origin, decalProjector_t * out);
+qboolean        R_TestDecalBoundingBox(decalProjector_t * dp, vec3_t mins, vec3_t maxs);
+qboolean        R_TestDecalBoundingSphere(decalProjector_t * dp, vec3_t center, float radius2);
+
+void            R_ProjectDecalOntoSurface(decalProjector_t * dp, bspSurface_t * surf, bspModel_t * bmodel);
+
+void            R_AddDecalSurface(decal_t * decal);
+void            R_AddDecalSurfaces(bspModel_t * bmodel);
+void            R_CullDecalProjectors(void);
+
+
+/*
+============================================================
+
 SCENE GENERATION, tr_scene.c
 
 ============================================================
@@ -4896,7 +4932,12 @@ void            R_ToggleSmpFrame(void);
 void            RE_ClearScene(void);
 void            RE_AddRefEntityToScene(const refEntity_t * ent);
 void            RE_AddRefLightToScene(const refLight_t * light);
-void            RE_AddPolyToScene(qhandle_t hShader, int numVerts, const polyVert_t * verts, int num);
+
+
+void			RE_AddPolyToSceneQ3A(qhandle_t hShader, int numVerts, const polyVert_t * verts, int num);
+void			RE_AddPolyToSceneET(qhandle_t hShader, int numVerts, const polyVert_t * verts);
+void            RE_AddPolysToScene(qhandle_t hShader, int numVerts, const polyVert_t * verts, int numPolys);
+
 void            RE_AddPolyBufferToScene(polyBuffer_t * pPolyBuffer);
 
 void            RE_AddDynamicLightToSceneET(const vec3_t org, float radius, float intensity, float r, float g, float b, qhandle_t hShader, int flags);
@@ -4951,6 +4992,24 @@ void            RB_SurfaceAnim(mdsSurface_t * surfType);
 int             R_GetBoneTag(orientation_t * outTag, mdsHeader_t * mds, int startTagIndex, const refEntity_t * refent,
 							 const char *tagName);
 							 */
+
+/*
+=============================================================
+
+ANIMATED MODELS WOLF:ET  MDM/MDX
+
+=============================================================
+*/
+
+void            R_MDM_AddAnimSurfaces(trRefEntity_t * ent);
+void            R_AddMDMInteractions(trRefEntity_t * e, trRefLight_t * light);
+
+int             R_MDM_GetBoneTag(orientation_t * outTag, mdmModel_t * mdm, int startTagIndex, const refEntity_t * refent,
+								 const char *tagName);
+
+
+void            Tess_MDM_SurfaceAnim(mdmSurfaceIntern_t * surfType);
+void            Tess_SurfaceVBOMDMMesh(srfVBOMDMMesh_t * surfType);
 
 /*
 =============================================================

@@ -971,7 +971,7 @@ static void GLimp_InitExtensions(void)
 	// GL_ARB_texture_cube_map
 	if(GLEW_ARB_texture_cube_map)
 	{
-		glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE_ARB, &glConfig.maxCubeMapTextureSize);
+		glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE_ARB, &glConfig2.maxCubeMapTextureSize);
 		ri.Printf(PRINT_ALL, "...using GL_ARB_texture_cube_map\n");
 	}
 	else
@@ -1001,14 +1001,14 @@ static void GLimp_InitExtensions(void)
 	}
 
 	// GL_ARB_occlusion_query
-	glConfig.occlusionQueryAvailable = qfalse;
-	glConfig.occlusionQueryBits = 0;
+	glConfig2.occlusionQueryAvailable = qfalse;
+	glConfig2.occlusionQueryBits = 0;
 	if(GLEW_ARB_occlusion_query)
 	{
 		if(r_ext_occlusion_query->value)
 		{
-			glConfig.occlusionQueryAvailable = qtrue;
-			glGetQueryivARB(GL_SAMPLES_PASSED, GL_QUERY_COUNTER_BITS, &glConfig.occlusionQueryBits);
+			glConfig2.occlusionQueryAvailable = qtrue;
+			glGetQueryivARB(GL_SAMPLES_PASSED, GL_QUERY_COUNTER_BITS, &glConfig2.occlusionQueryBits);
 			ri.Printf(PRINT_ALL, "...using GL_ARB_occlusion_query\n");
 		}
 		else
@@ -1038,9 +1038,9 @@ static void GLimp_InitExtensions(void)
 		int				reservedComponents;
 
 		GL_CheckErrors();
-		glGetIntegerv(GL_MAX_VERTEX_UNIFORM_COMPONENTS_ARB, &glConfig.maxVertexUniforms); GL_CheckErrors();
+		glGetIntegerv(GL_MAX_VERTEX_UNIFORM_COMPONENTS_ARB, &glConfig2.maxVertexUniforms); GL_CheckErrors();
 		//glGetIntegerv(GL_MAX_VARYING_FLOATS_ARB, &glConfig.maxVaryingFloats); GL_CheckErrors();
-		glGetIntegerv(GL_MAX_VERTEX_ATTRIBS_ARB, &glConfig.maxVertexAttribs); GL_CheckErrors();
+		glGetIntegerv(GL_MAX_VERTEX_ATTRIBS_ARB, &glConfig2.maxVertexAttribs); GL_CheckErrors();
 
 		reservedComponents = 16 * 10; // approximation how many uniforms we have besides the bone matrices
 
@@ -1050,11 +1050,11 @@ static void GLimp_InitExtensions(void)
 			// restrict to number of vertex uniforms to 512 because of:
 			// xreal.x86_64: nv50_program.c:4181: nv50_program_validate_data: Assertion `p->param_nr <= 512' failed
 
-			glConfig.maxVertexUniforms = Q_bound(0, glConfig.maxVertexUniforms, 512);
+			glConfig2.maxVertexUniforms = Q_bound(0, glConfig2.maxVertexUniforms, 512);
 		}
 
-		glConfig.maxVertexSkinningBones = (int) Q_bound(0.0, (Q_max(glConfig.maxVertexUniforms - reservedComponents, 0) / 16), MAX_BONES);
-		glConfig.vboVertexSkinningAvailable = r_vboVertexSkinning->integer && ((glConfig.maxVertexSkinningBones >= 12) ? qtrue : qfalse);
+		glConfig2.maxVertexSkinningBones = (int) Q_bound(0.0, (Q_max(glConfig2.maxVertexUniforms - reservedComponents, 0) / 16), MAX_BONES);
+		glConfig2.vboVertexSkinningAvailable = r_vboVertexSkinning->integer && ((glConfig2.maxVertexSkinningBones >= 12) ? qtrue : qfalse);
 
 		ri.Printf(PRINT_ALL, "...using GL_ARB_vertex_shader\n");
 	}
@@ -1077,8 +1077,8 @@ static void GLimp_InitExtensions(void)
 	// GL_ARB_shading_language_100
 	if(GLEW_ARB_shading_language_100)
 	{
-		Q_strncpyz(glConfig.shadingLanguageVersion, (char*)glGetString(GL_SHADING_LANGUAGE_VERSION_ARB),
-				   sizeof(glConfig.shadingLanguageVersion));
+		Q_strncpyz(glConfig2.shadingLanguageVersion, (char*)glGetString(GL_SHADING_LANGUAGE_VERSION_ARB),
+				   sizeof(glConfig2.shadingLanguageVersion));
 		ri.Printf(PRINT_ALL, "...using GL_ARB_shading_language_100\n");
 	}
 	else
@@ -1088,12 +1088,12 @@ static void GLimp_InitExtensions(void)
 	GL_CheckErrors();
 
 	// GL_ARB_texture_non_power_of_two
-	glConfig.textureNPOTAvailable = qfalse;
+	glConfig2.textureNPOTAvailable = qfalse;
 	if(GLEW_ARB_texture_non_power_of_two)
 	{
 		if(r_ext_texture_non_power_of_two->integer)
 		{
-			glConfig.textureNPOTAvailable = qtrue;
+			glConfig2.textureNPOTAvailable = qtrue;
 			ri.Printf(PRINT_ALL, "...using GL_ARB_texture_non_power_of_two\n");
 		}
 		else
@@ -1107,14 +1107,14 @@ static void GLimp_InitExtensions(void)
 	}
 
 	// GL_ARB_draw_buffers
-	glConfig.drawBuffersAvailable = qfalse;
+	glConfig2.drawBuffersAvailable = qfalse;
 	if(GLEW_ARB_draw_buffers)
 	{
-		glGetIntegerv(GL_MAX_DRAW_BUFFERS_ARB, &glConfig.maxDrawBuffers);
+		glGetIntegerv(GL_MAX_DRAW_BUFFERS_ARB, &glConfig2.maxDrawBuffers);
 
 		if(r_ext_draw_buffers->integer)
 		{
-			glConfig.drawBuffersAvailable = qtrue;
+			glConfig2.drawBuffersAvailable = qtrue;
 			ri.Printf(PRINT_ALL, "...using GL_ARB_draw_buffers\n");
 		}
 		else
@@ -1128,12 +1128,12 @@ static void GLimp_InitExtensions(void)
 	}
 
 	// GL_ARB_half_float_pixel
-	glConfig.textureHalfFloatAvailable = qfalse;
+	glConfig2.textureHalfFloatAvailable = qfalse;
 	if(GLEW_ARB_half_float_pixel)
 	{
 		if(r_ext_half_float_pixel->integer)
 		{
-			glConfig.textureHalfFloatAvailable = qtrue;
+			glConfig2.textureHalfFloatAvailable = qtrue;
 			ri.Printf(PRINT_ALL, "...using GL_ARB_half_float_pixel\n");
 		}
 		else
@@ -1147,12 +1147,12 @@ static void GLimp_InitExtensions(void)
 	}
 
 	// GL_ARB_texture_float
-	glConfig.textureFloatAvailable = qfalse;
+	glConfig2.textureFloatAvailable = qfalse;
 	if(GLEW_ARB_texture_float)
 	{
 		if(r_ext_texture_float->integer)
 		{
-			glConfig.textureFloatAvailable = qtrue;
+			glConfig2.textureFloatAvailable = qtrue;
 			ri.Printf(PRINT_ALL, "...using GL_ARB_texture_float\n");
 		}
 		else
@@ -1171,7 +1171,7 @@ static void GLimp_InitExtensions(void)
 	{
 		if(r_ext_compressed_textures->integer)
 		{
-			glConfig.ARBTextureCompressionAvailable = qtrue;
+			glConfig2.ARBTextureCompressionAvailable = qtrue;
 			ri.Printf(PRINT_ALL, "...using GL_ARB_texture_compression\n");
 		}
 		else
@@ -1185,12 +1185,12 @@ static void GLimp_InitExtensions(void)
 	}
 
 	// GL_ARB_vertex_array_object
-	glConfig.vertexArrayObjectAvailable = qfalse;
+	glConfig2.vertexArrayObjectAvailable = qfalse;
 	if(GLEW_ARB_vertex_array_object)
 	{
 		if(r_ext_vertex_array_object->integer)
 		{
-			glConfig.vertexArrayObjectAvailable = qtrue;
+			glConfig2.vertexArrayObjectAvailable = qtrue;
 			ri.Printf(PRINT_ALL, "...using GL_ARB_vertex_array_object\n");
 		}
 		else
@@ -1222,12 +1222,12 @@ static void GLimp_InitExtensions(void)
 	}
 
 	// GL_EXT_texture3D
-	glConfig.texture3DAvailable = qfalse;
+	glConfig2.texture3DAvailable = qfalse;
 	if(GLEW_EXT_texture3D)
 	{
 		//if(r_ext_texture3d->value)
 		{
-			glConfig.texture3DAvailable = qtrue;
+			glConfig2.texture3DAvailable = qtrue;
 			ri.Printf(PRINT_ALL, "...using GL_EXT_texture3D\n");
 		}
 		/*
@@ -1243,12 +1243,12 @@ static void GLimp_InitExtensions(void)
 	}
 
 	// GL_EXT_stencil_wrap
-	glConfig.stencilWrapAvailable = qfalse;
+	glConfig2.stencilWrapAvailable = qfalse;
 	if(GLEW_EXT_stencil_wrap)
 	{
 		if(r_ext_stencil_wrap->value)
 		{
-			glConfig.stencilWrapAvailable = qtrue;
+			glConfig2.stencilWrapAvailable = qtrue;
 			ri.Printf(PRINT_ALL, "...using GL_EXT_stencil_wrap\n");
 		}
 		else
@@ -1262,14 +1262,14 @@ static void GLimp_InitExtensions(void)
 	}
 
 	// GL_EXT_texture_filter_anisotropic
-	glConfig.textureAnisotropyAvailable = qfalse;
+	glConfig2.textureAnisotropyAvailable = qfalse;
 	if(GLEW_EXT_texture_filter_anisotropic)
 	{
-		glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &glConfig.maxTextureAnisotropy);
+		glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &glConfig2.maxTextureAnisotropy);
 
 		if(r_ext_texture_filter_anisotropic->value)
 		{
-			glConfig.textureAnisotropyAvailable = qtrue;
+			glConfig2.textureAnisotropyAvailable = qtrue;
 			ri.Printf(PRINT_ALL, "...using GL_EXT_texture_filter_anisotropic\n");
 		}
 		else
@@ -1318,15 +1318,15 @@ static void GLimp_InitExtensions(void)
 	}
 
 	// GL_EXT_framebuffer_object
-	glConfig.framebufferObjectAvailable = qfalse;
+	glConfig2.framebufferObjectAvailable = qfalse;
 	if(GLEW_EXT_framebuffer_object)
 	{
-		glGetIntegerv(GL_MAX_RENDERBUFFER_SIZE_EXT, &glConfig.maxRenderbufferSize);
-		glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS_EXT, &glConfig.maxColorAttachments);
+		glGetIntegerv(GL_MAX_RENDERBUFFER_SIZE_EXT, &glConfig2.maxRenderbufferSize);
+		glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS_EXT, &glConfig2.maxColorAttachments);
 
 		if(r_ext_framebuffer_object->value)
 		{
-			glConfig.framebufferObjectAvailable = qtrue;
+			glConfig2.framebufferObjectAvailable = qtrue;
 			ri.Printf(PRINT_ALL, "...using GL_EXT_framebuffer_object\n");
 		}
 		else
@@ -1341,12 +1341,12 @@ static void GLimp_InitExtensions(void)
 	GL_CheckErrors();
 
 	// GL_EXT_packed_depth_stencil
-	glConfig.framebufferPackedDepthStencilAvailable = qfalse;
+	glConfig2.framebufferPackedDepthStencilAvailable = qfalse;
 	if(GLEW_EXT_packed_depth_stencil && glConfig.driverType != GLDRV_MESA)
 	{
 		if(r_ext_packed_depth_stencil->integer)
 		{
-			glConfig.framebufferPackedDepthStencilAvailable = qtrue;
+			glConfig2.framebufferPackedDepthStencilAvailable = qtrue;
 			ri.Printf(PRINT_ALL, "...using GL_EXT_packed_depth_stencil\n");
 		}
 		else
@@ -1360,12 +1360,12 @@ static void GLimp_InitExtensions(void)
 	}
 
 	// GL_EXT_framebuffer_blit
-	glConfig.framebufferBlitAvailable = qfalse;
+	glConfig2.framebufferBlitAvailable = qfalse;
 	if(GLEW_EXT_framebuffer_blit)
 	{
 		if(r_ext_framebuffer_blit->integer)
 		{
-			glConfig.framebufferBlitAvailable = qtrue;
+			glConfig2.framebufferBlitAvailable = qtrue;
 			ri.Printf(PRINT_ALL, "...using GL_EXT_framebuffer_blit\n");
 		}
 		else
@@ -1417,12 +1417,12 @@ static void GLimp_InitExtensions(void)
 	}
 
 	// GL_SGIS_generate_mipmap
-	glConfig.generateMipmapAvailable = qfalse;
-	if(Q_stristr(glConfig.extensions_string, "GL_SGIS_generate_mipmap"))
+	glConfig2.generateMipmapAvailable = qfalse;
+	if(GLEW_SGIS_generate_mipmap)
 	{
 		if(r_ext_generate_mipmap->value)
 		{
-			glConfig.generateMipmapAvailable = qtrue;
+			glConfig2.generateMipmapAvailable = qtrue;
 			ri.Printf(PRINT_ALL, "...using GL_SGIS_generate_mipmap\n");
 		}
 		else

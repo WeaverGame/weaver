@@ -662,7 +662,6 @@ void R_InitVBOs(void)
 	memset(data, 0, dataSize);
 
 	tess.vbo = R_CreateVBO("tessVertexArray_VBO", data, dataSize, VBO_USAGE_DYNAMIC);
-#if !defined(USE_D3D10)
 	tess.vbo->ofsXYZ = 0;
 	tess.vbo->ofsTexCoords = tess.vbo->ofsXYZ + sizeof(tess.xyz);
 	tess.vbo->ofsLightCoords = tess.vbo->ofsTexCoords + sizeof(tess.texCoords);
@@ -680,8 +679,6 @@ void R_InitVBOs(void)
 	tess.vbo->sizeBinormals = sizeof(tess.binormals);
 	tess.vbo->sizeNormals = sizeof(tess.normals);
 
-#endif
-
 	Com_Dealloc(data);
 
 	dataSize = sizeof(tess.indexes);
@@ -697,11 +694,7 @@ void R_InitVBOs(void)
 	R_BindNullVBO();
 	R_BindNullIBO();
 
-#if defined(USE_D3D10)
-	// TODO
-#else
 	GL_CheckErrors();
-#endif
 }
 
 /*

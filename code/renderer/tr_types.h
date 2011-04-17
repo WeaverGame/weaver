@@ -290,7 +290,7 @@ typedef enum
 
 
 /*
-** glConfig_t
+** glconfig_t
 **
 ** Contains variables specific to the OpenGL configuration
 ** being run right now.  These are constant once the OpenGL
@@ -354,8 +354,11 @@ typedef struct
 	qboolean        isFullscreen;
 	qboolean        stereoEnabled;
 	qboolean        smpActive;	// dual processor
+} glconfig_t;
 
 	// XreaL BEGIN
+typedef struct
+{
 	qboolean		ARBTextureCompressionAvailable;
 
 	int             maxCubeMapTextureSize;
@@ -391,11 +394,10 @@ typedef struct
 	int             maxColorAttachments;
 	qboolean        framebufferPackedDepthStencilAvailable;
 	qboolean        framebufferBlitAvailable;
-	qboolean        framebufferMixedFormatsAvailable;
 
 	qboolean        generateMipmapAvailable;
+} glconfig2_t;
 	// XreaL END
-} glConfig_t;
 
 
 // =========================================

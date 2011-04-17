@@ -1398,7 +1398,7 @@ typedef struct
 typedef struct
 {
 	gameState_t     gameState;	// gamestate from server
-	glConfig_t      glconfig;	// rendering configuration
+	glconfig_t      glconfig;	// rendering configuration
 	float           screenScale;	// derived from glconfig
 	float           screenXBias;
 	float           screenYBias;
@@ -2253,7 +2253,7 @@ void            trap_R_LoadWorldMap(const char *mapname);
 
 // all media should be registered during level startup to prevent
 // hitches during gameplay
-qhandle_t       trap_R_RegisterModel(const char *name, qboolean forceStatic);	// returns rgb axis if not found
+qhandle_t       trap_R_RegisterModel(const char *name);	// returns rgb axis if not found
 qhandle_t       trap_R_RegisterAnimation(const char *name);
 qhandle_t       trap_R_RegisterSkin(const char *name);	// returns all white if not found
 qhandle_t       trap_R_RegisterShader(const char *name);	// returns all white if not found
@@ -2289,10 +2289,10 @@ int             trap_R_AnimFrameRate(qhandle_t hAnim);
 
 void            trap_R_RemapShader(const char *oldShader, const char *newShader, const char *timeOffset);
 
-// The glConfig_t will not change during the life of a cgame.
+// The glconfig_t will not change during the life of a cgame.
 // If it needs to change, the entire cgame will be restarted, because
 // all the qhandle_t are then invalid.
-void            trap_GetGlconfig(glConfig_t * glconfig);
+void            trap_GetGlconfig(glconfig_t * glconfig);
 
 // the gamestate should be grabbed at startup, and whenever a
 // configstring changes

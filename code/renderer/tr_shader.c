@@ -1419,7 +1419,7 @@ static qboolean LoadMap(shaderStage_t * stage, char *buffer)
 		stage->bundle[0].image[0] = tr.flatImage;
 		return qtrue;
 	}
-#if defined(COMPAT_Q3A)
+#if defined(COMPAT_ET) || defined(COMPAT_Q3A)
 	else if(!Q_stricmp(token, "$lightmap"))
 	{
 		stage->type = ST_LIGHTMAP;
@@ -1539,7 +1539,7 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 		// lightmap <name>
 		else if(!Q_stricmp(token, "lightmap"))
 		{
-#if defined(COMPAT_Q3A)
+#if defined(COMPAT_Q3A) || defined(COMPAT_ET)
 			if(!ParseMap(stage, text, buffer, sizeof(buffer)))
 			{
 				//ri.Printf(PRINT_WARNING, "WARNING: ParseMap could not create '%s' in shader '%s'\n", token, shader.name);
@@ -2245,13 +2245,13 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 			}
 			else if(!Q_stricmp(token, "lightmap"))
 			{
-#if !defined(COMPAT_Q3A)
+#if !defined(COMPAT_Q3A) && !defined(COMPAT_ET)
 				ri.Printf(PRINT_WARNING, "WARNING: texGen lightmap keyword not supported in shader '%s'\n", shader.name);
 #endif
 			}
 			else if(!Q_stricmp(token, "texture") || !Q_stricmp(token, "base"))
 			{
-#if !defined(COMPAT_Q3A)
+#if !defined(COMPAT_Q3A) && !defined(COMPAT_ET)
 				ri.Printf(PRINT_WARNING, "WARNING: texGen texture keyword not supported in shader '%s'\n", shader.name);
 #endif
 			}
@@ -2593,10 +2593,6 @@ static void ParseDeform(char **text)
 		ri.Printf(PRINT_WARNING, "WARNING: MAX_SHADER_DEFORMS in '%s'\n", shader.name);
 		return;
 	}
-	else if(shader.numDeforms)
-	{
-		ri.Printf(PRINT_WARNING, "WARNING: more than one deformVertexes command in shader '%s'\n", shader.name);
-	}
 
 	ds = &shader.deforms[shader.numDeforms];
 	shader.numDeforms++;
@@ -2916,17 +2912,28 @@ typedef struct
 infoParm_t	infoParms[] = {
 	// server relevant contents
 
+#if defined(COMPAT_ET)
+	{"clipmissile",		1,	0,	CONTENTS_MISSILECLIP},	// impact only specific weapons (rl, gl)
+#endif
+
 	{"water",			1,	0,	CONTENTS_WATER},
 	
 	{"slag",			1,	0,	CONTENTS_SLIME},	// uses the CONTENTS_SLIME flag, but the shader reference is changed to 'slag'
 	// to idendify that this doesn't work the same as 'slime' did.
 
+#if !defined(COMPAT_ET)
 	{"slime",			1,	0,	CONTENTS_SLIME},		// mildly damaging
+#endif
+
 	{"lava",			1,	0,	CONTENTS_LAVA},			// very damaging
 	{"playerclip",		1,	0,	CONTENTS_PLAYERCLIP},
 	{"monsterclip",		1,	0,	CONTENTS_MONSTERCLIP},
+
+#if !defined(COMPAT_ET)
 	{"moveableclip",	1,	0,	0},						// FIXME
 	{"ikclip",			1,	0,	0},						// FIXME
+#endif
+
 	{"nodrop",			1,	0,	CONTENTS_NODROP},		// don't drop items or leave bodies (death fog, lava, etc)
 	{"nonsolid",		1,	SURF_NONSOLID,	0},			// clears the solid flag
 
@@ -2943,7 +2950,12 @@ infoParm_t	infoParms[] = {
 	{"areaportal",		1,	0,	CONTENTS_AREAPORTAL},	// divides areas
 	{"clusterportal",	1,	0,  CONTENTS_CLUSTERPORTAL},	// for bots
 	{"donotenter",  	1,  0,  CONTENTS_DONOTENTER},	// for bots
+	
+#if defined(COMPAT_ET)
+	{"donotenterlarge", 1, 0, CONTENTS_DONOTENTER_LARGE},	// for larger bots
+#else
 	{"botclip",			1,  0,  CONTENTS_BOTCLIP},		// for bots
+#endif
 
 	{"fog",				1,	0,	CONTENTS_FOG},			// carves surfaces entering
 	{"sky",				0,	SURF_SKY,		0},			// emit light from an environment map
@@ -2953,7 +2965,11 @@ infoParm_t	infoParms[] = {
 
 	// server attributes
 	{"slick",			0,	SURF_SLICK,		0},
+
+#if !defined(COMPAT_ET)
 	{"collision",		0,	SURF_COLLISION,	0},
+#endif
+
 	{"noimpact",		0,	SURF_NOIMPACT,	0},			// don't make impact explosions or marks
 
 	{"nomarks",			0,	SURF_NOMARKS,	0},			// don't make impact marks, but still explode
@@ -2963,17 +2979,31 @@ infoParm_t	infoParms[] = {
 
 	{"nodamage",		0,	SURF_NODAMAGE,	0},
 
+#if defined(COMPAT_ET)
+	{"monsterslick",	0,	SURF_MONSTERSLICK, 0},	// surf only slick for monsters
+#endif
+
+#if !defined(COMPAT_ET)
 	{"flesh",			0,	SURF_FLESH,		0},
-	{"glass",			0,	SURF_GLASS, 0},
-	{"splash",			0,	SURF_SPLASH, 0},
+#endif
+	{"glass",			0,	SURF_GLASS, 0},	//----(SA) added
+	{"splash",			0,	SURF_SPLASH, 0},	//----(SA) added
 
 	// steps
+#if defined(COMPAT_ET)
+	{"metal",			0,	SURF_METAL, 0},
+	{"metalsteps",		0,	SURF_METAL, 0},
+#else
 	{"metal",			0,	SURF_METALSTEPS, 0},
 	{"metalsteps",		0,	SURF_METALSTEPS, 0},
+#endif
 	
-	{"nosteps",			0,	SURF_NOSTEPS,	0},
+#if !defined(COMPAT_ET)
 	{"wallwalk",		0,	SURF_WALLWALK,	0},
+#endif
 
+
+	{"nosteps",			0,	SURF_NOSTEPS,	0},
 	{"woodsteps",		0, 	SURF_WOOD, 0},
 	{"grasssteps",		0, 	SURF_GRASS, 0},
 	{"gravelsteps",		0, 	SURF_GRAVEL, 0},
@@ -2988,10 +3018,27 @@ infoParm_t	infoParms[] = {
 	{"pointlight",		0,	SURF_POINTLIGHT,	0},		// sample lighting at vertexes
 	{"nolightmap",		0,	SURF_NOLIGHTMAP,	0},		// don't generate a lightmap
 	{"nodlight",		0,	0,					0},		// OBSELETE: don't ever add dynamic lights
+
+#if !defined(COMPAT_ET)
 	{"dust",			0,	SURF_DUST,			0},		// leave a dust trail when walking on this surface
+#endif
+
+	// monster ai
+#if defined(COMPAT_ET)
+	{"monsterslicknorth", 0, SURF_MONSLICK_N, 0},
+	{"monsterslickeast", 0, SURF_MONSLICK_E, 0},
+	{"monsterslicksouth", 0, SURF_MONSLICK_S, 0},
+	{"monsterslickwest", 0, SURF_MONSLICK_W, 0},
+#endif
+
 
 	// unsupported Doom3 surface types for sound effects and blood splats
+#if defined(COMPAT_ET)
+	{"metal",			0,	SURF_METAL,		0},
+#else
 	{"metal",			0,	SURF_METALSTEPS,	0},
+#endif
+
 	{"stone",			0,	0,				0},
 	{"wood",			0,	SURF_WOOD,		0},
 	{"cardboard",		0,	0,				0},
@@ -4697,7 +4744,7 @@ static shader_t *FinishShader(void)
 		switch (pStage->type)
 		{
 			case ST_LIQUIDMAP:
-#if defined(COMPAT_Q3A)
+#if defined(COMPAT_Q3A) || defined(COMPAT_ET)
 			case ST_LIGHTMAP:
 #endif
 				// skip
@@ -6024,7 +6071,7 @@ static void ScanAndLoadShaderFiles(void)
 	ri.Printf(PRINT_ALL, "----- ScanAndLoadShaderFiles -----\n");
 
 	// scan for shader files
-#if defined(COMPAT_Q3A)
+#if defined(COMPAT_Q3A) || defined(COMPAT_ET)
 	shaderFiles = ri.FS_ListFiles("scripts", ".shader", &numShaders);
 #else
 	shaderFiles = ri.FS_ListFiles("materials", ".mtr", &numShaders);
@@ -6044,7 +6091,7 @@ static void ScanAndLoadShaderFiles(void)
 	// build single large buffer
 	for(i = 0; i < numShaders; i++)
 	{
-#if defined(COMPAT_Q3A)
+#if defined(COMPAT_Q3A) || defined(COMPAT_ET)
 		Com_sprintf(filename, sizeof(filename), "scripts/%s", shaderFiles[i]);
 #else
 		Com_sprintf(filename, sizeof(filename), "materials/%s", shaderFiles[i]);
@@ -6057,7 +6104,7 @@ static void ScanAndLoadShaderFiles(void)
 	// load in reverse order, so doubled shaders are overriden properly
 	for(i = numShaders - 1; i >= 0; i--)
 	{
-#if defined(COMPAT_Q3A)
+#if defined(COMPAT_Q3A) || defined(COMPAT_ET)
 		Com_sprintf(filename, sizeof(filename), "scripts/%s", shaderFiles[i]);
 #else
 		Com_sprintf(filename, sizeof(filename), "materials/%s", shaderFiles[i]);
@@ -6082,7 +6129,7 @@ static void ScanAndLoadShaderFiles(void)
 	size = 0;
 	for(i = 0; i < numShaders; i++)
 	{
-#if defined(COMPAT_Q3A)
+#if defined(COMPAT_Q3A) || defined(COMPAT_ET)
 		Com_sprintf(filename, sizeof(filename), "scripts/%s", shaderFiles[i]);
 #else
 		Com_sprintf(filename, sizeof(filename), "materials/%s", shaderFiles[i]);
@@ -6183,7 +6230,7 @@ static void ScanAndLoadShaderFiles(void)
 	//
 	for(i = 0; i < numShaders; i++)
 	{
-#if defined(COMPAT_Q3A)
+#if defined(COMPAT_Q3A) || defined(COMPAT_ET)
 		Com_sprintf(filename, sizeof(filename), "scripts/%s", shaderFiles[i]);
 #else
 		Com_sprintf(filename, sizeof(filename), "materials/%s", shaderFiles[i]);

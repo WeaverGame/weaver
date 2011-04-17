@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef __UI_PUBLIC_H__
 #define __UI_PUBLIC_H__
 
-#define UI_API_VERSION	8
+#define UI_API_VERSION	9
 
 typedef struct
 {
@@ -92,6 +92,7 @@ typedef enum
 	UI_KEY_SETCATCHER,
 	UI_GETCLIPBOARDDATA,
 	UI_GETGLCONFIG,
+	UI_GETGLCONFIG2,
 	UI_GETCLIENTSTATE,
 	UI_GETCONFIGSTRING,
 	UI_LAN_GETPINGQUEUECOUNT,

@@ -3111,7 +3111,7 @@ CL_InitRenderer
 void CL_InitRenderer(void)
 {
 	// this sets up the renderer and calls R_Init
-	re.BeginRegistration(&cls.glconfig);
+	re.BeginRegistration(&cls.glconfig, &cls.glconfig2);
 
 	// load character sets
 	cls.charSetShader = re.RegisterShader("gfx/2d/bigchars");

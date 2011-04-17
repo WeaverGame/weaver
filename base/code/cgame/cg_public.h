@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2006 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2006-2008 Robert Beckebans <trebor_7@users.sourceforge.net>
 Copyright (C) 2011 Andrew Browne <dersaidin@dersaidin.net>
 
 This file is part of Weaver source code.
@@ -73,7 +73,7 @@ functions imported from the main executable
 ==================================================================
 */
 
-#define	CGAME_IMPORT_API_VERSION	10
+#define	CGAME_IMPORT_API_VERSION	11
 
 typedef enum
 {
