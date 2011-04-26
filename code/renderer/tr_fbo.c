@@ -502,13 +502,15 @@ void R_InitFBOs(void)
 	if(DS_STANDARD_ENABLED())
 	{
 		// geometricRender FBO as G-Buffer for deferred shading
+		/*
 		GLenum          drawbuffers[] = {
 			GL_COLOR_ATTACHMENT0_EXT,
 			GL_COLOR_ATTACHMENT1_EXT,
 			GL_COLOR_ATTACHMENT2_EXT
-			//GL_COLOR_ATTACHMENT3_EXT
+			GL_COLOR_ATTACHMENT3_EXT
 			//GL_DEPTH_ATTACHMENT_EXT
 		};
+		*/
 
 		ri.Printf(PRINT_ALL, "Deferred Shading enabled\n");
 
@@ -523,211 +525,45 @@ void R_InitFBOs(void)
 			height = NearestPowerOfTwo(glConfig.vidHeight);
 		}
 
-		// deferredRender FBO for the lighting pass
-		tr.deferredRenderFBO = R_CreateFBO("_deferredRender", width, height);
-		R_BindFBO(tr.deferredRenderFBO);
-
-		if(HDR_ENABLED())
-		{
-			R_CreateFBOColorBuffer(tr.deferredRenderFBO, GL_RGBA16F_ARB, 0);
-		}
-		else
-		{
-			R_CreateFBOColorBuffer(tr.deferredRenderFBO, GL_RGBA, 0);
-		}
-		R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.deferredRenderFBOImage->texnum, 0);
-
-		//if(glConfig2.framebufferPackedDepthStencilAvailable)
-		{
-			R_CreateFBOPackedDepthStencilBuffer(tr.deferredRenderFBO, GL_DEPTH24_STENCIL8_EXT);
-			R_AttachFBOTexturePackedDepthStencil(tr.depthRenderImage->texnum);
-		}
-		/*
-		else if(glConfig.hardwareType == GLHW_ATI || glConfig.hardwareType == GLHW_ATI_DX10)// || glConfig.hardwareType == GLHW_NV_DX10)
-		{
-			R_CreateFBODepthBuffer(tr.deferredRenderFBO, GL_DEPTH_COMPONENT16_ARB);
-			R_AttachFBOTextureDepth(tr.depthRenderImage->texnum);
-		}
-		else
-		{
-			R_CreateFBODepthBuffer(tr.deferredRenderFBO, GL_DEPTH_COMPONENT24_ARB);
-			R_AttachFBOTextureDepth(tr.depthRenderImage->texnum);
-		}
-		*/
-
-		R_CheckFBO(tr.deferredRenderFBO);
-
-
 
 		tr.geometricRenderFBO = R_CreateFBO("_geometricRender", width, height);
 		R_BindFBO(tr.geometricRenderFBO);
 
-		if(r_normalMapping->integer)
-		{
-			// enable all attachments as draw buffers
-			glDrawBuffersARB(3, drawbuffers);
-
-			R_CreateFBOColorBuffer(tr.geometricRenderFBO, GL_RGBA, 0);
-			R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.deferredDiffuseFBOImage->texnum, 0);
-
-			R_CreateFBOColorBuffer(tr.geometricRenderFBO, GL_RGBA, 1);
-			R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.deferredNormalFBOImage->texnum, 1);
-
-			R_CreateFBOColorBuffer(tr.geometricRenderFBO, GL_RGBA, 2);
-			R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.deferredSpecularFBOImage->texnum, 2);
-		}
-		else
-		{
-			// only enable diffuse + normal
-			glDrawBuffersARB(2, drawbuffers);
-
-			R_CreateFBOColorBuffer(tr.geometricRenderFBO, GL_RGBA, 0);
-			R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.deferredDiffuseFBOImage->texnum, 0);
-
-			R_CreateFBOColorBuffer(tr.geometricRenderFBO, GL_RGBA, 1);
-			R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.deferredNormalFBOImage->texnum, 1);
-		}
-
-		// share depth buffer
-		tr.geometricRenderFBO->depthFormat = tr.deferredRenderFBO->depthFormat;
-		tr.geometricRenderFBO->depthBuffer = tr.deferredRenderFBO->depthBuffer;
-
-		//glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, tr.deferredRenderFBO->depthBuffer);
-		//glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, tr.deferredRenderFBO->depthFormat, tr.deferredRenderFBO->width, tr.deferredRenderFBO->height);
-
-		glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT,
-									  tr.geometricRenderFBO->depthBuffer);
-
+		#if 0
 		if(glConfig2.framebufferPackedDepthStencilAvailable)
 		{
+			R_CreateFBOPackedDepthStencilBuffer(tr.geometricRenderFBO, GL_DEPTH24_STENCIL8_EXT);
 			R_AttachFBOTexturePackedDepthStencil(tr.depthRenderImage->texnum);
 		}
+		
 		else if(glConfig.hardwareType == GLHW_ATI || glConfig.hardwareType == GLHW_ATI_DX10)// || glConfig.hardwareType == GLHW_NV_DX10)
 		{
+			R_CreateFBODepthBuffer(tr.geometricRenderFBO, GL_DEPTH_COMPONENT16_ARB);
 			R_AttachFBOTextureDepth(tr.depthRenderImage->texnum);
 		}
 		else
+		#endif
 		{
+			R_CreateFBODepthBuffer(tr.geometricRenderFBO, GL_DEPTH_COMPONENT24_ARB);
 			R_AttachFBOTextureDepth(tr.depthRenderImage->texnum);
 		}
-
-		R_CheckFBO(tr.geometricRenderFBO);
-	}
-	else if(DS_PREPASS_LIGHTING_ENABLED())
-	{
-		ri.Printf(PRINT_ALL, "Deferred Lighting enabled\n");
-
-#if defined(OFFSCREEN_PREPASS_LIGHTING)
-		if(glConfig2.textureNPOTAvailable)
-		{
-			width = glConfig.vidWidth;
-			height = glConfig.vidHeight;
-		}
-		else
-		{
-			width = NearestPowerOfTwo(glConfig.vidWidth);
-			height = NearestPowerOfTwo(glConfig.vidHeight);
-		}
-
-		// deferredRender FBO for the lighting pass
-		tr.deferredRenderFBO = R_CreateFBO("_deferredRender", width, height);
-		R_BindFBO(tr.deferredRenderFBO);
-
-		if(HDR_ENABLED())
-		{
-			R_CreateFBOColorBuffer(tr.deferredRenderFBO, GL_RGBA16F_ARB, 0);
-		}
-		else
-		{
-			R_CreateFBOColorBuffer(tr.deferredRenderFBO, GL_RGBA, 0);
-		}
-		R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.deferredRenderFBOImage->texnum, 0);
-
-		//if(glConfig2.framebufferPackedDepthStencilAvailable)
-		{
-			R_CreateFBOPackedDepthStencilBuffer(tr.deferredRenderFBO, GL_DEPTH24_STENCIL8_EXT);
-			R_AttachFBOTexturePackedDepthStencil(tr.depthRenderImage->texnum);
-		}
-		/*
-		else if(glConfig.hardwareType == GLHW_ATI || glConfig.hardwareType == GLHW_ATI_DX10)// || glConfig.hardwareType == GLHW_NV_DX10)
-		{
-			R_CreateFBODepthBuffer(tr.deferredRenderFBO, GL_DEPTH_COMPONENT16_ARB);
-			R_AttachFBOTextureDepth(tr.depthRenderImage->texnum);
-		}
-		else
-		{
-			R_CreateFBODepthBuffer(tr.deferredRenderFBO, GL_DEPTH_COMPONENT24_ARB);
-			R_AttachFBOTextureDepth(tr.depthRenderImage->texnum);
-		}
-		*/
-
-		R_CheckFBO(tr.deferredRenderFBO);
-
-
-
-		tr.geometricRenderFBO = R_CreateFBO("_geometricRender", width, height);
-		R_BindFBO(tr.geometricRenderFBO);
+		
+		// enable all attachments as draw buffers
+		//glDrawBuffersARB(4, geometricRenderTargets);
 
 		R_CreateFBOColorBuffer(tr.geometricRenderFBO, GL_RGBA, 0);
-		R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.deferredNormalFBOImage->texnum, 0);
+		R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.deferredRenderFBOImage->texnum, 0);
+		
+		R_CreateFBOColorBuffer(tr.geometricRenderFBO, GL_RGBA, 1);
+		R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.deferredDiffuseFBOImage->texnum, 1);
 
-		// share depth/stencil buffer with main deferredRenderFBO
-		tr.geometricRenderFBO->depthFormat = tr.deferredRenderFBO->depthFormat;
-		tr.geometricRenderFBO->depthBuffer = tr.deferredRenderFBO->depthBuffer;
+		R_CreateFBOColorBuffer(tr.geometricRenderFBO, GL_RGBA, 2);
+		R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.deferredNormalFBOImage->texnum, 2);
 
-		//glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, tr.deferredRenderFBO->depthBuffer);
-		//glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, tr.deferredRenderFBO->depthFormat, tr.deferredRenderFBO->width, tr.deferredRenderFBO->height);
-
-		glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT,
-									  tr.geometricRenderFBO->depthBuffer);
-
-		if(glConfig2.framebufferPackedDepthStencilAvailable)
-		{
-			R_AttachFBOTexturePackedDepthStencil(tr.depthRenderImage->texnum);
-		}
-		else if(glConfig.hardwareType == GLHW_ATI || glConfig.hardwareType == GLHW_ATI_DX10)// || glConfig.hardwareType == GLHW_NV_DX10)
-		{
-			R_AttachFBOTextureDepth(tr.depthRenderImage->texnum);
-		}
-		else
-		{
-			R_AttachFBOTextureDepth(tr.depthRenderImage->texnum);
-		}
+		R_CreateFBOColorBuffer(tr.geometricRenderFBO, GL_RGBA, 3);
+		R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.deferredSpecularFBOImage->texnum, 3);
 
 		R_CheckFBO(tr.geometricRenderFBO);
-
-
-		tr.lightRenderFBO = R_CreateFBO("_lightRender", width, height);
-		R_BindFBO(tr.lightRenderFBO);
-
-		R_CreateFBOColorBuffer(tr.lightRenderFBO, GL_RGBA, 0);
-		R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.lightRenderFBOImage->texnum, 0);
-
-		// share depth/stencil buffer with main deferredRenderFBO
-		tr.lightRenderFBO->depthFormat = tr.deferredRenderFBO->depthFormat;
-		tr.lightRenderFBO->depthBuffer = tr.deferredRenderFBO->depthBuffer;
-
-		//glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, tr.deferredRenderFBO->depthBuffer);
-		//glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, tr.deferredRenderFBO->depthFormat, tr.deferredRenderFBO->width, tr.deferredRenderFBO->height);
-
-		glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT,
-									  tr.lightRenderFBO->depthBuffer);
-
-		if(glConfig2.framebufferPackedDepthStencilAvailable)
-		{
-			R_AttachFBOTexturePackedDepthStencil(tr.depthRenderImage->texnum);
-		}
-		else if(glConfig.hardwareType == GLHW_ATI || glConfig.hardwareType == GLHW_ATI_DX10)// || glConfig.hardwareType == GLHW_NV_DX10)
-		{
-			R_AttachFBOTextureDepth(tr.depthRenderImage->texnum);
-		}
-		else
-		{
-			R_AttachFBOTextureDepth(tr.depthRenderImage->texnum);
-		}
-
-		R_CheckFBO(tr.lightRenderFBO);
-#endif
 	}
 	else
 	{
@@ -758,17 +594,19 @@ void R_InitFBOs(void)
 		}
 		R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.deferredRenderFBOImage->texnum, 0);
 
-		if(glConfig.hardwareType == GLHW_ATI || glConfig.hardwareType == GLHW_ATI_DX10)// || glConfig.hardwareType == GLHW_NV_DX10)
-		{
-			R_CreateFBODepthBuffer(tr.deferredRenderFBO, GL_DEPTH_COMPONENT16_ARB);
-			R_AttachFBOTextureDepth(tr.depthRenderImage->texnum);
-		}
-		else if(glConfig2.framebufferPackedDepthStencilAvailable)
+#if 0
+		if(glConfig2.framebufferPackedDepthStencilAvailable)
 		{
 			R_CreateFBOPackedDepthStencilBuffer(tr.deferredRenderFBO, GL_DEPTH24_STENCIL8_EXT);
 			R_AttachFBOTexturePackedDepthStencil(tr.depthRenderImage->texnum);
 		}
+		else if(glConfig.hardwareType == GLHW_ATI || glConfig.hardwareType == GLHW_ATI_DX10)// || glConfig.hardwareType == GLHW_NV_DX10)
+		{
+			R_CreateFBODepthBuffer(tr.deferredRenderFBO, GL_DEPTH_COMPONENT16_ARB);
+			R_AttachFBOTextureDepth(tr.depthRenderImage->texnum);
+		}
 		else
+#endif
 		{
 			R_CreateFBODepthBuffer(tr.deferredRenderFBO, GL_DEPTH_COMPONENT24_ARB);
 			R_AttachFBOTextureDepth(tr.depthRenderImage->texnum);

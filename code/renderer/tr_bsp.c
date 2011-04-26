@@ -1152,9 +1152,9 @@ static float FatPackU(float input, int lightmapnum)
 {
 	if(tr.fatLightmapSize > 0)
 	{
-	int             x = lightmapnum % tr.fatLightmapStep;
+		int             x = lightmapnum % tr.fatLightmapStep;
 
-	return (input / ((float)tr.fatLightmapStep)) + ((1.0 / ((float)tr.fatLightmapStep)) * (float)x);
+		return (input / ((float)tr.fatLightmapStep)) + ((1.0 / ((float)tr.fatLightmapStep)) * (float)x);
 	}
 
 	return input;
@@ -1164,10 +1164,10 @@ static float FatPackV(float input, int lightmapnum)
 {
 	if(tr.fatLightmapSize > 0)
 	{
-	int             y = lightmapnum / ((float)tr.fatLightmapStep);
+		int             y = lightmapnum / ((float)tr.fatLightmapStep);
 
-	return (input / ((float)tr.fatLightmapStep)) + ((1.0 / ((float)tr.fatLightmapStep)) * (float)y);
-}
+		return (input / ((float)tr.fatLightmapStep)) + ((1.0 / ((float)tr.fatLightmapStep)) * (float)y);
+	}
 
 	return input;
 }
@@ -1326,6 +1326,16 @@ static void ParseFace(dsurface_t * ds, drawVert_t * verts, bspSurface_t * surf, 
 #else
 		surf->lightmapNum = realLightmapNum;
 #endif
+	}
+
+	if(tr.worldDeluxeMapping && surf->lightmapNum >= 2)
+	{
+		surf->lightmapNum /= 2;
+	}
+
+	if(surf->lightmapNum >= tr.lightmaps.currentElements)
+	{
+		ri.Error(ERR_DROP, "Bad lightmap number %i in face surface", surf->lightmapNum);
 	}
 
 	// get fog volume
@@ -1537,6 +1547,11 @@ static void ParseMesh(dsurface_t * ds, drawVert_t * verts, bspSurface_t * surf)
 #endif
 	}
 
+	if(tr.worldDeluxeMapping && surf->lightmapNum >= 2)
+	{
+		surf->lightmapNum /= 2;
+	}
+
 	// get fog volume
 	surf->fogIndex = LittleLong(ds->fogNum) + 1;
 
@@ -1665,6 +1680,11 @@ static void ParseTriSurf(dsurface_t * ds, drawVert_t * verts, bspSurface_t * sur
 		surf->lightmapNum = realLightmapNum;
 	}
 #endif
+
+	if(tr.worldDeluxeMapping && surf->lightmapNum >= 2)
+	{
+		surf->lightmapNum /= 2;
+	}
 
 	// get fog volume
 	surf->fogIndex = LittleLong(ds->fogNum) + 1;
@@ -5033,6 +5053,10 @@ static void R_LoadSubmodels(lump_t * l)
 			s_worldData.numWorldSurfaces = out->numSurfaces;
 		}
 
+		// ydnar: for attaching fog brushes to models
+		//out->firstBrush = LittleLong(in->firstBrush);
+		//out->numBrushes = LittleLong(in->numBrushes);
+
 		// ydnar: allocate decal memory
 		j = (i == 0 ? MAX_WORLD_DECALS : MAX_ENTITY_DECALS);
 		out->decals = ri.Hunk_Alloc(j * sizeof(*out->decals), h_low);
@@ -5225,8 +5249,8 @@ static void R_LoadNodesAndLeafs(lump_t * nodeLump, lump_t * leafLump)
 		else
 #endif
 		{
-		VectorCopy(out->mins, mins);
-		VectorCopy(out->maxs, maxs);
+			VectorCopy(out->mins, mins);
+			VectorCopy(out->maxs, maxs);
 		}
 
 		for(i = 0; i < 3; i++)
@@ -5422,6 +5446,9 @@ static void R_LoadFogs(lump_t * l, lump_t * brushesLump, lump_t * sidesLump)
 	s_worldData.fogs = ri.Hunk_Alloc(s_worldData.numFogs * sizeof(*out), h_low);
 	out = s_worldData.fogs + 1;
 
+	// ydnar: reset global fog
+	s_worldData.globalFog = -1;
+
 	if(!count)
 	{
 		ri.Printf(PRINT_ALL, "no fog volumes loaded\n");
@@ -5446,48 +5473,57 @@ static void R_LoadFogs(lump_t * l, lump_t * brushesLump, lump_t * sidesLump)
 	{
 		out->originalBrushNumber = LittleLong(fogs->brushNum);
 
-		if((unsigned)out->originalBrushNumber >= brushesCount)
+		// ydnar: global fog has a brush number of -1, and no visible side
+		if(out->originalBrushNumber == -1)
 		{
-			ri.Error(ERR_DROP, "fog brushNumber out of range");
+			VectorSet(out->bounds[0], MIN_WORLD_COORD, MIN_WORLD_COORD, MIN_WORLD_COORD);
+			VectorSet(out->bounds[1], MAX_WORLD_COORD, MAX_WORLD_COORD, MAX_WORLD_COORD);
 		}
-		brush = brushes + out->originalBrushNumber;
-
-		firstSide = LittleLong(brush->firstSide);
-
-		if((unsigned)firstSide > sidesCount - 6)
+		else
 		{
-			ri.Error(ERR_DROP, "fog brush sideNumber out of range");
+			if((unsigned)out->originalBrushNumber >= brushesCount)
+			{
+				ri.Error(ERR_DROP, "fog brushNumber out of range");
+			}
+			brush = brushes + out->originalBrushNumber;
+
+			firstSide = LittleLong(brush->firstSide);
+
+			if((unsigned)firstSide > sidesCount - 6)
+			{
+				ri.Error(ERR_DROP, "fog brush sideNumber out of range");
+			}
+
+			// brushes are always sorted with the axial sides first
+			sideNum = firstSide + 0;
+			planeNum = LittleLong(sides[sideNum].planeNum);
+			out->bounds[0][0] = -s_worldData.planes[planeNum].dist;
+
+			sideNum = firstSide + 1;
+			planeNum = LittleLong(sides[sideNum].planeNum);
+			out->bounds[1][0] = s_worldData.planes[planeNum].dist;
+
+			sideNum = firstSide + 2;
+			planeNum = LittleLong(sides[sideNum].planeNum);
+			out->bounds[0][1] = -s_worldData.planes[planeNum].dist;
+
+			sideNum = firstSide + 3;
+			planeNum = LittleLong(sides[sideNum].planeNum);
+			out->bounds[1][1] = s_worldData.planes[planeNum].dist;
+
+			sideNum = firstSide + 4;
+			planeNum = LittleLong(sides[sideNum].planeNum);
+			out->bounds[0][2] = -s_worldData.planes[planeNum].dist;
+
+			sideNum = firstSide + 5;
+			planeNum = LittleLong(sides[sideNum].planeNum);
+			out->bounds[1][2] = s_worldData.planes[planeNum].dist;
 		}
-
-		// brushes are always sorted with the axial sides first
-		sideNum = firstSide + 0;
-		planeNum = LittleLong(sides[sideNum].planeNum);
-		out->bounds[0][0] = -s_worldData.planes[planeNum].dist;
-
-		sideNum = firstSide + 1;
-		planeNum = LittleLong(sides[sideNum].planeNum);
-		out->bounds[1][0] = s_worldData.planes[planeNum].dist;
-
-		sideNum = firstSide + 2;
-		planeNum = LittleLong(sides[sideNum].planeNum);
-		out->bounds[0][1] = -s_worldData.planes[planeNum].dist;
-
-		sideNum = firstSide + 3;
-		planeNum = LittleLong(sides[sideNum].planeNum);
-		out->bounds[1][1] = s_worldData.planes[planeNum].dist;
-
-		sideNum = firstSide + 4;
-		planeNum = LittleLong(sides[sideNum].planeNum);
-		out->bounds[0][2] = -s_worldData.planes[planeNum].dist;
-
-		sideNum = firstSide + 5;
-		planeNum = LittleLong(sides[sideNum].planeNum);
-		out->bounds[1][2] = s_worldData.planes[planeNum].dist;
 
 		// get information from the shader for fog parameters
 		shader = R_FindShader(fogs->shader, SHADER_3D_DYNAMIC, qtrue);
 
-		out->parms = shader->fogParms;
+		out->fogParms = shader->fogParms;
 
 		out->color[0] = shader->fogParms.color[0] * tr.identityLight;
 		out->color[1] = shader->fogParms.color[1] * tr.identityLight;
@@ -5497,10 +5533,19 @@ static void R_LoadFogs(lump_t * l, lump_t * brushesLump, lump_t * sidesLump)
 		d = shader->fogParms.depthForOpaque < 1 ? 1 : shader->fogParms.depthForOpaque;
 		out->tcScale = 1.0f / (d * 8);
 
+		// ydnar: global fog sets clearcolor/zfar
+		if(out->originalBrushNumber == -1)
+		{
+			s_worldData.globalFog = i + 1;
+			VectorCopy(shader->fogParms.color, s_worldData.globalOriginalFog);
+			s_worldData.globalOriginalFog[3] = shader->fogParms.depthForOpaque;
+		}
+
 		// set the gradient vector
 		sideNum = LittleLong(fogs->visibleSide);
 
-		if(sideNum == -1)
+		// ydnar: made this check a little more strenuous (was sideNum == -1)
+		if(sideNum < 0 || sideNum >= sidesCount)
 		{
 			out->hasSurface = qfalse;
 		}
@@ -5823,7 +5868,6 @@ void R_LoadEntities(lump_t * l)
 		}
 
 		// check for deluxe mapping provided by NetRadiant's q3map2
-		//FIXME: xmap2?
 		if(!Q_stricmp(keyname, "_q3map2_cmdline"))
 		{
 			s = strstr(value, "-deluxe");
@@ -8936,7 +8980,7 @@ void R_BuildCubeMaps(void)
 		bspNode_t      *node;
 
 		for(i = 0; i < tr.world->numnodes; i++)
-				{
+		{
 			node = &tr.world->nodes[i];
 
 			// check to see if this is a shit location
@@ -9043,11 +9087,19 @@ void R_BuildCubeMaps(void)
 		{
 			size_t ticsNeeded = (size_t)(((double)(j + 1) / tr.cubeProbes.currentElements) * 50.0);
 
-			do { ri.Printf(PRINT_ALL, "*"); } while ( ++tics < ticsNeeded );
+			do
+			{
+				ri.Printf(PRINT_ALL, "*");
+			
+				#if defined(COMPAT_ET) 
+				ri.Cmd_ExecuteText(EXEC_NOW, "updatescreen\n");
+				#endif
+
+			} while ( ++tics < ticsNeeded );
 
 			nextTicCount = (size_t)((tics / 50.0) * tr.cubeProbes.currentElements);
 			if((j + 1) == tr.cubeProbes.currentElements)
-		{
+			{
 				if(tics < 51)
 					ri.Printf(PRINT_ALL, "*");
 				ri.Printf(PRINT_ALL, "\n");
@@ -9419,6 +9471,24 @@ void RE_LoadWorldMap(const char *name)
 
 	VectorNormalize(tr.sunDirection);
 
+	// inalidate fogs (likely to be re-initialized to new values by the current map)
+	// TODO:(SA)this is sort of silly.  I'm going to do a general cleanup on fog stuff
+	//          now that I can see how it's been used.  (functionality can narrow since
+	//          it's not used as much as it's designed for.)
+
+#if defined(COMPAT_ET)
+	RE_SetFog(FOG_SKY, 0, 0, 0, 0, 0, 0);
+	RE_SetFog(FOG_PORTALVIEW, 0, 0, 0, 0, 0, 0);
+	RE_SetFog(FOG_HUD, 0, 0, 0, 0, 0, 0);
+	RE_SetFog(FOG_MAP, 0, 0, 0, 0, 0, 0);
+	RE_SetFog(FOG_CURRENT, 0, 0, 0, 0, 0, 0);
+	RE_SetFog(FOG_TARGET, 0, 0, 0, 0, 0, 0);
+	RE_SetFog(FOG_WATER, 0, 0, 0, 0, 0, 0);
+	RE_SetFog(FOG_SERVER, 0, 0, 0, 0, 0, 0);
+
+	tr.glfogNum = 0;
+#endif
+
 	VectorCopy(colorMdGrey, tr.fogColor);
 	tr.fogDensity = 0;
 
@@ -9464,16 +9534,38 @@ void RE_LoadWorldMap(const char *name)
 	}
 
 	// load into heap
+//	ri.Cmd_ExecuteText(EXEC_NOW, "updatescreen\n");
 	R_LoadEntities(&header->lumps[LUMP_ENTITIES]);
+
+//	ri.Cmd_ExecuteText(EXEC_NOW, "updatescreen\n");
 	R_LoadShaders(&header->lumps[LUMP_SHADERS]);
+	
+//	ri.Cmd_ExecuteText(EXEC_NOW, "updatescreen\n");
 	R_LoadLightmaps(&header->lumps[LUMP_LIGHTMAPS], name);
+
+//	ri.Cmd_ExecuteText(EXEC_NOW, "updatescreen\n");
 	R_LoadPlanes(&header->lumps[LUMP_PLANES]);
-	R_LoadFogs(&header->lumps[LUMP_FOGS], &header->lumps[LUMP_BRUSHES], &header->lumps[LUMP_BRUSHSIDES]);
+
+//	ri.Cmd_ExecuteText(EXEC_NOW, "updatescreen\n");
 	R_LoadSurfaces(&header->lumps[LUMP_SURFACES], &header->lumps[LUMP_DRAWVERTS], &header->lumps[LUMP_DRAWINDEXES]);
+
+//	ri.Cmd_ExecuteText(EXEC_NOW, "updatescreen\n");
 	R_LoadMarksurfaces(&header->lumps[LUMP_LEAFSURFACES]);
+
+//	ri.Cmd_ExecuteText(EXEC_NOW, "updatescreen\n");
 	R_LoadNodesAndLeafs(&header->lumps[LUMP_NODES], &header->lumps[LUMP_LEAFS]);
+
+//	ri.Cmd_ExecuteText(EXEC_NOW, "updatescreen\n");
 	R_LoadSubmodels(&header->lumps[LUMP_MODELS]);
+
+	// moved fog lump loading here, so fogs can be tagged with a model num
+//	ri.Cmd_ExecuteText(EXEC_NOW, "updatescreen\n");
+	R_LoadFogs(&header->lumps[LUMP_FOGS], &header->lumps[LUMP_BRUSHES], &header->lumps[LUMP_BRUSHSIDES]);
+
+//	ri.Cmd_ExecuteText(EXEC_NOW, "updatescreen\n");
 	R_LoadVisibility(&header->lumps[LUMP_VISIBILITY]);
+
+//	ri.Cmd_ExecuteText(EXEC_NOW, "updatescreen\n");
 	R_LoadLightGrid(&header->lumps[LUMP_LIGHTGRID]);
 
 	// create static VBOS from the world
@@ -9492,6 +9584,11 @@ void RE_LoadWorldMap(const char *name)
 
 	// only set tr.world now that we know the entire level has loaded properly
 	tr.world = &s_worldData;
+
+#if defined(COMPAT_ET)
+	// reset fog to world fog (if present)
+	RE_SetFog(FOG_CMD_SWITCHFOG, FOG_MAP, 20, 0, 0, 0, 0);
+#endif
 
 	// make sure the VBO glState entries are save
 	R_BindNullVBO();

@@ -161,19 +161,34 @@ void	main()
 	vec3 specular = texture2D(u_SpecularMap, texSpecular).rgb * var_LightColor.rgb * pow(clamp(dot(N, H), 0.0, 1.0), r_SpecularExponent) * r_SpecularScale;
 	
 	// compute final color
-	vec4 color = diffuse;
+	vec4 color = vec4(diffuse.rgb, var_LightColor.a);
 	color.rgb *= light;
 	color.rgb += specular;
 	
-//	color.rgb *= var_Color.rgb;	// apply model paint color for terrain blending
-	
-//	color.rgb = var_LightDirection.rgb;
+#if defined(r_DeferredShading)
+	gl_FragData[0] = color; 								// var_Color;
+	gl_FragData[1] = vec4(diffuse.rgb, var_LightColor.a);	// vec4(var_Color.rgb, 1.0 - var_Color.a);
+	gl_FragData[2] = vec4(N, var_LightColor.a);
+	gl_FragData[3] = vec4(specular, var_LightColor.a);
+#else
 	gl_FragColor = color;
-	
-	//gl_FragColor = vec4(vec3(NL, NL, NL), diffuse.a);
+#endif
 
 
 #elif defined(COMPAT_Q3A)
+
+	vec3 N;
+
+#if defined(TWOSIDED)
+	if(gl_FrontFacing)
+	{
+		N = -normalize(var_Normal);
+	}
+	else
+#endif
+	{
+		N = normalize(var_Normal);
+	}
 
 	// compute the diffuse term
 	vec4 diffuse = texture2D(u_DiffuseMap, var_TexDiffuseNormal.st);
@@ -196,12 +211,26 @@ void	main()
 	}
 #endif
 
+	vec4 color = vec4(diffuse.rgb * var_LightColor.rgb, var_LightColor.a);
+
 	// gl_FragColor = vec4(diffuse.rgb * var_LightColor.rgb, diffuse.a);
-	gl_FragColor = diffuse * var_LightColor;
 	// gl_FragColor = vec4(vec3(1.0, 0.0, 0.0), diffuse.a);
 	// gl_FragColor = vec4(vec3(diffuse.a, diffuse.a, diffuse.a), 1.0);
 	// gl_FragColor = vec4(vec3(var_LightColor.a, var_LightColor.a, var_LightColor.a), 1.0);
 	// gl_FragColor = var_LightColor;
+	
+#if 0 //defined(r_ShowTerrainBlends)
+	color = vec4(vec3(var_LightColor.a), 1.0);
+#endif
+	
+#if defined(r_DeferredShading)
+	gl_FragData[0] = color;
+	gl_FragData[1] = vec4(diffuse.rgb, var_LightColor.a);
+	gl_FragData[2] = vec4(N, var_LightColor.a);
+	gl_FragData[3] = vec4(0.0, 0.0, 0.0, var_LightColor.a);
+#else
+	gl_FragColor = color;
+#endif
 
 #else // USE_NORMAL_MAPPING
 
@@ -250,7 +279,18 @@ void	main()
 	
 	vec3 light = var_LightColor.rgb * NL;
 	
-	gl_FragColor = vec4(diffuse.rgb * light, diffuse.a);
-	//gl_FragColor = vec4(vec3(NL, NL, NL), diffuse.a);
+	vec4 color = vec4(diffuse.rgb * light, var_LightColor.a);
+	// vec4 color = vec4(vec3(NL, NL, NL), diffuse.a);
+	
+#if defined(r_DeferredShading)
+	gl_FragData[0] = color; 								// var_Color;
+	gl_FragData[1] = vec4(diffuse.rgb, var_LightColor.a);	// vec4(var_Color.rgb, 1.0 - var_Color.a);
+	gl_FragData[2] = vec4(N, var_LightColor.a);
+	gl_FragData[3] = vec4(0.0, 0.0, 0.0, var_LightColor.a);
+#else
+	gl_FragColor = color;
+#endif
+	
+	
 #endif // USE_NORMAL_MAPPING
 }

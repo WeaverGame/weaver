@@ -28,6 +28,7 @@ attribute vec4		attr_TexCoord1;
 attribute vec3		attr_Tangent;
 attribute vec3		attr_Binormal;
 attribute vec3		attr_Normal;
+attribute vec4		attr_Color;
 
 uniform mat4		u_DiffuseTextureMatrix;
 uniform mat4		u_NormalTextureMatrix;
@@ -37,14 +38,17 @@ uniform mat4		u_ModelViewProjectionMatrix;
 
 uniform float		u_Time;
 
+uniform vec4		u_ColorModulate;
+uniform vec4		u_Color;
+
 varying vec3		var_Position;
-varying vec2		var_TexDiffuse;
-varying vec2		var_TexNormal;
+varying vec4		var_TexDiffuseNormal;
 varying vec2		var_TexSpecular;
 varying vec2		var_TexLight;
 varying vec3		var_Tangent;
 varying vec3		var_Binormal;
 varying vec3		var_Normal;
+varying vec4		var_Color;
 
 
 
@@ -70,7 +74,7 @@ void	main()
 
 
 	// transform diffusemap texcoords
-	var_TexDiffuse = (u_DiffuseTextureMatrix * attr_TexCoord0).st;
+	var_TexDiffuseNormal.st = (u_DiffuseTextureMatrix * attr_TexCoord0).st;
 	var_TexLight = attr_TexCoord1.st;
 
 #if defined(USE_NORMAL_MAPPING) || defined(USE_PARALLAX_MAPPING)
@@ -91,9 +95,11 @@ void	main()
 #endif
 	
 	// transform normalmap texcoords
-	var_TexNormal = (u_NormalTextureMatrix * attr_TexCoord0).st;
+	var_TexDiffuseNormal.pq = (u_NormalTextureMatrix * attr_TexCoord0).st;
 	
 	// transform specularmap texcoords
 	var_TexSpecular = (u_SpecularTextureMatrix * attr_TexCoord0).st;
 #endif
+
+	var_Color = attr_Color * u_ColorModulate + u_Color;
 }

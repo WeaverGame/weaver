@@ -37,7 +37,6 @@ uniform vec3		u_LightDir;
 uniform vec3		u_LightColor;
 uniform float		u_SpecularExponent;
 uniform float		u_DepthScale;
-uniform int         u_PortalClipping;
 uniform vec4		u_PortalPlane;
 
 varying vec3		var_Position;
@@ -96,7 +95,7 @@ void	main()
 	// ray intersect in view direction
 	
 	mat3 worldToTangentMatrix;
-	#if defined(GLHW_ATI) || defined(GLHW_ATI_DX10)
+	#if defined(GLHW_ATI) || defined(GLHW_ATI_DX10) || defined(GLDRV_MESA)
 	worldToTangentMatrix = mat3(tangentToWorldMatrix[0][0], tangentToWorldMatrix[1][0], tangentToWorldMatrix[2][0],
 								tangentToWorldMatrix[0][1], tangentToWorldMatrix[1][1], tangentToWorldMatrix[2][1], 
 								tangentToWorldMatrix[0][2], tangentToWorldMatrix[1][2], tangentToWorldMatrix[2][2]);
@@ -242,7 +241,14 @@ void	main()
 	color.rgb += emission;
 #endif
 	
+#if defined(r_DeferredShading)
+	gl_FragData[0] = color;
+	gl_FragData[1] = vec4(diffuse.rgb, 0.0);
+	gl_FragData[2] = vec4(N, 0.0);
+	gl_FragData[3] = vec4(specular, 0.0);
+#else
 	gl_FragColor = color;
+#endif
 	// gl_FragColor = vec4(vec3(NL, NL, NL), diffuse.a);
 }
 

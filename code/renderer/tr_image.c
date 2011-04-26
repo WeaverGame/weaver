@@ -2878,6 +2878,7 @@ static void R_CreateDepthRenderImage(void)
 
 	data = ri.Hunk_AllocateTempMemory(width * height * 4);
 
+#if 0
 	if(glConfig2.framebufferPackedDepthStencilAvailable)
 	{
 		tr.depthRenderImage = R_CreateImage("_depthRender", data, width, height, IF_NOPICMIP | IF_PACKED_DEPTH24_STENCIL8, FT_NEAREST, WT_CLAMP);
@@ -2887,6 +2888,7 @@ static void R_CreateDepthRenderImage(void)
 		tr.depthRenderImage = R_CreateImage("_depthRender", data, width, height, IF_NOPICMIP | IF_DEPTH16, FT_NEAREST, WT_CLAMP);
 	}
 	else
+#endif
 	{
 		tr.depthRenderImage = R_CreateImage("_depthRender", data, width, height, IF_NOPICMIP | IF_DEPTH24, FT_NEAREST, WT_CLAMP);
 	}
@@ -3111,7 +3113,7 @@ static void R_CreateDeferredRenderFBOImages(void)
 		tr.deferredNormalFBOImage = R_CreateImage("_deferredNormalFBO", data, width, height, IF_NOPICMIP | IF_NOCOMPRESSION, FT_NEAREST, WT_CLAMP);
 		tr.deferredSpecularFBOImage = R_CreateImage("_deferredSpecularFBO", data, width, height, IF_NOPICMIP | IF_NOCOMPRESSION, FT_NEAREST, WT_CLAMP);
 	}
-	else if(DS_PREPASS_LIGHTING_ENABLED())
+	else //if(DS_PREPASS_LIGHTING_ENABLED())
 	{
 		tr.deferredNormalFBOImage = R_CreateImage("_deferredNormalFBO", data, width, height, IF_NOPICMIP | IF_NOCOMPRESSION, FT_NEAREST, WT_CLAMP);
 
@@ -3300,6 +3302,45 @@ void R_CreateBuiltinImages(void)
 	// we use a solid black image instead of disabling texturing
 	Com_Memset(data, 0, sizeof(data));
 	tr.blackImage = R_CreateImage("_black", (byte *) data, 8, 8, IF_NOPICMIP, FT_LINEAR, WT_REPEAT);
+
+	// red
+	for(x = 0; x < DEFAULT_SIZE; x++)
+	{
+		for(y = 0; y < DEFAULT_SIZE; y++)
+		{
+			data[y][x][0] = 255;
+			data[y][x][1] = 0;
+			data[y][x][2] = 0;
+			data[y][x][3] = 255;
+		}
+	}
+	tr.redImage = R_CreateImage("_red", (byte *) data, 8, 8, IF_NOPICMIP, FT_LINEAR, WT_REPEAT);
+
+	// green
+	for(x = 0; x < DEFAULT_SIZE; x++)
+	{
+		for(y = 0; y < DEFAULT_SIZE; y++)
+		{
+			data[y][x][0] = 0;
+			data[y][x][1] = 255;
+			data[y][x][2] = 0;
+			data[y][x][3] = 255;
+		}
+	}
+	tr.greenImage = R_CreateImage("_green", (byte *) data, 8, 8, IF_NOPICMIP, FT_LINEAR, WT_REPEAT);
+
+	// blue
+	for(x = 0; x < DEFAULT_SIZE; x++)
+	{
+		for(y = 0; y < DEFAULT_SIZE; y++)
+		{
+			data[y][x][0] = 0;
+			data[y][x][1] = 0;
+			data[y][x][2] = 255;
+			data[y][x][3] = 255;
+		}
+	}
+	tr.blueImage = R_CreateImage("_blue", (byte *) data, 8, 8, IF_NOPICMIP, FT_LINEAR, WT_REPEAT);
 
 	// generate a default normalmap with a zero heightmap
 	for(x = 0; x < DEFAULT_SIZE; x++)

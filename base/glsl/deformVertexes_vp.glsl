@@ -21,6 +21,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 // deformVertexes_vp.glsl - Quake 3 deformVertexes semantic
 
+
+uniform float		u_DeformParms[MAX_SHADER_DEFORM_PARMS];
+
+#if !defined(GLDRV_MESA)
+
 float triangle(float x)
 {
 	return max(1.0 - abs(x), 0);
@@ -135,9 +140,6 @@ float WaveValue(float func, float base, float amplitude, float phase, float freq
 	return 0.0; // GF_NONE
 }
 
-
-uniform float		u_DeformParms[MAX_SHADER_DEFORM_PARMS];
-
 vec4 DeformPosition2(	const vec4 pos,
 						const vec3 normal,
 						const vec2 st,
@@ -205,3 +207,5 @@ vec4 DeformPosition2(	const vec4 pos,
 	return deformed;
 }
 
+
+#endif // !defined(GLDRV_MESA)

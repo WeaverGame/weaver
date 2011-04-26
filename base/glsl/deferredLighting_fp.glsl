@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 uniform sampler2D	u_DiffuseMap;
 uniform sampler2D	u_NormalMap;
 uniform sampler2D	u_SpecularMap;
+uniform sampler2D 	u_DepthMap;
 uniform sampler2D	u_AttenuationMapXY;
 uniform sampler2D	u_AttenuationMapZ;
 
@@ -53,6 +54,7 @@ uniform vec3		u_LightColor;
 uniform float		u_LightRadius;
 uniform float       u_LightScale;
 uniform	float		u_LightWrapAround;
+uniform mat4		u_LightAttenuationMatrix;
 
 uniform mat4		u_ShadowMatrix[MAX_SHADOWMAPS];
 uniform vec4		u_ShadowParallelSplitDistances;
@@ -60,25 +62,10 @@ uniform float       u_ShadowTexelSize;
 uniform float       u_ShadowBlur;
 
 uniform mat4		u_ViewMatrix;
+uniform mat4		u_UnprojectMatrix;
 
-uniform int         u_PortalClipping;
 uniform vec4		u_PortalPlane;
 
-uniform float		u_DepthScale;
-
-varying vec3		var_Position;
-varying vec4		var_TexDiffuse;
-varying vec4		var_TexNormal;
-#if defined(USE_NORMAL_MAPPING)
-varying vec2		var_TexSpecular;
-#endif
-varying vec4		var_TexAttenuation;
-#if defined(USE_NORMAL_MAPPING)
-varying vec4		var_Tangent;
-varying vec4		var_Binormal;
-#endif
-varying vec4		var_Normal;
-//varying vec4		var_Color;
 
 
 
@@ -206,9 +193,20 @@ float EstimatePenumbra(float vertexDistance, float blocker)
 
 void	main()
 {
+	// calculate the screen texcoord in the 0.0 to 1.0 range
+	vec2 st = gl_FragCoord.st * r_FBufScale;
+	
+	// scale by the screen non-power-of-two-adjust
+	st *= r_NPOTScale;
+		
+	// reconstruct vertex position in world space
+	float depth = texture2D(u_DepthMap, st).r;
+	vec4 P = u_UnprojectMatrix * vec4(gl_FragCoord.xy, depth, 1.0);
+	P.xyz /= P.w;
+
 #if defined(USE_PORTAL_CLIPPING)
 	{
-		float dist = dot(var_Position.xyz, u_PortalPlane.xyz) - u_PortalPlane.w;
+		float dist = dot(P.xyz, u_PortalPlane.xyz) - u_PortalPlane.w;
 		if(dist < 0.0)
 		{
 			discard;
@@ -226,7 +224,7 @@ void	main()
 	vec4 shadowMoments;
 	
 	// transform to camera space
-	vec4 Pcam = u_ViewMatrix * vec4(var_Position.xyz, 1.0);
+	vec4 Pcam = u_ViewMatrix * vec4(P.xyz, 1.0);
 	float vertexDistanceToCamera = -Pcam.z;
 	
 #if defined(r_ParallelShadowSplits_1)
@@ -236,7 +234,7 @@ void	main()
 		gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
 		return;
 		#else
-		shadowVert = u_ShadowMatrix[0] * vec4(var_Position.xyz, 1.0);
+		shadowVert = u_ShadowMatrix[0] * vec4(P.xyz, 1.0);
 		shadowMoments = texture2DProj(u_ShadowMap0, shadowVert.xyw);
 		#endif
 	}
@@ -246,7 +244,7 @@ void	main()
 		gl_FragColor = vec4(1.0, 0.0, 1.0, 1.0);
 		return;
 		#else
-		shadowVert = u_ShadowMatrix[1] * vec4(var_Position.xyz, 1.0);
+		shadowVert = u_ShadowMatrix[1] * vec4(P.xyz, 1.0);
 		shadowMoments = texture2DProj(u_ShadowMap1, shadowVert.xyw);
 		#endif
 	}
@@ -257,7 +255,7 @@ void	main()
 		gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
 		return;
 		#else
-		shadowVert = u_ShadowMatrix[0] * vec4(var_Position.xyz, 1.0);
+		shadowVert = u_ShadowMatrix[0] * vec4(P.xyz, 1.0);
 		shadowMoments = texture2DProj(u_ShadowMap0, shadowVert.xyw);
 		#endif
 	}
@@ -267,7 +265,7 @@ void	main()
 		gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);
 		return;
 		#else
-		shadowVert = u_ShadowMatrix[1] * vec4(var_Position.xyz, 1.0);
+		shadowVert = u_ShadowMatrix[1] * vec4(P.xyz, 1.0);
 		shadowMoments = texture2DProj(u_ShadowMap1, shadowVert.xyw);
 		#endif
 		
@@ -278,7 +276,7 @@ void	main()
 		gl_FragColor = vec4(1.0, 0.0, 1.0, 1.0);
 		return;
 		#else
-		shadowVert = u_ShadowMatrix[2] * vec4(var_Position.xyz, 1.0);
+		shadowVert = u_ShadowMatrix[2] * vec4(P.xyz, 1.0);
 		shadowMoments = texture2DProj(u_ShadowMap2, shadowVert.xyw);
 		#endif
 	}
@@ -289,7 +287,7 @@ void	main()
 		gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
 		return;
 		#else
-		shadowVert = u_ShadowMatrix[0] * vec4(var_Position.xyz, 1.0);
+		shadowVert = u_ShadowMatrix[0] * vec4(P.xyz, 1.0);
 		shadowMoments = texture2DProj(u_ShadowMap0, shadowVert.xyw);
 		#endif
 	}
@@ -299,7 +297,7 @@ void	main()
 		gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);
 		return;
 		#else
-		shadowVert = u_ShadowMatrix[1] * vec4(var_Position.xyz, 1.0);
+		shadowVert = u_ShadowMatrix[1] * vec4(P.xyz, 1.0);
 		shadowMoments = texture2DProj(u_ShadowMap1, shadowVert.xyw);
 		#endif
 		
@@ -310,7 +308,7 @@ void	main()
 		gl_FragColor = vec4(0.0, 0.0, 1.0, 1.0);
 		return;
 		#else
-		shadowVert = u_ShadowMatrix[2] * vec4(var_Position.xyz, 1.0);
+		shadowVert = u_ShadowMatrix[2] * vec4(P.xyz, 1.0);
 		shadowMoments = texture2DProj(u_ShadowMap2, shadowVert.xyw);
 		#endif
 	}
@@ -320,7 +318,7 @@ void	main()
 		gl_FragColor = vec4(1.0, 0.0, 1.0, 1.0);
 		return;
 		#else
-		shadowVert = u_ShadowMatrix[3] * vec4(var_Position.xyz, 1.0);
+		shadowVert = u_ShadowMatrix[3] * vec4(P.xyz, 1.0);
 		shadowMoments = texture2DProj(u_ShadowMap3, shadowVert.xyw);
 		#endif
 	}
@@ -331,7 +329,7 @@ void	main()
 		gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
 		return;
 		#else
-		shadowVert = u_ShadowMatrix[0] * vec4(var_Position.xyz, 1.0);
+		shadowVert = u_ShadowMatrix[0] * vec4(P.xyz, 1.0);
 		shadowMoments = texture2DProj(u_ShadowMap0, shadowVert.xyw);
 		#endif
 	}
@@ -341,7 +339,7 @@ void	main()
 		gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);
 		return;
 		#else
-		shadowVert = u_ShadowMatrix[1] * vec4(var_Position.xyz, 1.0);
+		shadowVert = u_ShadowMatrix[1] * vec4(P.xyz, 1.0);
 		shadowMoments = texture2DProj(u_ShadowMap1, shadowVert.xyw);
 		#endif
 		
@@ -352,7 +350,7 @@ void	main()
 		gl_FragColor = vec4(0.0, 0.0, 1.0, 1.0);
 		return;
 		#else
-		shadowVert = u_ShadowMatrix[2] * vec4(var_Position.xyz, 1.0);
+		shadowVert = u_ShadowMatrix[2] * vec4(P.xyz, 1.0);
 		shadowMoments = texture2DProj(u_ShadowMap2, shadowVert.xyw);
 		#endif
 	}
@@ -362,7 +360,7 @@ void	main()
 		gl_FragColor = vec4(1.0, 1.0, 0.0, 1.0);
 		return;
 		#else
-		shadowVert = u_ShadowMatrix[3] * vec4(var_Position.xyz, 1.0);
+		shadowVert = u_ShadowMatrix[3] * vec4(P.xyz, 1.0);
 		shadowMoments = texture2DProj(u_ShadowMap3, shadowVert.xyw);
 		#endif
 	}
@@ -372,7 +370,7 @@ void	main()
 		gl_FragColor = vec4(1.0, 0.0, 1.0, 1.0);
 		return;
 		#else
-		shadowVert = u_ShadowMatrix[4] * vec4(var_Position.xyz, 1.0);
+		shadowVert = u_ShadowMatrix[4] * vec4(P.xyz, 1.0);
 		shadowMoments = texture2DProj(u_ShadowMap4, shadowVert.xyw);
 		#endif
 	}
@@ -382,7 +380,7 @@ void	main()
 		gl_FragColor = vec4(1.0, 0.0, 1.0, 1.0);
 		return;
 		#else
-		shadowVert = u_ShadowMatrix[0] * vec4(var_Position.xyz, 1.0);
+		shadowVert = u_ShadowMatrix[0] * vec4(P.xyz, 1.0);
 		shadowMoments = texture2DProj(u_ShadowMap0, shadowVert.xyw);
 		#endif
 	}
@@ -390,10 +388,10 @@ void	main()
 
 #elif defined(LIGHT_PROJ)
 
-	vec4 shadowVert = u_ShadowMatrix[0] * vec4(var_Position.xyz, 1.0);
+	vec4 shadowVert = u_ShadowMatrix[0] * vec4(P.xyz, 1.0);
 	
 	// compute incident ray
-	vec3 I = var_Position.xyz - u_LightOrigin;
+	vec3 I = P.xyz - u_LightOrigin;
 	
 	const float	SHADOW_BIAS = 0.001;
 	float vertexDistance = length(I) / u_LightRadius - SHADOW_BIAS;
@@ -460,7 +458,7 @@ void	main()
 
 #else
 	// compute incident ray
-	vec3 I = var_Position.xyz - u_LightOrigin;
+	vec3 I = P.xyz - u_LightOrigin;
 
 	#if defined(PCF_2X2)
 	vec4 shadowMoments = PCF(I, u_ShadowTexelSize * u_ShadowBlur * length(I), 2.0);
@@ -567,107 +565,43 @@ void	main()
 #if defined(LIGHT_DIRECTIONAL)
 	vec3 L = u_LightDir;
 #else
-	vec3 L = normalize(u_LightOrigin - var_Position);
+	vec3 L = normalize(u_LightOrigin - P.xyz);
 #endif
 
-	vec2 texDiffuse = var_TexDiffuse.st;
-	
-#if defined(USE_NORMAL_MAPPING)
-
-	// invert tangent space for twosided surfaces
-	mat3 tangentToWorldMatrix;
-#if defined(TWOSIDED)
-	if(gl_FrontFacing)
-	{
-		tangentToWorldMatrix = mat3(-var_Tangent.xyz, -var_Binormal.xyz, -var_Normal.xyz);
-	}
-	else
-#endif
-	{
-		tangentToWorldMatrix = mat3(var_Tangent.xyz, var_Binormal.xyz, var_Normal.xyz);
-	}
-
-
-	vec2 texNormal = var_TexNormal.st;
-	vec2 texSpecular = var_TexSpecular.st;
-	
 	// compute view direction in world space
-	vec3 V = normalize(u_ViewOrigin - var_Position.xyz);
-	
-#if defined(USE_PARALLAX_MAPPING)
-	
-	// ray intersect in view direction
-	
-	mat3 worldToTangentMatrix;
-	#if defined(GLHW_ATI) || defined(GLHW_ATI_DX10) || defined(GLDRV_MESA)
-	worldToTangentMatrix = mat3(tangentToWorldMatrix[0][0], tangentToWorldMatrix[1][0], tangentToWorldMatrix[2][0],
-								tangentToWorldMatrix[0][1], tangentToWorldMatrix[1][1], tangentToWorldMatrix[2][1], 
-								tangentToWorldMatrix[0][2], tangentToWorldMatrix[1][2], tangentToWorldMatrix[2][2]);
-	#else
-	worldToTangentMatrix = transpose(tangentToWorldMatrix);
-	#endif
-
-	// compute view direction in tangent space
-	vec3 Vts = worldToTangentMatrix * V;
-	Vts = normalize(Vts);
-	
-	// size and start position of search in texture space
-	vec2 S = Vts.xy * -u_DepthScale / Vts.z;
-		
-	float depth = RayIntersectDisplaceMap(texNormal, S, u_NormalMap);
-	
-	// compute texcoords offset
-	vec2 texOffset = S * depth;
-	
-	texDiffuse.st += texOffset;
-	texNormal.st += texOffset;
-	texSpecular.st += texOffset;
-#endif // USE_PARALLAX_MAPPING
+	vec3 V = normalize(u_ViewOrigin - P.xyz);
 
 	// compute half angle in world space
 	vec3 H = normalize(L + V);
 
 	// compute normal in tangent space from normalmap
-	vec3 N = 2.0 * (texture2D(u_NormalMap, texNormal.st).xyz - 0.5);
+	vec3 N = 2.0 * (texture2D(u_NormalMap, st).xyz - 0.5);
+	/*
 	#if defined(r_NormalScale)
 	N.z *= r_NormalScale;
 	normalize(N);
 	#endif
+	*/
 
 	// transform normal into world space
-	N = tangentToWorldMatrix * N;
-
-	
-#else // USE_NORMAL_MAPPING
-
-	vec3 N;
-#if defined(TWOSIDED)
-	if(gl_FrontFacing)
-	{
-		N = -normalize(var_Normal.xyz);
-	}
-	else
-#endif
-	{
-		N = normalize(var_Normal.xyz);
-	}
-		
-#endif // USE_NORMAL_MAPPING
+	// N = tangentToWorldMatrix * N;
 
 	// compute the light term
+	/*
 #if defined(r_WrapAroundLighting)
 	float NL = clamp(dot(N, L) + u_LightWrapAround, 0.0, 1.0) / clamp(1.0 + u_LightWrapAround, 0.0, 1.0);
 #else
+*/
 	float NL = clamp(dot(N, L), 0.0, 1.0);
-#endif
+// #endif
 
 	// compute the diffuse term
-	vec4 diffuse = texture2D(u_DiffuseMap, texDiffuse.st);
+	vec4 diffuse = texture2D(u_DiffuseMap, st);
 	diffuse.rgb *= u_LightColor * NL;
 
 #if defined(USE_NORMAL_MAPPING)
 	// compute the specular term
-	vec3 specular = texture2D(u_SpecularMap, texSpecular).rgb * u_LightColor * pow(clamp(dot(N, H), 0.0, 1.0), r_SpecularExponent) * r_SpecularScale;
+	vec3 specular = texture2D(u_SpecularMap, st).rgb * u_LightColor * pow(clamp(dot(N, H), 0.0, 1.0), r_SpecularExponent) * r_SpecularScale;
 #endif
 
 
@@ -682,8 +616,9 @@ void	main()
 	vec3 attenuationZ  = vec3(1.0);
 	
 #else
-	vec3 attenuationXY = texture2D(u_AttenuationMapXY, var_TexAttenuation.xy).rgb;
-	vec3 attenuationZ  = texture2D(u_AttenuationMapZ, vec2(var_TexAttenuation.z, 0)).rgb;
+	vec4 texAtten = (u_LightAttenuationMatrix * vec4(P.xyz, 1.0));
+	vec3 attenuationXY = texture2D(u_AttenuationMapXY, texAtten.xy).rgb;
+	vec3 attenuationZ  = texture2D(u_AttenuationMapZ, vec2(texAtten.z, 0)).rgb;
 #endif
 				
 	// compute final color
@@ -701,28 +636,5 @@ void	main()
 	color.rgb *= u_LightScale;
 	color.rgb *= shadow;
 
-	color.r *= var_TexDiffuse.p;
-	color.gb *= var_TexNormal.pq;
-
 	gl_FragColor = color;
-	
-#if 0
-#if defined(USE_PARALLAX_MAPPING)
-	gl_FragColor = vec4(vec3(1.0, 0.0, 0.0), diffuse.a);
-#elif defined(USE_NORMAL_MAPPING)
-	gl_FragColor = vec4(vec3(0.0, 0.0, 1.0), diffuse.a);
-#else
-	gl_FragColor = vec4(vec3(0.0, 1.0, 0.0), diffuse.a);
-#endif
-#endif
-
-#if 0
-#if defined(USE_VERTEX_SKINNING)
-	gl_FragColor = vec4(vec3(1.0, 0.0, 0.0), diffuse.a);
-#elif defined(USE_VERTEX_ANIMATION)
-	gl_FragColor = vec4(vec3(0.0, 0.0, 1.0), diffuse.a);
-#else
-	gl_FragColor = vec4(vec3(0.0, 1.0, 0.0), diffuse.a);
-#endif
-#endif
 }

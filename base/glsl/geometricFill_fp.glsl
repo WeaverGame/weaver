@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2006-2011 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2007-2011 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -20,32 +20,44 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-/* lightMapping_fp.glsl */
+/* geometricFill_fp.glsl */
+
+#extension GL_ARB_draw_buffers : enable
 
 uniform sampler2D	u_DiffuseMap;
 uniform sampler2D	u_NormalMap;
 uniform sampler2D	u_SpecularMap;
-uniform sampler2D	u_LightMap;
-uniform sampler2D	u_DeluxeMap;
+
+uniform samplerCube	u_EnvironmentMap0;
+uniform samplerCube	u_EnvironmentMap1;
+uniform float		u_EnvironmentInterpolation;
+
 uniform int			u_AlphaTest;
 uniform vec3		u_ViewOrigin;
+uniform vec3        u_AmbientColor;
 uniform float		u_DepthScale;
+uniform mat4		u_ModelMatrix;
 uniform vec4		u_PortalPlane;
 
-varying vec3		var_Position;
-varying vec4		var_TexDiffuseNormal;
+varying vec4		var_Position;
+varying vec2		var_TexDiffuse;
+#if defined(USE_NORMAL_MAPPING)
+varying vec2		var_TexNormal;
+#if !defined(r_DeferredLighting)
 varying vec2		var_TexSpecular;
-varying vec2		var_TexLight;
-
+#endif
 varying vec3		var_Tangent;
 varying vec3		var_Binormal;
+#endif
 varying vec3		var_Normal;
-
 varying vec4		var_Color;
+
+
 
 
 void	main()
 {
+
 #if defined(USE_PORTAL_CLIPPING)
 	{
 		float dist = dot(var_Position.xyz, u_PortalPlane.xyz) - u_PortalPlane.w;
@@ -57,20 +69,15 @@ void	main()
 	}
 #endif
 
+	// compute view direction in world space
+	vec3 V = normalize(u_ViewOrigin - var_Position.xyz);
 
-#if defined(r_showLightMaps)
-	gl_FragColor = texture2D(u_LightMap, var_TexLight);
-#elif defined(r_showDeluxeMaps)
-	gl_FragColor = texture2D(u_DeluxeMap, var_TexLight);
+	vec2 texDiffuse = var_TexDiffuse.st;
 
-#elif defined(USE_NORMAL_MAPPING)
-
-	vec2 texDiffuse = var_TexDiffuseNormal.st;
-	vec2 texNormal = var_TexDiffuseNormal.pq;
-	vec2 texSpecular = var_TexSpecular.st;
-
+#if defined(USE_NORMAL_MAPPING)
 	// invert tangent space for two sided surfaces
 	mat3 tangentToWorldMatrix;
+	
 #if defined(TWOSIDED)
 	if(gl_FrontFacing)
 	{
@@ -82,10 +89,13 @@ void	main()
 		tangentToWorldMatrix = mat3(var_Tangent.xyz, var_Binormal.xyz, var_Normal.xyz);
 	}
 	
-	// compute view direction in world space
-	vec3 I = normalize(u_ViewOrigin - var_Position);
+	vec2 texNormal = var_TexNormal.st;
+#if !defined(r_DeferredLighting)
+	vec2 texSpecular = var_TexSpecular.st;
+#endif
 
 #if defined(USE_PARALLAX_MAPPING)
+	
 	// ray intersect in view direction
 	
 	mat3 worldToTangentMatrix;
@@ -98,11 +108,11 @@ void	main()
 	#endif
 
 	// compute view direction in tangent space
-	vec3 V = worldToTangentMatrix * (u_ViewOrigin - var_Position.xyz);
-	V = normalize(V);
+	vec3 Vts = worldToTangentMatrix * (u_ViewOrigin - var_Position.xyz);
+	Vts = normalize(Vts);
 	
 	// size and start position of search in texture space
-	vec2 S = V.xy * -u_DepthScale / V.z;
+	vec2 S = Vts.xy * -u_DepthScale / Vts.z;
 		
 #if 0
 	vec2 texOffset = vec2(0.0);
@@ -118,10 +128,64 @@ void	main()
 	vec2 texOffset = S * depth;
 #endif
 	
-	texDiffuse.st += texOffset;
 	texNormal.st += texOffset;
+	
+#if !defined(r_DeferredLighting)
+	texDiffuse.st += texOffset;
 	texSpecular.st += texOffset;
+#endif
+	
 #endif // USE_PARALLAX_MAPPING
+
+	// compute normal in world space from normalmap
+	vec3 N = tangentToWorldMatrix * (2.0 * (texture2D(u_NormalMap, texNormal).xyz - 0.5));
+	
+#if !defined(r_DeferredLighting)
+	
+	// compute the specular term
+#if defined(USE_REFLECTIVE_SPECULAR)
+
+	vec3 specular = texture2D(u_SpecularMap, texSpecular).rgb;
+
+	vec4 envColor0 = textureCube(u_EnvironmentMap0, reflect(-V, N)).rgba;
+	vec4 envColor1 = textureCube(u_EnvironmentMap1, reflect(-V, N)).rgba;
+	
+	specular *= mix(envColor0, envColor1, u_EnvironmentInterpolation).rgb;
+	
+#if 0
+	// specular = vec4(u_EnvironmentInterpolation, u_EnvironmentInterpolation, u_EnvironmentInterpolation, 1.0);
+	specular = envColor0;
+#endif
+
+#else
+
+	vec3 specular = texture2D(u_SpecularMap, texSpecular).rgb;
+#endif // USE_REFLECTIVE_SPECULAR
+
+#endif // #if !defined(r_DeferredLighting)
+
+
+#else // USE_NORMAL_MAPPING
+	
+	vec3 N;
+
+#if defined(TWOSIDED)
+	if(gl_FrontFacing)
+	{
+		N = -normalize(var_Normal);
+		// gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+		// return;
+	}
+	else
+#endif
+	{
+		N = normalize(var_Normal);
+	}
+		
+	vec3 specular = vec3(0.0);
+	
+#endif // USE_NORMAL_MAPPING
+
 
 	// compute the diffuse term
 	vec4 diffuse = texture2D(u_DiffuseMap, texDiffuse);
@@ -143,94 +207,22 @@ void	main()
 		return;
 	}
 #endif
-
-
-	// compute normal in world space from normalmap
-	vec3 N = tangentToWorldMatrix * (2.0 * (texture2D(u_NormalMap, texNormal).xyz - 0.5));
 	
-	// compute light direction in world space
-	vec3 L = 2.0 * (texture2D(u_DeluxeMap, var_TexLight).xyz - 0.5);
+//	vec4 depthColor = diffuse;
+//	depthColor.rgb *= u_AmbientColor;
 	
-	// compute half angle in world space
-	vec3 H = normalize(L + I);
-	
-	// compute light color from world space lightmap
-	vec3 lightColor = texture2D(u_LightMap, var_TexLight).rgb;
-	
-	// compute the specular term
-	vec3 specular = texture2D(u_SpecularMap, texSpecular).rgb;
-	
-	// compute final color
-	vec4 color = diffuse;
-	color.rgb *= lightColor.rgb * clamp(dot(N, L), 0.0, 1.0);
-	color.rgb += specular * lightColor * pow(clamp(dot(N, H), 0.0, 1.0), r_SpecularExponent) * r_SpecularScale;
-	color.a = var_Color.a;	// for terrain blending
+	// convert normal back to [0,1] color space
+	N = N * 0.5 + 0.5;
 
-
-#else // USE_NORMAL_MAPPING
-
-	// compute the diffuse term
-	vec4 diffuse = texture2D(u_DiffuseMap, var_TexDiffuseNormal.st);
-	
-#if defined(USE_ALPHA_TESTING)
-	if(u_AlphaTest == ATEST_GT_0 && diffuse.a <= 0.0)
-	{
-		discard;
-		return;
-	}
-	else if(u_AlphaTest == ATEST_LT_128 && diffuse.a >= 0.5)
-	{
-		discard;
-		return;
-	}
-	else if(u_AlphaTest == ATEST_GE_128 && diffuse.a < 0.5)
-	{
-		discard;
-		return;
-	}
-#endif
-
-	vec3 N;
-
-#if defined(TWOSIDED)
-	if(gl_FrontFacing)
-	{
-		N = -normalize(var_Normal);
-	}
-	else
-#endif
-	{
-		N = normalize(var_Normal);
-	}
-	
-	vec3 specular = vec3(0.0, 0.0, 0.0);
-
-	// compute light color from object space lightmap
-	vec3 lightColor = texture2D(u_LightMap, var_TexLight).rgb;
-	
-	vec4 color = diffuse;
-	color.rgb *= lightColor;
-	color.a = var_Color.a;	// for terrain blending
-#endif
-
-#if defined(r_DeferredShading)
-	gl_FragData[0] = color; 							// var_Color;
-	gl_FragData[1] = vec4(diffuse.rgb, var_Color.a);	// vec4(var_Color.rgb, 1.0 - var_Color.a);
+#if defined(r_DeferredLighting)
+	gl_FragColor = vec4(N, 0.0);
+#else
+	gl_FragData[0] = vec4(0.0, 0.0, 0.0, 1.0);
+	gl_FragData[1] = vec4(diffuse.rgb, var_Color.a);
 	gl_FragData[2] = vec4(N, var_Color.a);
 	gl_FragData[3] = vec4(specular, var_Color.a);
-#else
-	gl_FragColor = color;
-#endif
 
-
-#if 0
-#if defined(USE_PARALLAX_MAPPING)
-	gl_FragColor = vec4(vec3(1.0, 0.0, 0.0), diffuse.a);
-#elif defined(USE_NORMAL_MAPPING)
-	gl_FragColor = vec4(vec3(0.0, 0.0, 1.0), diffuse.a);
-#else
-	gl_FragColor = vec4(vec3(0.0, 1.0, 0.0), diffuse.a);
-#endif
-#endif
-
+#endif // r_DeferredLighting
 }
+
+

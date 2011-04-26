@@ -58,6 +58,12 @@ const matrix_t flipZMatrix = {
 		0, 0, 0, 1
 };
 
+const GLenum geometricRenderTargets[] = {
+	GL_COLOR_ATTACHMENT0_EXT,
+	GL_COLOR_ATTACHMENT1_EXT,
+	GL_COLOR_ATTACHMENT2_EXT,
+	GL_COLOR_ATTACHMENT3_EXT
+};
 
 int             shadowMapResolutions[5] = { 2048, 1024, 512, 256, 128 };
 
@@ -1526,6 +1532,15 @@ static void SetFarClip(void)
 
 #endif
 	tr.viewParms.zFar = sqrt(farthestCornerDistance);
+
+	// ydnar: add global q3 fog
+#if 0
+	if(tr.world != NULL && tr.world->globalFog >= 0 &&
+	   tr.world->fogs[tr.world->globalFog].fogParms.depthForOpaque < tr.viewParms.zFar)
+	{
+		tr.viewParms.zFar = tr.world->fogs[tr.world->globalFog].fogParms.depthForOpaque;
+	}
+#endif
 }
 
 /*
@@ -3466,6 +3481,10 @@ void R_RenderView(viewParms_t * parms)
 	// added, because they use the projection
 	// matrix for lod calculation
 	R_SetupProjection(qfalse);
+
+#if defined(COMPAT_ET)
+	R_SetFrameFog();
+#endif
 
 	R_SetupUnprojection();
 

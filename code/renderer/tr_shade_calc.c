@@ -481,6 +481,68 @@ void RB_CalcDeformVertexes(deformStage_t * ds)
 	float          *normal = (float *)tess.normals;
 	float          *table;
 
+#if defined(COMPAT_ET)
+	if(ds->deformationWave.frequency < 0)
+	{
+		qboolean        inverse = qfalse;
+		vec3_t          worldUp;
+
+		//static vec3_t up = {0,0,1};
+
+		if(VectorCompare(backEnd.currentEntity->e.fireRiseDir, vec3_origin))
+		{
+			VectorSet(backEnd.currentEntity->e.fireRiseDir, 0, 0, 1);
+		}
+
+		// get the world up vector in local coordinates
+		if(backEnd.currentEntity->e.hModel)
+		{						// world surfaces dont have an axis
+			VectorRotate(backEnd.currentEntity->e.fireRiseDir, backEnd.currentEntity->e.axis, worldUp);
+		}
+		else
+		{
+			VectorCopy(backEnd.currentEntity->e.fireRiseDir, worldUp);
+		}
+		// don't go so far if sideways, since they must be moving
+		VectorScale(worldUp, 0.4 + 0.6 * Q_fabs(backEnd.currentEntity->e.fireRiseDir[2]), worldUp);
+
+		ds->deformationWave.frequency *= -1;
+		if(ds->deformationWave.frequency > 999)
+		{						// hack for negative Z deformation (ack)
+			inverse = qtrue;
+			ds->deformationWave.frequency -= 999;
+		}
+
+		table = TableForFunc(ds->deformationWave.func);
+
+		for(i = 0; i < tess.numVertexes; i++, xyz += 4, normal += 4)
+		{
+			float           off = (xyz[0] + xyz[1] + xyz[2]) * ds->deformationSpread;
+			float           dot;
+
+			scale = WAVEVALUE(table, ds->deformationWave.base,
+							  ds->deformationWave.amplitude, ds->deformationWave.phase + off, ds->deformationWave.frequency);
+
+			dot = DotProduct(worldUp, normal);
+
+			if(dot * scale > 0)
+			{
+				if(inverse)
+				{
+					scale *= -1;
+				}
+				VectorMA(xyz, dot * scale, worldUp, xyz);
+			}
+		}
+
+		if(inverse)
+		{
+			ds->deformationWave.frequency += 999;
+		}
+		ds->deformationWave.frequency *= -1;
+	}
+	else
+#endif // #if defined(COMPAT_ET)
 	if(ds->deformationWave.frequency == 0)
 	{
 		scale = RB_EvalWaveForm(&ds->deformationWave);
@@ -922,6 +984,37 @@ static void Autosprite2Deform(void)
 			}
 		}
 	}
+}
+
+qboolean ShaderRequiresCPUDeforms(const shader_t * shader)
+{
+	if(shader->numDeforms)
+	{
+		int			i;
+		qboolean	cpuDeforms = qfalse;
+
+		if(glConfig.driverType != GLDRV_OPENGL3 || !r_vboDeformVertexes->integer)
+			return qtrue;
+	
+		for(i = 0; i < shader->numDeforms; i++)
+		{
+			const deformStage_t *ds = &shader->deforms[0];
+
+			switch (ds->deformation)
+			{
+				case DEFORM_WAVE:
+				case DEFORM_BULGE:
+					break;
+
+				default:
+					cpuDeforms = qtrue;
+			}
+		}
+
+		return cpuDeforms;
+	}
+
+	return qfalse;
 }
 
 

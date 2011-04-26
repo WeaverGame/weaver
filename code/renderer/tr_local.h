@@ -80,16 +80,10 @@ typedef unsigned short glIndex_t;
 
 #define MAX_SHADOWMAPS			5
 
-#if !defined(USE_D3D10)
 //#define VOLUMETRIC_LIGHTING 1
-#endif
 
 #define DEBUG_OPTIMIZEVERTICES 0
 #define CALC_REDUNDANT_SHADOWVERTS 0
-
-#define OFFSCREEN_PREPASS_LIGHTING 1
-
-//#define DEFERRED_SHADING_Z_PREPASS 1
 
 #define GLSL_COMPILE_STARTUP_ONLY 1
 
@@ -97,7 +91,6 @@ typedef enum
 {
 	DS_DISABLED,				// traditional Doom 3 style rendering
 	DS_STANDARD,				// deferred rendering like in Stalker
-	DS_PREPASS_LIGHTING			// light pre pass rendering like in Cry Engine 3
 } deferredShading_t;
 
 typedef enum
@@ -110,28 +103,26 @@ typedef enum
 	SHADOWING_ESM
 } shadowingMode_t;
 
+typedef enum
+{
+	RSPEEDS_GENERAL = 1,
+	RSPEEDS_CULLING,
+	RSPEEDS_VIEWCLUSTER,
+	RSPEEDS_LIGHTS,
+	RSPEEDS_SHADOWCUBE_CULLING,
+	RSPEEDS_FOG,
+	RSPEEDS_FLARES,
+	RSPEEDS_OCCLUSION_QUERIES,
+	RSPEEDS_DEPTH_BOUNDS_TESTS,
+	RSPEEDS_SHADING_TIMES,
+	RSPEEDS_CHC,
+	RSPEEDS_NEAR_FAR,
+	RSPEEDS_DECALS
 
-#if !defined(GLSL_COMPILE_STARTUP_ONLY)
+} renderSpeeds_t;
 
-#define DS_STANDARD_ENABLED() ((r_deferredShading->integer == DS_STANDARD && glConfig.maxColorAttachments >= 4 && glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 4 && glConfig.framebufferPackedDepthStencilAvailable && glConfig.driverType != GLDRV_MESA))
 
-#if defined(OFFSCREEN_PREPASS_LIGHTING)
-#define DS_PREPASS_LIGHTING_ENABLED() ((r_deferredShading->integer == DS_PREPASS_LIGHTING && glConfig.maxColorAttachments >= 2 && glConfig.drawBuffersAvailable && glConfig.maxDrawBuffers >= 2 && glConfig.framebufferPackedDepthStencilAvailable && glConfig.driverType != GLDRV_MESA))
-#else
-#define DS_PREPASS_LIGHTING_ENABLED() ((r_deferredShading->integer == DS_PREPASS_LIGHTING))
-#endif
-
-#else // #if !defined(GLSL_COMPILE_STARTUP_ONLY)
-
-#define DS_STANDARD_ENABLED() (1 == 0)
-
-#if defined(OFFSCREEN_PREPASS_LIGHTING)
-#define DS_PREPASS_LIGHTING_ENABLED() (1 == 0)
-#else
-#define DS_PREPASS_LIGHTING_ENABLED() (1 == 0)
-#endif
-
-#endif // #if !defined(GLSL_COMPILE_STARTUP_ONLY)
+#define DS_STANDARD_ENABLED() ((r_deferredShading->integer == DS_STANDARD && glConfig2.maxColorAttachments >= 4 && glConfig2.drawBuffersAvailable && glConfig2.maxDrawBuffers >= 4 && /*glConfig2.framebufferPackedDepthStencilAvailable &&*/ glConfig.driverType != GLDRV_MESA))
 
 #define HDR_ENABLED() ((r_hdrRendering->integer && glConfig2.textureFloatAvailable && glConfig2.framebufferObjectAvailable && glConfig2.framebufferBlitAvailable && glConfig.driverType != GLDRV_MESA))
 
@@ -612,8 +603,12 @@ typedef enum
 {
 	SS_BAD,
 	SS_PORTAL,					// mirrors, portals, viewscreens
-	SS_ENVIRONMENT,				// sky box
+
+	SS_ENVIRONMENT_FOG,			// sky
+
 	SS_OPAQUE,					// opaque
+	
+	SS_ENVIRONMENT_NOFOG,		// Tr3B: moved skybox here so we can fog post process all SS_OPAQUE materials
 
 	SS_DECAL,					// scorch marks, etc.
 	SS_SEE_THROUGH,				// ladders, grates, grills that may have small blended edges
@@ -975,7 +970,8 @@ typedef enum
 	COLLAPSE_genericMulti,
 	COLLAPSE_lighting_DB,
 	COLLAPSE_lighting_DBS,
-	COLLAPSE_reflection_CB
+	COLLAPSE_reflection_CB,
+	COLLAPSE_color_lightmap
 } collapseType_t;
 
 typedef struct
@@ -1043,7 +1039,7 @@ typedef struct
 
 	expression_t    wrapAroundLightingExp;
 
-	qboolean        isFogged;	// used only for shaders that have fog disabled, so we can enable it for individual stages
+	qboolean        noFog;		// used only for shaders that have fog disabled, so we can enable it for individual stages
 } shaderStage_t;
 
 struct shaderCommands_s;
@@ -1161,34 +1157,6 @@ typedef struct shader_s
 
 	struct shader_s *next;
 } shader_t;
-
-static ID_INLINE qboolean ShaderRequiresCPUDeforms(const shader_t * shader)
-{
-	if(shader->numDeforms)
-	{
-		int			i;
-		qboolean	cpuDeforms = qfalse;
-	
-		for(i = 0; i < shader->numDeforms; i++)
-		{
-			const deformStage_t *ds = &shader->deforms[0];
-
-			switch (ds->deformation)
-			{
-				case DEFORM_WAVE:
-				case DEFORM_BULGE:
-					break;
-
-				default:
-					cpuDeforms = qtrue;
-			}
-		}
-
-		return cpuDeforms;
-	}
-
-	return qfalse;
-}
 
 #if 0
 enum
@@ -1361,122 +1329,122 @@ typedef struct shaderProgram_s
 	uint32_t        attribs;	// vertex array attributes
 
 	// uniform parameters
-	GLint           u_ColorMap;
-	GLint           u_CurrentMap;
-	GLint           u_ContrastMap;
-	GLint           u_DiffuseMap;
-	GLint           u_NormalMap;
-	GLint           u_SpecularMap;
-	GLint           u_LightMap;
-	GLint           u_DeluxeMap;
-	GLint           u_DepthMap;
-	GLint           u_DepthMapBack;
-	GLint           u_DepthMapFront;
-	GLint           u_PortalMap;
-	GLint           u_AttenuationMapXY;
-	GLint           u_AttenuationMapZ;
-	GLint           u_ShadowMap;
-	GLint           u_ShadowMap0;
-	GLint           u_ShadowMap1;
-	GLint           u_ShadowMap2;
-	GLint           u_ShadowMap3;
-	GLint           u_ShadowMap4;
-	GLint           u_EnvironmentMap0;
-	GLint           u_EnvironmentMap1;
+	int16_t         u_ColorMap;
+	int16_t         u_CurrentMap;
+	int16_t         u_ContrastMap;
+	int16_t         u_DiffuseMap;
+	int16_t         u_NormalMap;
+	int16_t         u_SpecularMap;
+	int16_t         u_LightMap;
+	int16_t         u_DeluxeMap;
+	int16_t         u_DepthMap;
+	int16_t         u_DepthMapBack;
+	int16_t         u_DepthMapFront;
+	int16_t         u_PortalMap;
+	int16_t         u_AttenuationMapXY;
+	int16_t         u_AttenuationMapZ;
+	int16_t         u_ShadowMap;
+	int16_t         u_ShadowMap0;
+	int16_t         u_ShadowMap1;
+	int16_t         u_ShadowMap2;
+	int16_t         u_ShadowMap3;
+	int16_t         u_ShadowMap4;
+	int16_t         u_EnvironmentMap0;
+	int16_t         u_EnvironmentMap1;
 
-	GLint           u_GrainMap;
-	GLint           u_VignetteMap;
+	int16_t         u_GrainMap;
+	int16_t         u_VignetteMap;
 
-	GLint           u_ColorTextureMatrix;
+	int16_t         u_ColorTextureMatrix;
 	matrix_t		t_ColorTextureMatrix;
 
-	GLint           u_DiffuseTextureMatrix;
+	int16_t         u_DiffuseTextureMatrix;
 	matrix_t		t_DiffuseTextureMatrix;
 
-	GLint           u_NormalTextureMatrix;
+	int16_t         u_NormalTextureMatrix;
 	matrix_t		t_NormalTextureMatrix;
 
-	GLint           u_SpecularTextureMatrix;
+	int16_t         u_SpecularTextureMatrix;
 	matrix_t		t_SpecularTextureMatrix;
 
-	GLint           u_AlphaTest;
+	int16_t         u_AlphaTest;
 	alphaTest_t		t_AlphaTest;
 
-	GLint           u_ViewOrigin;
+	int16_t         u_ViewOrigin;
 	vec3_t			t_ViewOrigin;
 
 	GLint			u_DeformParms;
 
-	GLint           u_ColorGen;
+	int16_t         u_ColorGen;
 	colorGen_t		t_ColorGen;
 
-	GLint           u_AlphaGen;
+	int16_t         u_AlphaGen;
 	alphaGen_t		t_AlphaGen;
 
-	GLint           u_Color;
+	int16_t         u_Color;
 	vec4_t			t_Color;
 
-	GLint           u_ColorModulate;
+	int16_t         u_ColorModulate;
 	vec4_t			t_ColorModulate;
 
-	GLint           u_AmbientColor;
+	int16_t         u_AmbientColor;
 	vec3_t			t_AmbientColor;
 
-	GLint           u_LightDir;
+	int16_t         u_LightDir;
 	vec3_t			t_LightDir;
 
-	GLint           u_LightOrigin;
+	int16_t         u_LightOrigin;
 	vec3_t			t_LightOrigin;
 
-	GLint           u_LightColor;
+	int16_t         u_LightColor;
 	vec3_t			t_LightColor;
 
-	GLint           u_LightRadius;
+	int16_t         u_LightRadius;
 	float			t_LightRadius;
 
-	GLint           u_LightParallel;
+	int16_t         u_LightParallel;
 	qboolean		t_LightParallel;
 
-	GLint           u_LightScale;
+	int16_t         u_LightScale;
 	float			t_LightScale;
 
-	GLint           u_LightWrapAround;
+	int16_t         u_LightWrapAround;
 	float			t_LightWrapAround;
 
-	GLint           u_LightAttenuationMatrix;
+	int16_t         u_LightAttenuationMatrix;
 	matrix_t		t_LightAttenuationMatrix;
 
-	GLint           u_LightFrustum;
+	int16_t         u_LightFrustum;
 	vec4_t			t_LightFrustum;
 
-	GLint           u_ShadowMatrix;
+	int16_t         u_ShadowMatrix;
 	matrix_t		t_ShadowMatrix;
 
-	GLint           u_ShadowCompare;
+	int16_t         u_ShadowCompare;
 	qboolean		t_ShadowCompare;
 
-	GLint           u_ShadowTexelSize;
+	int16_t         u_ShadowTexelSize;
 	float			t_ShadowTexelSize;
 
-	GLint           u_ShadowBlur;
+	int16_t         u_ShadowBlur;
 	float			t_ShadowBlur;
 
 	GLint			u_ShadowParallelSplitDistances;
 	vec4_t			t_ShadowParallelSplitDistances;
 
-	GLint           u_RefractionIndex;
+	int16_t         u_RefractionIndex;
 	float			t_RefractionIndex;
 
-	GLint           u_FresnelPower;
-	GLint           u_FresnelScale;
-	GLint           u_FresnelBias;
+	int16_t         u_FresnelPower;
+	int16_t         u_FresnelScale;
+	int16_t         u_FresnelBias;
 
 	GLint			u_NormalScale;
 
-	GLint           u_EtaRatio;
+	int16_t         u_EtaRatio;
 
-	GLint           u_FogDensity;
-	GLint           u_FogColor;
+	int16_t         u_FogDensity;
+	int16_t         u_FogColor;
 
 	GLint			u_FogDistanceVector;
 	vec4_t			t_FogDistanceVector;
@@ -1487,13 +1455,13 @@ typedef struct shaderProgram_s
 	GLint			u_FogEyeT;
 	float			t_FogEyeT;
 
-	GLint           u_SSAOJitter;
-	GLint           u_SSAORadius;
+	int16_t         u_SSAOJitter;
+	int16_t         u_SSAORadius;
 
 	GLint			u_ParallaxMapping;
 	qboolean		t_ParallaxMapping;
 
-	GLint           u_DepthScale;
+	int16_t         u_DepthScale;
 	float			t_DepthScale;
 
 
@@ -1503,7 +1471,7 @@ typedef struct shaderProgram_s
 	GLint			u_PortalPlane;
 	vec4_t			t_PortalPlane;
 
-	GLint           u_PortalRange;
+	int16_t         u_PortalRange;
 	float			t_PortalRange;
 
 	GLint			u_EnvironmentInterpolation;
@@ -1518,43 +1486,43 @@ typedef struct shaderProgram_s
 	GLint			u_HDRMaxLuminance;
 	float			t_HDRMaxLuminance;
 
-	GLint           u_DeformMagnitude;
+	int16_t         u_DeformMagnitude;
 	float			t_DeformMagnitude;
 
 
-	GLint           u_ModelMatrix;	// model -> world
+	int16_t         u_ModelMatrix;	// model -> world
 	matrix_t		t_ModelMatrix;
 
-	GLint           u_ViewMatrix;	// world -> camera
+	int16_t         u_ViewMatrix;	// world -> camera
 	matrix_t		t_ViewMatrix;
 
-	GLint           u_ModelViewMatrix;	// model -> camera
+	int16_t         u_ModelViewMatrix;	// model -> camera
 	matrix_t		t_ModelViewMatrix;
 
-	GLint           u_ModelViewMatrixTranspose;
+	int16_t         u_ModelViewMatrixTranspose;
 	matrix_t		t_ModelViewMatrixTranspose;
 
-	GLint           u_ProjectionMatrix;
+	int16_t         u_ProjectionMatrix;
 	matrix_t		t_ProjectionMatrix;
 
-	GLint           u_ProjectionMatrixTranspose;
+	int16_t         u_ProjectionMatrixTranspose;
 	matrix_t		t_ProjectionMatrixTranspose;
 
-	GLint           u_ModelViewProjectionMatrix;
+	int16_t         u_ModelViewProjectionMatrix;
 	matrix_t		t_ModelViewProjectionMatrix;
 
-	GLint           u_UnprojectMatrix;
+	int16_t         u_UnprojectMatrix;
 	matrix_t		t_UnprojectMatrix;
 
-	GLint           u_VertexSkinning;
+	int16_t         u_VertexSkinning;
 	qboolean		t_VertexSkinning;
 
 	GLint			u_VertexInterpolation;
 	float			t_VertexInterpolation;
 
-	GLint           u_BoneMatrix;
+	int16_t         u_BoneMatrix;
 
-	GLint           u_Time;
+	int16_t         u_Time;
 	float			t_Time;
 } shaderProgram_t;
 
@@ -2500,6 +2468,10 @@ typedef struct
 	byte           *pixelTarget;		//set this to Non Null to copy to a buffer after scene rendering
 	int             pixelTargetWidth;
 	int             pixelTargetHeight;
+
+#if defined(COMPAT_ET)
+	glfog_t         glFog;				// (SA) added (needed to pass fog infos into the portal sky scene)
+#endif
 } trRefdef_t;
 
 
@@ -2573,7 +2545,7 @@ typedef struct
 
 	vec4_t			color;		// in packed byte format
 	float           tcScale;	// texture coordinate vector scales
-	fogParms_t      parms;
+	fogParms_t      fogParms;
 
 	// for clipping distance in fog when outside
 	qboolean        hasSurface;
@@ -3204,6 +3176,13 @@ typedef struct
 	int				numFogs;
 	fog_t          *fogs;
 
+	int             globalFog;	// Arnout: index of global fog
+	vec4_t          globalOriginalFog;	// Arnout: to be able to restore original global fog
+	vec4_t          globalTransStartFog;	// Arnout: start fog for switch fog transition
+	vec4_t          globalTransEndFog;	// Arnout: end fog for switch fog transition
+	int             globalFogTransStartTime;
+	int             globalFogTransEndTime;
+
 	vec3_t          lightGridOrigin;
 	vec3_t          lightGridSize;
 	vec3_t          lightGridInverseSize;
@@ -3228,6 +3207,8 @@ typedef struct
 
 	char           *entityString;
 	char           *entityParsePoint;
+
+	qboolean		hasSkyboxPortal;
 } world_t;
 
 
@@ -3423,7 +3404,7 @@ typedef struct mdmSurfaceIntern_s
 	int             numBoneReferences;
 	int            *boneReferences;
 
-	int            *collapseMap;	// numVerts many
+	int32_t        *collapseMap;	// numVerts many
 
 	struct mdmModel_s *model;
 } mdmSurfaceIntern_t;
@@ -3830,6 +3811,9 @@ typedef struct
 	image_t        *quadraticImage;
 	image_t        *whiteImage;	// full of 0xff
 	image_t        *blackImage;	// full of 0x0
+	image_t        *redImage;
+	image_t        *greenImage;
+	image_t        *blueImage;
 	image_t        *flatImage;	// use this as default normalmap
 	image_t        *noFalloffImage;
 	image_t        *attenuationXYImage;
@@ -3916,11 +3900,7 @@ typedef struct
 #if !defined(USE_D3D10)
 
 #if !defined(GLSL_COMPILE_STARTUP_ONLY)
-	// deferred Geometric-Buffer processing
-	shaderProgram_t geometricFillShader_DBS;
-
 	// deferred lighting
-	shaderProgram_t deferredLightingShader_DBS_omni;
 	shaderProgram_t deferredLightingShader_DBS_proj;
 	shaderProgram_t deferredLightingShader_DBS_directional;
 
@@ -3979,6 +3959,11 @@ typedef struct
 
 	vec3_t          fogColor;
 	float           fogDensity;
+	
+#if defined(COMPAT_ET)
+	glfog_t         glfogsettings[NUM_FOGS];
+	glfogType_t     glfogNum;
+#endif
 
 	frontEndCounters_t pc;
 	int             frontEndMsec;	// not in pc due to clearing issue
@@ -4035,6 +4020,7 @@ extern const matrix_t quakeToOpenGLMatrix;
 extern const matrix_t openGLToQuakeMatrix;
 extern const matrix_t quakeToD3DMatrix;
 extern const matrix_t flipZMatrix;
+extern const GLenum	geometricRenderTargets[];
 extern int      shadowMapResolutions[5];
 
 extern backEndState_t backEnd;
@@ -4083,6 +4069,7 @@ extern cvar_t  *r_lodbias;		// push/pull LOD transitions
 extern cvar_t  *r_lodscale;
 
 extern cvar_t  *r_forceFog;
+extern cvar_t  *r_wolfFog;
 extern cvar_t  *r_noFog;
 
 extern cvar_t  *r_forceAmbient;
@@ -4209,6 +4196,7 @@ extern cvar_t  *r_intensity;
 extern cvar_t  *r_lockpvs;
 extern cvar_t  *r_noportals;
 extern cvar_t  *r_portalOnly;
+extern cvar_t  *r_portalSky;
 
 extern cvar_t  *r_subdivisions;
 extern cvar_t  *r_stitchCurves;
@@ -4272,6 +4260,7 @@ extern cvar_t  *r_vboDynamicLighting;
 extern cvar_t  *r_vboModels;
 extern cvar_t  *r_vboOptimizeVertices;
 extern cvar_t  *r_vboVertexSkinning;
+extern cvar_t  *r_vboDeformVertexes;
 extern cvar_t  *r_vboSmoothNormals;
 
 extern cvar_t  *r_mergeClusterSurfaces;
@@ -4285,6 +4274,7 @@ extern cvar_t  *r_parallaxDepthScale;
 
 extern cvar_t  *r_dynamicBspOcclusionCulling;
 extern cvar_t  *r_dynamicEntityOcclusionCulling;
+extern cvar_t  *r_dynamicLightOcclusionCulling;
 extern cvar_t  *r_chcMaxPrevInvisNodesBatchSize;
 extern cvar_t  *r_chcMaxVisibleFrames;
 extern cvar_t  *r_chcVisibilityThreshold;
@@ -4517,7 +4507,6 @@ IMAGES, tr_image.c
 
 ====================================================================
 */
-
 void            R_InitImages(void);
 void            R_ShutdownImages(void);
 int             R_SumOfUsedImages(void);
@@ -4684,6 +4673,7 @@ void            Tess_ComputeColor(shaderStage_t * pStage);
 void            Tess_StageIteratorDebug();
 void            Tess_StageIteratorGeneric();
 void            Tess_StageIteratorGBuffer();
+void            Tess_StageIteratorGBufferNormalsOnly();
 void            Tess_StageIteratorDepthFill();
 void            Tess_StageIteratorShadowFill();
 void            Tess_StageIteratorStencilShadowVolume();
@@ -4790,9 +4780,14 @@ FOG, tr_fog.c
 ============================================================
 */
 
+#if defined(COMPAT_ET)
+void			R_SetFrameFog();
+void			RB_Fog(glfog_t * curfog);
+void			RB_FogOff();
+void			RB_FogOn();
 void			RE_SetFog(int fogvar, int var1, int var2, float r, float g, float b, float density);
 void			RE_SetGlobalFog(qboolean restore, int duration, float r, float g, float b, float depthForOpaque);
-
+#endif
 
 
 
@@ -4940,6 +4935,7 @@ void            RE_AddPolysToScene(qhandle_t hShader, int numVerts, const polyVe
 
 void            RE_AddPolyBufferToScene(polyBuffer_t * pPolyBuffer);
 
+
 void            RE_AddDynamicLightToSceneET(const vec3_t org, float radius, float intensity, float r, float g, float b, qhandle_t hShader, int flags);
 void            RE_AddDynamicLightToSceneQ3A(const vec3_t org, float intensity, float r, float g, float b);
 
@@ -5024,7 +5020,8 @@ void            R_TransformClipToWindow(const vec4_t clip, const viewParms_t * v
 float           R_ProjectRadius(float r, vec3_t location);
 
 
-void            Tess_DeformGeometry(void);
+qboolean		ShaderRequiresCPUDeforms(const shader_t * shader);
+void            Tess_DeformGeometry();
 
 float           RB_EvalWaveForm(const waveForm_t * wf);
 float           RB_EvalWaveFormClamped(const waveForm_t * wf);

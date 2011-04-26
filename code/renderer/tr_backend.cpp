@@ -625,6 +625,26 @@ void GL_State(uint32_t stateBits)
 	}
 
 	// alpha test - deprecated in OpenGL 3.0
+#if 0
+	if(diff & GLS_ATEST_BITS)
+	{
+		switch (stateBits & GLS_ATEST_BITS)
+		{
+			case GLS_ATEST_GT_0:
+			case GLS_ATEST_LT_128:
+			case GLS_ATEST_GE_128:
+			//case GLS_ATEST_GT_CUSTOM:
+				glEnable(GL_SAMPLE_ALPHA_TO_COVERAGE_ARB);
+				break;
+
+			default:
+			case 0:
+				glDisable(GL_SAMPLE_ALPHA_TO_COVERAGE_ARB);
+				break;
+		}
+	}
+#endif
+
 	/*
 	   if(diff & GLS_ATEST_BITS)
 	   {
@@ -1348,7 +1368,7 @@ static void RB_RenderDrawSurfaces(bool opaque, bool depthFill, renderDrawSurface
 			}
 
 			if(depthFill)
-				Tess_Begin(Tess_StageIteratorDepthFill, NULL, shader, NULL, qtrue, qfalse, qfalse, lightmapNum, fogNum);
+				Tess_Begin(Tess_StageIteratorGBuffer, NULL, shader, NULL, qtrue, qfalse, qfalse, lightmapNum, fogNum);
 			else
 				Tess_Begin(Tess_StageIteratorGeneric, NULL, shader, NULL, qfalse, qfalse, qfalse, lightmapNum, fogNum);
 
@@ -1935,7 +1955,7 @@ static void RB_RenderInteractions()
 
 	GLimp_LogComment("--- RB_RenderInteractions ---\n");
 
-	if(r_speeds->integer == 9)
+	if(r_speeds->integer == RSPEEDS_SHADING_TIMES)
 	{
 		glFinish();
 		startTime = ri.Milliseconds();
@@ -1956,10 +1976,10 @@ static void RB_RenderInteractions()
 		surface = ia->surface;
 		shader = ia->surfaceShader;
 
-		if(glConfig2.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && !ia->occlusionQuerySamples)
+		if(glConfig2.occlusionQueryBits && glConfig.driverType != GLDRV_MESA)
 		{
 			// skip all interactions of this light because it failed the occlusion query
-			if(!ia->occlusionQuerySamples)
+			if(r_dynamicLightOcclusionCulling->integer && !ia->occlusionQuerySamples)
 				goto skipInteraction;
 
 			if(r_dynamicEntityOcclusionCulling->integer && !entity->occlusionQuerySamples)
@@ -2141,7 +2161,7 @@ static void RB_RenderInteractions()
 
 	GL_CheckErrors();
 
-	if(r_speeds->integer == 9)
+	if(r_speeds->integer == RSPEEDS_SHADING_TIMES)
 	{
 		glFinish();
 		endTime = ri.Milliseconds();
@@ -2179,7 +2199,7 @@ static void RB_RenderInteractionsStencilShadowed()
 
 	GLimp_LogComment("--- RB_RenderInteractionsStencilShadowed ---\n");
 
-	if(r_speeds->integer == 9)
+	if(r_speeds->integer == RSPEEDS_SHADING_TIMES)
 	{
 		glFinish();
 		startTime = ri.Milliseconds();
@@ -2589,7 +2609,7 @@ static void RB_RenderInteractionsStencilShadowed()
 
 	GL_CheckErrors();
 
-	if(r_speeds->integer == 9)
+	if(r_speeds->integer == RSPEEDS_SHADING_TIMES)
 	{
 		glFinish();
 		endTime = ri.Milliseconds();
@@ -2636,7 +2656,7 @@ static void RB_RenderInteractionsShadowMapped()
 
 	GLimp_LogComment("--- RB_RenderInteractionsShadowMapped ---\n");
 
-	if(r_speeds->integer == 9)
+	if(r_speeds->integer == RSPEEDS_SHADING_TIMES)
 	{
 		glFinish();
 		startTime = ri.Milliseconds();
@@ -2674,7 +2694,7 @@ static void RB_RenderInteractionsShadowMapped()
 			deformType = DEFORM_TYPE_NONE;
 		}
 
-		if(glConfig2.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && !ia->occlusionQuerySamples)
+		if(glConfig2.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && r_dynamicLightOcclusionCulling->integer && !ia->occlusionQuerySamples)
 		{
 			// skip all interactions of this light because it failed the occlusion query
 			goto skipInteraction;
@@ -3827,7 +3847,7 @@ static void RB_RenderInteractionsShadowMapped()
 
 	GL_CheckErrors();
 
-	if(r_speeds->integer == 9)
+	if(r_speeds->integer == RSPEEDS_SHADING_TIMES)
 	{
 		glFinish();
 		endTime = ri.Milliseconds();
@@ -3847,7 +3867,7 @@ static void RB_RenderDrawSurfacesIntoGeometricBuffer()
 
 	GLimp_LogComment("--- RB_RenderDrawSurfacesIntoGeometricBuffer ---\n");
 
-	if(r_speeds->integer == 9)
+	if(r_speeds->integer == RSPEEDS_SHADING_TIMES)
 	{
 		glFinish();
 		startTime = ri.Milliseconds();
@@ -3876,6 +3896,34 @@ static void RB_RenderDrawSurfacesIntoGeometricBuffer()
 			break;
 		}
 
+		/*
+		if(DS_PREPASS_LIGHTING_ENABLED())
+		{
+			if(entity == oldEntity && shader == oldShader)
+			{
+				// fast path, same as previous sort
+				rb_surfaceTable[*drawSurf->surface] (drawSurf->surface);
+				continue;
+			}
+
+			// change the tess parameters if needed
+			// a "entityMergable" shader is a shader that can have surfaces from seperate
+			// entities merged into a single batch, like smoke and blood puff sprites
+			if(shader != oldShader || (entity != oldEntity && !shader->entityMergable))
+			{
+				if(oldShader != NULL)
+				{
+					Tess_End();
+				}
+
+				Tess_Begin(Tess_StageIteratorGBufferNormalsOnly, NULL, shader, NULL, qfalse, qfalse, qfalse, -1, 0);
+				oldShader = shader;
+				oldLightmapNum = lightmapNum;
+			}
+		}
+		else
+		*/
+		{
 		if(entity == oldEntity && shader == oldShader && lightmapNum == oldLightmapNum)
 		{
 			// fast path, same as previous sort
@@ -3897,6 +3945,9 @@ static void RB_RenderDrawSurfacesIntoGeometricBuffer()
 			oldShader = shader;
 			oldLightmapNum = lightmapNum;
 		}
+		}
+
+		
 
 		// change the modelview matrix if needed
 		if(entity != oldEntity)
@@ -3963,7 +4014,7 @@ static void RB_RenderDrawSurfacesIntoGeometricBuffer()
 
 	GL_CheckErrors();
 
-	if(r_speeds->integer == 9)
+	if(r_speeds->integer == RSPEEDS_SHADING_TIMES)
 	{
 		glFinish();
 		endTime = ri.Milliseconds();
@@ -3972,7 +4023,7 @@ static void RB_RenderDrawSurfacesIntoGeometricBuffer()
 }
 
 
-#if !defined(GLSL_COMPILE_STARTUP_ONLY)
+
 
 void RB_RenderInteractionsDeferred()
 {
@@ -3984,8 +4035,8 @@ void RB_RenderInteractionsDeferred()
 	shaderStage_t  *attenuationZStage;
 //	int             i;
 	int		j;
-	vec3_t          viewOrigin;
-	vec3_t          lightOrigin;
+	//vec3_t          viewOrigin;
+	//vec3_t          lightOrigin;
 	vec4_t          lightColor;
 	matrix_t        ortho;
 	vec4_t          quadVerts[4];
@@ -3996,7 +4047,7 @@ void RB_RenderInteractionsDeferred()
 	if(r_skipLightBuffer->integer)
 		return;
 
-	if(r_speeds->integer == 9)
+	if(r_speeds->integer == RSPEEDS_SHADING_TIMES)
 	{
 		glFinish();
 		startTime = ri.Milliseconds();
@@ -4012,41 +4063,15 @@ void RB_RenderInteractionsDeferred()
 			   backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
 
 
-	if(DS_PREPASS_LIGHTING_ENABLED())
-	{
-#if defined(OFFSCREEN_PREPASS_LIGHTING)
-		R_BindFBO(tr.lightRenderFBO);
-#else
-		R_BindNullFBO();
-
-		// update normal render image
-		GL_SelectTexture(0);
-		GL_Bind(tr.deferredNormalFBOImage);
-		glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.deferredNormalFBOImage->uploadWidth, tr.deferredNormalFBOImage->uploadHeight);
-
-		// update depth render image
-		GL_SelectTexture(1);
-		GL_Bind(tr.depthRenderImage);
-		glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.depthRenderImage->uploadWidth, tr.depthRenderImage->uploadHeight);
-#endif
-
-		GL_ClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
-	}
-	else
-	{
-		R_BindFBO(tr.deferredRenderFBO);
-	}
-
-	// update uniforms
-	VectorCopy(backEnd.viewParms.orientation.origin, viewOrigin);
+	R_BindFBO(tr.geometricRenderFBO);
+	glDrawBuffers(1, geometricRenderTargets);
 
 	// loop trough all light interactions and render the light quad for each last interaction
 	for(iaCount = 0, ia = &backEnd.viewParms.interactions[0]; iaCount < backEnd.viewParms.numInteractions;)
 	{
 		backEnd.currentLight = light = ia->light;
 
-		if(glConfig2.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && !ia->occlusionQuerySamples)
+		if(glConfig2.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && r_dynamicLightOcclusionCulling->integer && !ia->occlusionQuerySamples)
 		{
 			// skip all interactions of this light because it failed the occlusion query
 			goto skipInteraction;
@@ -4055,7 +4080,8 @@ void RB_RenderInteractionsDeferred()
 	  skipInteraction:
 		if(!ia->next)
 		{
-			if(glConfig2.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && ia->occlusionQuerySamples)
+			if((glConfig2.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && r_dynamicLightOcclusionCulling->integer && ia->occlusionQuerySamples) ||
+				!r_dynamicLightOcclusionCulling->integer)
 			{
 				GLimp_LogComment("--- Rendering light volume ---\n");
 
@@ -4412,29 +4438,34 @@ void RB_RenderInteractionsDeferred()
 
 					if(light->l.rlType == RL_OMNI)
 					{
-						// enable shader, set arrays
-						GL_BindProgram(&tr.deferredLightingShader_DBS_omni);
+						// choose right shader program ----------------------------------
+						gl_deferredLightingShader_omniXYZ->SetPortalClipping(backEnd.viewParms.isPortal);
+						gl_deferredLightingShader_omniXYZ->SetNormalMapping(r_normalMapping->integer);
+						gl_deferredLightingShader_omniXYZ->SetShadowing(false);
+
+						gl_deferredLightingShader_omniXYZ->BindProgram();
+						
+						// end choose right shader program ------------------------------
 
 						// set OpenGL state for additive lighting
-						GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHTEST_DISABLE | GLS_STENCILTEST_ENABLE);
+						GL_State(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHTEST_DISABLE /*| GLS_STENCILTEST_ENABLE */);
 
 						GL_Cull(CT_TWO_SIDED);
 
 						// set uniforms
-						VectorCopy(light->origin, lightOrigin);
+						//VectorCopy(light->origin, lightOrigin);
 						VectorCopy(tess.svars.color, lightColor);
 
-						GLSL_SetUniform_ViewOrigin(&tr.deferredLightingShader_DBS_omni, viewOrigin);
-						GLSL_SetUniform_LightOrigin(&tr.deferredLightingShader_DBS_omni, lightOrigin);
-						GLSL_SetUniform_LightColor(&tr.deferredLightingShader_DBS_omni, lightColor);
-						GLSL_SetUniform_LightRadius(&tr.deferredLightingShader_DBS_omni, light->sphereRadius);
-						GLSL_SetUniform_LightScale(&tr.deferredLightingShader_DBS_omni, light->l.scale);
-						GLSL_SetUniform_LightAttenuationMatrix(&tr.deferredLightingShader_DBS_omni, light->attenuationMatrix2);
+						gl_deferredLightingShader_omniXYZ->SetUniform_ViewOrigin(backEnd.viewParms.orientation.origin); // in world space
+						gl_deferredLightingShader_omniXYZ->SetUniform_LightOrigin(light->origin);
+						gl_deferredLightingShader_omniXYZ->SetUniform_LightColor(lightColor);
+						gl_deferredLightingShader_omniXYZ->SetUniform_LightRadius(light->sphereRadius);
+						gl_deferredLightingShader_omniXYZ->SetUniform_LightScale(light->l.scale);
+						gl_deferredLightingShader_omniXYZ->SetUniform_LightAttenuationMatrix(light->attenuationMatrix2);
 
-						GLSL_SetUniform_ModelViewProjectionMatrix(&tr.deferredLightingShader_DBS_omni, glState.modelViewProjectionMatrix[glState.stackIndex]);
-						GLSL_SetUniform_UnprojectMatrix(&tr.deferredLightingShader_DBS_omni, backEnd.viewParms.unprojectionMatrix);
+						gl_deferredLightingShader_omniXYZ->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
+						gl_deferredLightingShader_omniXYZ->SetUniform_UnprojectMatrix(backEnd.viewParms.unprojectionMatrix);
 
-						GLSL_SetUniform_PortalClipping(&tr.deferredLightingShader_DBS_omni, backEnd.viewParms.isPortal);
 						if(backEnd.viewParms.isPortal)
 						{
 							float           plane[4];
@@ -4445,21 +4476,18 @@ void RB_RenderInteractionsDeferred()
 							plane[2] = backEnd.viewParms.portalPlane.normal[2];
 							plane[3] = backEnd.viewParms.portalPlane.dist;
 
-							GLSL_SetUniform_PortalPlane(&tr.deferredLightingShader_DBS_omni, plane);
+							gl_deferredLightingShader_omniXYZ->SetUniform_PortalPlane(plane);
 						}
 
-						if(DS_STANDARD_ENABLED())
-						{
 							// bind u_DiffuseMap
 							GL_SelectTexture(0);
 							GL_Bind(tr.deferredDiffuseFBOImage);
-						}
 
 						// bind u_NormalMap
 						GL_SelectTexture(1);
 						GL_Bind(tr.deferredNormalFBOImage);
 
-						if(DS_STANDARD_ENABLED() && r_normalMapping->integer)
+						if(r_normalMapping->integer)
 						{
 							// bind u_SpecularMap
 							GL_SelectTexture(2);
@@ -4489,6 +4517,7 @@ void RB_RenderInteractionsDeferred()
 						Tess_InstantQuad(quadVerts);
 #endif
 					}
+#if 0
 					else if(light->l.rlType == RL_PROJ)
 					{
 						// enable shader, set arrays
@@ -4637,6 +4666,7 @@ void RB_RenderInteractionsDeferred()
 						Tess_InstantQuad(quadVerts);
 #endif
 					}
+#endif // if(light->l.rlType == RL_PROJ)
 				}
 
 				GL_PopMatrix();
@@ -4674,13 +4704,15 @@ void RB_RenderInteractionsDeferred()
 
 	GL_CheckErrors();
 
-	if(r_speeds->integer == 9)
+	if(r_speeds->integer == RSPEEDS_SHADING_TIMES)
 	{
 		glFinish();
 		endTime = ri.Milliseconds();
 		backEnd.pc.c_deferredLightingTime = endTime - startTime;
 	}
 }
+
+#if !defined(GLSL_COMPILE_STARTUP_ONLY)
 
 static void RB_RenderInteractionsDeferredShadowMapped()
 {
@@ -4721,7 +4753,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 	if(r_skipLightBuffer->integer)
 		return;
 
-	if(r_speeds->integer == 9)
+	if(r_speeds->integer == RSPEEDS_SHADING_TIMES)
 	{
 		glFinish();
 		startTime = ri.Milliseconds();
@@ -4794,7 +4826,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 			deformType = DEFORM_TYPE_NONE;
 		}
 
-		if(glConfig2.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && !ia->occlusionQuerySamples)
+		if(glConfig2.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && r_dynamicLightOcclusionCulling->integer && !ia->occlusionQuerySamples)
 		{
 			// skip all interactions of this light because it failed the occlusion query
 			goto skipInteraction;
@@ -6962,7 +6994,7 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 
 	GL_CheckErrors();
 
-	if(r_speeds->integer == 9)
+	if(r_speeds->integer == RSPEEDS_SHADING_TIMES)
 	{
 		glFinish();
 		endTime = ri.Milliseconds();
@@ -7009,7 +7041,7 @@ static void RB_RenderInteractionsDeferredInverseShadows()
 	if(r_hdrRendering->integer && !glConfig2.textureFloatAvailable)
 		return;
 
-	if(r_speeds->integer == 9)
+	if(r_speeds->integer == RSPEEDS_SHADING_TIMES)
 	{
 		glFinish();
 		startTime = ri.Milliseconds();
@@ -7056,7 +7088,7 @@ static void RB_RenderInteractionsDeferredInverseShadows()
 		shader = ia->surfaceShader;
 		alphaTest = shader->alphaTest;
 
-		if(glConfig2.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && !ia->occlusionQuerySamples)
+		if(glConfig2.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && r_dynamicLightOcclusionCulling->integer && !ia->occlusionQuerySamples)
 		{
 			// skip all interactions of this light because it failed the occlusion query
 			goto skipInteraction;
@@ -7761,7 +7793,7 @@ static void RB_RenderInteractionsDeferredInverseShadows()
 
 	GL_CheckErrors();
 
-	if(r_speeds->integer == 9)
+	if(r_speeds->integer == RSPEEDS_SHADING_TIMES)
 	{
 		glFinish();
 		endTime = ri.Milliseconds();
@@ -7950,7 +7982,8 @@ void RB_RenderDepthOfField()
 
 void RB_RenderGlobalFog()
 {
-	vec4_t          fogDensity;
+	vec3_t          local;
+	vec4_t          fogDistanceVector, fogDepthVector;
 	vec4_t          fogColor;
 	matrix_t        ortho;
 
@@ -7962,43 +7995,84 @@ void RB_RenderGlobalFog()
 	if(r_noFog->integer)
 		return;
 
-	if(r_forceFog->value <= 0 && tr.fogDensity <= 0)
+#if defined(COMPAT_ET)
+	if(!tr.world || tr.world->globalFog < 0)
 		return;
-
+#else
 	if(r_forceFog->value <= 0 && VectorLength(tr.fogColor) <= 0)
 		return;
 
-	GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_ONE_MINUS_SRC_ALPHA | GLS_DSTBLEND_SRC_ALPHA);
+	if(r_forceFog->value <= 0 && tr.fogDensity <= 0)
+		return;
+#endif
+
 	GL_Cull(CT_TWO_SIDED);
 
 	gl_fogGlobalShader->BindProgram();
 
-	glVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorWhite);
+	// go back to the world modelview matrix
+	backEnd.orientation = backEnd.viewParms.world;
+
+	gl_fogGlobalShader->SetUniform_ViewOrigin(backEnd.viewParms.orientation.origin); // world space
+
+#if defined(COMPAT_ET)
+	{
+		fog_t          *fog;
+		
+		fog = &tr.world->fogs[tr.world->globalFog];
+
+		if(r_logFile->integer)
+		{
+			GLimp_LogComment(va("--- RB_RenderGlobalFog( fogNum = %i, originalBrushNumber = %i ) ---\n", tr.world->globalFog, fog->originalBrushNumber));
+		}
+
+		GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA);
+
+		// all fogging distance is based on world Z units
+		VectorSubtract(backEnd.orientation.origin, backEnd.viewParms.orientation.origin, local);
+		fogDistanceVector[0] = -backEnd.orientation.modelViewMatrix[2];
+		fogDistanceVector[1] = -backEnd.orientation.modelViewMatrix[6];
+		fogDistanceVector[2] = -backEnd.orientation.modelViewMatrix[10];
+		fogDistanceVector[3] = DotProduct(local, backEnd.viewParms.orientation.axis[0]);
+
+		// scale the fog vectors based on the fog's thickness
+		fogDistanceVector[0] *= fog->tcScale;
+		fogDistanceVector[1] *= fog->tcScale;
+		fogDistanceVector[2] *= fog->tcScale;
+		fogDistanceVector[3] *= fog->tcScale;
+
+		gl_fogGlobalShader->SetUniform_FogDistanceVector(fogDistanceVector);
+		gl_fogGlobalShader->SetUniform_Color(fog->color);
+	}
+#else
+	GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_ONE_MINUS_SRC_ALPHA | GLS_DSTBLEND_SRC_ALPHA);
 
 	if(r_forceFog->value)
 	{
-		Vector4Set(fogDensity, r_forceFog->value, 0, 0, 0);
+		Vector4Set(fogDepthVector, r_forceFog->value, 0, 0, 0);
 		VectorCopy(colorMdGrey, fogColor);
 	}
 	else
 	{
-		Vector4Set(fogDensity, tr.fogDensity, 0, 0, 0);
+		Vector4Set(fogDepthVector, tr.fogDensity, 0, 0, 0);
 		VectorCopy(tr.fogColor, fogColor);
 	}
 
-	gl_fogGlobalShader->SetUniform_ViewOrigin(backEnd.viewParms.orientation.origin); // world space
-	gl_fogGlobalShader->SetUniform_FogDepthVector(fogDensity);
+	gl_fogGlobalShader->SetUniform_FogDepthVector(fogDepthVector);
 	gl_fogGlobalShader->SetUniform_Color(fogColor);
+#endif
+	
+	gl_fogGlobalShader->SetUniform_ViewMatrix(backEnd.viewParms.world.viewMatrix);
 	gl_fogGlobalShader->SetUniform_UnprojectMatrix(backEnd.viewParms.unprojectionMatrix);
 
-	// bind u_DepthMap
+	
+	// bind u_ColorMap
 	GL_SelectTexture(0);
-	if(r_deferredShading->integer && glConfig2.framebufferObjectAvailable && glConfig2.textureFloatAvailable &&
-			   glConfig2.drawBuffersAvailable && glConfig2.maxDrawBuffers >= 4)
-	{
-		GL_Bind(tr.depthRenderImage);
-	}
-	else if(r_hdrRendering->integer && glConfig2.framebufferObjectAvailable && glConfig2.textureFloatAvailable)
+	GL_Bind(tr.fogImage);
+
+	// bind u_DepthMap
+	GL_SelectTexture(1);
+	if(DS_STANDARD_ENABLED() || HDR_ENABLED())
 	{
 		GL_Bind(tr.depthRenderImage);
 	}
@@ -8063,34 +8137,30 @@ void RB_RenderBloom()
 #endif
 		
 
-#if !defined(GLSL_COMPILE_STARTUP_ONLY)
-		if(DS_STANDARD_ENABLED() || DS_PREPASS_LIGHTING_ENABLED())
+		if(DS_STANDARD_ENABLED())
 		{
 			if(HDR_ENABLED())
 			{
-				if(r_hdrKey->value <= 0)
-				{
-					float			key;
+				gl_toneMappingShader->EnableMacro_BRIGHTPASS_FILTER();
+				gl_toneMappingShader->BindProgram();
 
-					// calculation from: Perceptual Effects in Real-time Tone Mapping - Krawczyk et al.
-					key = 1.03 - 2.0 / (2.0 + log10f(backEnd.hdrAverageLuminance + 1.0f));
-					glUniform1fARB(tr.contrastShader.u_HDRKey, key);
+				gl_toneMappingShader->SetUniform_HDRKey(backEnd.hdrKey);
+				gl_toneMappingShader->SetUniform_HDRAverageLuminance(backEnd.hdrAverageLuminance);
+				gl_toneMappingShader->SetUniform_HDRMaxLuminance(backEnd.hdrMaxLuminance);
+
+				gl_toneMappingShader->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
 				}
 				else
 				{
-					glUniform1fARB(tr.contrastShader.u_HDRKey, r_hdrKey->value);
-				}
+				gl_contrastShader->BindProgram();
 
-				glUniform1fARB(tr.contrastShader.u_HDRAverageLuminance, backEnd.hdrAverageLuminance);
-				glUniform1fARB(tr.contrastShader.u_HDRMaxLuminance, backEnd.hdrMaxLuminance);
+				gl_contrastShader->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
 			}
 
 			GL_SelectTexture(0);
 			GL_Bind(tr.downScaleFBOImage_quarter);
 		}
-		else 
-#endif // #if !defined(GLSL_COMPILE_STARTUP_ONLY)	
-		if(HDR_ENABLED())
+		else if(HDR_ENABLED())
 		{
 			gl_toneMappingShader->EnableMacro_BRIGHTPASS_FILTER();
 			gl_toneMappingShader->BindProgram();
@@ -8246,7 +8316,7 @@ void RB_RenderBloom()
 
 void RB_RenderRotoscope(void)
 {
-#if !defined(GLSL_COMPILE_STARTUP_ONLY)
+#if 0 //!defined(GLSL_COMPILE_STARTUP_ONLY)
 	matrix_t        ortho;
 
 	GLimp_LogComment("--- RB_CameraPostFX ---\n");
@@ -8467,8 +8537,6 @@ static void RB_CalculateAdaptation()
 }
 
 
-#if !defined(GLSL_COMPILE_STARTUP_ONLY)
-
 void RB_RenderDeferredShadingResultToFrameBuffer()
 {
 	matrix_t        ortho;
@@ -8505,34 +8573,25 @@ void RB_RenderDeferredShadingResultToFrameBuffer()
 	{
 		R_BindNullFBO();
 
-		GL_BindProgram(&tr.toneMappingShader);
+		gl_toneMappingShader->DisableMacro_BRIGHTPASS_FILTER();
+		gl_toneMappingShader->BindProgram();
+
+		gl_toneMappingShader->SetUniform_HDRKey(backEnd.hdrKey);
+		gl_toneMappingShader->SetUniform_HDRAverageLuminance(backEnd.hdrAverageLuminance);
+		gl_toneMappingShader->SetUniform_HDRMaxLuminance(backEnd.hdrMaxLuminance);
+
+		gl_toneMappingShader->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 		// bind u_ColorMap
 		GL_SelectTexture(0);
 		GL_Bind(tr.deferredRenderFBOImage);
-
-		if(r_hdrKey->value <= 0)
-		{
-			float			key;
-
-			// calculation from: Perceptual Effects in Real-time Tone Mapping - Krawczyk et al.
-			key = 1.03 - 2.0 / (2.0 + log10f(backEnd.hdrAverageLuminance + 1.0f));
-			glUniform1fARB(tr.toneMappingShader.u_HDRKey, key);
-		}
-		else
-		{
-			glUniform1fARB(tr.toneMappingShader.u_HDRKey, r_hdrKey->value);
-		}
-
-		glUniform1fARB(tr.toneMappingShader.u_HDRAverageLuminance, backEnd.hdrAverageLuminance);
-		glUniform1fARB(tr.toneMappingShader.u_HDRMaxLuminance, backEnd.hdrMaxLuminance);
-
-		GLSL_SetUniform_ModelViewProjectionMatrix(&tr.toneMappingShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
 	}
 	else
 	{
 		gl_screenShader->BindProgram();
 		glVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorWhite);
+
+		gl_screenShader->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 		// bind u_ColorMap
 		GL_SelectTexture(0);
@@ -8553,7 +8612,7 @@ void RB_RenderDeferredShadingResultToFrameBuffer()
 		{
 			GL_Bind(tr.depthRenderImage);
 		}
-		else if(r_deferredShading->integer == DS_PREPASS_LIGHTING && r_showDeferredLight->integer)
+		else if(r_showDeferredLight->integer)
 		{
 			GL_Bind(tr.lightRenderFBOImage);
 		}
@@ -8561,8 +8620,6 @@ void RB_RenderDeferredShadingResultToFrameBuffer()
 		{
 			GL_Bind(tr.deferredRenderFBOImage);
 		}
-
-		gl_screenShader->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
 	}
 
 	GL_CheckErrors();
@@ -8571,8 +8628,6 @@ void RB_RenderDeferredShadingResultToFrameBuffer()
 
 	GL_PopMatrix();
 }
-
-#endif // #if !defined(GLSL_COMPILE_STARTUP_ONLY)
 
 
 void RB_RenderDeferredHDRResultToFrameBuffer()
@@ -9026,7 +9081,7 @@ void RB_RenderLightOcclusionQueries()
 {
 	GLimp_LogComment("--- RB_RenderLightOcclusionQueries ---\n");
 
-	if(glConfig2.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && !(backEnd.refdef.rdflags & RDF_NOWORLDMODEL))
+	if(glConfig2.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && r_dynamicLightOcclusionCulling->integer && !(backEnd.refdef.rdflags & RDF_NOWORLDMODEL))
 	{
 		int				i;
 		interaction_t  *ia;
@@ -9042,7 +9097,7 @@ void RB_RenderLightOcclusionQueries()
 
 		glVertexAttrib4fARB(ATTR_INDEX_COLOR, 1.0f, 0.0f, 0.0f, 0.05f);
 
-		if(r_speeds->integer == 7)
+		if(r_speeds->integer == RSPEEDS_OCCLUSION_QUERIES)
 		{
 			glFinish();
 			startTime = ri.Milliseconds();
@@ -9205,7 +9260,7 @@ void RB_RenderLightOcclusionQueries()
 			}
 		}
 
-		if(r_speeds->integer == 7)
+		if(r_speeds->integer == RSPEEDS_OCCLUSION_QUERIES)
 		{
 			glFinish();
 			endTime = ri.Milliseconds();
@@ -9289,7 +9344,7 @@ void RB_RenderLightOcclusionQueries()
 			oldLight = light;
 		}
 
-		if(r_speeds->integer == 7)
+		if(r_speeds->integer == RSPEEDS_OCCLUSION_QUERIES)
 		{
 			glFinish();
 			endTime = ri.Milliseconds();
@@ -9624,7 +9679,7 @@ void RB_RenderEntityOcclusionQueries()
 
 		glVertexAttrib4fARB(ATTR_INDEX_COLOR, 1.0f, 0.0f, 0.0f, 0.05f);
 
-		if(r_speeds->integer == 7)
+		if(r_speeds->integer == RSPEEDS_OCCLUSION_QUERIES)
 		{
 			glFinish();
 			startTime = ri.Milliseconds();
@@ -9778,7 +9833,7 @@ void RB_RenderEntityOcclusionQueries()
 			}
 		}
 
-		if(r_speeds->integer == 7)
+		if(r_speeds->integer == RSPEEDS_OCCLUSION_QUERIES)
 		{
 			glFinish();
 			endTime = ri.Milliseconds();
@@ -10055,7 +10110,7 @@ static void RB_RenderDebugUtils()
 						Vector4Copy(colorMdGrey, lightColor);
 					}
 				}
-				else// if(r_deferredShading->integer == DS_PREPASS_LIGHTING)
+				else if(r_dynamicLightOcclusionCulling->integer)
 				{
 					if(!ia->occlusionQuerySamples)
 					{
@@ -10066,12 +10121,11 @@ static void RB_RenderDebugUtils()
 						Vector4Copy(colorGreen, lightColor);
 					}
 				}
-				/*
 				else
 				{
-					Vector4Copy(g_color_table[iaCount % 8], lightColor);
+					//Vector4Copy(g_color_table[iaCount % 8], lightColor);
+					Vector4Copy(colorBlue, lightColor);
 				}
-				*/
 
 				gl_genericShader->SetUniform_Color(lightColor);
 
@@ -10951,7 +11005,7 @@ static void RB_RenderDebugUtils()
 		gl_reflectionShader->SetDeformVertexes(false);
 
 		gl_reflectionShader->SetNormalMapping(false);
-		gl_reflectionShader->DisableMacro_TWOSIDED();
+//		gl_reflectionShader->DisableMacro_TWOSIDED();
 
 		gl_reflectionShader->BindProgram();
 		
@@ -11379,12 +11433,10 @@ static void RB_RenderView(void)
 
 	backEnd.pc.c_surfaces += backEnd.viewParms.numDrawSurfs;
 
-#if !defined(GLSL_COMPILE_STARTUP_ONLY)
-
-	if(DS_PREPASS_LIGHTING_ENABLED())
+	if(DS_STANDARD_ENABLED())
 	{
 		//
-		// Deferred lighting path described by Wolfgang Engels
+		// Deferred shading path
 		//
 
 		int             clearBits = 0;
@@ -11411,356 +11463,9 @@ static void RB_RenderView(void)
 		// ensures that depth writes are enabled for the depth clear
 		GL_State(GLS_DEFAULT);
 
-#if defined(OFFSCREEN_PREPASS_LIGHTING)
 		// clear frame buffer objects
-		R_BindFBO(tr.deferredRenderFBO);
-
-		clearBits = GL_DEPTH_BUFFER_BIT;
-
-		if(!(backEnd.refdef.rdflags & RDF_NOWORLDMODEL))
-		{
-			clearBits |= GL_COLOR_BUFFER_BIT;
-			GL_ClearColor(0.0f, 0.0f, 0.0f, 1.0f);	// FIXME: get color of sky
-		}
-		glClear(clearBits);
-
-		R_BindFBO(tr.geometricRenderFBO);
-		if(!(backEnd.refdef.rdflags & RDF_NOWORLDMODEL))
-		{
-			clearBits = GL_COLOR_BUFFER_BIT;
-			GL_ClearColor(0.0f, 0.0f, 0.0f, 1.0f);	// FIXME: get color of sky
-		}
-		else
-		{
-			if(glConfig2.framebufferBlitAvailable)
-			{
-				// copy color of the main context to deferredRenderFBO
-				glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, 0);
-				glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
-				glBlitFramebufferEXT(0, 0, glConfig.vidWidth, glConfig.vidHeight,
-									   0, 0, glConfig.vidWidth, glConfig.vidHeight,
-									   GL_COLOR_BUFFER_BIT,
-									   GL_NEAREST);
-			}
-		}
-		glClear(clearBits);
-
-#else
-		if(glConfig2.framebufferObjectAvailable)
-		{
-			R_BindNullFBO();
-		}
-
-		// clear relevant buffers
-		clearBits = GL_DEPTH_BUFFER_BIT;
-
-		if(!(backEnd.refdef.rdflags & RDF_NOWORLDMODEL))
-		{
-			clearBits |= GL_COLOR_BUFFER_BIT;	// FIXME: only if sky shaders have been used
-			GL_ClearColor(0.0f, 0.0f, 0.0f, 1.0f);	// FIXME: get color of sky
-		}
-		glClear(clearBits);
-#endif
-
-		if((backEnd.refdef.rdflags & RDF_HYPERSPACE))
-		{
-			RB_Hyperspace();
-			return;
-		}
-		else
-		{
-			backEnd.isHyperspace = qfalse;
-		}
-
-
-		glState.faceCulling = -1;	// force face culling to set next time
-
-		// we will only draw a sun if there was sky rendered in this view
-		backEnd.skyRenderedThisView = qfalse;
-
-		GL_CheckErrors();
-
-		RB_RenderDrawSurfacesIntoGeometricBuffer();
-
-
-		// try to cull bsp nodes for the next frame using hardware occlusion queries
-		/*
-#if defined(OFFSCREEN_PREPASS_LIGHTING)
-		R_BindFBO(tr.deferredRenderFBO);
-#else
 		R_BindNullFBO();
-#endif
-		RB_RenderBspOcclusionQueries();
-		*/
-
-		// try to cull lights using hardware occlusion queries
-#if defined(OFFSCREEN_PREPASS_LIGHTING)
-		R_BindFBO(tr.deferredRenderFBO);
-#else
-		R_BindNullFBO();
-#endif
-		RB_RenderLightOcclusionQueries();
-
-		if(r_shadows->integer >= SHADOWING_VSM16)
-		{
-			// render dynamic shadowing and lighting using shadow mapping
-			RB_RenderInteractionsDeferredShadowMapped();
-		}
-		else
-		{
-			// render dynamic lighting
-			RB_RenderInteractionsDeferred();
-		}
-
-#if !defined(OFFSCREEN_PREPASS_LIGHTING)
-		R_BindNullFBO();
-
-		// update light render image
-		GL_SelectTexture(0);
-		GL_Bind(tr.lightRenderFBOImage);
-		glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.lightRenderFBOImage->uploadWidth, tr.lightRenderFBOImage->uploadHeight);
-
-		// restore color buffer
-#if 1
-		{
-			matrix_t        ortho;
-
-			// set 2D virtual screen size
-			GL_PushMatrix();
-			MatrixOrthogonalProjection(ortho, backEnd.viewParms.viewportX,
-											backEnd.viewParms.viewportX + backEnd.viewParms.viewportWidth,
-											backEnd.viewParms.viewportY, backEnd.viewParms.viewportY + backEnd.viewParms.viewportHeight,
-											-99999, 99999);
-			GL_LoadProjectionMatrix(ortho);
-			GL_LoadModelViewMatrix(matrixIdentity);
-
-			GL_State(GLS_DEPTHTEST_DISABLE);
-			GL_Cull(CT_TWO_SIDED);
-
-			// enable shader, set arrays
-			GL_BindProgram(&tr.screenShader);
-
-			GLSL_SetUniform_ModelViewProjectionMatrix(&tr.screenShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
-
-			GL_SelectTexture(0);
-			GL_Bind(tr.currentRenderImage);
-			glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.currentRenderImage->uploadWidth, tr.currentRenderImage->uploadHeight);
-
-			// draw viewport
-			Tess_InstantQuad(backEnd.viewParms.viewportVerts);
-
-			// go back to 3D
-			GL_PopMatrix();
-
-			GL_CheckErrors();
-		}
-#endif
-#endif
-
-		if(r_speeds->integer == 9)
-		{
-			glFinish();
-			startTime = ri.Milliseconds();
-		}
-
-		// render opaque surfaces using the light buffer results
-#if defined(OFFSCREEN_PREPASS_LIGHTING)
-		R_BindFBO(tr.deferredRenderFBO);
-#else
-		R_BindNullFBO();
-#endif
-		RB_RenderDrawSurfaces(true, false, DRAWSURFACES_ALL);
-
-		if(r_speeds->integer == 9)
-		{
-			glFinish();
-			endTime = ri.Milliseconds();
-			backEnd.pc.c_forwardLightingTime = endTime - startTime;
-		}
-
-		// draw everything that is translucent
-#if defined(OFFSCREEN_PREPASS_LIGHTING)
-		R_BindFBO(tr.deferredRenderFBO);
-#else
-		R_BindNullFBO();
-#endif
-		RB_RenderDrawSurfaces(false, false, DRAWSURFACES_ALL);
-
-		if(r_speeds->integer == 9)
-		{
-			glFinish();
-			endTime = ri.Milliseconds();
-			backEnd.pc.c_forwardTranslucentTime = endTime - startTime;
-		}
-
-		// wait until all bsp node occlusion queries are back
-		/*
-#if defined(OFFSCREEN_PREPASS_LIGHTING)
-		R_BindFBO(tr.deferredRenderFBO);
-#else
-		R_BindNullFBO();
-#endif
-		RB_CollectBspOcclusionQueries();
-		*/
-
-		// render debug information
-#if defined(OFFSCREEN_PREPASS_LIGHTING)
-		R_BindFBO(tr.deferredRenderFBO);
-#else
-		R_BindNullFBO();
-#endif
-		RB_RenderDebugUtils();
-
-		// scale down rendered HDR scene to 1 / 4th
-		if(HDR_ENABLED())
-		{
-			if(glConfig2.framebufferBlitAvailable)
-			{
-				glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
-				glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.downScaleFBO_quarter->frameBuffer);
-				glBlitFramebufferEXT(0, 0, glConfig.vidWidth, glConfig.vidHeight,
-										0, 0, glConfig.vidWidth * 0.25f, glConfig.vidHeight * 0.25f,
-										GL_COLOR_BUFFER_BIT,
-										GL_LINEAR);
-
-				glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
-				glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.downScaleFBO_64x64->frameBuffer);
-				glBlitFramebufferEXT(0, 0, glConfig.vidWidth, glConfig.vidHeight,
-									   0, 0, 64, 64,
-									   GL_COLOR_BUFFER_BIT,
-									   GL_LINEAR);
-			}
-			else
-			{
-				// FIXME add non EXT_framebuffer_blit code
-			}
-
-			RB_CalculateAdaptation();
-		}
-		else
-		{
-#if defined(OFFSCREEN_PREPASS_LIGHTING)
-			if(glConfig2.framebufferBlitAvailable)
-			{
-				// copy deferredRenderFBO to downScaleFBO_quarter
-				glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
-				glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.downScaleFBO_quarter->frameBuffer);
-				glBlitFramebufferEXT(0, 0, glConfig.vidWidth, glConfig.vidHeight,
-										0, 0, glConfig.vidWidth * 0.25f, glConfig.vidHeight * 0.25f,
-										GL_COLOR_BUFFER_BIT,
-										GL_LINEAR);
-			}
-			else
-			{
-				// FIXME add non EXT_framebuffer_blit code
-			}
-#else
-#if 0
-			// FIXME: this trashes the OpenGL context for an unknown reason
-			if(glConfig2.framebufferObjectAvailable && glConfig2.framebufferBlitAvailable)
-			{
-				// copy main context to portalRenderFBO
-				glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, 0);
-				glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.portalRenderFBO->frameBuffer);
-				glBlitFramebufferEXT(0, 0, glConfig.vidWidth, glConfig.vidHeight,
-									   0, 0, glConfig.vidWidth, glConfig.vidHeight,
-									   GL_COLOR_BUFFER_BIT,
-									   GL_NEAREST);
-			}
-			else
-#endif
-			{
-				// FIXME add non EXT_framebuffer_blit code
-			}
-#endif
-		}
-
-		GL_CheckErrors();
-
-#if defined(OFFSCREEN_PREPASS_LIGHTING)
-		// render bloom post process effect
-		RB_RenderBloom();
-
-		// copy offscreen rendered scene to the current OpenGL context
-		RB_RenderDeferredShadingResultToFrameBuffer();
-#endif
-
-		if(backEnd.viewParms.isPortal)
-		{
-#if defined(OFFSCREEN_PREPASS_LIGHTING)
-			if(glConfig2.framebufferBlitAvailable)
-			{
-				// copy deferredRenderFBO to portalRenderFBO
-				glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
-				glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.portalRenderFBO->frameBuffer);
-				glBlitFramebufferEXT(0, 0, tr.deferredRenderFBO->width, tr.deferredRenderFBO->height,
-									   0, 0, tr.portalRenderFBO->width, tr.portalRenderFBO->height,
-									   GL_COLOR_BUFFER_BIT,
-									   GL_NEAREST);
-			}
-			else
-			{
-				// capture current color buffer
-				GL_SelectTexture(0);
-				GL_Bind(tr.portalRenderImage);
-				glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.portalRenderImage->uploadWidth, tr.portalRenderImage->uploadHeight);
-			}
-#else
-#if 0
-			// FIXME: this trashes the OpenGL context for an unknown reason
-			if(glConfig2.framebufferObjectAvailable && glConfig2.framebufferBlitAvailable)
-			{
-				// copy main context to portalRenderFBO
-				glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, 0);
-				glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.portalRenderFBO->frameBuffer);
-				glBlitFramebufferEXT(0, 0, glConfig.vidWidth, glConfig.vidHeight,
-									   0, 0, glConfig.vidWidth, glConfig.vidHeight,
-									   GL_COLOR_BUFFER_BIT,
-									   GL_NEAREST);
-			}
-			else
-#endif
-			{
-				// capture current color buffer
-				GL_SelectTexture(0);
-				GL_Bind(tr.portalRenderImage);
-				glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.portalRenderImage->uploadWidth, tr.portalRenderImage->uploadHeight);
-			}
-#endif
-			backEnd.pc.c_portals++;
-		}
-	}
-	else if(DS_STANDARD_ENABLED())
-	{
-		//
-		// Deferred shading path
-		//
-
-		int             clearBits = 0;
-
-		// sync with gl if needed
-		if(r_finish->integer == 1 && !glState.finishCalled)
-		{
-			glFinish();
-			glState.finishCalled = qtrue;
-		}
-		if(r_finish->integer == 0)
-		{
-			glState.finishCalled = qtrue;
-		}
-
-		// we will need to change the projection matrix before drawing
-		// 2D images again
-		backEnd.projection2D = qfalse;
-
-		// set the modelview matrix for the viewer
-		SetViewportAndScissor();
-
-		// ensures that depth writes are enabled for the depth clear
-		GL_State(GLS_DEFAULT);
-
-		// clear frame buffer objects
-		R_BindFBO(tr.deferredRenderFBO);
+		//R_BindFBO(tr.deferredRenderFBO);
 		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		clearBits = GL_DEPTH_BUFFER_BIT;
@@ -11781,21 +11486,27 @@ static void RB_RenderView(void)
 		R_BindFBO(tr.geometricRenderFBO);
 		if(!(backEnd.refdef.rdflags & RDF_NOWORLDMODEL))
 		{
-			clearBits = GL_COLOR_BUFFER_BIT;
+			//clearBits = GL_COLOR_BUFFER_BIT;
 			GL_ClearColor(0.0f, 0.0f, 0.0f, 1.0f);	// FIXME: get color of sky
 		}
 		else
 		{
+			/*
 			if(glConfig2.framebufferBlitAvailable)
 			{
-				// copy color of the main context to deferredRenderFBO
+				glDrawBuffers(1, geometricRenderTargets);
+
+				// copy color of the main context to geometricRenderFBO
+				
 				glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, 0);
 				glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
 				glBlitFramebufferEXT(0, 0, glConfig.vidWidth, glConfig.vidHeight,
 									   0, 0, glConfig.vidWidth, glConfig.vidHeight,
 									   GL_COLOR_BUFFER_BIT,
 									   GL_NEAREST);
-			}
+
+		}
+			 */
 		}
 		glClear(clearBits);
 
@@ -11816,69 +11527,99 @@ static void RB_RenderView(void)
 
 		GL_CheckErrors();
 
-#if defined(DEFERRED_SHADING_Z_PREPASS)
+		//RB_RenderDrawSurfacesIntoGeometricBuffer();
+
+		if(r_speeds->integer == RSPEEDS_SHADING_TIMES)
+		{
+			glFinish();
+			startTime = ri.Milliseconds();
+		}
+
 		// draw everything that is opaque
-		R_BindFBO(tr.deferredRenderFBO);
-		RB_RenderDrawSurfaces(qtrue, qfalse);
-#endif
+		R_BindFBO(tr.geometricRenderFBO);
+		RB_RenderDrawSurfaces(true, true, DRAWSURFACES_ALL);
 
-		RB_RenderDrawSurfacesIntoGeometricBuffer();
-
-		// try to cull bsp nodes for the next frame using hardware occlusion queries
-		/*
-		R_BindFBO(tr.deferredRenderFBO);
-		RB_RenderBspOcclusionQueries();
-		*/
+		if(r_speeds->integer == RSPEEDS_SHADING_TIMES)
+		{
+			glFinish();
+			endTime = ri.Milliseconds();
+			backEnd.pc.c_deferredGBufferTime = endTime - startTime;
+		}
 
 		// try to cull lights using hardware occlusion queries
-		R_BindFBO(tr.deferredRenderFBO);
+		R_BindFBO(tr.geometricRenderFBO);
 		RB_RenderLightOcclusionQueries();
+
+		if(r_speeds->integer == RSPEEDS_SHADING_TIMES)
+		{
+			glFinish();
+			startTime = ri.Milliseconds();
+		}
 
 		if(!r_showDeferredRender->integer)
 		{
-			if(r_shadows->integer >= SHADOWING_VSM16)
-			{
-				// render dynamic shadowing and lighting using shadow mapping
-				RB_RenderInteractionsDeferredShadowMapped();
-			}
-			else
-			{
-				// render dynamic lighting
-				RB_RenderInteractionsDeferred();
-			}
+		if(r_shadows->integer >= SHADOWING_VSM16)
+		{
+			// render dynamic shadowing and lighting using shadow mapping
+				RB_RenderInteractionsDeferred(); // TODO ShadowMapped();
+		}
+		else
+		{
+			// render dynamic lighting
+			RB_RenderInteractionsDeferred();
+		}
+		}
+
+		if(r_speeds->integer == RSPEEDS_SHADING_TIMES)
+		{
+			glFinish();
+			endTime = ri.Milliseconds();
+			backEnd.pc.c_deferredLightingTime = endTime - startTime;
+		}
+
+		R_BindFBO(tr.geometricRenderFBO);
+		glDrawBuffers(1, geometricRenderTargets);
+
+		// render global fog
+		RB_RenderGlobalFog();
+
+		if(r_speeds->integer == RSPEEDS_SHADING_TIMES)
+		{
+			glFinish();
+			startTime = ri.Milliseconds();
 		}
 
 		// draw everything that is translucent
-		R_BindFBO(tr.deferredRenderFBO);
+		R_BindFBO(tr.geometricRenderFBO);
 		RB_RenderDrawSurfaces(false, false, DRAWSURFACES_ALL);
 
-		// render global fog
-		R_BindFBO(tr.deferredRenderFBO);
-		RB_RenderUniformFog();
-
-		// wait until all bsp node occlusion queries are back
-		/*
-		R_BindFBO(tr.deferredRenderFBO);
-		RB_CollectBspOcclusionQueries();
-		*/
+		if(r_speeds->integer == RSPEEDS_SHADING_TIMES)
+		{
+			glFinish();
+			endTime = ri.Milliseconds();
+			backEnd.pc.c_forwardTranslucentTime = endTime - startTime;
+		}
 
 		// render debug information
-		R_BindFBO(tr.deferredRenderFBO);
+		R_BindFBO(tr.geometricRenderFBO);
 		RB_RenderDebugUtils();
 
 		// scale down rendered HDR scene to 1 / 4th
 		if(r_hdrRendering->integer)
 		{
+			// FIXME
+
+			/*
 			if(glConfig2.framebufferBlitAvailable)
 			{
-				glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
+				glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, tr.geometricRenderFBO->frameBuffer);
 				glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.downScaleFBO_quarter->frameBuffer);
 				glBlitFramebufferEXT(0, 0, glConfig.vidWidth, glConfig.vidHeight,
 										0, 0, glConfig.vidWidth * 0.25f, glConfig.vidHeight * 0.25f,
 										GL_COLOR_BUFFER_BIT,
 										GL_LINEAR);
 
-				glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
+				glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, tr.geometricRenderFBO->frameBuffer);
 				glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.downScaleFBO_64x64->frameBuffer);
 				glBlitFramebufferEXT(0, 0, glConfig.vidWidth, glConfig.vidHeight,
 									   0, 0, 64, 64,
@@ -11889,11 +11630,13 @@ static void RB_RenderView(void)
 			{
 				// FIXME add non EXT_framebuffer_blit code
 			}
+			*/
 
 			RB_CalculateAdaptation();
 		}
 		else
 		{
+			/*
 			if(glConfig2.framebufferBlitAvailable)
 			{
 				// copy deferredRenderFBO to downScaleFBO_quarter
@@ -11908,18 +11651,20 @@ static void RB_RenderView(void)
 			{
 				// FIXME add non EXT_framebuffer_blit code
 			}
+			*/
 		}
 
 		GL_CheckErrors();
 
 		// render bloom post process effect
-		RB_RenderBloom();
+		//RB_RenderBloom();
 
 		// copy offscreen rendered scene to the current OpenGL context
 		RB_RenderDeferredShadingResultToFrameBuffer();
 
 		if(backEnd.viewParms.isPortal)
 		{
+			/*
 			if(glConfig2.framebufferBlitAvailable)
 			{
 				// copy deferredRenderFBO to portalRenderFBO
@@ -11937,11 +11682,11 @@ static void RB_RenderView(void)
 				GL_Bind(tr.portalRenderImage);
 				glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, tr.portalRenderImage->uploadWidth, tr.portalRenderImage->uploadHeight);
 			}
+			*/
 			backEnd.pc.c_portals++;
 		}
 	}
 	else
-#endif // #if !defined(GLSL_COMPILE_STARTUP_ONLY)
 	{
 		//
 		// Forward shading path
@@ -11983,11 +11728,158 @@ static void RB_RenderView(void)
 		// clear relevant buffers
 		clearBits = GL_DEPTH_BUFFER_BIT;
 
-		if(r_measureOverdraw->integer || r_shadows->integer == SHADOWING_STENCIL)
+		   if(r_measureOverdraw->integer || r_shadows->integer == SHADOWING_STENCIL)
+		   {
+		   clearBits |= GL_STENCIL_BUFFER_BIT;
+		   }
+#if defined(COMPAT_ET)	
+		// ydnar: global q3 fog volume
+		else 
+		if(tr.world && tr.world->globalFog >= 0)
 		{
-			clearBits |= GL_STENCIL_BUFFER_BIT;
+			clearBits |= GL_DEPTH_BUFFER_BIT;
+
+		if(!(backEnd.refdef.rdflags & RDF_NOWORLDMODEL))
+		{
+			clearBits |= GL_COLOR_BUFFER_BIT;
+			
+				glClearColor(tr.world->fogs[tr.world->globalFog].color[0],
+							tr.world->fogs[tr.world->globalFog].color[1],
+							tr.world->fogs[tr.world->globalFog].color[2], 1.0);
+			}
+		}
+		else if(tr.world && tr.world->hasSkyboxPortal)
+		{
+			if(backEnd.refdef.rdflags & RDF_SKYBOXPORTAL)
+			{
+				// portal scene, clear whatever is necessary
+				clearBits |= GL_DEPTH_BUFFER_BIT;
+
+				if(r_fastsky->integer || backEnd.refdef.rdflags & RDF_NOWORLDMODEL)
+				{
+					// fastsky: clear color
+
+					// try clearing first with the portal sky fog color, then the world fog color, then finally a default
+					clearBits |= GL_COLOR_BUFFER_BIT;
+					if(tr.glfogsettings[FOG_PORTALVIEW].registered)
+		{
+						glClearColor(tr.glfogsettings[FOG_PORTALVIEW].color[0], tr.glfogsettings[FOG_PORTALVIEW].color[1],
+									  tr.glfogsettings[FOG_PORTALVIEW].color[2], tr.glfogsettings[FOG_PORTALVIEW].color[3]);
+					}
+					else if(tr.glfogNum > FOG_NONE && tr.glfogsettings[FOG_CURRENT].registered)
+					{
+						glClearColor(tr.glfogsettings[FOG_CURRENT].color[0], tr.glfogsettings[FOG_CURRENT].color[1],
+									  tr.glfogsettings[FOG_CURRENT].color[2], tr.glfogsettings[FOG_CURRENT].color[3]);
+		}
+		else
+		{
+	//                  glClearColor ( 1.0, 0.0, 0.0, 1.0 );   // red clear for testing portal sky clear
+						glClearColor(0.5, 0.5, 0.5, 1.0);
+			}
+		}
+				else
+				{					
+					// rendered sky (either clear color or draw quake sky)
+					if(tr.glfogsettings[FOG_PORTALVIEW].registered)
+					{
+						glClearColor(tr.glfogsettings[FOG_PORTALVIEW].color[0], tr.glfogsettings[FOG_PORTALVIEW].color[1],
+									  tr.glfogsettings[FOG_PORTALVIEW].color[2], tr.glfogsettings[FOG_PORTALVIEW].color[3]);
+
+						if(tr.glfogsettings[FOG_PORTALVIEW].clearscreen)
+		{
+							// portal fog requests a screen clear (distance fog rather than quake sky)
+							clearBits |= GL_COLOR_BUFFER_BIT;
+						}
+		}
+				}
+			}
+		else
+		{
+				// world scene with portal sky, don't clear any buffers, just set the fog color if there is one
+				clearBits |= GL_DEPTH_BUFFER_BIT;	// this will go when I get the portal sky rendering way out in the zbuffer (or not writing to zbuffer at all)
+
+				if(tr.glfogNum > FOG_NONE && tr.glfogsettings[FOG_CURRENT].registered)
+		{
+					if(backEnd.refdef.rdflags & RDF_UNDERWATER)
+			{
+						if(tr.glfogsettings[FOG_CURRENT].mode == GL_LINEAR)
+			{
+							clearBits |= GL_COLOR_BUFFER_BIT;
+			}
+		}
+					else if(!r_portalSky->integer)
+		{
+						// portal skies have been manually turned off, clear bg color
+						clearBits |= GL_COLOR_BUFFER_BIT;
+					}
+
+					glClearColor(tr.glfogsettings[FOG_CURRENT].color[0], tr.glfogsettings[FOG_CURRENT].color[1],
+								  tr.glfogsettings[FOG_CURRENT].color[2], tr.glfogsettings[FOG_CURRENT].color[3]);
+			}
+				else if(!r_portalSky->integer)
+			{
+					// ydnar: portal skies have been manually turned off, clear bg color
+					clearBits |= GL_COLOR_BUFFER_BIT;
+					glClearColor(0.5, 0.5, 0.5, 1.0);
+				}
+			}
+		}
+		else
+		{
+			// world scene with no portal sky
+			clearBits |= GL_DEPTH_BUFFER_BIT;
+
+			// NERVE - SMF - we don't want to clear the buffer when no world model is specified
+			if(backEnd.refdef.rdflags & RDF_NOWORLDMODEL)
+			{
+				clearBits &= ~GL_COLOR_BUFFER_BIT;
+			}
+			// -NERVE - SMF
+			else if(r_fastsky->integer || backEnd.refdef.rdflags & RDF_NOWORLDMODEL)
+			{
+				clearBits |= GL_COLOR_BUFFER_BIT;
+
+				if(tr.glfogsettings[FOG_CURRENT].registered)
+		{
+					// try to clear fastsky with current fog color
+					glClearColor(tr.glfogsettings[FOG_CURRENT].color[0], tr.glfogsettings[FOG_CURRENT].color[1],
+								  tr.glfogsettings[FOG_CURRENT].color[2], tr.glfogsettings[FOG_CURRENT].color[3]);
+			}
+			else
+			{
+	//              glClearColor ( 0.0, 0.0, 1.0, 1.0 );   // blue clear for testing world sky clear
+					glClearColor(0.05, 0.05, 0.05, 1.0);	// JPW NERVE changed per id req was 0.5s
+			}
+		}
+	else
+	{
+				// world scene, no portal sky, not fastsky, clear color if fog says to, otherwise, just set the clearcolor
+				if(tr.glfogsettings[FOG_CURRENT].registered)
+				{					
+					// try to clear fastsky with current fog color
+					glClearColor(tr.glfogsettings[FOG_CURRENT].color[0], tr.glfogsettings[FOG_CURRENT].color[1],
+							  tr.glfogsettings[FOG_CURRENT].color[2], tr.glfogsettings[FOG_CURRENT].color[3]);
+
+					if(tr.glfogsettings[FOG_CURRENT].clearscreen)
+		{
+						// world fog requests a screen clear (distance fog rather than quake sky)
+						clearBits |= GL_COLOR_BUFFER_BIT;
+					}
+		}
 		}
 
+			if(HDR_ENABLED())
+		{
+				// copy color of the main context to deferredRenderFBO
+				glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, 0);
+				glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
+				glBlitFramebufferEXT(0, 0, glConfig.vidWidth, glConfig.vidHeight,
+									   0, 0, glConfig.vidWidth, glConfig.vidHeight,
+									   GL_COLOR_BUFFER_BIT,
+									   GL_NEAREST);
+		}
+		}
+#else
 		if(!(backEnd.refdef.rdflags & RDF_NOWORLDMODEL))
 		{
 			clearBits |= GL_COLOR_BUFFER_BIT;	// FIXME: only if sky shaders have been used
@@ -11999,13 +11891,15 @@ static void RB_RenderView(void)
 			{
 				// copy color of the main context to deferredRenderFBO
 				glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, 0);
-				glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.deferredRenderFBO->frameBuffer);
+				glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.geometricRenderFBO->frameBuffer);
 				glBlitFramebufferEXT(0, 0, glConfig.vidWidth, glConfig.vidHeight,
 									   0, 0, glConfig.vidWidth, glConfig.vidHeight,
 									   GL_COLOR_BUFFER_BIT,
 									   GL_NEAREST);
 			}
 		}
+#endif
+
 		glClear(clearBits);
 
 		if((backEnd.refdef.rdflags & RDF_HYPERSPACE))
@@ -12025,7 +11919,7 @@ static void RB_RenderView(void)
 
 		GL_CheckErrors();
 
-		if(r_speeds->integer == 9)
+		if(r_speeds->integer == RSPEEDS_SHADING_TIMES)
 		{
 			glFinish();
 			startTime = ri.Milliseconds();
@@ -12055,7 +11949,7 @@ static void RB_RenderView(void)
 		// try to cull bsp nodes for the next frame using hardware occlusion queries
 		//RB_RenderBspOcclusionQueries();
 
-		if(r_speeds->integer == 9)
+		if(r_speeds->integer == RSPEEDS_SHADING_TIMES)
 		{
 			glFinish();
 			endTime = ri.Milliseconds();
@@ -12089,17 +11983,17 @@ static void RB_RenderView(void)
 		// render ambient occlusion process effect
 		// Tr3B: needs way more work RB_RenderScreenSpaceAmbientOcclusion(qfalse);
 
-		if(r_hdrRendering->integer && glConfig2.framebufferObjectAvailable && glConfig2.textureFloatAvailable)
+		if(HDR_ENABLED())
 			R_BindFBO(tr.deferredRenderFBO);
-
-		// draw everything that is translucent
-		RB_RenderDrawSurfaces(false, false, DRAWSURFACES_ALL);
 
 		// render global fog post process effect
 		RB_RenderGlobalFog();
 
+		// draw everything that is translucent
+		RB_RenderDrawSurfaces(false, false, DRAWSURFACES_ALL);
+
 		// scale down rendered HDR scene to 1 / 4th
-		if(r_hdrRendering->integer && glConfig2.textureFloatAvailable && glConfig2.framebufferObjectAvailable)
+		if(HDR_ENABLED())
 		{
 			if(glConfig2.framebufferBlitAvailable)
 			{

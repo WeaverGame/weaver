@@ -1819,11 +1819,11 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 			}
 			if(!Q_stricmp(token, "on"))
 			{
-				stage->isFogged = qtrue;
+				stage->noFog = qfalse;
 			}
 			else
 			{
-				stage->isFogged = qfalse;
+				stage->noFog = qtrue;
 			}
 		}
 		// blendfunc <srcFactor> <dstFactor>
@@ -2842,7 +2842,7 @@ static void ParseSort(char **text)
 	}
 	else if(!Q_stricmp(token, "sky") || !Q_stricmp(token, "environment"))
 	{
-		shader.sort = SS_ENVIRONMENT;
+		shader.sort = SS_ENVIRONMENT_FOG;
 	}
 	else if(!Q_stricmp(token, "opaque"))
 	{
@@ -4267,7 +4267,7 @@ CollapseMultitexture
 =================
 */
 // *INDENT-OFF*
-static void CollapseStages(void)
+static void CollapseStages()
 {
 //	int             abits, bbits;
 	int             i, j;
@@ -4282,22 +4282,23 @@ static void CollapseStages(void)
 	shaderStage_t	tmpSpecularStage;
 	shaderStage_t   tmpReflectionStage;
 
+#if defined(COMPAT_Q3A) || defined(COMPAT_ET)
+	int				idxColorStage;
+	shaderStage_t	tmpColorStage;
+
+	int				idxLightmapStage;
+	shaderStage_t	tmpLightmapStage;
+#endif
+
 	shader_t		tmpShader;
 
 	int				numStages = 0;
 	shaderStage_t	tmpStages[MAX_SHADER_STAGES];
 
-#if defined(USE_D3D10)
 	if(!r_collapseStages->integer)
 	{
 		return;
 	}
-#else
-	if(!glActiveTextureARB || !r_collapseStages->integer)
-	{
-		return;
-	}
-#endif
 
 	//ri.Printf(PRINT_ALL, "...collapsing '%s'\n", shader.name);
 
@@ -4317,10 +4318,21 @@ static void CollapseStages(void)
 		Com_Memset(&tmpNormalStage, 0, sizeof(shaderStage_t));
 		Com_Memset(&tmpSpecularStage, 0, sizeof(shaderStage_t));
 
+#if defined(COMPAT_Q3A) || defined(COMPAT_ET)
+		idxColorStage = -1;
+		Com_Memset(&tmpColorStage, 0, sizeof(shaderStage_t));
+
+		idxLightmapStage = -1;
+		Com_Memset(&tmpLightmapStage, 0, sizeof(shaderStage_t));
+#endif
+
 		if(!stages[j].active)
 			continue;
 
-		if(	stages[j].type == ST_COLORMAP ||
+		if(	
+#if !defined(COMPAT_Q3A) && !defined(COMPAT_ET)
+			stages[j].type == ST_COLORMAP ||
+#endif
 			stages[j].type == ST_REFRACTIONMAP ||
 			stages[j].type == ST_DISPERSIONMAP ||
 			stages[j].type == ST_SKYBOXMAP ||
@@ -4336,6 +4348,72 @@ static void CollapseStages(void)
 			numStages++;
 			continue;
 		}
+
+
+#if 0 //defined(COMPAT_Q3A) || defined(COMPAT_ET)
+		for(i = 0; i < 2; i++)
+		{
+			if((j + i) >= MAX_SHADER_STAGES)
+				continue;
+
+			if(!stages[j + i].active)
+				continue;
+
+			if(stages[j + i].type == ST_COLORMAP && idxColorStage == -1)
+			{
+				idxColorStage = j + i;
+				tmpColorStage = stages[j + i];
+			}
+			else if(stages[j + i].type == ST_LIGHTMAP && idxLightmapStage == -1)
+			{
+				idxLightmapStage = j + i;
+				tmpLightmapStage = stages[j + i];
+			}
+		}
+
+		// try to merge color/lightmap to diffuse
+		if(	idxColorStage != -1 &&
+			idxLightmapStage != -1 &&
+			// TODO check color stage no alphaGen
+			(tmpLightmapStage.stateBits & ( GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO))
+		)
+		{
+			ri.Printf(PRINT_ALL, "color/lightmap combo\n");
+
+			tmpShader.collapseType = COLLAPSE_color_lightmap;
+
+			tmpStages[numStages] = tmpColorStage;
+			tmpStages[numStages].type = ST_DIFFUSEMAP;
+			tmpStages[numStages].stateBits &= ~(GLS_DSTBLEND_BITS | GLS_SRCBLEND_BITS);
+			//tmpStages[numStages].stateBits |= GLS_DEPTHMASK_TRUE;
+
+			//tmpStages[numStages].bundle[TB_NORMALMAP] = tmpNormalStage.bundle[0];
+
+			numStages++;
+			j += 1;
+			continue;
+		}
+		/*
+		else if(idxLightmapStage > idxColorStage)
+		{
+			tmpStages[numStages] = tmpColorStage;
+			numStages++;
+
+			tmpStages[numStages] = tmpLightmapStage;
+			numStages++;
+			continue;
+		}
+		else
+		{
+			tmpStages[numStages] = tmpLightmapStage;
+			numStages++;
+
+			tmpStages[numStages] = tmpColorStage;
+			numStages++;
+			continue;
+		}
+		*/
+#endif
 
 		for(i = 0; i < 3; i++)
 		{
@@ -4684,7 +4762,14 @@ static shader_t *FinishShader(void)
 	// set sky stuff appropriate
 	if(shader.isSky)
 	{
-		shader.sort = SS_ENVIRONMENT;
+		if(shader.noFog)
+		{
+			shader.sort = SS_ENVIRONMENT_NOFOG;
+		}
+		else
+		{
+			shader.sort = SS_ENVIRONMENT_FOG;
+		}
 	}
 
 	if(shader.forceOpaque)
@@ -4823,6 +4908,11 @@ static shader_t *FinishShader(void)
 		if(shader.forceOpaque)
 		{
 			pStage->stateBits |= GLS_DEPTHMASK_TRUE;
+		}
+
+		if(shader.isSky && pStage->noFog)
+		{
+			shader.sort = SS_ENVIRONMENT_NOFOG;
 		}
 
 		// determine sort order and fog color adjustment
@@ -5684,9 +5774,13 @@ void R_ShaderList_f(void)
 		{
 			ri.Printf(PRINT_ALL, "SS_PORTAL           ");
 		}
-		else if(shader->sort == SS_ENVIRONMENT)
+		else if(shader->sort == SS_ENVIRONMENT_FOG)
 		{
-			ri.Printf(PRINT_ALL, "SS_ENVIRONMENT      ");
+			ri.Printf(PRINT_ALL, "SS_ENVIRONMENT_FOG  ");
+		}
+		else if(shader->sort == SS_ENVIRONMENT_NOFOG)
+		{
+			ri.Printf(PRINT_ALL, "SS_ENVIRONMENT_NOFOG");
 		}
 		else if(shader->sort == SS_OPAQUE)
 		{
