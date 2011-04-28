@@ -307,7 +307,7 @@ void InGame_MenuInit(void)
 	s_ingame.restart.focuspic = UI_ART_BUTTON_FOCUS;
 	s_ingame.restart.generic.caption.text = "Restart";
 	s_ingame.restart.generic.caption.style = UI_CENTER;
-	s_ingame.restart.generic.caption.fontsize = 0.6f;
+	s_ingame.restart.generic.caption.fontsize = 0.4f;
 	s_ingame.restart.generic.caption.font = &uis.buttonFont;
 	s_ingame.restart.generic.caption.color = text_color_blackbar;
 	s_ingame.restart.generic.caption.focuscolor = text_color_highlight;
@@ -340,7 +340,7 @@ void InGame_MenuInit(void)
 	s_ingame.leave.generic.flags = QMF_RIGHT_JUSTIFY | QMF_PULSEIFFOCUS;
 	s_ingame.leave.generic.callback = InGame_Event;
 	s_ingame.leave.generic.id = ID_LEAVEARENA;
-	s_ingame.leave.generic.x = uis.screenXSize * 0.4f;
+	s_ingame.leave.generic.x = uis.screenXSize * 0.6f;
 	s_ingame.leave.generic.y = uis.screenYSize - 64;
 	s_ingame.leave.width = 128;
 	s_ingame.leave.height = 64;
@@ -360,7 +360,7 @@ void InGame_MenuInit(void)
 	s_ingame.resume.generic.id = ID_RESUME;
 	s_ingame.resume.generic.x = 0;
 	s_ingame.resume.generic.y = 480 - 64;
-	s_ingame.resume.generic.x = uis.screenXSize * 0.0f;
+	s_ingame.resume.generic.x = 0;
 	s_ingame.resume.generic.y = uis.screenYSize - 64;
 	s_ingame.resume.width = 128;
 	s_ingame.resume.height = 64;

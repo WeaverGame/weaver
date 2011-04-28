@@ -36,7 +36,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define ID_SPECTATE		103
 #define ID_BACK			104
 
-#define TEAM_VERTICAL_SPACING	32
+#define TEAM_VERTICAL_SPACING	42
 
 
 typedef struct
@@ -110,14 +110,14 @@ void TeamMain_MenuInit(void)
 	TeamMain_Cache();
 
 	s_teammain.menu.wrapAround = qtrue;
-	s_teammain.menu.fullscreen = qtrue;
+	s_teammain.menu.fullscreen = qfalse;
 
 	s_teammain.banner.generic.type = MTYPE_BTEXT;
-	s_teammain.banner.generic.x = 320;
+	s_teammain.banner.generic.x = uis.screenXSize / 2;
 	s_teammain.banner.generic.y = 16;
-	s_teammain.banner.string = "CHOOSE TEAM";
+	s_teammain.banner.string = "Choose Team";
 	s_teammain.banner.color = menu_banner_color;
-	s_teammain.banner.style = UI_CENTER | UI_DROPSHADOW;
+	s_teammain.banner.style = UI_CENTER;
 
 
 
@@ -126,33 +126,32 @@ void TeamMain_MenuInit(void)
 	s_teammain.joingame.generic.flags = QMF_CENTER_JUSTIFY | QMF_PULSEIFFOCUS;
 	s_teammain.joingame.generic.id = ID_JOINGAME;
 	s_teammain.joingame.generic.callback = TeamMain_MenuEvent;
-	s_teammain.joingame.generic.x = 320;
+	s_teammain.joingame.generic.x = uis.screenXSize / 2;
 	s_teammain.joingame.generic.y = y;
-	s_teammain.joingame.string = "JOIN GAME";
-	s_teammain.joingame.style = UI_CENTER | UI_DROPSHADOW;
-	s_teammain.joingame.color = color_white;
+	s_teammain.joingame.string = "Join";
+	s_teammain.joingame.style = UI_CENTER;
+	s_teammain.joingame.color = colorBlack;
 	y += TEAM_VERTICAL_SPACING;
 
 	s_teammain.joinred.generic.type = MTYPE_PTEXT;
-	s_teammain.joinred.generic.flags = QMF_CENTER_JUSTIFY | QMF_PULSEIFFOCUS;
+	s_teammain.joinred.generic.flags = QMF_RIGHT_JUSTIFY | QMF_PULSEIFFOCUS;
 	s_teammain.joinred.generic.id = ID_JOINRED;
 	s_teammain.joinred.generic.callback = TeamMain_MenuEvent;
-	s_teammain.joinred.generic.x = 320;
+	s_teammain.joinred.generic.x = (uis.screenXSize / 2) - 100;
 	s_teammain.joinred.generic.y = y;
-	s_teammain.joinred.string = "JOIN RED";
+	s_teammain.joinred.string = "Red";
 	s_teammain.joinred.style = UI_CENTER | UI_DROPSHADOW;
-	s_teammain.joinred.color = color_white;
-	y += TEAM_VERTICAL_SPACING;
+	s_teammain.joinred.color = color_red;
 
 	s_teammain.joinblue.generic.type = MTYPE_PTEXT;
-	s_teammain.joinblue.generic.flags = QMF_CENTER_JUSTIFY | QMF_PULSEIFFOCUS;
+	s_teammain.joinblue.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
 	s_teammain.joinblue.generic.id = ID_JOINBLUE;
 	s_teammain.joinblue.generic.callback = TeamMain_MenuEvent;
-	s_teammain.joinblue.generic.x = 320;
+	s_teammain.joinblue.generic.x = (uis.screenXSize / 2) + 100;
 	s_teammain.joinblue.generic.y = y;
-	s_teammain.joinblue.string = "JOIN BLUE";
-	s_teammain.joinblue.style = UI_CENTER | UI_DROPSHADOW;
-	s_teammain.joinblue.color = color_white;
+	s_teammain.joinblue.string = "Blue";
+	s_teammain.joinblue.style = UI_CENTER;
+	s_teammain.joinblue.color = color_blue;
 	y += TEAM_VERTICAL_SPACING;
 
 
@@ -160,11 +159,11 @@ void TeamMain_MenuInit(void)
 	s_teammain.spectate.generic.flags = QMF_CENTER_JUSTIFY | QMF_PULSEIFFOCUS;
 	s_teammain.spectate.generic.id = ID_SPECTATE;
 	s_teammain.spectate.generic.callback = TeamMain_MenuEvent;
-	s_teammain.spectate.generic.x = 320;
+	s_teammain.spectate.generic.x = uis.screenXSize / 2;
 	s_teammain.spectate.generic.y = y;
-	s_teammain.spectate.string = "SPECTATE";
-	s_teammain.spectate.style = UI_CENTER | UI_DROPSHADOW;
-	s_teammain.spectate.color = color_white;
+	s_teammain.spectate.string = "Spectate";
+	s_teammain.spectate.style = UI_CENTER;
+	s_teammain.spectate.color = colorBlack;
 	y += TEAM_VERTICAL_SPACING;
 
 
@@ -174,15 +173,15 @@ void TeamMain_MenuInit(void)
 	s_teammain.back.generic.id = ID_BACK;
 	s_teammain.back.generic.callback = TeamMain_MenuEvent;
 	s_teammain.back.generic.x = 0;
-	s_teammain.back.generic.y = 480 - 64;
+	s_teammain.back.generic.y = uis.screenYSize - 64;
 	s_teammain.back.width = 128;
 	s_teammain.back.height = 64;
 	s_teammain.back.focuspic = UI_ART_BUTTON_FOCUS;
 	s_teammain.back.generic.caption.text = "Back";
-	s_teammain.back.generic.caption.style = UI_CENTER | UI_DROPSHADOW;
+	s_teammain.back.generic.caption.style = UI_CENTER;
 	s_teammain.back.generic.caption.fontsize = 0.6f;
 	s_teammain.back.generic.caption.font = &uis.buttonFont;
-	s_teammain.back.generic.caption.color = text_color_normal;
+	s_teammain.back.generic.caption.color = text_color_blackbar;
 	s_teammain.back.generic.caption.focuscolor = text_color_highlight;
 
 
@@ -197,6 +196,10 @@ void TeamMain_MenuInit(void)
 		case GT_TOURNAMENT:
 			s_teammain.joinred.generic.flags |= QMF_GRAYED;
 			s_teammain.joinblue.generic.flags |= QMF_GRAYED;
+			break;
+
+		case GT_OBJECTIVE:
+		case GT_OBJECTIVE_SW:
 			break;
 
 		default:
