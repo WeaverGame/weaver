@@ -2437,9 +2437,9 @@ void G_RunFrame(int levelTime)
 		if(level.time > (level.teamSpawnPreviousTimeRed + level.teamSpawnPeriodRed))
 		{
 			spawnChange = ((level.time - level.teamSpawnPreviousTimeRed) / level.teamSpawnPeriodRed) * level.teamSpawnPeriodRed;
-			Com_Printf("Red Spawn! time=%d period=%d add=%d last=%d next=%d\n",
-					   level.time, level.teamSpawnPeriodRed, spawnChange, level.teamSpawnPreviousTimeRed,
-					   level.teamSpawnPreviousTimeRed + spawnChange);
+			//Com_Printf("Red Spawn! time=%d period=%d add=%d last=%d next=%d\n",
+			//		   level.time, level.teamSpawnPeriodRed, spawnChange, level.teamSpawnPreviousTimeRed,
+			//		   level.teamSpawnPreviousTimeRed + spawnChange);
 			level.teamSpawnPreviousTimeRed += spawnChange;
 			level.teamSpawningRed = 1;
 		}
@@ -2450,9 +2450,9 @@ void G_RunFrame(int levelTime)
 		if(level.time > (level.teamSpawnPreviousTimeBlue + level.teamSpawnPeriodBlue))
 		{
 			spawnChange = ((level.time - level.teamSpawnPreviousTimeBlue) / level.teamSpawnPeriodBlue) * level.teamSpawnPeriodBlue;
-			Com_Printf("Blue Spawn! time=%d period=%d add=%d last=%d next=%d\n", 
-					   level.time, level.teamSpawnPeriodBlue, spawnChange, level.teamSpawnPreviousTimeRed,
-					   level.teamSpawnPreviousTimeBlue + spawnChange);
+			//Com_Printf("Blue Spawn! time=%d period=%d add=%d last=%d next=%d\n", 
+			//		   level.time, level.teamSpawnPeriodBlue, spawnChange, level.teamSpawnPreviousTimeRed,
+			//		   level.teamSpawnPreviousTimeBlue + spawnChange);
 			level.teamSpawnPreviousTimeBlue += spawnChange;
 			level.teamSpawningBlue = 1;
 		}

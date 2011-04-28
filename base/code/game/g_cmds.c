@@ -2027,6 +2027,11 @@ Cmd_Spawntimes_f
 */
 void Cmd_Spawntimes_f(gentity_t * ent)
 {
+	if(!CheatsOk(ent))
+	{
+		return;
+	}
+
 	Com_Printf("Spawntimes: RedPeriod=%d, RedTime=%d, BluePeriod=%d, BlueTime=%d\n",
 			   level.teamSpawnPeriodRed, (level.time - level.teamSpawnPreviousTimeRed),
 			   level.teamSpawnPeriodBlue, (level.time - level.teamSpawnPreviousTimeBlue));

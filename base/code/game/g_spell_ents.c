@@ -43,7 +43,6 @@ void func_shield_ActivateUse(gentity_t * ent, gentity_t * other, qboolean firstA
 	{
 		ent->shield_ent->activate(ent->shield_ent, other, firstActivate);
 	}
-	Com_Printf("ShieldUsed: %d\n", ent->count);
 	if(ent->count <= 0)
 	{
 		ent->die(ent, NULL, other, 0, 0);
