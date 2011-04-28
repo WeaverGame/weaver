@@ -137,3 +137,4 @@ void CG_AddPlayerSword(refEntity_t * parent, playerState_t * ps, centity_t * cen
 		nonPredictedCent = cent;
 	}
 }
+

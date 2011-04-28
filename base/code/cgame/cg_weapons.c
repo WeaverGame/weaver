@@ -787,7 +787,7 @@ void CG_RegisterWeapon(int weaponNum)
 	CG_RegisterItemVisuals(item - bg_itemlist);
 
 	// load cmodel before model so filecache works
-	weaponInfo->weaponModel = trap_R_RegisterModel(item->models[0], qtrue);
+	weaponInfo->weaponModel = trap_R_RegisterModel(item->models[0]);
 
 	// try to load .md5mesh model if the .md3 could not be found
 	if(!weaponInfo->weaponModel)

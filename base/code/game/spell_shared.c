@@ -24,6 +24,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../../../code/qcommon/q_shared.h"
 #include "../game/spell_common.h"
 
+static const char *WeaveGroupNames[] = {"A", "D"};
+static const char *WeavePowerNames[] = {"none", "air", "airfire", "fire", "earthfire", "earth", "earthwater", "water", "airwater", "spirit"};
+
 /*
 =================
 Weave Map

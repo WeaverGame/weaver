@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 static int      lastUpdate;
 static float    dotAngles[MAX_CLIENTS];
 static int      dotPowers[MAX_CLIENTS];
-static int      dotNumber;
+//static int      dotNumber;
 
 void CG_UpdateWeaveSense(int clientnum, vec3_t origin, int power)
 {

@@ -55,3 +55,4 @@ static ID_INLINE int CG_HeldWeave_GetCharges(centity_t *held)
 }
 
 #endif							// __CG_SPELL_UTIL_H
+

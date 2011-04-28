@@ -55,3 +55,4 @@ static ID_INLINE int G_HeldWeave_GetCharges(gentity_t *held)
 }
 
 #endif							// __G_SPELL_UTIL_H
+

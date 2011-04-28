@@ -60,7 +60,7 @@ CG_FillRectUp
 Utility method.
 =================
 */
-void CG_DrawFillRect(float x, float y, float width, float height, float *color, DrawRectFillDir dir)
+void CG_DrawFillRect(float x, float y, float width, float height, const vec4_t color, DrawRectFillDir dir)
 {
 	const float s1 = 0;
 	const float t1 = 0;
@@ -254,8 +254,6 @@ CG_DrawStatusBarWeaver
 static void CG_DrawWeaverStatusBar(void)
 {
 	char           *hpString;
-	char           *pString;
-	char           *protectString;
 
 	int             currentHealth = cg.snap->ps.stats[STAT_HEALTH];
 	int             currentHealthPC = currentHealth;
@@ -266,7 +264,7 @@ static void CG_DrawWeaverStatusBar(void)
 	vec4_t          colorHealth;
 
 	float power_full_w = s.power * cg.snap->ps.stats[STAT_MAX_POWER];
-	float power_avil_w = s.power * cg.snap->ps.stats[STAT_POWER];
+	//float power_avil_w = s.power * cg.snap->ps.stats[STAT_POWER];
 	float power_full_mid_w = power_full_w - (s.power_offset_left_w + s.power_offset_right_w);
 
 	colorHealth[3] = 1.0f;
@@ -430,7 +428,6 @@ static void CG_DrawWeaverTutorialWeave(float x, float y, float size, int weaveID
 {
 	weaver_weaveCGInfo *weaveInfo;
 	float           xo, yo;
-	int             offset;
 	int             offsetCount;
 	char           *str;
 
@@ -513,7 +510,6 @@ static void CG_DrawWeaverTutorial(float x, float y, float size)
 {
 	weaver_weaveCGInfo *weaveInfo;
 	weaver_threadsMap_t *current;
-	int             offset;
 	char           *str;
 
 	current = ThreadsTree(cg.predictedPlayerEntity.pe.threads);
@@ -604,12 +600,11 @@ static void CG_DrawWeaverHeld(void)
 	centity_t      *cent;
 	weaver_weaveCGInfo *weaveInfo;
 	float           x, y;
-	float           xc;
 
 	float           power_spell_w;
 
 	float           y_div = cgs.screenYSize - s.power_div_h;
-	float           y_text = cgs.screenYSize - (s.power_div_h + (s.f * 20));
+	//float           y_text = cgs.screenYSize - (s.power_div_h + (s.f * 20));
 	float           y_icon = cgs.screenYSize - (s.f * 60);
 
 	float power_full_w = cg.snap->ps.stats[STAT_MAX_POWER];

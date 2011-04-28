@@ -2715,3 +2715,4 @@ gentity_t      *EndWeave_Fog(gentity_t * self, vec3_t start, vec3_t dir, int hel
 	return heldWeave;
 }
 //End Fog
+
