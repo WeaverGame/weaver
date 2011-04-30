@@ -221,7 +221,7 @@ if env['arch'] == 'linux-i386':
 		xreal_env.Append(LIBS=['pthread'])
 		
 	xreal_env.Program('xreal', [xreal_src, unix_src, theora_decoder_x86_32_src])	
-	xreal_env.InstallAs('#xreal.i386', 'xreal')
+	xreal_env.InstallAs('#weaver.i386', 'xreal')
 
 elif env['arch'] == 'linux-x86_64':
 	xreal_env.Append(CCFLAGS='-DC_ONLY')
@@ -233,7 +233,7 @@ elif env['arch'] == 'linux-x86_64':
 		xreal_env.Append(LIBS=['pthread'])
 	
 	xreal_env.Program('xreal', [xreal_src, unix_src, theora_decoder_x86_64_src])		
-	xreal_env.InstallAs('#xreal.x86_64', 'xreal')
+	xreal_env.InstallAs('#weaver.x86_64', 'xreal')
 
 elif env['arch'] == 'freebsd-i386':
 	xreal_env.ParseConfig('sdl-config --cflags --libs')
@@ -244,7 +244,7 @@ elif env['arch'] == 'freebsd-i386':
 		xreal_env.Append(LIBS=['pthread'])
 	
 	xreal_env.Program('xreal', [xreal_src, unix_src, theora_decoder_x86_32_src])	
-	xreal_env.InstallAs('#xreal.i386', 'xreal')
+	xreal_env.InstallAs('#weaver.i386', 'xreal')
 
 elif env['arch'] == 'opensolaris-i386':
 	xreal_env.ParseConfig('sdl-config --cflags --libs')
@@ -255,7 +255,7 @@ elif env['arch'] == 'opensolaris-i386':
 		xreal_env.Append(LIBS=['pthread'])
 	
 	xreal_env.Program('xreal', [xreal_src, unix_src, theora_decoder_x86_32_src])	
-	xreal_env.InstallAs('#xreal.i386', 'xreal')
+	xreal_env.InstallAs('#weaver.i386', 'xreal')
 
 elif env['arch'] == 'freebsd-amd64':
 	xreal_env.ParseConfig('sdl-config --cflags --libs')
@@ -266,7 +266,7 @@ elif env['arch'] == 'freebsd-amd64':
 		xreal_env.Append(LIBS=['pthread'])
 	
 	xreal_env.Program('xreal', [xreal_src, unix_src, theora_decoder_x86_64_src])	
-	xreal_env.InstallAs('#xreal.amd64', 'xreal')
+	xreal_env.InstallAs('#weaver.amd64', 'xreal')
 
 elif env['arch'] == 'darwin-ppc ' or env['arch'] == 'darwin-i386':
 	xreal_env.ParseConfig('sdl-config --cflags --libs')
@@ -283,7 +283,7 @@ elif env['arch'] == 'darwin-ppc ' or env['arch'] == 'darwin-i386':
 	
 	xreal_env.Program('xreal', [xreal_src, unix_src, theora_decoder_x86_32_src])
 	if env['arch'] == 'darwin-ppc':
-		xreal_env.InstallAs('#xreal.ppc', 'xreal')
+		xreal_env.InstallAs('#weaver.ppc', 'xreal')
 	elif env['arch'] == 'darwin-i386':
-		xreal_env.InstallAs('#xreal.i386', 'xreal')
+		xreal_env.InstallAs('#weaver.i386', 'xreal')
 		

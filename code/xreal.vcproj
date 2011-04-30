@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="9.00"
 	Name="xreal"
 	ProjectGUID="{81CB51C4-B434-4E12-B69B-BAEE102F2852}"
 	RootNamespace="xreal"
@@ -187,7 +187,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="user32.lib advapi32.lib winmm.lib ws2_32.lib openal32.lib SDL.lib SDLmain.lib libcurl.lib opengl32.lib PSAPI.lib"
-				OutputFile="$(OutDir)/xreal.exe"
+				OutputFile="$(OutDir)/weaver.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="freetype/objs;sdl/lib;curl/lib"
