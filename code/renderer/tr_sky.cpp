@@ -906,7 +906,7 @@ void Tess_StageIteratorSky(void)
 
 		if(tess.stageIteratorFunc2 == &Tess_StageIteratorGBuffer)
 		{
-			R_BindFBO(tr.deferredRenderFBO);
+			R_BindFBO(tr.geometricRenderFBO);
 		}
 
 		// go through all the polygons and project them onto
@@ -936,7 +936,7 @@ void Tess_StageIteratorSky(void)
 
 			gl_skyboxShader->SetPortalClipping(backEnd.viewParms.isPortal);
 			gl_skyboxShader->BindProgram();
-
+			
 			gl_skyboxShader->SetUniform_ViewOrigin(backEnd.viewParms.orientation.origin);	// in world space
 
 			gl_skyboxShader->SetUniform_ModelMatrix(backEnd.orientation.transformMatrix);

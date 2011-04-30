@@ -241,6 +241,9 @@ void	main()
 	color.rgb += emission;
 #endif
 	
+	// convert normal to [0,1] color space
+	N = N * 0.5 + 0.5;
+	
 #if defined(r_DeferredShading)
 	gl_FragData[0] = color;
 	gl_FragData[1] = vec4(diffuse.rgb, 0.0);

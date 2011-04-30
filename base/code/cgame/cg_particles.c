@@ -940,6 +940,25 @@ void CG_AddParticles(void)
 		// Tr3B: add some collision tests
 		if(cg_particleCollision.integer)
 		{
+			contents = trap_CM_PointContents(org, 0);
+
+			// kill all particles in solid
+			if(contents & MASK_SOLID)
+			{
+				CG_FreeParticle(p);
+				continue;
+			}
+
+			// kill all air only particles in water or slime
+			if(p->flags & PF_AIRONLY)
+			{
+				if(contents & (CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA))
+				{
+					CG_FreeParticle(p);
+					continue;
+				}
+			}
+
 			if(p->bounceFactor)
 			{
 				trace_t         trace;
@@ -1026,25 +1045,6 @@ void CG_AddParticles(void)
 					//VectorCopy(p->org, p->oldOrg);
 					VectorCopy(org, p->org);
 				}
-			}
-		}
-
-		contents = trap_CM_PointContents(org, 0);
-
-		// Tr3B: kill all particles in solid
-		if(contents & MASK_SOLID)
-		{
-			CG_FreeParticle(p);
-			continue;
-		}
-
-		// kill all air only particles in water or slime
-		if(p->flags & PF_AIRONLY)
-		{
-			if(contents & (CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA))
-			{
-				CG_FreeParticle(p);
-				continue;
 			}
 		}
 

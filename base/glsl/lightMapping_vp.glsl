@@ -77,28 +77,36 @@ void	main()
 	var_TexDiffuseNormal.st = (u_DiffuseTextureMatrix * attr_TexCoord0).st;
 	var_TexLight = attr_TexCoord1.st;
 
-#if defined(USE_NORMAL_MAPPING) || defined(USE_PARALLAX_MAPPING)
-
-#if 0
-	// transform position into world space
-	var_Position = (u_ModelMatrix * position).xyz;
-	
-	var_Tangent.xyz = (u_ModelMatrix * vec4(attr_Tangent, 0.0)).xyz;
-	var_Binormal.xyz = (u_ModelMatrix * vec4(attr_Binormal, 0.0)).xyz;
-	var_Normal.xyz = (u_ModelMatrix * vec4(attr_Normal, 0.0)).xyz;
-#else
-	var_Position = position.xyz;
-	
-	var_Tangent = attr_Tangent.xyz;
-	var_Binormal = attr_Binormal.xyz;
-	var_Normal = attr_Normal.xyz;
-#endif
-	
+#if defined(USE_NORMAL_MAPPING)
 	// transform normalmap texcoords
 	var_TexDiffuseNormal.pq = (u_NormalTextureMatrix * attr_TexCoord0).st;
 	
 	// transform specularmap texcoords
 	var_TexSpecular = (u_SpecularTextureMatrix * attr_TexCoord0).st;
+#endif
+
+
+#if 0
+
+#if defined(USE_NORMAL_MAPPING)
+	// transform position into world space
+	var_Position = (u_ModelMatrix * position).xyz;
+	
+	var_Tangent.xyz = (u_ModelMatrix * vec4(attr_Tangent, 0.0)).xyz;
+	var_Binormal.xyz = (u_ModelMatrix * vec4(attr_Binormal, 0.0)).xyz;
+#endif
+	
+	var_Normal.xyz = (u_ModelMatrix * vec4(attr_Normal, 0.0)).xyz;
+#else
+
+#if defined(USE_NORMAL_MAPPING)
+	var_Position = position.xyz;
+	
+	var_Tangent = attr_Tangent.xyz;
+	var_Binormal = attr_Binormal.xyz;
+#endif
+	
+	var_Normal = attr_Normal.xyz;
 #endif
 
 	var_Color = attr_Color * u_ColorModulate + u_Color;

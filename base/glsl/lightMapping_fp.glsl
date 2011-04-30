@@ -213,6 +213,9 @@ void	main()
 	color.a = var_Color.a;	// for terrain blending
 #endif
 
+	// convert normal to [0,1] color space
+	N = N * 0.5 + 0.5;
+
 #if defined(r_DeferredShading)
 	gl_FragData[0] = color; 							// var_Color;
 	gl_FragData[1] = vec4(diffuse.rgb, var_Color.a);	// vec4(var_Color.rgb, 1.0 - var_Color.a);
