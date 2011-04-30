@@ -97,7 +97,7 @@ static void Setup_ResetDefaults_Draw(void)
 
 
 	UI_Text_Paint_AutoWrapped(uis.screenXSize / 2, 356, 0.2f, 400, "WARNING: This will reset *ALL* options to their default values.",
-							  UI_CENTER, color_white, &uis.freeSansFont);
+							  UI_CENTER, colorBlack, &uis.freeSansFont);
 
 
 
@@ -261,7 +261,7 @@ static void UI_SetupMenu_Init(void)
 		setupMenuInfo.save.style = UI_CENTER;
 #endif
 
-		y += SETUP_MENU_VERTICAL_SPACING;
+		y += SETUP_MENU_VERTICAL_SPACING * 2;
 		setupMenuInfo.defaults.generic.type = MTYPE_PTEXT;
 		setupMenuInfo.defaults.generic.flags = QMF_CENTER_JUSTIFY | QMF_PULSEIFFOCUS;
 		setupMenuInfo.defaults.generic.x = uis.screenXSize / 2;

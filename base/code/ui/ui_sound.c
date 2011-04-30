@@ -164,7 +164,7 @@ static void UI_SoundOptionsMenu_Init(void)
 	soundOptionsInfo.banner.generic.flags = QMF_CENTER_JUSTIFY;
 	soundOptionsInfo.banner.generic.x = uis.screenXSize / 2;
 	soundOptionsInfo.banner.generic.y = 16;
-	soundOptionsInfo.banner.string = "SYSTEM SETUP";
+	soundOptionsInfo.banner.string = "System Setup";
 	soundOptionsInfo.banner.color = menu_banner_color;
 	soundOptionsInfo.banner.style = UI_CENTER;
 

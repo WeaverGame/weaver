@@ -471,7 +471,7 @@ static void StartServer_MenuInit(void)
 	s_startserver.banner.generic.type = MTYPE_BTEXT;
 	s_startserver.banner.generic.x = uis.screenXSize / 2;;
 	s_startserver.banner.generic.y = 16;
-	s_startserver.banner.string = "GAME SERVER";
+	s_startserver.banner.string = "Game Server";
 	s_startserver.banner.color = menu_banner_color;
 	s_startserver.banner.style = UI_CENTER | UI_DROPSHADOW;
 
@@ -1547,7 +1547,7 @@ static void ServerOptions_MenuInit(qboolean multiplayer)
 	s_serveroptions.banner.generic.type = MTYPE_BTEXT;
 	s_serveroptions.banner.generic.x = uis.screenXSize / 2;;
 	s_serveroptions.banner.generic.y = 16;
-	s_serveroptions.banner.string = "GAME SERVER";
+	s_serveroptions.banner.string = "Game Server";
 	s_serveroptions.banner.color = menu_banner_color;
 	s_serveroptions.banner.style = UI_CENTER | UI_DROPSHADOW;
 
@@ -2215,7 +2215,7 @@ static void UI_BotSelectMenu_Init(char *bot)
 	botSelectInfo.banner.generic.type = MTYPE_BTEXT;
 	botSelectInfo.banner.generic.x = uis.screenXSize / 2;
 	botSelectInfo.banner.generic.y = 16;
-	botSelectInfo.banner.string = "SELECT BOT";
+	botSelectInfo.banner.string = "Select Bot";
 	botSelectInfo.banner.color = menu_banner_color;
 	botSelectInfo.banner.style = UI_CENTER | UI_DROPSHADOW;
 

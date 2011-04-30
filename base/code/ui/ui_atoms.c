@@ -838,7 +838,7 @@ int UI_Text_Width(const char *text, float scale, int limit, const fontInfo_t * f
 //  const unsigned char *s = text;
 	const char     *s = text;
 
-	useScale = scale * font->glyphScale;
+	useScale = scale * uis.screenFontScale * font->glyphScale;
 	out = 0;
 	if(text)
 	{
@@ -879,7 +879,7 @@ int UI_Text_Height(const char *text, float scale, int limit, const fontInfo_t * 
 //  const unsigned char *s = text;
 	const char     *s = text;
 
-	useScale = scale * font->glyphScale;
+	useScale = scale * uis.screenFontScale * font->glyphScale;
 	max = 0;
 	if(text)
 	{
@@ -978,7 +978,7 @@ void UI_Text_Paint(float x, float y, float scale, vec4_t color, const char *text
 		drawColor[3] = 0.7 + 0.3 * sin(uis.realtime / PULSE_DIVISOR);
 	}
 
-	useScale = scale * font->glyphScale;
+	useScale = scale * uis.screenFontScale * font->glyphScale;
 	if(text)
 	{
 // TTimo: FIXME
@@ -1403,6 +1403,12 @@ void UI_Init(void)
 	uis.screenScale = uis.glconfig.vidHeight * (1.0f / 480.0f);
 	uis.screenXSize = uis.glconfig.vidWidth;
 	uis.screenYSize = uis.glconfig.vidHeight;
+	uis.screenMinSize = (uis.screenXSize > uis.screenYSize) ? uis.screenYSize : uis.screenXSize;
+	uis.screenFontScale = uis.screenMinSize / 1000.0f;
+	if(uis.screenFontScale < 1.0f)
+	{
+		uis.screenFontScale = 1.0f;
+	}
 	if(uis.glconfig.vidWidth * 480 > uis.glconfig.vidHeight * 640)
 	{
 		// wide screen

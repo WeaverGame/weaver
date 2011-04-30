@@ -162,7 +162,7 @@ static void UI_DriverInfo_Menu(void)
 	s_driverinfo.banner.generic.type = MTYPE_BTEXT;
 	s_driverinfo.banner.generic.x = uis.screenXSize / 2;
 	s_driverinfo.banner.generic.y = 16;
-	s_driverinfo.banner.string = "DRIVER INFO";
+	s_driverinfo.banner.string = "Driver Info";
 	s_driverinfo.banner.color = menu_banner_color;
 	s_driverinfo.banner.style = UI_CENTER | UI_DROPSHADOW;
 
@@ -1333,7 +1333,7 @@ void GraphicsOptions_MenuInit(void)
 	s_graphicsoptions.banner.generic.type = MTYPE_BTEXT;
 	s_graphicsoptions.banner.generic.x = uis.screenXSize / 2;
 	s_graphicsoptions.banner.generic.y = 16;
-	s_graphicsoptions.banner.string = "SYSTEM SETUP";
+	s_graphicsoptions.banner.string = "System Setup";
 	s_graphicsoptions.banner.color = menu_banner_color;
 	s_graphicsoptions.banner.style = UI_CENTER;
 

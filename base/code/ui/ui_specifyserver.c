@@ -113,7 +113,7 @@ void SpecifyServer_MenuInit(void)
 	s_specifyserver.banner.generic.type = MTYPE_BTEXT;
 	s_specifyserver.banner.generic.x = uis.screenXSize / 2;
 	s_specifyserver.banner.generic.y = 16;
-	s_specifyserver.banner.string = "SPECIFY SERVER";
+	s_specifyserver.banner.string = "Specify Server";
 	s_specifyserver.banner.color = menu_banner_color;
 	s_specifyserver.banner.style = UI_CENTER;
 

@@ -298,7 +298,7 @@ static void UI_AddBotsMenu_Init(void)
 	addBotsMenuInfo.banner.generic.type = MTYPE_BTEXT;
 	addBotsMenuInfo.banner.generic.x = 320;
 	addBotsMenuInfo.banner.generic.y = 16;
-	addBotsMenuInfo.banner.string = "ADD BOTS";
+	addBotsMenuInfo.banner.string = "Add Bots";
 	addBotsMenuInfo.banner.color = menu_banner_color;
 	addBotsMenuInfo.banner.style = UI_CENTER | UI_DROPSHADOW;
 

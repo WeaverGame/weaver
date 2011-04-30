@@ -1222,7 +1222,7 @@ static void Controls_MenuInit(void)
 	s_controls.banner.generic.flags = QMF_CENTER_JUSTIFY;
 	s_controls.banner.generic.x = uis.screenXSize / 2;
 	s_controls.banner.generic.y = 16;
-	s_controls.banner.string = "CONTROLS";
+	s_controls.banner.string = "Controls";
 	s_controls.banner.color = menu_banner_color;
 	s_controls.banner.style = UI_CENTER;
 

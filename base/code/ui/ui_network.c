@@ -147,7 +147,7 @@ static void UI_NetworkOptionsMenu_Init(void)
 	networkOptionsInfo.banner.generic.flags = QMF_CENTER_JUSTIFY;
 	networkOptionsInfo.banner.generic.x = uis.screenXSize / 2;
 	networkOptionsInfo.banner.generic.y = 16;
-	networkOptionsInfo.banner.string = "SYSTEM SETUP";
+	networkOptionsInfo.banner.string = "System Setup";
 	networkOptionsInfo.banner.color = menu_banner_color;
 	networkOptionsInfo.banner.style = UI_CENTER;
 

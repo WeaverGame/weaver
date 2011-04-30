@@ -138,7 +138,7 @@ void Options_MenuInit(void)
 	s_options.banner.generic.flags = QMF_CENTER_JUSTIFY;
 	s_options.banner.generic.x = uis.screenXSize / 2;
 	s_options.banner.generic.y = 16;
-	s_options.banner.string = "SYSTEM SETUP";
+	s_options.banner.string = "System Setup";
 	s_options.banner.color = menu_banner_color;
 	s_options.banner.style = UI_CENTER;
 

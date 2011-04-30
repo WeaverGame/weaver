@@ -221,7 +221,7 @@ static void Preferences_MenuInit(void)
 	s_preferences.banner.generic.type = MTYPE_BTEXT;
 	s_preferences.banner.generic.x = uis.screenXSize / 2;
 	s_preferences.banner.generic.y = 16;
-	s_preferences.banner.string = "GAME OPTIONS";
+	s_preferences.banner.string = "Game Options";
 	s_preferences.banner.color = menu_banner_color;
 	s_preferences.banner.style = UI_CENTER;
 

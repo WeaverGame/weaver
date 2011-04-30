@@ -206,22 +206,27 @@ PlayerSettings_DrawPlayer
 static void PlayerSettings_DrawPlayer(void *self)
 {
 	menubitmap_s   *b;
+	/*
 	char            buf[MAX_QPATH];
 	int             x, y, value, size;
 	vec4_t          color;
+	*/
 
+	/*
 	// draw the model
 	trap_Cvar_VariableStringBuffer("model", buf, sizeof(buf));
 	if(strcmp(buf, s_playersettings.playerModel) != 0)
 	{
-		UI_PlayerInfo_SetModel(&s_playersettings.playerinfo, buf);
+		UI_PlayerInfo_SetModel(&s_playersettings.playerinfo, "models/players/fallen");
 		strcpy(s_playersettings.playerModel, buf);
 	}
+	*/
 
 	b = (menubitmap_s *) self;
 
 	UI_DrawPlayer(b->generic.x, b->generic.y, b->width, b->height, &s_playersettings.playerinfo, uis.realtime / 2);
 
+	/*
 	// draw the crosshair
 	x = 420;
 	y = 230;
@@ -245,7 +250,9 @@ static void PlayerSettings_DrawPlayer(void *self)
 		UI_DrawHandlePic(x - size / 2, y - size / 2, size, size, s_playersettings.crosshairCircleShader[value - 1]);
 
 	}
+	*/
 
+	/*
 	// TODO: draw hud color preview
 	color[0] = s_playersettings.hudRed.curvalue / 10.0f;
 	color[1] = s_playersettings.hudGreen.curvalue / 10.0f;
@@ -258,6 +265,7 @@ static void PlayerSettings_DrawPlayer(void *self)
 	trap_R_SetColor(color);
 	UI_DrawHandlePic(x - 18, y - 18, 36, 36, trap_R_RegisterShaderNoMip("hud/hud_icon_health"));
 	trap_R_SetColor(NULL);
+	*/
 }
 
 /*
@@ -440,7 +448,7 @@ static void PlayerSettings_MenuInit(void)
 	s_playersettings.banner.generic.type = MTYPE_BTEXT;
 	s_playersettings.banner.generic.x = uis.screenXSize / 2;
 	s_playersettings.banner.generic.y = 16;
-	s_playersettings.banner.string = "PLAYER SETTINGS";
+	s_playersettings.banner.string = "Player Settings";
 	s_playersettings.banner.color = menu_banner_color;
 	s_playersettings.banner.style = UI_CENTER;
 
@@ -449,10 +457,10 @@ static void PlayerSettings_MenuInit(void)
 
 	y = PLAYERSETTINGS_HORIZONTAL_SPACING;
 	s_playersettings.title_player.generic.type = MTYPE_TEXT;
-	s_playersettings.title_player.generic.x = PLAYERSETTINGS_VERTICAL_SPACING - 120;
+	s_playersettings.title_player.generic.x = uis.screenXSize / 2 - 120;
 	s_playersettings.title_player.generic.y = y;
 	s_playersettings.title_player.string = "Player:";
-	s_playersettings.title_player.color = color_white;
+	s_playersettings.title_player.color = colorBlack;
 	s_playersettings.title_player.style = UI_LEFT | UI_BOLD;
 	y += BIGCHAR_HEIGHT + 8;
 
@@ -461,7 +469,7 @@ static void PlayerSettings_MenuInit(void)
 	s_playersettings.name.generic.flags = QMF_PULSEIFFOCUS;
 	s_playersettings.name.field.widthInChars = MAX_NAMELENGTH;
 	s_playersettings.name.field.maxchars = MAX_NAMELENGTH;
-	s_playersettings.name.generic.x = PLAYERSETTINGS_VERTICAL_SPACING;
+	s_playersettings.name.generic.x = uis.screenXSize / 2;
 	s_playersettings.name.generic.y = y;
 	y += BIGCHAR_HEIGHT + 2;
 
@@ -470,9 +478,9 @@ static void PlayerSettings_MenuInit(void)
 	s_playersettings.clan.generic.flags = QMF_PULSEIFFOCUS;
 	s_playersettings.clan.field.widthInChars = MAX_NAMELENGTH;
 	s_playersettings.clan.field.maxchars = MAX_NAMELENGTH;
-	s_playersettings.clan.generic.x = PLAYERSETTINGS_VERTICAL_SPACING;
+	s_playersettings.clan.generic.x = uis.screenXSize / 2;
 	s_playersettings.clan.generic.y = y;
-	y += BIGCHAR_HEIGHT + 2;
+	y += BIGCHAR_HEIGHT + 8;
 
 //otty: do we need handycap in xreal ?
 /*
@@ -488,20 +496,16 @@ static void PlayerSettings_MenuInit(void)
 	y += BIGCHAR_HEIGHT + 8;
 */
 
-
-	y = PLAYERSETTINGS_HORIZONTAL_SPACING;
-	x = 380;
+	x = uis.screenXSize / 2;
 
 	s_playersettings.title_crosshair.generic.type = MTYPE_TEXT;
 	s_playersettings.title_crosshair.generic.x = x;
 	s_playersettings.title_crosshair.generic.y = y;
 	s_playersettings.title_crosshair.string = "Crosshair:";
-	s_playersettings.title_crosshair.color = color_white;
+	s_playersettings.title_crosshair.color = color_black;
 	s_playersettings.title_crosshair.style = UI_LEFT | UI_BOLD;
 	y += BIGCHAR_HEIGHT + 8;
 
-
-	x += 140;
 	s_playersettings.crosshairTarget.generic.type = MTYPE_RADIOBUTTON;
 	s_playersettings.crosshairTarget.generic.name = "Show Target:";
 	s_playersettings.crosshairTarget.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
@@ -529,9 +533,6 @@ static void PlayerSettings_MenuInit(void)
 	s_playersettings.crosshairPulse.generic.y = y;
 	y += BIGCHAR_HEIGHT + 6;
 
-
-	x -= 10;
-
 	s_playersettings.crosshairDot.generic.type = MTYPE_SLIDER;
 	s_playersettings.crosshairDot.generic.name = "Dot:";
 	s_playersettings.crosshairDot.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
@@ -542,7 +543,8 @@ static void PlayerSettings_MenuInit(void)
 	s_playersettings.crosshairDot.minvalue = 0;
 	s_playersettings.crosshairDot.maxvalue = numDot;
 	s_playersettings.crosshairDot.integer = qtrue;
-	y += BIGCHAR_HEIGHT;
+	y += BIGCHAR_HEIGHT + 2;
+
 	s_playersettings.crosshairCircle.generic.type = MTYPE_SLIDER;
 	s_playersettings.crosshairCircle.generic.name = "Circle:";
 	s_playersettings.crosshairCircle.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
@@ -553,7 +555,8 @@ static void PlayerSettings_MenuInit(void)
 	s_playersettings.crosshairCircle.minvalue = 0;
 	s_playersettings.crosshairCircle.maxvalue = numCircle;
 	s_playersettings.crosshairCircle.integer = qtrue;
-	y += BIGCHAR_HEIGHT;
+	y += BIGCHAR_HEIGHT + 2;
+
 	s_playersettings.crosshairCross.generic.type = MTYPE_SLIDER;
 	s_playersettings.crosshairCross.generic.name = "Cross:";
 	s_playersettings.crosshairCross.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
@@ -564,7 +567,8 @@ static void PlayerSettings_MenuInit(void)
 	s_playersettings.crosshairCross.minvalue = 0;
 	s_playersettings.crosshairCross.maxvalue = numCross;
 	s_playersettings.crosshairCross.integer = qtrue;
-	y += BIGCHAR_HEIGHT;
+	y += BIGCHAR_HEIGHT + 2;
+
 	s_playersettings.crosshairSize.generic.type = MTYPE_SLIDER;
 	s_playersettings.crosshairSize.generic.name = "Size:";
 	s_playersettings.crosshairSize.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
@@ -579,8 +583,8 @@ static void PlayerSettings_MenuInit(void)
 
 	y += BIGCHAR_HEIGHT + 16;
 
-
-	x = 380;
+	/*
+	x = uis.screenXSize / 2;
 	s_playersettings.title_hud.generic.type = MTYPE_TEXT;
 	s_playersettings.title_hud.generic.x = x;
 	s_playersettings.title_hud.generic.y = y;
@@ -644,11 +648,7 @@ static void PlayerSettings_MenuInit(void)
 	s_playersettings.hudAlpha.maxvalue = 10;
 	s_playersettings.hudAlpha.integer = qtrue;
 	s_playersettings.hudAlpha.step = 1;
-
-
-
-
-
+	*/
 
 /*
 	y += 3 * PROP_HEIGHT;
@@ -676,6 +676,16 @@ static void PlayerSettings_MenuInit(void)
 	s_playersettings.color2.generic.bottom = y + 2 * PROP_HEIGHT;
 	s_playersettings.color2.numitems = 7;
 */
+
+	s_playersettings.player.generic.type = MTYPE_BITMAP;
+	s_playersettings.player.generic.flags = QMF_INACTIVE;
+	s_playersettings.player.generic.ownerdraw = PlayerSettings_DrawPlayer;
+	s_playersettings.player.width = 30 * 9;
+	s_playersettings.player.height = 50 * 7;
+	s_playersettings.player.generic.x = (uis.screenXSize - s_playersettings.player.width) / 2;
+	s_playersettings.player.generic.y = y;
+	y += s_playersettings.player.height + 8;
+
 	s_playersettings.model.generic.type = MTYPE_BITMAP;
 	s_playersettings.model.generic.name = UI_ART_BUTTON;
 	s_playersettings.model.generic.flags = QMF_LEFT_JUSTIFY | QMF_PULSEIFFOCUS;
@@ -692,14 +702,6 @@ static void PlayerSettings_MenuInit(void)
 	s_playersettings.model.generic.caption.font = &uis.buttonFont;
 	s_playersettings.model.generic.caption.color = text_color_blackbar;
 	s_playersettings.model.generic.caption.focuscolor = text_color_highlight;
-
-	s_playersettings.player.generic.type = MTYPE_BITMAP;
-	s_playersettings.player.generic.flags = QMF_INACTIVE;
-	s_playersettings.player.generic.ownerdraw = PlayerSettings_DrawPlayer;
-	s_playersettings.player.generic.x = 40;
-	s_playersettings.player.generic.y = 130;
-	s_playersettings.player.width = 30 * 9;
-	s_playersettings.player.height = 50 * 7;
 
 	s_playersettings.back.generic.type = MTYPE_BITMAP;
 	s_playersettings.back.generic.name = UI_ART_BUTTON;
@@ -734,7 +736,7 @@ static void PlayerSettings_MenuInit(void)
 
 	Menu_AddItem(&s_playersettings.menu, &s_playersettings.title_player);
 	Menu_AddItem(&s_playersettings.menu, &s_playersettings.title_crosshair);
-	Menu_AddItem(&s_playersettings.menu, &s_playersettings.title_hud);
+	//Menu_AddItem(&s_playersettings.menu, &s_playersettings.title_hud);
 
 
 	Menu_AddItem(&s_playersettings.menu, &s_playersettings.name);
@@ -743,24 +745,23 @@ static void PlayerSettings_MenuInit(void)
 	//Menu_AddItem(&s_playersettings.menu, &s_playersettings.color1);
 	//Menu_AddItem(&s_playersettings.menu, &s_playersettings.color2);
 
+	Menu_AddItem(&s_playersettings.menu, &s_playersettings.crosshairTarget);
+	Menu_AddItem(&s_playersettings.menu, &s_playersettings.crosshairHealth);
+	Menu_AddItem(&s_playersettings.menu, &s_playersettings.crosshairPulse);
+
 	Menu_AddItem(&s_playersettings.menu, &s_playersettings.crosshairDot);
 	Menu_AddItem(&s_playersettings.menu, &s_playersettings.crosshairCircle);
 	Menu_AddItem(&s_playersettings.menu, &s_playersettings.crosshairCross);
 	Menu_AddItem(&s_playersettings.menu, &s_playersettings.crosshairSize);
 
-	Menu_AddItem(&s_playersettings.menu, &s_playersettings.crosshairTarget);
-	Menu_AddItem(&s_playersettings.menu, &s_playersettings.crosshairHealth);
-	Menu_AddItem(&s_playersettings.menu, &s_playersettings.crosshairPulse);
-
-
+	/*
 	Menu_AddItem(&s_playersettings.menu, &s_playersettings.hudRed);
 	Menu_AddItem(&s_playersettings.menu, &s_playersettings.hudGreen);
 	Menu_AddItem(&s_playersettings.menu, &s_playersettings.hudBlue);
 	Menu_AddItem(&s_playersettings.menu, &s_playersettings.hudAlpha);
+	*/
 
-
-
-	Menu_AddItem(&s_playersettings.menu, &s_playersettings.model);
+	//Menu_AddItem(&s_playersettings.menu, &s_playersettings.model);
 	Menu_AddItem(&s_playersettings.menu, &s_playersettings.back);
 
 
@@ -790,6 +791,9 @@ void PlayerSettings_Cache(void)
 	s_playersettings.fxPic[4] = trap_R_RegisterShaderNoMip(ART_FX_BLUE);
 	s_playersettings.fxPic[5] = trap_R_RegisterShaderNoMip(ART_FX_CYAN);
 	s_playersettings.fxPic[6] = trap_R_RegisterShaderNoMip(ART_FX_WHITE);
+
+	UI_PlayerInfo_SetModel(&s_playersettings.playerinfo, "models/players/fallen");
+	strcpy(s_playersettings.playerModel, "models/players/fallen");
 
 	numDot = 0;
 	numCircle = 0;

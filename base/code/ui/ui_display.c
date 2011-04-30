@@ -134,7 +134,7 @@ static void UI_DisplayOptionsMenu_Init(void)
 	displayOptionsInfo.banner.generic.flags = QMF_CENTER_JUSTIFY;
 	displayOptionsInfo.banner.generic.x = 320;
 	displayOptionsInfo.banner.generic.y = 16;
-	displayOptionsInfo.banner.string = "SYSTEM SETUP";
+	displayOptionsInfo.banner.string = "System Setup";
 	displayOptionsInfo.banner.color = menu_banner_color;
 	displayOptionsInfo.banner.style = UI_CENTER;
 
