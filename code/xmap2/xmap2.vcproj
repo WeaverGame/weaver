@@ -86,6 +86,7 @@
 				MapFileName=".\Debug/q3map2.map"
 				SubSystem="1"
 				StackReserveSize="4194304"
+				LargeAddressAware="2"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
 			/>
