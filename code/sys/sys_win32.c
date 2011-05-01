@@ -75,7 +75,7 @@ char           *Sys_DefaultHomePath(void)
 			return NULL;
 		}
 		Q_strncpyz(homePath, szPath, sizeof(homePath));
-		Q_strcat(homePath, sizeof(homePath), "\\XreaL");
+		Q_strcat(homePath, sizeof(homePath), "\\Weaver");
 		FreeLibrary(shfolder);
 	}
 

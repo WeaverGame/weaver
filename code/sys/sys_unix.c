@@ -57,9 +57,9 @@ char           *Sys_DefaultHomePath(void)
 		{
 			Q_strncpyz(homePath, p, sizeof(homePath));
 #ifdef MACOS_X
-			Q_strcat(homePath, sizeof(homePath), "/Library/Application Support/XreaL");
+			Q_strcat(homePath, sizeof(homePath), "/Library/Application Support/Weaver");
 #else
-			Q_strcat(homePath, sizeof(homePath), "/.xreal");
+			Q_strcat(homePath, sizeof(homePath), "/.weaver");
 #endif
 			if(mkdir(homePath, 0777))
 			{
