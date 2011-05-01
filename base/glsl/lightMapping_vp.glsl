@@ -88,25 +88,26 @@ void	main()
 
 #if 0
 
-#if defined(USE_NORMAL_MAPPING)
 	// transform position into world space
-	var_Position = (u_ModelMatrix * position).xyz;
+	var_Position = (u_ModelMatrix * position).xyz;	
 	
+	var_Normal.xyz = (u_ModelMatrix * vec4(attr_Normal, 0.0)).xyz;
+
+#if defined(USE_NORMAL_MAPPING)
 	var_Tangent.xyz = (u_ModelMatrix * vec4(attr_Tangent, 0.0)).xyz;
 	var_Binormal.xyz = (u_ModelMatrix * vec4(attr_Binormal, 0.0)).xyz;
 #endif
-	
-	var_Normal.xyz = (u_ModelMatrix * vec4(attr_Normal, 0.0)).xyz;
+
 #else
 
-#if defined(USE_NORMAL_MAPPING)
 	var_Position = position.xyz;
-	
+	var_Normal = attr_Normal.xyz;
+
+#if defined(USE_NORMAL_MAPPING)
 	var_Tangent = attr_Tangent.xyz;
 	var_Binormal = attr_Binormal.xyz;
 #endif
 	
-	var_Normal = attr_Normal.xyz;
 #endif
 
 	var_Color = attr_Color * u_ColorModulate + u_Color;
