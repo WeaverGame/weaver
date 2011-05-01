@@ -85,7 +85,7 @@ typedef unsigned short glIndex_t;
 #define DEBUG_OPTIMIZEVERTICES 0
 #define CALC_REDUNDANT_SHADOWVERTS 0
 
-//#define GLSL_COMPILE_STARTUP_ONLY 1
+#define GLSL_COMPILE_STARTUP_ONLY 1
 
 typedef enum
 {
