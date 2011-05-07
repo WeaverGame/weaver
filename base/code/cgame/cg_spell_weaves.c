@@ -875,7 +875,7 @@ void CG_RegisterWeave(int weaveNum)
 			weaveInfo->firingSound = trap_S_RegisterSound("sound/weapons/machinegun/par_shot_1.ogg");
 
 			//missiles
-			weaveInfo->missileModel[0] = trap_R_RegisterModel("models/projectiles/missile/missile.md3");
+			weaveInfo->missileModel[0] = trap_R_RegisterModel("models/weaves/earthquake_s/proj_s.md5mesh");
 			weaveInfo->missileLight = 50;
 			MAKERGB(weaveInfo->missileLightColor, 0.5f, 0.1f, 0.1f);
 			//weaveInfo->missileRenderfx;
@@ -909,7 +909,7 @@ void CG_RegisterWeave(int weaveNum)
 			weaveInfo->firingSound = trap_S_RegisterSound("sound/weapons/machinegun/par_shot_1.ogg");
 
 			//missiles
-			weaveInfo->missileModel[0] = trap_R_RegisterModel("models/projectiles/missile/missile.md3");
+			weaveInfo->missileModel[0] = trap_R_RegisterModel("models/weaves/earthquake_s/proj_s.md5mesh");
 			weaveInfo->missileLight = 50;
 			MAKERGB(weaveInfo->missileLightColor, 0.5f, 0.1f, 0.1f);
 			//weaveInfo->missileRenderfx;
@@ -943,7 +943,7 @@ void CG_RegisterWeave(int weaveNum)
 			weaveInfo->firingSound = trap_S_RegisterSound("sound/weapons/machinegun/par_shot_1.ogg");
 
 			//missiles
-			weaveInfo->missileModel[0] = trap_R_RegisterModel("models/projectiles/missile/missile.md3");
+			weaveInfo->missileModel[0] = trap_R_RegisterModel("models/weaves/earthquake_s/proj_s.md5mesh");
 			weaveInfo->missileLight = 50;
 			MAKERGB(weaveInfo->missileLightColor, 0.5f, 0.1f, 0.1f);
 			//weaveInfo->missileRenderfx;
