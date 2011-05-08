@@ -20,6 +20,9 @@ These assets are located at:	base/gfx/icons/spells/cure.png
 								base/gfx/icons/spells/explosive1.png
 								base/gfx/icons/spells/explosive2.png
 								base/gfx/icons/spells/fireball.png
+								base/gfx/icons/spells/firedarts1.png
+								base/gfx/icons/spells/firedarts2.png
+								base/gfx/icons/spells/firedarts3.png
 								base/gfx/icons/spells/heal1.png
 								base/gfx/icons/spells/heal2.png
 								base/gfx/icons/spells/iceshards2.png
