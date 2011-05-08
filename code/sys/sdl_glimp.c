@@ -1044,6 +1044,7 @@ static void GLimp_InitExtensions(void)
 
 		reservedComponents = 16 * 10; // approximation how many uniforms we have besides the bone matrices
 
+		/*
 		if(glConfig.driverType == GLDRV_MESA)
 		{
 			// HACK
@@ -1052,6 +1053,7 @@ static void GLimp_InitExtensions(void)
 
 			glConfig2.maxVertexUniforms = Q_bound(0, glConfig2.maxVertexUniforms, 512);
 		}
+		*/
 
 		glConfig2.maxVertexSkinningBones = (int) Q_bound(0.0, (Q_max(glConfig2.maxVertexUniforms - reservedComponents, 0) / 16), MAX_BONES);
 		glConfig2.vboVertexSkinningAvailable = r_vboVertexSkinning->integer && ((glConfig2.maxVertexSkinningBones >= 12) ? qtrue : qfalse);

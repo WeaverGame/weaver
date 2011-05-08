@@ -214,7 +214,7 @@ void	main()
 	vec4 color = vec4(diffuse.rgb * var_LightColor.rgb, var_LightColor.a);
 
 	// gl_FragColor = vec4(diffuse.rgb * var_LightColor.rgb, diffuse.a);
-	// gl_FragColor = vec4(vec3(1.0, 0.0, 0.0), diffuse.a);
+	// color = vec4(vec3(1.0, 0.0, 0.0), diffuse.a);
 	// gl_FragColor = vec4(vec3(diffuse.a, diffuse.a, diffuse.a), 1.0);
 	// gl_FragColor = vec4(vec3(var_LightColor.a, var_LightColor.a, var_LightColor.a), 1.0);
 	// gl_FragColor = var_LightColor;

@@ -30,13 +30,6 @@ attribute vec4		attr_Color;
 attribute vec4		attr_Position2;
 attribute vec3		attr_Normal2;
 
-//#if defined(r_VertexSkinning)
-attribute vec4		attr_BoneIndexes;
-attribute vec4		attr_BoneWeights;
-uniform int			u_VertexSkinning;
-uniform mat4		u_BoneMatrix[MAX_GLSL_BONES];
-//#endif
-
 uniform float		u_VertexInterpolation;
 
 uniform vec3		u_ViewOrigin;
@@ -62,41 +55,24 @@ varying vec4		var_Color;
 
 void	main()
 {
-	vec4 position = vec4(0.0);
-	vec3 normal = vec3(0.0);
+	vec4 position;
+	vec3 normal;
 
 #if defined(USE_VERTEX_SKINNING)
-	{
-		for(int i = 0; i < 4; i++)
-		{
-			int boneIndex = int(attr_BoneIndexes[i]);
-			float boneWeight = attr_BoneWeights[i];
-			mat4  boneMatrix = u_BoneMatrix[boneIndex];
-			
-			position += (boneMatrix * attr_Position) * boneWeight;
-			normal += (boneMatrix * vec4(attr_Normal, 0.0)).xyz * boneWeight;
-		}
-	}
+
+	VertexSkinning_P_N(	attr_Position, attr_Normal,
+						position, normal);
+						
 #elif defined(USE_VERTEX_ANIMATION)
-	{
-		if(u_VertexInterpolation > 0.0)
-		{
-			VertexAnimation_P_N(attr_Position, attr_Position2,
-								attr_Normal, attr_Normal2,
-								u_VertexInterpolation,
-								position, normal);
-		}
-		else
-		{
-			position = attr_Position;
-			normal = attr_Normal;
-		}
-	}
+	
+	VertexAnimation_P_N(attr_Position, attr_Position2,
+						attr_Normal, attr_Normal2,
+						u_VertexInterpolation,
+						position, normal);
+	
 #else
-	{
-		position = attr_Position;
-		normal = attr_Normal;
-	}
+	position = attr_Position;
+	normal = attr_Normal;
 #endif
 	
 #if defined(USE_DEFORM_VERTEXES)

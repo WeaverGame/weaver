@@ -98,6 +98,20 @@ bool GLCompileMacro_USE_VERTEX_ANIMATION::HasConflictingMacros(int permutation, 
 	return false;
 }
 
+uint32_t	GLCompileMacro_USE_VERTEX_ANIMATION::GetRequiredVertexAttributes() const
+{
+	uint32_t attribs = ATTR_NORMAL | ATTR_POSITION2 | ATTR_NORMAL2;
+
+	if(r_normalMapping->integer)
+	{
+		attribs |= ATTR_TANGENT2 | ATTR_BINORMAL2;
+	}
+
+	return attribs;
+}
+
+
+
 bool GLCompileMacro_USE_DEFORM_VERTEXES::HasConflictingMacros(int permutation, const std::vector<GLCompileMacro*>& macros) const
 {
 	return (glConfig.driverType != GLDRV_OPENGL3 || !r_vboDeformVertexes->integer);
@@ -183,9 +197,7 @@ void GLShader::UpdateShaderProgramUniformLocations(shaderProgram_t *shaderProgra
 	{
 		GLUniform* uniform = _uniforms[j];
 
-		size_t ofs = uniform->Get_shaderProgram_t_Offset();
-
-		*(GLint *)(((byte*)shaderProgram) + ofs) = glGetUniformLocationARB(shaderProgram->program, uniform->GetName());
+		uniform->UpdateShaderProgramUniformLocation(shaderProgram);
 	}
 }
 
@@ -577,6 +589,7 @@ std::string	GLShader::BuildGPUShaderText(	const char *mainShaderName,
 		{
 			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef r_showDeluxeMaps\n#define r_showDeluxeMaps 1\n#endif\n");
 		}
+
 #ifdef EXPERIMENTAL
 		if(r_screenSpaceAmbientOcclusion->integer)
 		{
@@ -796,7 +809,7 @@ void GLShader::CompileAndLinkGPUShaderProgram(	shaderProgram_t * program,
 	}
 
 	program->program = glCreateProgramObjectARB();
-	program->attribs = _vertexAttribsRequired | _vertexAttribsOptional;
+	program->attribs = _vertexAttribsRequired;// | _vertexAttribsOptional;
 
 
 	// header of the glsl shader
@@ -858,7 +871,7 @@ void GLShader::CompileAndLinkGPUShaderProgram(	shaderProgram_t * program,
 	CompileGPUShader(program->program, programName, vertexShaderTextWithMacros.c_str(), vertexShaderTextWithMacros.length(), GL_VERTEX_SHADER_ARB);
 	CompileGPUShader(program->program, programName, fragmentShaderTextWithMacros.c_str(), fragmentShaderTextWithMacros.length(), GL_FRAGMENT_SHADER_ARB);
 
-	BindAttribLocations(program->program, _vertexAttribsRequired | _vertexAttribsOptional);
+	BindAttribLocations(program->program); //, _vertexAttribsRequired | _vertexAttribsOptional);
 	LinkProgram(program->program);
 }
 
@@ -1019,15 +1032,15 @@ void GLShader::ShowProgramUniforms(GLhandleARB program) const
 	glUseProgramObjectARB(0);
 }
 
-void GLShader::BindAttribLocations(GLhandleARB program, uint32_t attribs) const
+void GLShader::BindAttribLocations(GLhandleARB program) const
 {
-	if(attribs & ATTR_POSITION)
+	//if(attribs & ATTR_POSITION)
 		glBindAttribLocationARB(program, ATTR_INDEX_POSITION, "attr_Position");
 
-	if(attribs & ATTR_TEXCOORD)
+	//if(attribs & ATTR_TEXCOORD)
 		glBindAttribLocationARB(program, ATTR_INDEX_TEXCOORD0, "attr_TexCoord0");
 
-	if(attribs & ATTR_LIGHTCOORD)
+	//if(attribs & ATTR_LIGHTCOORD)
 		glBindAttribLocationARB(program, ATTR_INDEX_TEXCOORD1, "attr_TexCoord1");
 
 //  if(attribs & ATTR_TEXCOORD2)
@@ -1036,42 +1049,42 @@ void GLShader::BindAttribLocations(GLhandleARB program, uint32_t attribs) const
 //  if(attribs & ATTR_TEXCOORD3)
 //      glBindAttribLocationARB(program, ATTR_INDEX_TEXCOORD3, "attr_TexCoord3");
 
-	if(attribs & ATTR_TANGENT)
+	//if(attribs & ATTR_TANGENT)
 		glBindAttribLocationARB(program, ATTR_INDEX_TANGENT, "attr_Tangent");
 
-	if(attribs & ATTR_BINORMAL)
+	//if(attribs & ATTR_BINORMAL)
 		glBindAttribLocationARB(program, ATTR_INDEX_BINORMAL, "attr_Binormal");
 
-	if(attribs & ATTR_NORMAL)
+	//if(attribs & ATTR_NORMAL)
 		glBindAttribLocationARB(program, ATTR_INDEX_NORMAL, "attr_Normal");
 
-	if(attribs & ATTR_COLOR)
+	//if(attribs & ATTR_COLOR)
 		glBindAttribLocationARB(program, ATTR_INDEX_COLOR, "attr_Color");
 
 #if !defined(COMPAT_Q3A) && !defined(COMPAT_ET)
-	if(attribs & ATTR_PAINTCOLOR)
+	//if(attribs & ATTR_PAINTCOLOR)
 		glBindAttribLocationARB(program, ATTR_INDEX_PAINTCOLOR, "attr_PaintColor");
 
-	if(attribs & ATTR_LIGHTDIRECTION)
+	//if(attribs & ATTR_LIGHTDIRECTION)
 		glBindAttribLocationARB(program, ATTR_INDEX_LIGHTDIRECTION, "attr_LightDirection");
 #endif
 
-	if(glConfig2.vboVertexSkinningAvailable)
+	//if(glConfig2.vboVertexSkinningAvailable)
 	{
 		glBindAttribLocationARB(program, ATTR_INDEX_BONE_INDEXES, "attr_BoneIndexes");
 		glBindAttribLocationARB(program, ATTR_INDEX_BONE_WEIGHTS, "attr_BoneWeights");
 	}
 
-	if(attribs & ATTR_POSITION2)
+	//if(attribs & ATTR_POSITION2)
 		glBindAttribLocationARB(program, ATTR_INDEX_POSITION2, "attr_Position2");
 
-	if(attribs & ATTR_TANGENT2)
+	//if(attribs & ATTR_TANGENT2)
 		glBindAttribLocationARB(program, ATTR_INDEX_TANGENT2, "attr_Tangent2");
 
-	if(attribs & ATTR_BINORMAL2)
+	//if(attribs & ATTR_BINORMAL2)
 		glBindAttribLocationARB(program, ATTR_INDEX_BINORMAL2, "attr_Binormal2");
 
-	if(attribs & ATTR_NORMAL2)
+	//if(attribs & ATTR_NORMAL2)
 		glBindAttribLocationARB(program, ATTR_INDEX_NORMAL2, "attr_Normal2");
 }
 
@@ -1116,8 +1129,23 @@ void GLShader::BindProgram()
 }
 
 
+void GLShader::SetRequiredVertexPointers()
+{
+	uint32_t macroVertexAttribs = 0;
+	for(size_t j = 0; j < _compileMacros.size(); j++)
+	{
+		GLCompileMacro* macro = _compileMacros[j];
 
+		int bit = macro->GetBit();
 
+		if(IsMacroSet(bit))
+		{
+			macroVertexAttribs |= macro->GetRequiredVertexAttributes();
+		}
+	}
+
+	GL_VertexAttribsState((_vertexAttribsRequired | _vertexAttribs | macroVertexAttribs));// & ~_vertexAttribsUnsupported);
+}
 
 
 
@@ -1155,10 +1183,8 @@ void GLShader::BindProgram()
 
 
 GLShader_generic::GLShader_generic():
-		GLShader(	"generic",
-					ATTR_POSITION | ATTR_TEXCOORD | ATTR_NORMAL,
-					ATTR_COLOR | ATTR_POSITION2 | ATTR_NORMAL2,
-					ATTR_TANGENT | ATTR_TANGENT2 | ATTR_BINORMAL | ATTR_BINORMAL2),
+		GLShader(	"generic", ATTR_POSITION | ATTR_TEXCOORD | ATTR_NORMAL),
+		u_ColorMap(this),
 		u_ColorTextureMatrix(this),
 		u_ViewOrigin(this),
 		u_AlphaTest(this),
@@ -1186,7 +1212,7 @@ GLShader_generic::GLShader_generic():
 	
 	//Com_Memset(_shaderPrograms, 0, sizeof(_shaderPrograms));
 
-	std::string vertexInlines = "vertexAnimation ";
+	std::string vertexInlines = "vertexSkinning vertexAnimation ";
 	if(glConfig.driverType == GLDRV_OPENGL3 && r_vboDeformVertexes->integer)
 	{
 		vertexInlines += "deformVertexes ";
@@ -1231,10 +1257,10 @@ GLShader_generic::GLShader_generic():
 											vertexShaderText,
 											fragmentShaderText,
 											compileMacros);
-
+			
 			UpdateShaderProgramUniformLocations(shaderProgram);
 
-			shaderProgram->u_ColorMap = glGetUniformLocationARB(shaderProgram->program, "u_ColorMap");
+			//shaderProgram->u_ColorMap = glGetUniformLocationARB(shaderProgram->program, "u_ColorMap");
 
 			//ri.Printf(PRINT_ALL, "u_ColorMap = %i\n", shaderProgram->u_ColorMap);
 
@@ -1244,6 +1270,7 @@ GLShader_generic::GLShader_generic():
 
 			ValidateProgram(shaderProgram->program);
 			//ShowProgramUniforms(shaderProgram->program);
+			
 			GL_CheckErrors();
 
 			numCompiled++;
@@ -1268,10 +1295,7 @@ GLShader_generic::GLShader_generic():
 
 
 GLShader_lightMapping::GLShader_lightMapping():
-		GLShader(	"lightMapping",
-					ATTR_POSITION | ATTR_TEXCOORD | ATTR_LIGHTCOORD | ATTR_NORMAL | ATTR_TANGENT | ATTR_BINORMAL,
-					ATTR_COLOR,
-					ATTR_TANGENT2 | ATTR_BINORMAL2),
+		GLShader("lightMapping", ATTR_POSITION | ATTR_TEXCOORD | ATTR_LIGHTCOORD | ATTR_NORMAL),
 		u_DiffuseTextureMatrix(this),
 		u_NormalTextureMatrix(this),
 		u_SpecularTextureMatrix(this),
@@ -1382,10 +1406,7 @@ GLShader_lightMapping::GLShader_lightMapping():
 
 
 GLShader_vertexLighting_DBS_entity::GLShader_vertexLighting_DBS_entity():
-		GLShader(	"vertexLighting_DBS_entity",
-					ATTR_POSITION | ATTR_TEXCOORD | ATTR_TANGENT | ATTR_BINORMAL | ATTR_NORMAL,
-					ATTR_POSITION2 | ATTR_TANGENT2 | ATTR_BINORMAL2 | ATTR_NORMAL2,
-					0),
+		GLShader("vertexLighting_DBS_entity", ATTR_POSITION | ATTR_TEXCOORD | ATTR_NORMAL),
 		u_DiffuseTextureMatrix(this),
 		u_NormalTextureMatrix(this),
 		u_SpecularTextureMatrix(this),
@@ -1421,7 +1442,7 @@ GLShader_vertexLighting_DBS_entity::GLShader_vertexLighting_DBS_entity():
 	
 	//Com_Memset(_shaderPrograms, 0, sizeof(_shaderPrograms));
 
-	std::string vertexInlines = "vertexAnimation ";
+	std::string vertexInlines = "vertexSkinning vertexAnimation ";
 	if(glConfig.driverType == GLDRV_OPENGL3 && r_vboDeformVertexes->integer)
 	{
 		vertexInlines += "deformVertexes ";
@@ -1505,13 +1526,11 @@ GLShader_vertexLighting_DBS_entity::GLShader_vertexLighting_DBS_entity():
 
 GLShader_vertexLighting_DBS_world::GLShader_vertexLighting_DBS_world():
 		GLShader(	"vertexLighting_DBS_world",
-					ATTR_POSITION | ATTR_TEXCOORD | ATTR_TANGENT | ATTR_BINORMAL | ATTR_NORMAL | ATTR_COLOR
+					ATTR_POSITION | ATTR_TEXCOORD | ATTR_NORMAL | ATTR_COLOR
 #if !defined(COMPAT_Q3A) && !defined(COMPAT_ET)
 					| ATTR_LIGHTDIRECTION
 #endif
-					,
-					0,
-					ATTR_TANGENT | ATTR_TANGENT2 | ATTR_BINORMAL | ATTR_BINORMAL2),
+		),
 		u_DiffuseTextureMatrix(this),
 		u_NormalTextureMatrix(this),
 		u_SpecularTextureMatrix(this),
@@ -1618,10 +1637,7 @@ GLShader_vertexLighting_DBS_world::GLShader_vertexLighting_DBS_world():
 
 
 GLShader_forwardLighting_omniXYZ::GLShader_forwardLighting_omniXYZ():
-		GLShader(	"forwardLighting_omniXYZ",
-					ATTR_POSITION | ATTR_TEXCOORD | ATTR_TANGENT | ATTR_BINORMAL | ATTR_NORMAL,
-					ATTR_POSITION2 | ATTR_TANGENT2 | ATTR_BINORMAL2 | ATTR_NORMAL2 | ATTR_COLOR,
-					0),
+		GLShader("forwardLighting_omniXYZ", ATTR_POSITION | ATTR_TEXCOORD | ATTR_NORMAL),
 		u_DiffuseTextureMatrix(this),
 		u_NormalTextureMatrix(this),
 		u_SpecularTextureMatrix(this),
@@ -1663,7 +1679,7 @@ GLShader_forwardLighting_omniXYZ::GLShader_forwardLighting_omniXYZ():
 	
 	//Com_Memset(_shaderPrograms, 0, sizeof(_shaderPrograms));
 
-	std::string vertexInlines = "vertexAnimation ";
+	std::string vertexInlines = "vertexSkinning vertexAnimation ";
 	if(glConfig.driverType == GLDRV_OPENGL3 && r_vboDeformVertexes->integer)
 	{
 		vertexInlines += "deformVertexes ";
@@ -1752,10 +1768,7 @@ GLShader_forwardLighting_omniXYZ::GLShader_forwardLighting_omniXYZ():
 
 
 GLShader_forwardLighting_projXYZ::GLShader_forwardLighting_projXYZ():
-		GLShader(	"forwardLighting_projXYZ",
-					ATTR_POSITION | ATTR_TEXCOORD | ATTR_TANGENT | ATTR_BINORMAL | ATTR_NORMAL,
-					ATTR_POSITION2 | ATTR_TANGENT2 | ATTR_BINORMAL2 | ATTR_NORMAL2 | ATTR_COLOR,
-					0),
+		GLShader("forwardLighting_projXYZ", ATTR_POSITION | ATTR_TEXCOORD | ATTR_NORMAL),
 		u_DiffuseTextureMatrix(this),
 		u_NormalTextureMatrix(this),
 		u_SpecularTextureMatrix(this),
@@ -1798,7 +1811,7 @@ GLShader_forwardLighting_projXYZ::GLShader_forwardLighting_projXYZ():
 	
 	//Com_Memset(_shaderPrograms, 0, sizeof(_shaderPrograms));
 
-	std::string vertexInlines = "vertexAnimation ";
+	std::string vertexInlines = "vertexSkinning vertexAnimation ";
 	if(glConfig.driverType == GLDRV_OPENGL3 && r_vboDeformVertexes->integer)
 	{
 		vertexInlines += "deformVertexes ";
@@ -1889,10 +1902,7 @@ GLShader_forwardLighting_projXYZ::GLShader_forwardLighting_projXYZ():
 
 
 GLShader_forwardLighting_directionalSun::GLShader_forwardLighting_directionalSun():
-		GLShader(	"forwardLighting_directionalSun",
-					ATTR_POSITION | ATTR_TEXCOORD | ATTR_TANGENT | ATTR_BINORMAL | ATTR_NORMAL,
-					ATTR_POSITION2 | ATTR_TANGENT2 | ATTR_BINORMAL2 | ATTR_NORMAL2 | ATTR_COLOR,
-					0),
+		GLShader("forwardLighting_directionalSun", ATTR_POSITION | ATTR_TEXCOORD | ATTR_NORMAL),
 		u_DiffuseTextureMatrix(this),
 		u_NormalTextureMatrix(this),
 		u_SpecularTextureMatrix(this),
@@ -1937,7 +1947,7 @@ GLShader_forwardLighting_directionalSun::GLShader_forwardLighting_directionalSun
 	
 	//Com_Memset(_shaderPrograms, 0, sizeof(_shaderPrograms));
 
-	std::string vertexInlines = "vertexAnimation ";
+	std::string vertexInlines = "vertexSkinning vertexAnimation ";
 	if(glConfig.driverType == GLDRV_OPENGL3 && r_vboDeformVertexes->integer)
 	{
 		vertexInlines += "deformVertexes ";
@@ -2034,10 +2044,7 @@ GLShader_forwardLighting_directionalSun::GLShader_forwardLighting_directionalSun
 
 
 GLShader_deferredLighting_omniXYZ::GLShader_deferredLighting_omniXYZ():
-		GLShader(	"deferredLighting_omniXYZ",
-					ATTR_POSITION,
-					0,
-					0),
+		GLShader("deferredLighting_omniXYZ", ATTR_POSITION),
 		u_ViewOrigin(this),
 		u_LightOrigin(this),
 		u_LightColor(this),
@@ -2153,10 +2160,7 @@ GLShader_deferredLighting_omniXYZ::GLShader_deferredLighting_omniXYZ():
 
 
 GLShader_deferredLighting_projXYZ::GLShader_deferredLighting_projXYZ():
-		GLShader(	"deferredLighting_projXYZ",
-					ATTR_POSITION,
-					0,
-					0),
+		GLShader("deferredLighting_projXYZ", ATTR_POSITION),
 		u_ViewOrigin(this),
 		u_LightOrigin(this),
 		u_LightColor(this),
@@ -2271,10 +2275,7 @@ GLShader_deferredLighting_projXYZ::GLShader_deferredLighting_projXYZ():
 }
 
 GLShader_deferredLighting_directionalSun::GLShader_deferredLighting_directionalSun():
-		GLShader(	"deferredLighting_directionalSun",
-					ATTR_POSITION,
-					0,
-					0),
+		GLShader("deferredLighting_directionalSun", ATTR_POSITION),
 		u_ViewOrigin(this),
 		u_LightDir(this),
 		u_LightColor(this),
@@ -2399,10 +2400,7 @@ GLShader_deferredLighting_directionalSun::GLShader_deferredLighting_directionalS
 
 
 GLShader_geometricFill::GLShader_geometricFill():
-		GLShader(	"geometricFill",
-					ATTR_POSITION | ATTR_TEXCOORD | ATTR_NORMAL | ATTR_TANGENT | ATTR_BINORMAL,
-					ATTR_POSITION2 | ATTR_TANGENT2 | ATTR_BINORMAL2 | ATTR_NORMAL2,
-					0),
+		GLShader("geometricFill", ATTR_POSITION | ATTR_TEXCOORD | ATTR_NORMAL),
 		u_DiffuseTextureMatrix(this),
 		u_NormalTextureMatrix(this),
 		u_SpecularTextureMatrix(this),
@@ -2435,7 +2433,7 @@ GLShader_geometricFill::GLShader_geometricFill():
 	
 	//Com_Memset(_shaderPrograms, 0, sizeof(_shaderPrograms));
 
-	std::string vertexInlines = "vertexAnimation ";
+	std::string vertexInlines = "vertexSkinning vertexAnimation ";
 	if(glConfig.driverType == GLDRV_OPENGL3 && r_vboDeformVertexes->integer)
 	{
 		vertexInlines += "deformVertexes ";
@@ -2516,10 +2514,7 @@ GLShader_geometricFill::GLShader_geometricFill():
 
 
 GLShader_shadowFill::GLShader_shadowFill():
-		GLShader(	"shadowFill",
-					ATTR_POSITION | ATTR_TEXCOORD | ATTR_NORMAL,
-					0,
-					ATTR_TANGENT | ATTR_TANGENT2 | ATTR_BINORMAL | ATTR_BINORMAL2),
+		GLShader("shadowFill", ATTR_POSITION | ATTR_TEXCOORD | ATTR_NORMAL),
 		u_ColorTextureMatrix(this),
 		u_ViewOrigin(this),
 		u_AlphaTest(this),
@@ -2548,7 +2543,7 @@ GLShader_shadowFill::GLShader_shadowFill():
 	
 	//Com_Memset(_shaderPrograms, 0, sizeof(_shaderPrograms));
 
-	std::string vertexInlines = "vertexAnimation ";
+	std::string vertexInlines = "vertexSkinning vertexAnimation ";
 	if(glConfig.driverType == GLDRV_OPENGL3 && r_vboDeformVertexes->integer)
 	{
 		vertexInlines += "deformVertexes ";
@@ -2619,10 +2614,7 @@ GLShader_shadowFill::GLShader_shadowFill():
 
 
 GLShader_reflection::GLShader_reflection():
-		GLShader(	"reflection",
-					ATTR_POSITION | ATTR_TEXCOORD | ATTR_TANGENT | ATTR_BINORMAL | ATTR_NORMAL,
-					ATTR_POSITION2 | ATTR_TANGENT2 | ATTR_BINORMAL2 | ATTR_NORMAL2 | ATTR_COLOR,
-					0),
+		GLShader("reflection", ATTR_POSITION | ATTR_TEXCOORD | ATTR_NORMAL),
 		u_ColorMap(this),
 		u_NormalMap(this),
 		u_NormalTextureMatrix(this),
@@ -2649,7 +2641,7 @@ GLShader_reflection::GLShader_reflection():
 	
 	//Com_Memset(_shaderPrograms, 0, sizeof(_shaderPrograms));
 
-	std::string vertexInlines = "vertexAnimation ";
+	std::string vertexInlines = "vertexSkinning vertexAnimation ";
 	if(glConfig.driverType == GLDRV_OPENGL3 && r_vboDeformVertexes->integer)
 	{
 		vertexInlines += "deformVertexes ";
@@ -2723,10 +2715,7 @@ GLShader_reflection::GLShader_reflection():
 
 
 GLShader_skybox::GLShader_skybox():
-		GLShader(	"skybox",
-					ATTR_POSITION | ATTR_TEXCOORD | ATTR_TANGENT | ATTR_BINORMAL | ATTR_NORMAL,
-					ATTR_POSITION2 | ATTR_TANGENT2 | ATTR_BINORMAL2 | ATTR_NORMAL2 | ATTR_COLOR,
-					0),
+		GLShader("skybox", ATTR_POSITION),
 		u_ColorMap(this),
 		u_ViewOrigin(this),
 		u_ModelMatrix(this),
@@ -2809,10 +2798,7 @@ GLShader_skybox::GLShader_skybox():
 
 
 GLShader_fogQuake3::GLShader_fogQuake3():
-		GLShader(	"fogQuake3",
-					ATTR_POSITION | ATTR_TEXCOORD | ATTR_NORMAL,
-					ATTR_COLOR | ATTR_POSITION2 | ATTR_NORMAL2,
-					ATTR_TANGENT | ATTR_TANGENT2 | ATTR_BINORMAL | ATTR_BINORMAL2),
+		GLShader("fogQuake3", ATTR_POSITION | ATTR_NORMAL),
 		u_Color(this),
 		u_ModelMatrix(this),
 		u_ModelViewProjectionMatrix(this),
@@ -2839,7 +2825,7 @@ GLShader_fogQuake3::GLShader_fogQuake3():
 	
 	//Com_Memset(_shaderPrograms, 0, sizeof(_shaderPrograms));
 
-	std::string vertexInlines = "vertexAnimation ";
+	std::string vertexInlines = "vertexSkinning vertexAnimation ";
 	if(glConfig.driverType == GLDRV_OPENGL3 && r_vboDeformVertexes->integer)
 	{
 		vertexInlines += "deformVertexes ";
@@ -2910,10 +2896,7 @@ GLShader_fogQuake3::GLShader_fogQuake3():
 
 
 GLShader_fogGlobal::GLShader_fogGlobal():
-		GLShader(	"fogGlobal",
-					ATTR_POSITION,
-					0,
-					ATTR_TANGENT | ATTR_TANGENT2 | ATTR_BINORMAL | ATTR_BINORMAL2),
+		GLShader("fogGlobal", ATTR_POSITION),
 		u_ViewOrigin(this),
 		u_Color(this),
 		u_ViewMatrix(this),
@@ -2998,10 +2981,7 @@ GLShader_fogGlobal::GLShader_fogGlobal():
 
 
 GLShader_heatHaze::GLShader_heatHaze():
-		GLShader(	"heatHaze",
-					ATTR_POSITION | ATTR_TEXCOORD | ATTR_NORMAL,
-					ATTR_COLOR | ATTR_POSITION2 | ATTR_NORMAL2,
-					ATTR_TANGENT | ATTR_TANGENT2 | ATTR_BINORMAL | ATTR_BINORMAL2),
+		GLShader("heatHaze", ATTR_POSITION | ATTR_TEXCOORD | ATTR_NORMAL),
 		u_NormalTextureMatrix(this),
 		u_ViewOrigin(this),
 		//u_AlphaTest(this),
@@ -3031,7 +3011,7 @@ GLShader_heatHaze::GLShader_heatHaze():
 	
 	//Com_Memset(_shaderPrograms, 0, sizeof(_shaderPrograms));
 
-	std::string vertexInlines = "vertexAnimation ";
+	std::string vertexInlines = "vertexSkinning vertexAnimation ";
 	if(glConfig.driverType == GLDRV_OPENGL3 && r_vboDeformVertexes->integer)
 	{
 		vertexInlines += "deformVertexes ";
@@ -3114,10 +3094,7 @@ GLShader_heatHaze::GLShader_heatHaze():
 
 
 GLShader_screen::GLShader_screen():
-		GLShader(	"screen",
-					ATTR_POSITION,
-					ATTR_COLOR,
-					ATTR_TANGENT | ATTR_TANGENT2 | ATTR_BINORMAL | ATTR_BINORMAL2),
+		GLShader("screen", ATTR_POSITION),
 		u_ModelViewProjectionMatrix(this)
 {
 	ri.Printf(PRINT_ALL, "/// -------------------------------------------------\n");
@@ -3172,10 +3149,7 @@ GLShader_screen::GLShader_screen():
 }
 
 GLShader_portal::GLShader_portal():
-		GLShader(	"portal",
-					ATTR_POSITION,
-					ATTR_COLOR,
-					ATTR_TANGENT | ATTR_TANGENT2 | ATTR_BINORMAL | ATTR_BINORMAL2),
+		GLShader("portal", ATTR_POSITION),
 		u_ModelViewMatrix(this),
 		u_ModelViewProjectionMatrix(this),
 		u_PortalRange(this)
@@ -3234,10 +3208,7 @@ GLShader_portal::GLShader_portal():
 
 
 GLShader_toneMapping::GLShader_toneMapping():
-		GLShader(	"toneMapping",
-					ATTR_POSITION,
-					ATTR_COLOR,
-					ATTR_TANGENT | ATTR_TANGENT2 | ATTR_BINORMAL | ATTR_BINORMAL2),
+		GLShader("toneMapping", ATTR_POSITION),
 		u_ModelViewProjectionMatrix(this),
 		u_HDRKey(this),
 		u_HDRAverageLuminance(this),
@@ -3318,10 +3289,7 @@ GLShader_toneMapping::GLShader_toneMapping():
 
 
 GLShader_contrast::GLShader_contrast():
-		GLShader(	"contrast",
-					ATTR_POSITION,
-					ATTR_COLOR,
-					ATTR_TANGENT | ATTR_TANGENT2 | ATTR_BINORMAL | ATTR_BINORMAL2),
+		GLShader("contrast", ATTR_POSITION),
 		u_ModelViewProjectionMatrix(this)
 {
 	ri.Printf(PRINT_ALL, "/// -------------------------------------------------\n");
@@ -3398,10 +3366,7 @@ GLShader_contrast::GLShader_contrast():
 
 
 GLShader_cameraEffects::GLShader_cameraEffects():
-		GLShader(	"cameraEffects",
-					ATTR_POSITION | ATTR_TEXCOORD,
-					ATTR_COLOR,
-					ATTR_TANGENT | ATTR_TANGENT2 | ATTR_BINORMAL | ATTR_BINORMAL2),
+		GLShader("cameraEffects", ATTR_POSITION | ATTR_TEXCOORD),
 		u_ColorTextureMatrix(this),
 		u_ModelViewProjectionMatrix(this),
 		u_DeformMagnitude(this)
@@ -3484,10 +3449,7 @@ GLShader_cameraEffects::GLShader_cameraEffects():
 
 
 GLShader_blurX::GLShader_blurX():
-		GLShader(	"blurX",
-					ATTR_POSITION,
-					ATTR_COLOR,
-					ATTR_TANGENT | ATTR_TANGENT2 | ATTR_BINORMAL | ATTR_BINORMAL2),
+		GLShader("blurX", ATTR_POSITION),
 		u_ModelViewProjectionMatrix(this),
 		u_DeformMagnitude(this)
 {
@@ -3567,10 +3529,7 @@ GLShader_blurX::GLShader_blurX():
 
 
 GLShader_blurY::GLShader_blurY():
-		GLShader(	"blurY",
-					ATTR_POSITION,
-					ATTR_COLOR,
-					ATTR_TANGENT | ATTR_TANGENT2 | ATTR_BINORMAL | ATTR_BINORMAL2),
+		GLShader("blurY", ATTR_POSITION),
 		u_ModelViewProjectionMatrix(this),
 		u_DeformMagnitude(this)
 {
@@ -3649,10 +3608,7 @@ GLShader_blurY::GLShader_blurY():
 
 
 GLShader_debugShadowMap::GLShader_debugShadowMap():
-		GLShader(	"debugShadowMap",
-					ATTR_POSITION,
-					ATTR_COLOR,
-					ATTR_TANGENT | ATTR_TANGENT2 | ATTR_BINORMAL | ATTR_BINORMAL2),
+		GLShader("debugShadowMap", ATTR_POSITION),
 		u_ModelViewProjectionMatrix(this)
 {
 	ri.Printf(PRINT_ALL, "/// -------------------------------------------------\n");

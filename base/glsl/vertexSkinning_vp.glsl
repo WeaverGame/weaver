@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2009-2010 Robert Beckebans <trebor_7@users.sourceforge.net>
+Copyright (C) 2009-2011 Robert Beckebans <trebor_7@users.sourceforge.net>
 
 This file is part of XreaL source code.
 
@@ -21,14 +21,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 // vertexSkinning_vp.glsl - GPU vertex skinning for skeletal meshes
 
-/*
-DON'T USE THIS CODE WITH ATI CARDS:   IT CAN FREEZE THE SYSTEM
+attribute vec4		attr_BoneIndexes;
+attribute vec4		attr_BoneWeights;
+uniform int			u_VertexSkinning;
+uniform mat4		u_BoneMatrix[MAX_GLSL_BONES];
 
-void VertexSkinning_P_N(const vec4 boneIndexes,
-						const vec4 boneWeights,
-						const mat4 boneMatrices[MAX_GLSL_BONES],
-						
-						const vec4 inPosition,
+void VertexSkinning_P_N(const vec4 inPosition,
 						const vec3 inNormal,
 						
 						inout vec4 position,
@@ -37,23 +35,56 @@ void VertexSkinning_P_N(const vec4 boneIndexes,
 	position = vec4(0.0, 0.0, 0.0, 1.0);
 	normal = vec3(0.0);
 
+#if 1
 	for(int i = 0; i < 4; i++)
 	{
-		int boneIndex = int(boneIndexes[i]);
-		float boneWeight = boneWeights[i];
-		mat4  boneMatrix = boneMatrices[boneIndex];
+		int boneIndex = int(attr_BoneIndexes[i]);
+		float boneWeight = attr_BoneWeights[i];
+		mat4  boneMatrix = u_BoneMatrix[boneIndex];
 		
 		position.xyz += (boneMatrix * inPosition).xyz * boneWeight;
 	
-		normal += (boneMatrix * vec4(inNormal, 0.0)).xyz * boneWeight;
-	}	
+		normal += (mat3(boneMatrix) * inNormal) * boneWeight;
+	}
+#else
+	// unrolled version
+	
+	// first bone
+	int boneIndex = int(attr_BoneIndexes[0]);
+	float boneWeight = attr_BoneWeights[0];
+	mat4  boneMatrix = u_BoneMatrix[boneIndex];
+	
+	position.xyz += (boneMatrix * inPosition).xyz * boneWeight;
+	normal += (boneMatrix * vec4(inNormal, 0.0)).xyz * boneWeight;
+	
+	// second bone
+	boneIndex = int(attr_BoneIndexes[1]);
+	boneWeight = attr_BoneWeights[1];
+	boneMatrix = u_BoneMatrix[boneIndex];
+	
+	position.xyz += (boneMatrix * inPosition).xyz * boneWeight;
+	normal += (boneMatrix * vec4(inNormal, 0.0)).xyz * boneWeight;
+	
+	// third
+	boneIndex = int(attr_BoneIndexes[2]);
+	boneWeight = attr_BoneWeights[2];
+	boneMatrix = u_BoneMatrix[boneIndex];
+	
+	position.xyz += (boneMatrix * inPosition).xyz * boneWeight;
+	normal += (boneMatrix * vec4(inNormal, 0.0)).xyz * boneWeight;
+	
+	// fourth
+	boneIndex = int(attr_BoneIndexes[3]);
+	boneWeight = attr_BoneWeights[3];
+	boneMatrix = u_BoneMatrix[boneIndex];
+	
+	position.xyz += (boneMatrix * inPosition).xyz * boneWeight;
+	normal += (boneMatrix * vec4(inNormal, 0.0)).xyz * boneWeight;
+	
+#endif	
 }
 
-void VertexSkinning_P_TBN(	const vec4 boneIndexes,
-							const vec4 boneWeights,
-							const mat4 boneMatrices[MAX_GLSL_BONES],
-							
-							const vec4 inPosition,
+void VertexSkinning_P_TBN(	const vec4 inPosition,
 							const vec3 inTangent,
 							const vec3 inBinormal,
 							const vec3 inNormal,
@@ -71,9 +102,9 @@ void VertexSkinning_P_TBN(	const vec4 boneIndexes,
 
 	for(int i = 0; i < 4; i++)
 	{
-		int boneIndex = int(boneIndexes[i]);
-		float boneWeight = boneWeights[i];
-		mat4  boneMatrix = boneMatrices[boneIndex];
+		int boneIndex = int(attr_BoneIndexes[i]);
+		float boneWeight = attr_BoneWeights[i];
+		mat4  boneMatrix = u_BoneMatrix[boneIndex];
 		
 		position.xyz += (boneMatrix * inPosition).xyz * boneWeight;
 	
@@ -82,5 +113,3 @@ void VertexSkinning_P_TBN(	const vec4 boneIndexes,
 		normal += (boneMatrix * vec4(inNormal, 0.0)).xyz * boneWeight;
 	}	
 }
-*/
-

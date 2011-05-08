@@ -928,7 +928,7 @@ static void GraphicsOptions_ApplyChanges(void *unused, int notification)
 			break;
 	}
 
-	trap_Cvar_SetValue("r_dynamicLightsCastShadows", s_graphicsoptions.dynamicLightsCastShadows.curvalue);
+	trap_Cvar_SetValue("r_dynamicLightCastShadows", s_graphicsoptions.dynamicLightsCastShadows.curvalue);
 	trap_Cvar_SetValue("r_hdrRendering", s_graphicsoptions.hdr.curvalue);
 	trap_Cvar_SetValue("r_bloom", s_graphicsoptions.bloom.curvalue);
 
@@ -1204,7 +1204,7 @@ static void GraphicsOptions_SetMenuItems(void)
 	s_graphicsoptions.shadowFilter.curvalue = trap_Cvar_VariableValue("r_softShadows");
 	s_graphicsoptions.shadowBlur.curvalue = trap_Cvar_VariableValue("r_shadowBlur");
 	s_graphicsoptions.shadowQuality.curvalue = trap_Cvar_VariableValue("r_shadowMapQuality");
-	s_graphicsoptions.dynamicLightsCastShadows.curvalue = trap_Cvar_VariableValue("r_dynamicLightsCastShadows");
+	s_graphicsoptions.dynamicLightsCastShadows.curvalue = trap_Cvar_VariableValue("r_dynamicLightCastShadows");
 
 	s_graphicsoptions.hdr.curvalue = trap_Cvar_VariableValue("r_hdrRendering");
 	if(s_graphicsoptions.hdr.curvalue > 0)

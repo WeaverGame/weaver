@@ -1340,121 +1340,121 @@ typedef struct shaderProgram_s
 	uint32_t        attribs;	// vertex array attributes
 
 	// uniform parameters
-	int16_t         u_ColorMap;
-	int16_t         u_CurrentMap;
-	int16_t         u_ContrastMap;
-	int16_t         u_DiffuseMap;
-	int16_t         u_NormalMap;
-	int16_t         u_SpecularMap;
-	int16_t         u_LightMap;
-	int16_t         u_DeluxeMap;
-	int16_t         u_DepthMap;
-	int16_t         u_DepthMapBack;
-	int16_t         u_DepthMapFront;
-	int16_t         u_PortalMap;
-	int16_t         u_AttenuationMapXY;
-	int16_t         u_AttenuationMapZ;
-	int16_t         u_ShadowMap;
-	int16_t         u_ShadowMap0;
-	int16_t         u_ShadowMap1;
-	int16_t         u_ShadowMap2;
-	int16_t         u_ShadowMap3;
-	int16_t         u_ShadowMap4;
-	int16_t         u_EnvironmentMap0;
-	int16_t         u_EnvironmentMap1;
+	int32_t         u_ColorMap;
+	int32_t         u_CurrentMap;
+	int32_t         u_ContrastMap;
+	int32_t         u_DiffuseMap;
+	int32_t         u_NormalMap;
+	int32_t         u_SpecularMap;
+	int32_t         u_LightMap;
+	int32_t         u_DeluxeMap;
+	int32_t         u_DepthMap;
+	int32_t         u_DepthMapBack;
+	int32_t         u_DepthMapFront;
+	int32_t         u_PortalMap;
+	int32_t         u_AttenuationMapXY;
+	int32_t         u_AttenuationMapZ;
+	int32_t         u_ShadowMap;
+	int32_t         u_ShadowMap0;
+	int32_t         u_ShadowMap1;
+	int32_t         u_ShadowMap2;
+	int32_t         u_ShadowMap3;
+	int32_t         u_ShadowMap4;
+	int32_t         u_EnvironmentMap0;
+	int32_t         u_EnvironmentMap1;
 
-	int16_t         u_GrainMap;
-	int16_t         u_VignetteMap;
+	int32_t         u_GrainMap;
+	int32_t         u_VignetteMap;
 
-	int16_t         u_ColorTextureMatrix;
+	int32_t         u_ColorTextureMatrix;
 	matrix_t		t_ColorTextureMatrix;
 
-	int16_t         u_DiffuseTextureMatrix;
+	int32_t         u_DiffuseTextureMatrix;
 	matrix_t		t_DiffuseTextureMatrix;
 
-	int16_t         u_NormalTextureMatrix;
+	int32_t         u_NormalTextureMatrix;
 	matrix_t		t_NormalTextureMatrix;
 
-	int16_t         u_SpecularTextureMatrix;
+	int32_t         u_SpecularTextureMatrix;
 	matrix_t		t_SpecularTextureMatrix;
 
-	int16_t         u_AlphaTest;
+	int32_t         u_AlphaTest;
 	alphaTest_t		t_AlphaTest;
 
-	int16_t         u_ViewOrigin;
+	int32_t         u_ViewOrigin;
 	vec3_t			t_ViewOrigin;
 
 	GLint			u_DeformParms;
 
-	int16_t         u_ColorGen;
+	int32_t         u_ColorGen;
 	colorGen_t		t_ColorGen;
 
-	int16_t         u_AlphaGen;
+	int32_t         u_AlphaGen;
 	alphaGen_t		t_AlphaGen;
 
-	int16_t         u_Color;
+	int32_t         u_Color;
 	vec4_t			t_Color;
 
-	int16_t         u_ColorModulate;
+	int32_t         u_ColorModulate;
 	vec4_t			t_ColorModulate;
 
-	int16_t         u_AmbientColor;
+	int32_t         u_AmbientColor;
 	vec3_t			t_AmbientColor;
 
-	int16_t         u_LightDir;
+	int32_t         u_LightDir;
 	vec3_t			t_LightDir;
 
-	int16_t         u_LightOrigin;
+	int32_t         u_LightOrigin;
 	vec3_t			t_LightOrigin;
 
-	int16_t         u_LightColor;
+	int32_t         u_LightColor;
 	vec3_t			t_LightColor;
 
-	int16_t         u_LightRadius;
+	int32_t         u_LightRadius;
 	float			t_LightRadius;
 
-	int16_t         u_LightParallel;
+	int32_t         u_LightParallel;
 	qboolean		t_LightParallel;
 
-	int16_t         u_LightScale;
+	int32_t         u_LightScale;
 	float			t_LightScale;
 
-	int16_t         u_LightWrapAround;
+	int32_t         u_LightWrapAround;
 	float			t_LightWrapAround;
 
-	int16_t         u_LightAttenuationMatrix;
+	int32_t         u_LightAttenuationMatrix;
 	matrix_t		t_LightAttenuationMatrix;
 
-	int16_t         u_LightFrustum;
+	int32_t         u_LightFrustum;
 
-	int16_t         u_ShadowMatrix;
+	int32_t         u_ShadowMatrix;
 	matrix_t		t_ShadowMatrix;
 
-	int16_t         u_ShadowCompare;
+	int32_t         u_ShadowCompare;
 	qboolean		t_ShadowCompare;
 
-	int16_t         u_ShadowTexelSize;
+	int32_t         u_ShadowTexelSize;
 	float			t_ShadowTexelSize;
 
-	int16_t         u_ShadowBlur;
+	int32_t         u_ShadowBlur;
 	float			t_ShadowBlur;
 
 	GLint			u_ShadowParallelSplitDistances;
 	vec4_t			t_ShadowParallelSplitDistances;
 
-	int16_t         u_RefractionIndex;
+	int32_t         u_RefractionIndex;
 	float			t_RefractionIndex;
 
-	int16_t         u_FresnelPower;
-	int16_t         u_FresnelScale;
-	int16_t         u_FresnelBias;
+	int32_t         u_FresnelPower;
+	int32_t         u_FresnelScale;
+	int32_t         u_FresnelBias;
 
 	GLint			u_NormalScale;
 
-	int16_t         u_EtaRatio;
+	int32_t         u_EtaRatio;
 
-	int16_t         u_FogDensity;
-	int16_t         u_FogColor;
+	int32_t         u_FogDensity;
+	int32_t         u_FogColor;
 
 	GLint			u_FogDistanceVector;
 	vec4_t			t_FogDistanceVector;
@@ -1465,13 +1465,13 @@ typedef struct shaderProgram_s
 	GLint			u_FogEyeT;
 	float			t_FogEyeT;
 
-	int16_t         u_SSAOJitter;
-	int16_t         u_SSAORadius;
+	int32_t         u_SSAOJitter;
+	int32_t         u_SSAORadius;
 
 	GLint			u_ParallaxMapping;
 	qboolean		t_ParallaxMapping;
 
-	int16_t         u_DepthScale;
+	int32_t         u_DepthScale;
 	float			t_DepthScale;
 
 
@@ -1481,7 +1481,7 @@ typedef struct shaderProgram_s
 	GLint			u_PortalPlane;
 	vec4_t			t_PortalPlane;
 
-	int16_t         u_PortalRange;
+	int32_t         u_PortalRange;
 	float			t_PortalRange;
 
 	GLint			u_EnvironmentInterpolation;
@@ -1496,43 +1496,43 @@ typedef struct shaderProgram_s
 	GLint			u_HDRMaxLuminance;
 	float			t_HDRMaxLuminance;
 
-	int16_t         u_DeformMagnitude;
+	int32_t         u_DeformMagnitude;
 	float			t_DeformMagnitude;
 
 
-	int16_t         u_ModelMatrix;	// model -> world
+	int32_t         u_ModelMatrix;	// model -> world
 	matrix_t		t_ModelMatrix;
 
-	int16_t         u_ViewMatrix;	// world -> camera
+	int32_t         u_ViewMatrix;	// world -> camera
 	matrix_t		t_ViewMatrix;
 
-	int16_t         u_ModelViewMatrix;	// model -> camera
+	int32_t         u_ModelViewMatrix;	// model -> camera
 	matrix_t		t_ModelViewMatrix;
 
-	int16_t         u_ModelViewMatrixTranspose;
+	int32_t         u_ModelViewMatrixTranspose;
 	matrix_t		t_ModelViewMatrixTranspose;
 
-	int16_t         u_ProjectionMatrix;
+	int32_t         u_ProjectionMatrix;
 	matrix_t		t_ProjectionMatrix;
 
-	int16_t         u_ProjectionMatrixTranspose;
+	int32_t         u_ProjectionMatrixTranspose;
 	matrix_t		t_ProjectionMatrixTranspose;
 
-	int16_t         u_ModelViewProjectionMatrix;
+	int32_t         u_ModelViewProjectionMatrix;
 	matrix_t		t_ModelViewProjectionMatrix;
 
-	int16_t         u_UnprojectMatrix;
+	int32_t         u_UnprojectMatrix;
 	matrix_t		t_UnprojectMatrix;
 
-	int16_t         u_VertexSkinning;
+	int32_t         u_VertexSkinning;
 	qboolean		t_VertexSkinning;
 
 	GLint			u_VertexInterpolation;
 	float			t_VertexInterpolation;
 
-	int16_t         u_BoneMatrix;
+	int32_t         u_BoneMatrix;
 
-	int16_t         u_Time;
+	int32_t         u_Time;
 	float			t_Time;
 } shaderProgram_t;
 
@@ -1664,100 +1664,6 @@ static ID_INLINE void GLSL_SetUniform_ViewOrigin(shaderProgram_t * program, cons
 
 
 
-static ID_INLINE void GLSL_SetUniform_ColorGen(shaderProgram_t * program, colorGen_t value)
-{
-#if 0
-	float			floatValue;
-
-	switch (value)
-	{
-		case CGEN_VERTEX:
-			floatValue = 1.0f;
-			break;
-
-		case CGEN_ONE_MINUS_VERTEX:
-			floatValue = -1.0f;
-			break;
-
-		default:
-			floatValue = 0.0f;
-			break;
-	}
-
-#if defined(USE_UNIFORM_FIREWALL)
-	if(program->t_ColorGen == floatValue)
-		return;
-
-	program->t_ColorGen = floatValue;
-#endif
-
-	glUniform1fARB(program->u_ColorGen, floatValue);
-#else
-#if defined(USE_UNIFORM_FIREWALL)
-	if(program->t_ColorGen == value)
-		return;
-
-	program->t_ColorGen = value;
-#endif
-
-#if defined(LOG_GLSL_UNIFORMS)
-	if(r_logFile->integer)
-	{
-		GLimp_LogComment(va("--- GLSL_SetUniform_ColorGen( program = %s, value = %i ) ---\n", program->name, value));
-	}
-#endif
-
-	glUniform1iARB(program->u_ColorGen, value);
-#endif
-}
-
-static ID_INLINE void GLSL_SetUniform_AlphaGen(shaderProgram_t * program, alphaGen_t value)
-{
-#if 0
-	float			floatValue;
-
-	switch (value)
-	{
-		case AGEN_VERTEX:
-			floatValue = 1.0f;
-			break;
-
-		case AGEN_ONE_MINUS_VERTEX:
-			floatValue = -1.0f;
-			break;
-
-		default:
-			floatValue = 0.0f;
-			break;
-	}
-
-#if defined(USE_UNIFORM_FIREWALL)
-	if(program->t_AlphaGen == floatValue)
-		return;
-
-	program->t_AlphaGen = floatValue;
-#endif
-
-	glUniform1fARB(program->u_AlphaGen, floatValue);
-
-#else
-#if defined(USE_UNIFORM_FIREWALL)
-	if(program->t_AlphaGen == value)
-		return;
-
-	program->t_AlphaGen = value;
-#endif
-
-#if defined(LOG_GLSL_UNIFORMS)
-	if(r_logFile->integer)
-	{
-		GLimp_LogComment(va("--- GLSL_SetUniform_AlphaGen( program = %s, value = %i ) ---\n", program->name, value));
-	}
-#endif
-
-	glUniform1iARB(program->u_AlphaGen, value);
-#endif
-}
 
 static ID_INLINE void GLSL_SetUniform_Color(shaderProgram_t * program, const vec4_t v)
 {
@@ -2958,7 +2864,7 @@ typedef struct srfVBOMDMMesh_s
 
 	// static render data
 	VBO_t          *vbo;
-	IBO_t          *ibo;
+	IBO_t          *ibo[MD3_MAX_LODS];
 } srfVBOMDMMesh_t;
 
 typedef struct srfVBOMDVMesh_s
@@ -3414,6 +3320,8 @@ typedef struct mdmModel_s
 	vec3_t          bounds[2];
 } mdmModel_t;
 
+extern const float mdmLODResolutions[MD3_MAX_LODS];
+
 
 typedef enum
 {
@@ -3637,6 +3545,7 @@ typedef struct
 	int				polygonFace, polygonMode;
 	int             scissorX, scissorY, scissorWidth, scissorHeight;
 	int             viewportX, viewportY, viewportWidth, viewportHeight;
+	float			polygonOffsetFactor, polygonOffsetUnits;
 
 	int             currenttextures[32];
 	int             currenttmu;
@@ -4037,8 +3946,10 @@ extern cvar_t  *r_stereo;		// desired pixelformat stereo flag
 
 extern cvar_t  *r_measureOverdraw;	// enables stencil buffer overdraw measurement
 
-extern cvar_t  *r_lodbias;		// push/pull LOD transitions
-extern cvar_t  *r_lodscale;
+extern cvar_t  *r_lodBias;		// push/pull LOD transitions
+extern cvar_t  *r_lodScale;
+extern cvar_t  *r_lodTest;
+
 
 extern cvar_t  *r_forceFog;
 extern cvar_t  *r_wolfFog;
@@ -4052,9 +3963,9 @@ extern cvar_t  *r_debugLight;
 extern cvar_t  *r_inGameVideo;	// controls whether in game video should be draw
 extern cvar_t  *r_fastsky;		// controls whether sky should be cleared or drawn
 extern cvar_t  *r_drawSun;		// controls drawing of sun quad
-extern cvar_t  *r_noDynamicLighting;	// dynamic lights enabled/disabled
-extern cvar_t  *r_noStaticLighting;	// dynamic lights enabled/disabled
-extern cvar_t  *r_dynamicLightsCastShadows;
+extern cvar_t  *r_dynamicLight;	// dynamic lights enabled/disabled
+extern cvar_t  *r_staticLight;	// static lights enabled/disabled
+extern cvar_t  *r_dynamicLightCastShadows;
 extern cvar_t  *r_precomputedLighting;
 extern cvar_t  *r_vertexLighting;
 extern cvar_t  *r_compressDiffuseMaps;
@@ -4236,7 +4147,6 @@ extern cvar_t  *r_vboCurves;
 extern cvar_t  *r_vboTriangles;
 extern cvar_t  *r_vboShadows;
 extern cvar_t  *r_vboLighting;
-extern cvar_t  *r_vboDynamicLighting;
 extern cvar_t  *r_vboModels;
 extern cvar_t  *r_vboOptimizeVertices;
 extern cvar_t  *r_vboVertexSkinning;
@@ -4414,6 +4324,7 @@ void            GL_PopMatrix();
 void			GL_PolygonMode(GLenum face, GLenum mode);
 void			GL_Scissor(GLint x, GLint y, GLsizei width, GLsizei height);
 void			GL_Viewport(GLint x, GLint y, GLsizei width, GLsizei height);
+void			GL_PolygonOffset(float factor, float units);
 
 void            GL_CheckErrors_(const char *filename, int line);
 
@@ -4587,10 +4498,10 @@ typedef struct shaderCommands_s
 	vec4_t          binormals[SHADER_MAX_VERTEXES];
 	vec4_t          normals[SHADER_MAX_VERTEXES];
 	vec4_t          colors[SHADER_MAX_VERTEXES];
+#if !defined(COMPAT_Q3A) && !defined(COMPAT_ET)
 	vec4_t          paintColors[SHADER_MAX_VERTEXES];		// for advanced terrain blending
 	vec4_t          lightDirections[SHADER_MAX_VERTEXES];
-	vec4_t          boneIndexes[SHADER_MAX_VERTEXES];
-	vec4_t          boneWeights[SHADER_MAX_VERTEXES];
+#endif
 
 	glIndex_t       indexes[SHADER_MAX_INDEXES];
 
