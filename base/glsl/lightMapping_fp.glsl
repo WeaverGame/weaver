@@ -58,12 +58,7 @@ void	main()
 #endif
 
 
-#if defined(r_showLightMaps)
-	gl_FragColor = texture2D(u_LightMap, var_TexLight);
-#elif defined(r_showDeluxeMaps)
-	gl_FragColor = texture2D(u_DeluxeMap, var_TexLight);
-
-#elif defined(USE_NORMAL_MAPPING)
+#if defined(USE_NORMAL_MAPPING)
 
 	vec2 texDiffuse = var_TexDiffuseNormal.st;
 	vec2 texNormal = var_TexDiffuseNormal.pq;
@@ -215,6 +210,12 @@ void	main()
 
 	// convert normal to [0,1] color space
 	N = N * 0.5 + 0.5;
+	
+#if defined(r_showLightMaps)
+	color = texture2D(u_LightMap, var_TexLight);
+#elif defined(r_showDeluxeMaps)
+	color = texture2D(u_DeluxeMap, var_TexLight);
+#endif
 
 #if defined(r_DeferredShading)
 	gl_FragData[0] = color; 							// var_Color;

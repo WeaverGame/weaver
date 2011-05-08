@@ -36,7 +36,7 @@ float sawtooth(float x)
 	return x - floor(x);
 }
 
-
+/*
 vec4 DeformPosition(const int deformGen,
 					const vec4 wave,	// [base amplitude phase freq]
 					const vec3 bulge,	// [width height speed]
@@ -110,7 +110,7 @@ vec4 DeformPosition(const int deformGen,
 
 	return deformed;
 }
-
+*/
 
 /*
 	define	WAVEVALUE( table, base, amplitude, phase, freq ) \
@@ -209,3 +209,4 @@ vec4 DeformPosition2(	const vec4 pos,
 
 
 #endif // !defined(GLDRV_MESA)
+
