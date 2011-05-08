@@ -3074,7 +3074,7 @@ static void FS_Startup(const char *gameName)
 	}
 	fs_homepath = Cvar_Get("fs_homepath", homePath, CVAR_INIT);
 
-#if defined(USE_JAVA)
+#if defined(USE_JAVA)// || defined(USE_MONO)
 	fs_gamedirvar = Cvar_Get("fs_game", "quaplexity", CVAR_INIT | CVAR_SYSTEMINFO);
 #else
 	fs_gamedirvar = Cvar_Get("fs_game", "", CVAR_INIT | CVAR_SYSTEMINFO);

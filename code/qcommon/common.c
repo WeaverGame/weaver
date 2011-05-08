@@ -27,6 +27,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #if defined(USE_JAVA)
 #include "vm_java.h"
+#elif defined(USE_MONO)
+#include "vm_mono.h"
 #endif
 
 #include <setjmp.h>
@@ -43,7 +45,11 @@ int             demo_protocols[] = { PROTOCOL_VERSION, 0 };
 
 #define MIN_DEDICATED_COMHUNKMEGS 1
 #define MIN_COMHUNKMEGS		96
+#if defined(_WIN32)
+#define DEF_COMHUNKMEGS		256
+#else
 #define DEF_COMHUNKMEGS		512
+#endif
 #define DEF_COMZONEMEGS		96
 //#define XSTRING(x)		STRING(x)
 //#define STRING(x)			#x
@@ -341,6 +347,8 @@ void QDECL Com_Error(int code, const char *fmt, ...)
 
 #if defined(USE_JAVA)
 		JVM_Shutdown();
+#elif defined(USE_MONO)
+		Mono_Shutdown();
 #endif
 	}
 
@@ -3859,6 +3867,8 @@ void Com_Init(char *commandLine)
 	VM_Init();
 #if defined(USE_JAVA)
 	JVM_Init();
+#elif defined(USE_MONO)
+	Mono_Init();
 #endif
 	SV_Init();
 

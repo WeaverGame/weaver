@@ -47,6 +47,12 @@ extern "C" {
 #endif
 #endif
 
+#if 0
+#if !defined(USE_MONO)
+#define USE_MONO 1
+#endif
+#endif
+
 #ifdef SVN_VERSION
 # define Q3_VERSION PRODUCT_NAME " " SVN_VERSION
 #else

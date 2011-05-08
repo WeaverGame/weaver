@@ -226,6 +226,7 @@ typedef struct
 	qboolean        demowaiting;	// don't record until a non-delta message is received
 	qboolean        firstDemoFrameSkipped;
 	fileHandle_t    demofile;
+	int             demoStartTime;
 
 	int             timeDemoFrames;	// counter of rendered frames
 	int             timeDemoStart;	// cls.realtime before first frame
@@ -418,6 +419,8 @@ extern cvar_t  *cl_inGameVideo;
 
 extern cvar_t  *cl_lanForcePackets;
 extern cvar_t  *cl_autoRecordDemo;
+extern cvar_t  *cl_autoScreenshotPeriod;
+extern cvar_t  *cl_autoScreenshotName;
 
 extern cvar_t  *cl_consoleKeys;
 
