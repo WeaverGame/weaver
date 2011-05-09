@@ -264,7 +264,7 @@ static void R_AddInteractionSurface(bspSurface_t * surf, trRefLight_t * light)
 	// into this view
 	if(surf->viewCount != tr.viewCountNoReset)
 	{
-		if(r_shadows->integer <= SHADOWING_PLANAR || light->l.noShadows)
+		if(r_shadows->integer <= SHADOWING_BLOB || light->l.noShadows)
 			return;
 		else
 			iaType = IA_SHADOWONLY;
@@ -643,7 +643,7 @@ static void R_RecursiveInteractionNode(bspNode_t * node, trRefLight_t * light, i
 
 	// Tr3B - even surfaces that belong to nodes that are outside of the view frustum
 	// can cast shadows into the view frustum
-	if(!r_nocull->integer && r_shadows->integer <= SHADOWING_PLANAR)
+	if(!r_nocull->integer && r_shadows->integer <= SHADOWING_BLOB)
 	{
 		for(i = 0; i < FRUSTUM_PLANES; i++)
 		{

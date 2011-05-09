@@ -2461,7 +2461,7 @@ qboolean CG_PlayerShadow(centity_t * cent, float *shadowPlane, int noShadowID)
 	alpha = 1.0 - trace.fraction;
 
 #if 0							// FIXME
-	if((cg_shadows.integer >= 4 && cg_shadows.integer <= 6) && cg_precomputedLighting.integer)
+	if((cg_shadows.integer >= SHADOWING_VSM16 && cg_shadows.integer <= SHADOWING_EVSM) && cg_precomputedLighting.integer)
 	{
 		refLight_t      light;
 		vec3_t          angles;

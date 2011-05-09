@@ -95,16 +95,6 @@ typedef enum
 
 typedef enum
 {
-	SHADOWING_BLOB,
-	SHADOWING_PLANAR,
-	SHADOWING_STENCIL,
-	SHADOWING_VSM16,
-	SHADOWING_VSM32,
-	SHADOWING_ESM
-} shadowingMode_t;
-
-typedef enum
-{
 	RSPEEDS_GENERAL = 1,
 	RSPEEDS_CULLING,
 	RSPEEDS_VIEWCLUSTER,
@@ -3767,7 +3757,6 @@ typedef struct
 	shader_t       *defaultDynamicLightShader;
 
 	// external shaders
-	shader_t       *projectionShadowShader;
 	shader_t       *flareShader;
 	shader_t       *sunShader;
 	char           *sunShaderName;

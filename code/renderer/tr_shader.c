@@ -2997,7 +2997,7 @@ infoParm_t	infoParms[] = {
 	{"metal",			0,	SURF_METALSTEPS, 0},
 	{"metalsteps",		0,	SURF_METALSTEPS, 0},
 #endif
-	
+
 #if !defined(COMPAT_ET)
 	{"wallwalk",		0,	SURF_WALLWALK,	0},
 #endif
@@ -4525,31 +4525,31 @@ static void CollapseStages()
 
 		for(i = 0; i < 3; i++)
 		{
-			if((j+i) >= MAX_SHADER_STAGES)
+			if((j + i) >= MAX_SHADER_STAGES)
 				continue;
 
-			if(!stages[j+i].active)
+			if(!stages[j + i].active)
 				continue;
 
-			if(stages[j+i].type == ST_DIFFUSEMAP && !hasDiffuseStage)
+			if(stages[j + i].type == ST_DIFFUSEMAP && !hasDiffuseStage)
 			{
 				hasDiffuseStage = qtrue;
 				tmpDiffuseStage = stages[j+i];
 			}
-			else if(stages[j+i].type == ST_NORMALMAP && !hasNormalStage)
+			else if(stages[j + i].type == ST_NORMALMAP && !hasNormalStage)
 			{
 				hasNormalStage = qtrue;
 				tmpNormalStage = stages[j+i];
 			}
-			else if(stages[j+i].type == ST_SPECULARMAP && !hasSpecularStage)
+			else if(stages[j + i].type == ST_SPECULARMAP && !hasSpecularStage)
 			{
 				hasSpecularStage = qtrue;
 				tmpSpecularStage = stages[j+i];
 			}
-			else if(stages[j+i].type == ST_REFLECTIONMAP && !hasReflectionStage)
+			else if(stages[j + i].type == ST_REFLECTIONMAP && !hasReflectionStage)
 			{
 				hasReflectionStage = qtrue;
-				tmpReflectionStage = stages[j+i];
+				tmpReflectionStage = stages[j + i];
 			}
 		}
 
@@ -5017,7 +5017,7 @@ static shader_t *FinishShader(void)
 		{
 			pStage->stateBits |= GLS_DEPTHMASK_TRUE;
 		}
-
+		
 		if(shader.isSky && pStage->noFog)
 		{
 			shader.sort = SS_ENVIRONMENT_NOFOG;
@@ -6631,7 +6631,6 @@ static void CreateExternalShaders(void)
 {
 	ri.Printf(PRINT_ALL, "----- CreateExternalShaders -----\n");
 
-	tr.projectionShadowShader = R_FindShader("projectionShadow", SHADER_3D_DYNAMIC, qtrue);
 	tr.flareShader = R_FindShader("flareShader", SHADER_3D_DYNAMIC, qtrue);
 	tr.sunShader = R_FindShader("sun", SHADER_3D_DYNAMIC, qtrue);
 

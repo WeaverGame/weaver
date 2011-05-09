@@ -36,7 +36,7 @@ void	main()
 		
 	gl_FragColor = vec4(shadowDistance, 0.0, 0.0, 1.0);
 	
-#elif defined(ESM)
+#elif defined(EVSM)
 	
 	vec4 shadowMoments = texture2D(u_ShadowMap, var_TexCoord);
 	float shadowDistance = shadowMoments.a;

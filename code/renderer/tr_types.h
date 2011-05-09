@@ -289,6 +289,20 @@ typedef enum
 } stereoFrame_t;
 
 
+// XreaL BEGIN
+
+// cg_shadows modes
+typedef enum
+{
+	SHADOWING_NONE,
+	SHADOWING_BLOB,
+	SHADOWING_VSM16,
+	SHADOWING_VSM32,
+	SHADOWING_EVSM
+} shadowingMode_t;
+// XreaL END
+
+
 /*
 ** glconfig_t
 **
@@ -356,7 +370,7 @@ typedef struct
 	qboolean        smpActive;	// dual processor
 } glconfig_t;
 
-	// XreaL BEGIN
+// XreaL BEGIN
 typedef struct
 {
 	qboolean		ARBTextureCompressionAvailable;
@@ -397,7 +411,7 @@ typedef struct
 
 	qboolean        generateMipmapAvailable;
 } glconfig2_t;
-	// XreaL END
+// XreaL END
 
 
 // =========================================

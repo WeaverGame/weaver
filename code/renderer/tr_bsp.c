@@ -6817,7 +6817,7 @@ static void R_KillRedundantInteractions(trRefLight_t * light)
 	bspSurface_t   *surface;
 	vec3_t          localBounds[2];
 
-	if(r_shadows->integer <= SHADOWING_PLANAR)
+	if(r_shadows->integer <= SHADOWING_BLOB)
 		return;
 
 	if(!light->firstInteractionCache)
@@ -8061,7 +8061,7 @@ static void R_CalcInteractionCubeSideBits(trRefLight_t * light)
 	bspSurface_t   *surface;
 	vec3_t          localBounds[2];
 
-	if(r_shadows->integer <= SHADOWING_PLANAR)
+	if(r_shadows->integer <= SHADOWING_BLOB)
 		return;
 
 	if(!light->firstInteractionCache)

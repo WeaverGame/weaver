@@ -87,7 +87,7 @@ void	main()
 	gl_FragColor = vec4(distance, 0.0, 0.0, distanceSquared);
 #endif
 
-#elif defined(ESM)
+#elif defined(EVSM)
 	
 	float distance;
 #if defined(LIGHT_DIRECTIONAL)
@@ -99,7 +99,7 @@ void	main()
 	}
 #else
 	{
-		distance = (length(var_Position - u_LightOrigin) / u_LightRadius) * r_ShadowMapDepthScale;
+		distance = (length(var_Position - u_LightOrigin) / u_LightRadius); // * r_ShadowMapDepthScale;
 	}
 #endif
 	

@@ -9479,23 +9479,6 @@ static void RB_RenderDebugUtils()
 				Vector4Set(quadVerts[3], ia->scissorX, ia->scissorY + ia->scissorHeight - 1, 0, 1);
 				Tess_InstantQuad(quadVerts);
 			}
-			else if(r_shadows->integer == SHADOWING_STENCIL && glDepthBoundsEXT)
-			{
-				if(ia->noDepthBoundsTest)
-				{
-					gl_genericShader->SetUniform_Color(colorBlue);
-				}
-				else
-				{
-					gl_genericShader->SetUniform_Color(colorGreen);
-				}
-
-				Vector4Set(quadVerts[0], ia->scissorX, ia->scissorY, 0, 1);
-				Vector4Set(quadVerts[1], ia->scissorX + ia->scissorWidth - 1, ia->scissorY, 0, 1);
-				Vector4Set(quadVerts[2], ia->scissorX + ia->scissorWidth - 1, ia->scissorY + ia->scissorHeight - 1, 0, 1);
-				Vector4Set(quadVerts[3], ia->scissorX, ia->scissorY + ia->scissorHeight - 1, 0, 1);
-				Tess_InstantQuad(quadVerts);
-			}
 			else
 			{
 				gl_genericShader->SetUniform_Color(colorWhite);
@@ -10279,7 +10262,7 @@ static void RB_RenderView(void)
 		// clear relevant buffers
 		clearBits = GL_DEPTH_BUFFER_BIT;
 
-		if(r_measureOverdraw->integer || r_shadows->integer == SHADOWING_STENCIL)
+		if(r_measureOverdraw->integer)
 		{
 			clearBits |= GL_STENCIL_BUFFER_BIT;
 		}

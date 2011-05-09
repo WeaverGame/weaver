@@ -105,6 +105,68 @@ void MakeNormalVectors(const vec3 forward, inout vec3 right, inout vec3 up)
 }
 
 
+/*
+source: http://en.wikipedia.org/wiki/Chebyshev%27s_inequality
+
+X = distribution
+µ = mean
+sigma = standard deviation
+
+=> then for any real number k > 0:
+
+Pr(X - µ >= k * sigma) <= 1 / ( 1 + k^2)
+*/
+
+float ChebyshevUpperBound(vec2 shadowMoments, float vertexDistance, float minVariance)
+{
+	float shadowDistance = shadowMoments.x;
+	float shadowDistanceSquared = shadowMoments.y;
+
+	// compute variance
+	float E_x2 = shadowDistanceSquared;
+	float Ex_2 = shadowDistance * shadowDistance;
+
+	float variance = max(E_x2 - Ex_2, minVariance);
+	// float variance = smoothstep(minVariance, 1.0, max(E_x2 - Ex_2, 0.0));
+
+	// compute probabilistic upper bound
+	float d = vertexDistance - shadowDistance;
+	float pMax = variance / (variance + (d * d));
+	
+	/*
+	#if defined(r_LightBleedReduction)
+	pMax = smoothstep(r_LightBleedReduction, 1.0, pMax);
+	#endif
+	*/
+	
+	// one-tailed Chebyshev with k > 0
+	return (vertexDistance <= shadowDistance ? 1.0 : pMax);
+}
+
+#if defined(EVSM)
+
+vec2 WarpDepth(float depth)
+{
+    // Rescale depth into [-1, 1]
+    depth = 2.0 * depth - 1.0;
+    float pos =  exp( r_EVSMExponents.x * depth);
+    float neg = -exp(-r_EVSMExponents.y * depth);
+	
+    return vec2(pos, neg);
+}
+
+vec4 ShadowDepthToEVSM(float depth)
+{
+	vec2 warpedDepth = WarpDepth(depth);
+	return vec4(warpedDepth.xy, warpedDepth.xy * warpedDepth.xy);
+}
+
+#endif // #if defined(EVSM)
+
+
+
+
+
 #if defined(LIGHT_DIRECTIONAL)
 // TODO PCF for sun shadowing
 #elif defined(LIGHT_PROJ)
@@ -119,7 +181,12 @@ vec4 PCF(vec4 shadowVert, float filterWidth, float samples)
 		for(float j = -filterWidth; j < filterWidth; j += stepSize)
 		{
 			// moments += texture2DProj(u_ShadowMap0, vec3(shadowVert.xy + vec2(i, j), shadowVert.w));
+			
+			#if defined(EVSM)
+			moments += ShadowDepthToEVSM(texture2D(u_ShadowMap0, shadowVert.xy / shadowVert.w + vec2(i, j)).a);
+			#else
 			moments += texture2D(u_ShadowMap0, shadowVert.xy / shadowVert.w + vec2(i, j));
+			#endif
 		}
 	}
 	
@@ -143,7 +210,11 @@ vec4 PCF(vec3 I, float filterWidth, float samples)
 	{
 		for(float j = -filterWidth; j < filterWidth; j += stepSize)
 		{
+			#if defined(EVSM)
+			moments += ShadowDepthToEVSM(textureCube(u_ShadowMap, I + right * i + up * j).a);
+			#else
 			moments += textureCube(u_ShadowMap, I + right * i + up * j);
+			#endif
 		}
 	}
 	
@@ -155,6 +226,12 @@ vec4 PCF(vec3 I, float filterWidth, float samples)
 
 
 #if defined(PCSS)
+
+
+#if defined(LIGHT_DIRECTIONAL)
+// TODO SumBlocker for sun shadowing
+
+#elif defined(LIGHT_PROJ)
 float SumBlocker(vec4 shadowVert, float vertexDistance, float filterWidth, float samples)
 {
 	float stepSize = 2.0 * filterWidth / samples;
@@ -166,7 +243,7 @@ float SumBlocker(vec4 shadowVert, float vertexDistance, float filterWidth, float
 	{
 		for(float j = -filterWidth; j < filterWidth; j += stepSize)
 		{
-			float shadowDistance = texture2DProj(u_ShadowMap, vec3(shadowVert.xy + vec2(i, j), shadowVert.w)).x;
+			float shadowDistance = texture2DProj(u_ShadowMap0, vec3(shadowVert.xy + vec2(i, j), shadowVert.w)).x;
 			// float shadowDistance = texture2D(u_ShadowMap, shadowVert.xy / shadowVert.w + vec2(i, j)).x;
 			
 			// FIXME VSM_CLAMP
@@ -187,6 +264,43 @@ float SumBlocker(vec4 shadowVert, float vertexDistance, float filterWidth, float
 	
 	return result;
 }
+#else
+// case LIGHT_OMNI
+float SumBlocker(vec3 I, float vertexDistance, float filterWidth, float samples)
+{
+	vec3 forward, right, up;
+	
+	forward = normalize(I);
+	MakeNormalVectors(forward, right, up);
+
+	float stepSize = 2.0 * filterWidth / samples;
+	
+	float blockerCount = 0.0;
+    float blockerSum = 0.0;
+    
+	for(float i = -filterWidth; i < filterWidth; i += stepSize)
+	{
+		for(float j = -filterWidth; j < filterWidth; j += stepSize)
+		{
+			float shadowDistance = textureCube(u_ShadowMap, I + right * i + up * j).x;
+			
+			if(vertexDistance > shadowDistance)
+			{
+				blockerCount += 1.0;
+				blockerSum += shadowDistance;
+			}
+		}
+	}
+	
+	float result;
+	if(blockerCount > 0.0)
+		result = blockerSum / blockerCount;
+	else
+		result = -1.0;
+	
+	return result;
+}
+#endif
 
 float EstimatePenumbra(float vertexDistance, float blocker)
 {
@@ -199,7 +313,12 @@ float EstimatePenumbra(float vertexDistance, float blocker)
 	
 	return penumbra;
 }
+
 #endif
+
+
+
+
 
 
 
@@ -388,6 +507,10 @@ void	main()
 	}
 #endif
 
+#if defined(EVSM)
+	shadowMoments = ShadowDepthToEVSM(shadowMoments.a);
+#endif
+
 #elif defined(LIGHT_PROJ)
 
 	vec4 shadowVert = u_ShadowMatrix[0] * vec4(var_Position.xyz, 1.0);
@@ -461,6 +584,9 @@ void	main()
 #else
 	// compute incident ray
 	vec3 I = var_Position.xyz - u_LightOrigin;
+	
+	// const float	SHADOW_BIAS = 0.01;
+	// float vertexDistance = length(I) / u_LightRadius - 0.01;
 
 	#if defined(PCF_2X2)
 	vec4 shadowMoments = PCF(I, u_ShadowTexelSize * u_ShadowBlur * length(I), 2.0);
@@ -472,11 +598,65 @@ void	main()
 	vec4 shadowMoments = PCF(I, u_ShadowTexelSize * u_ShadowBlur * length(I), 5.0);
 	#elif defined(PCF_6X6)
 	vec4 shadowMoments = PCF(I, u_ShadowTexelSize * u_ShadowBlur * length(I), 6.0);
+
+	/*
+	#elif defined(PCSS)
+	
+	// step 1: find blocker estimate
+	
+	float blockerSearchWidth = u_ShadowTexelSize * u_LightRadius / vertexDistance;
+	float blockerSamples = 6.0; // how many samples to use for blocker search
+	float blocker = SumBlocker(I, vertexDistance, blockerSearchWidth, blockerSamples);
+	
+	#if 0
+	// visualize blockers
+	gl_FragColor = vec4(blocker * 0.3, 0.0, 0.0, 1.0);
+	return;
+	#endif
+	
+	// step 2: estimate penumbra using parallel planes approximation
+	float penumbra = EstimatePenumbra(vertexDistance, blocker);
+	
+	#if 0
+	// visualize penumbrae
+	// if(penumbra > 1.0)
+		gl_FragColor = vec4(0.0, 0.0, penumbra, 1.0);
+	return;
+	#endif
+	
+	// step 3: compute percentage-closer filter
+	// vec4 shadowMoments;
+	vec4 shadowMoments; // = textureCube(u_ShadowMap, I);
+	
+	if(penumbra > 0.0 && blocker > -1.0)
+	{
+		const float PCFsamples = 2.0;
+		
+		// float maxpen = PCFsamples * (1.0 / u_ShadowTexelSize);
+		// if(penumbra > maxpen)
+		//	penumbra = maxpen;
+		//
+	
+		// shadowMoments = PCF(I, penumbra, PCFsamples);
+		shadowMoments = PCF(I, u_ShadowTexelSize * u_ShadowBlur * penumbra, PCFsamples);
+	}
+	else
+	{
+		shadowMoments = textureCube(u_ShadowMap, I);
+	}
+	*/
+	
+	#else
+	// no extra filtering
+	
+	#if defined(EVSM)
+	vec4 shadowMoments = ShadowDepthToEVSM(textureCube(u_ShadowMap, I).a);
 	#else
 	vec4 shadowMoments = textureCube(u_ShadowMap, I);
 	#endif
+	
+	#endif
 #endif
-
 
 #if defined(VSM)
 	{
@@ -484,9 +664,6 @@ void	main()
 		// convert to [-1, 1] vector space
 		shadowMoments = 2.0 * (shadowMoments - 0.5);
 		#endif
-	
-		float shadowDistance = shadowMoments.r;
-		float shadowDistanceSquared = shadowMoments.a;
 		
 		const float	SHADOW_BIAS = 0.001;
 
@@ -495,63 +672,39 @@ void	main()
 #else
 		float vertexDistance = length(I) / u_LightRadius - SHADOW_BIAS;
 #endif
-	
-		// standard shadow map comparison
-		shadow = vertexDistance <= shadowDistance ? 1.0 : 0.0;
-	
-		// variance shadow mapping
-		float E_x2 = shadowDistanceSquared;
-		float Ex_2 = shadowDistance * shadowDistance;
-	
-		// AndyTX: VSM_EPSILON is there to avoid some ugly numeric instability with fp16
-		float variance = max(E_x2 - Ex_2, VSM_EPSILON);
-		// float variance = smoothstep(VSM_EPSILON, 1.0, max(E_x2 - Ex_2, 0.0));
-	
-		// compute probabilistic upper bound
-		float mD = shadowDistance - vertexDistance;
-		float mD_2 = mD * mD;
-		float p = variance / (variance + mD_2);
-		
-		#if defined(r_LightBleedReduction)
-		p = smoothstep(r_LightBleedReduction, 1.0, p);
-		#endif
-	
-		#if defined(DEBUG_VSM)
-		#extension GL_EXT_gpu_shader4 : enable
-		gl_FragColor.r = (DEBUG_VSM & 1) != 0 ? variance : 0.0;
-		gl_FragColor.g = (DEBUG_VSM & 2) != 0 ? mD_2 : 0.0;
-		gl_FragColor.b = (DEBUG_VSM & 4) != 0 ? p : 0.0;
-		gl_FragColor.a = 1.0;
-		return;
-		#else
-		shadow = max(shadow, p);
-		#endif
+
+		shadow = ChebyshevUpperBound(shadowMoments.ra, vertexDistance, VSM_EPSILON);
 	}
-#elif defined(ESM)
+#elif defined(EVSM)
 	{		
 		const float	SHADOW_BIAS = 0.001;
 		
 #if defined(LIGHT_DIRECTIONAL)
 		float vertexDistance = shadowVert.z - SHADOW_BIAS;
 #else
-		float vertexDistance = (length(I) / u_LightRadius) * r_ShadowMapDepthScale;// - SHADOW_BIAS;
+		float vertexDistance = (length(I) / u_LightRadius) - SHADOW_BIAS; // * r_ShadowMapDepthScale;// - SHADOW_BIAS;
 #endif
 		
-		float shadowDistance = shadowMoments.a;
+		vec2 warpedVertexDistances = WarpDepth(vertexDistance);
+
+		// derivative of warping at depth
+		vec2 depthScale = VSM_EPSILON * r_EVSMExponents * warpedVertexDistances;
+		vec2 minVariance = depthScale * depthScale;
+	
+		float posContrib = ChebyshevUpperBound(shadowMoments.xz, warpedVertexDistances.x, minVariance.x);
+		float negContrib = ChebyshevUpperBound(shadowMoments.yw, warpedVertexDistances.y, minVariance.y);
 		
-		// exponential shadow mapping
-		// shadow = vertexDistance <= shadowDistance ? 1.0 : 0.0;
-		shadow = clamp(exp(r_OverDarkeningFactor * (shadowDistance - vertexDistance)), 0.0, 1.0);
-		// shadow = smoothstep(0.0, 1.0, shadow);
+		shadow = min(posContrib, negContrib);
 		
-		#if defined(DEBUG_ESM)
+		#if defined(DEBUG_EVSM)
 		#extension GL_EXT_gpu_shader4 : enable
-		gl_FragColor.r = (DEBUG_ESM & 1) != 0 ? shadowDistance : 0.0;
-		gl_FragColor.g = (DEBUG_ESM & 2) != 0 ? -(shadowDistance - vertexDistance) : 0.0;
-		gl_FragColor.b = (DEBUG_ESM & 4) != 0 ? shadow : 0.0;
+		gl_FragColor.r = (DEBUG_EVSM & 1) != 0 ? shadowDistance : 0.0;
+		gl_FragColor.g = (DEBUG_EVSM & 2) != 0 ? -(shadowDistance - vertexDistance) : 0.0;
+		gl_FragColor.b = (DEBUG_EVSM & 4) != 0 ? shadow : 0.0;
 		gl_FragColor.a = 1.0;
 		return;
 		#endif
+		
 	}
 #endif // ESM
 

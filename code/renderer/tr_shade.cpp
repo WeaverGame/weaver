@@ -335,14 +335,14 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, const char
 
 		if(r_shadows->integer >= SHADOWING_VSM16 && glConfig2.textureFloatAvailable && glConfig2.framebufferObjectAvailable)
 		{
-			if(r_shadows->integer == SHADOWING_ESM)
+			if(r_shadows->integer == SHADOWING_EVSM)
 			{
 				Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef ESM\n#define ESM 1\n#endif\n");
 
 				if(r_debugShadowMaps->integer)
 				{
 					Q_strcat(bufferExtra, sizeof(bufferExtra),
-							 va("#ifndef DEBUG_ESM\n#define DEBUG_ESM %i\n#endif\n", r_debugShadowMaps->integer));
+							 va("#ifndef DEBUG_EVSM\n#define DEBUG_EVSM %i\n#endif\n", r_debugShadowMaps->integer));
 				}
 
 				if(r_lightBleedReduction->value)

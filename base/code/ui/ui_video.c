@@ -723,7 +723,7 @@ static void GraphicsOptions_UpdateMenuItems(void)
 		s_graphicsoptions.apply.generic.flags &= ~(QMF_GRAYED | QMF_INACTIVE);
 	}
 
-	if(s_graphicsoptions.shadowType.curvalue <= 3)
+	if(s_graphicsoptions.shadowType.curvalue <= SHADOWING_BLOB)
 	{
 		s_graphicsoptions.shadowFilter.curvalue = 0;
 		s_graphicsoptions.shadowFilter.generic.flags |= QMF_GRAYED;
@@ -738,7 +738,7 @@ static void GraphicsOptions_UpdateMenuItems(void)
 		s_graphicsoptions.apply.generic.flags &= ~(QMF_GRAYED | QMF_INACTIVE);
 	}
 
-	if(s_graphicsoptions.shadowType.curvalue <= 3 || s_graphicsoptions.shadowFilter.curvalue == 0)
+	if(s_graphicsoptions.shadowType.curvalue <= SHADOWING_BLOB || s_graphicsoptions.shadowFilter.curvalue == 0)
 	{
 		s_graphicsoptions.shadowBlur.curvalue = 1;
 		s_graphicsoptions.shadowBlur.generic.flags |= QMF_GRAYED;
@@ -753,7 +753,7 @@ static void GraphicsOptions_UpdateMenuItems(void)
 		s_graphicsoptions.apply.generic.flags &= ~(QMF_GRAYED | QMF_INACTIVE);
 	}
 
-	if(s_graphicsoptions.shadowType.curvalue <= 3)
+	if(s_graphicsoptions.shadowType.curvalue <= SHADOWING_BLOB)
 	{
 		s_graphicsoptions.shadowQuality.curvalue = 0;
 		s_graphicsoptions.shadowQuality.generic.flags |= QMF_GRAYED;
@@ -768,7 +768,7 @@ static void GraphicsOptions_UpdateMenuItems(void)
 		s_graphicsoptions.apply.generic.flags &= ~(QMF_GRAYED | QMF_INACTIVE);
 	}
 
-	if(s_graphicsoptions.shadowType.curvalue <= 2)
+	if(s_graphicsoptions.shadowType.curvalue <= SHADOWING_BLOB)
 	{
 		s_graphicsoptions.dynamicLightsCastShadows.curvalue = 0;
 		s_graphicsoptions.dynamicLightsCastShadows.generic.flags |= QMF_GRAYED;
@@ -1189,15 +1189,15 @@ static void GraphicsOptions_SetMenuItems(void)
 	{
 		s_graphicsoptions.shadowType.curvalue = 0;
 	}
-	else if(s_graphicsoptions.shadowType.curvalue > 3)
+	else if(s_graphicsoptions.shadowType.curvalue > SHADOWING_BLOB)
 	{
 		if(!uis.glconfig2.framebufferObjectAvailable || !uis.glconfig2.textureFloatAvailable)
 		{
-			s_graphicsoptions.shadowType.curvalue = 3;
+			s_graphicsoptions.shadowType.curvalue = SHADOWING_BLOB;
 		}
 		else if(uis.glconfig.hardwareType != GLHW_NV_DX10 && uis.glconfig.hardwareType != GLHW_ATI_DX10)
 		{
-			s_graphicsoptions.shadowType.curvalue = 4;
+			s_graphicsoptions.shadowType.curvalue = SHADOWING_VSM16;
 		}
 	}
 
@@ -1276,11 +1276,9 @@ void GraphicsOptions_MenuInit(void)
 	static const char *shadowType_names[] = {
 		"Off",
 		"Blob",
-		"Planar",
-		"Stencil Volumes",
 		"VSM 16 bit",
 		"VSM 32 bit",
-		"ESM 32 bit",
+		"EVSM 32 bit",
 		NULL
 	};
 

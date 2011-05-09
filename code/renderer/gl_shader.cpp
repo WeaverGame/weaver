@@ -442,14 +442,17 @@ std::string	GLShader::BuildGPUShaderText(	const char *mainShaderName,
 
 		if(r_shadows->integer >= SHADOWING_VSM16 && glConfig2.textureFloatAvailable && glConfig2.framebufferObjectAvailable)
 		{
-			if(r_shadows->integer == SHADOWING_ESM)
+			if(r_shadows->integer == SHADOWING_EVSM)
 			{
-				Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef ESM\n#define ESM 1\n#endif\n");
+				Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef EVSM\n#define EVSM 1\n#endif\n");
+
+				Q_strcat(bufferExtra, sizeof(bufferExtra),
+					 va("#ifndef r_EVSMExponents\n#define r_EVSMExponents vec2(%f, %f)\n#endif\n", 42.0f, 42.0f));
 
 				if(r_debugShadowMaps->integer)
 				{
 					Q_strcat(bufferExtra, sizeof(bufferExtra),
-							 va("#ifndef DEBUG_ESM\n#define DEBUG_ESM %i\n#endif\n", r_debugShadowMaps->integer));
+							 va("#ifndef DEBUG_EVSM\n#define DEBUG_EVSM %i\n#endif\n", r_debugShadowMaps->integer));
 				}
 
 				if(r_lightBleedReduction->value)
@@ -482,15 +485,6 @@ std::string	GLShader::BuildGPUShaderText(	const char *mainShaderName,
 					Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef VSM_CLAMP\n#define VSM_CLAMP 1\n#endif\n");
 				}
 
-				if((glConfig.hardwareType == GLHW_NV_DX10 || glConfig.hardwareType == GLHW_ATI_DX10) && r_shadows->integer == SHADOWING_VSM32)
-				{
-					Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef VSM_EPSILON\n#define VSM_EPSILON 0.000001\n#endif\n");
-				}
-				else
-				{
-					Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef VSM_EPSILON\n#define VSM_EPSILON 0.0001\n#endif\n");
-				}
-
 				if(r_debugShadowMaps->integer)
 				{
 					Q_strcat(bufferExtra, sizeof(bufferExtra),
@@ -503,6 +497,15 @@ std::string	GLShader::BuildGPUShaderText(	const char *mainShaderName,
 							 va("#ifndef r_LightBleedReduction\n#define r_LightBleedReduction %f\n#endif\n",
 								r_lightBleedReduction->value));
 				}
+			}
+
+			if((glConfig.hardwareType == GLHW_NV_DX10 || glConfig.hardwareType == GLHW_ATI_DX10) && r_shadows->integer == SHADOWING_VSM32)
+			{
+				Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef VSM_EPSILON\n#define VSM_EPSILON 0.000001\n#endif\n");
+			}
+			else
+			{
+				Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef VSM_EPSILON\n#define VSM_EPSILON 0.0001\n#endif\n");
 			}
 
 			if(r_softShadows->integer == 1)
