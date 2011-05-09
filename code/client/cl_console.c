@@ -781,13 +781,18 @@ void Con_DrawSolidConsole(float frac)
 	// draw the version number
 	re.SetColor(g_color_table[ColorIndex(COLOR_RED)]);
 
-	i = strlen(Q3_VERSION);
-
 	Vector4Set(fontColor, 1.0f, 1.0f, 1.0f, alpha);
 	Vector4Set(fontColorHighlight, 1.0f, 1.0f, 1.0f, alpha * 1.5f);
 
+	y = 230;
+
 	// version string
-	SCR_Text_PaintAligned(626, 230, Q3_VERSION, 0.2f, UI_RIGHT | style, fontColorHighlight, &cls.consoleFont);
+	SCR_Text_PaintAligned(626, y, Q3_VERSION, 0.2f, UI_RIGHT | style, fontColorHighlight, &cls.consoleFont);
+	y -= 10;
+
+	// engine string
+	SCR_Text_PaintAligned(626, y, Q3_ENGINE, 0.2f, UI_RIGHT | style, fontColorHighlight, &cls.consoleFont);
+	y -= 10;
 
 	// draw the date
 	if(con_showDate->integer)
@@ -797,7 +802,8 @@ void Con_DrawSolidConsole(float frac)
 		displayDate[0] = '\0';
 		Q_strcat(displayDate, sizeof(displayDate), va("%02d/%02d/%04d", dt.tm_mday, dt.tm_mon + 1, 1900 + dt.tm_year));
 
-		SCR_Text_PaintAligned(626, 220, displayDate, 0.175f, UI_RIGHT | style, fontColorHighlight, &cls.consoleFont);
+		SCR_Text_PaintAligned(626, y, displayDate, 0.175f, UI_RIGHT | style, fontColorHighlight, &cls.consoleFont);
+		y -= 10;
 	}
 
 	if(con_showClock->integer)
@@ -820,7 +826,8 @@ void Con_DrawSolidConsole(float frac)
 		}
 
 
-		SCR_Text_PaintAligned(626, 210, displayTime, 0.175f, UI_RIGHT | style, fontColorHighlight, &cls.consoleFont);
+		SCR_Text_PaintAligned(626, y, displayTime, 0.175f, UI_RIGHT | style, fontColorHighlight, &cls.consoleFont);
+		y -= 10;
 	}
 
 

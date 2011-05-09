@@ -67,7 +67,7 @@ IDI_ICON1               ICON    DISCARDABLE     "weaver.ico"
 
 STRINGTABLE DISCARDABLE 
 BEGIN
-    IDS_STRING1             "XreaL"
+    IDS_STRING1             "Weaver"
 END
 
 #endif    // English (U.S.) resources

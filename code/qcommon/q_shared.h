@@ -32,8 +32,13 @@ extern "C" {
 // q_shared.h -- included first by ALL program modules.
 // A user mod should never modify this file
 
-#define PRODUCT_NAME            "XreaL"
-#define PRODUCT_VERSION         "0.8.2"
+#define PRODUCT_NAME            "Weaver" // Case, Spaces allowed
+#define PRODUCT_NAME_UPPPER     "Weaver" // Case, No spaces
+#define PRODUCT_NAME_LOWER      "weaver" // No case, No spaces
+#define PRODUCT_VERSION         "0.1.0"
+
+#define ENGINE_NAME             "XreaL Engine"
+#define ENGINE_VERSION          "0.8.2"
 
 #if 0
 #if !defined(COMPAT_Q3A)
@@ -59,8 +64,11 @@ extern "C" {
 # define Q3_VERSION PRODUCT_NAME " " PRODUCT_VERSION
 #endif
 
-#define CLIENT_WINDOW_TITLE     "XreaL"
-#define CLIENT_WINDOW_MIN_TITLE "xreal"
+#define Q3_ENGINE ENGINE_NAME " " ENGINE_VERSION
+#define Q3_ENGINE_DATE          __DATE__
+
+#define CLIENT_WINDOW_TITLE     PRODUCT_NAME
+#define CLIENT_WINDOW_MIN_TITLE PRODUCT_NAME_LOWER
 // 1.32 released 7-10-2002
 
 #if !defined(STANDALONE)
@@ -68,7 +76,7 @@ extern "C" {
 #endif
 
 #define BASEGAME				"base"
-#define GAMENAME_FOR_MASTER		"XreaL"	// must NOT contain whitespaces
+#define GAMENAME_FOR_MASTER		PRODUCT_NAME_UPPPER	// must NOT contain whitespaces
 
 /*
 #if !defined(DEBUG) && defined(_DEBUG)

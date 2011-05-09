@@ -1554,6 +1554,7 @@ void CL_RequestMotd(void)
 	Info_SetValueForKey(info, "challenge", cls.updateChallenge);
 	Info_SetValueForKey(info, "renderer", cls.glconfig.renderer_string);
 	Info_SetValueForKey(info, "version", com_version->string);
+	Info_SetValueForKey(info, "engine", com_engine->string);
 
 	NET_OutOfBandPrint(NS_CLIENT, cls.updateServer, "getmotd \"%s\"\n", info);
 }

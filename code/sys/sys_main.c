@@ -128,9 +128,9 @@ char           *Sys_ConsoleInput(void)
 }
 
 #ifdef DEDICATED
-#	define PID_FILENAME PRODUCT_NAME "_server.pid"
+#	define PID_FILENAME PRODUCT_NAME_UPPPER "_server.pid"
 #else
-#	define PID_FILENAME PRODUCT_NAME ".pid"
+#	define PID_FILENAME PRODUCT_NAME_UPPPER ".pid"
 #endif
 
 /*
@@ -531,6 +531,7 @@ void Sys_ParseArgs(int argc, char **argv)
 #else
 			fprintf(stdout, Q3_VERSION " client (%s)\n", date);
 #endif
+			fprintf(stdout, Q3_ENGINE " engine (%s)\n", Q3_ENGINE_DATE);
 			Sys_Exit(0);
 		}
 	}
