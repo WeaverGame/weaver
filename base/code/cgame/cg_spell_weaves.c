@@ -306,7 +306,6 @@ void CG_AddPlayerThreads(centity_t * player, playerState_t * ps, refEntity_t * p
 
 	for(i = 0; i < 3 && (pe->threads[i] != WVP_NONE); i++)
 	{
-		ent.customShader = cgs.media.weaverThreads[pe->threads[i]][i];
 		ent.rotation = cg.time / (20.0f - (i*3));
 
 		VectorCopy(pos, ent.origin);
@@ -325,9 +324,34 @@ void CG_AddPlayerThreads(centity_t * player, playerState_t * ps, refEntity_t * p
 			ent.origin[2] += 4 * sin((cg.time + 37) / d);
 		}
 
-		trap_R_AddRefEntityToScene(&ent);
-
-		ent.radius -= 5.0f;
+		if(pe->threads[i] & 1)
+		{
+			// Thread is a primary power
+			ent.customShader = cgs.media.weaverThreads[pe->threads[i]][i];
+			trap_R_AddRefEntityToScene(&ent);
+			ent.radius -= 5.0f;
+		}
+		else if(i < 2)
+		{
+			ent.radius -= 5.0f;
+			// Thread is secondary power
+			if (pe->threads[i] == WVP_AIRWATER)
+			{
+				// Special case, combination element not flanked by primaries
+				ent.customShader = cgs.media.weaverThreads[WVP_WATER][i+1];
+				trap_R_AddRefEntityToScene(&ent);
+				ent.customShader = cgs.media.weaverThreads[WVP_AIR][i+1];
+				trap_R_AddRefEntityToScene(&ent);
+			}
+			else if(pe->threads[i] > 1 && pe->threads[i] < 7)
+			{
+				// Combination element flanked by primaries
+				ent.customShader = cgs.media.weaverThreads[pe->threads[i]-1][i];
+				trap_R_AddRefEntityToScene(&ent);
+				ent.customShader = cgs.media.weaverThreads[pe->threads[i]+1][i];
+				trap_R_AddRefEntityToScene(&ent);
+			}
+		}
 	}
 
 	//Com_Printf("color: R=%d G=%d B=%d\n", (int)(color[0]*255), (int)(color[1]*255), (int)(color[2]*255));

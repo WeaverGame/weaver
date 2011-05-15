@@ -1044,7 +1044,7 @@ static void CG_RegisterGraphics(void)
 
 	for(i = 0; i < 3; i++)
 	{
-		for(j = WVP_NONE + 1; j < WVP_NUMBER; j++)
+		for(j = WVP_NONE + 1; j < WVP_NUMBER; j += 2)
 		{
 			Com_sprintf(path, MAX_QPATH, "models/threads/%s%d", WeavePowerNames[j], i+1);
 			cgs.media.weaverThreads[j][i] = trap_R_RegisterShaderNoMip(path);
