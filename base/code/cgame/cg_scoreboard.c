@@ -505,7 +505,19 @@ qboolean CG_DrawScoreboardNew(void)
 
 	// don't draw scoreboard during death while warmup up
 	if(cg.warmup && !cg.showScores)
+	{
 		return qfalse;
+	}
+
+	if(cg.showScores || cg.predictedPlayerState.pm_type == PM_INTERMISSION)
+	{
+		// showScores, or intermission
+		// draw scoreboard
+	}
+	else
+	{
+		return qfalse;
+	}
 
 	if(s.num_scores_all != cg.numScores || s.num_scores_red != cg.teamScores[0] || s.num_scores_blue != cg.teamScores[1])
 	{
