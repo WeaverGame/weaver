@@ -688,12 +688,13 @@ typedef struct particle_s
 
 // Loading screen constants
 #define CG_INFO_LOGO_WIDTH 256
-#define CG_INFO_SIDE_GRADIENT_WIDTH 150
-#define CG_INFO_SIDE_LOGO_WIDTH 100
-#define CG_INFO_PERCENT_WIDTH 50
-#define CG_INFO_LOADTILE_WIDTH 10
+#define CG_INFO_LOADTILE_WIDTH 20
+#define CG_INFO_BLACKBAR_H 64
+#define CG_INFO_LEFT_X 20
+#define CG_INFO_RIGHT_X 260
+#define CG_INFO_DOT_W 12
 
-#define NUM_PROGRESS ((int)(((SCREEN_WIDTH - CG_INFO_SIDE_GRADIENT_WIDTH) - CG_INFO_PERCENT_WIDTH)/CG_INFO_LOADTILE_WIDTH)) //40ish
+#define NUM_PROGRESS 30
 
 typedef struct
 {

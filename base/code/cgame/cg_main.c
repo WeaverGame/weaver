@@ -1563,7 +1563,7 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 	CG_ParseServerinfo();
 
 	// load the new map
-	CG_LoadingString("...", qfalse);
+	CG_LoadingString("", qfalse);
 
 	trap_CM_LoadMap(cgs.mapname);
 
