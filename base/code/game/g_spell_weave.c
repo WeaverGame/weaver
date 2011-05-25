@@ -49,8 +49,11 @@ void CreateThreads(gentity_t * player)
 	//set owner
 	threadsEnt->s.torsoAnim = player->client->ps.clientNum;
 
-	Com_Printf("Making Player ThreadsEnt for %d, svflags=%d threadsEnt=%d\n", threadsEnt->s.torsoAnim, threadsEnt->r.svFlags,
-			   threadsEnt->s.number);
+	if(DEBUGWEAVEING_TST(1))
+	{
+		Com_Printf("Making Player ThreadsEnt for %d, svflags=%d threadsEnt=%d\n", threadsEnt->s.torsoAnim, threadsEnt->r.svFlags,
+				   threadsEnt->s.number);
+	}
 
 	//Weave group & status: threadsEnt->s.frame;
 	//8 threads, 4 in each, see PowerEncode(): threadsEnt->s.constantLight;
@@ -484,8 +487,11 @@ void UseHeldWeave(gentity_t * heldWeave)
 	heldWeave->parent->client->ps.weaponTime = WeaveTime(heldWeave->s.weapon);
 
 	DEBUGWEAVEING("UseHeldWeave: start");
-	Com_Printf("Using held weave %i charges %i of %i\n", heldWeave->s.number, G_HeldWeave_GetCharges(heldWeave),
-			   WeaveCharges(heldWeave->s.weapon));
+	if(DEBUGWEAVEING_TST(1))
+	{
+		Com_Printf("Using held weave %i charges %i of %i\n", heldWeave->s.number, G_HeldWeave_GetCharges(heldWeave),
+				   WeaveCharges(heldWeave->s.weapon));
+	}
 
 	//check if weave is being held, held weaves will be ended, not execed
 	if(G_HeldWeave_GetState(heldWeave) == WST_INPROCESS || G_HeldWeave_GetState(heldWeave) == WST_INPROCESSRELEASED)
@@ -506,7 +512,10 @@ void UseHeldWeave(gentity_t * heldWeave)
 		//execute the weave
 		if(!ExecuteWeave(heldWeave))
 		{
-			Com_Printf("Weave execution returned 0. WeaveID=%d\n", heldWeave->s.weapon);
+			if(DEBUGWEAVEING_TST(1))
+			{
+				Com_Printf("Weave execution returned 0. WeaveID=%d\n", heldWeave->s.weapon);
+			}
 			return;
 		}
 
@@ -575,7 +584,7 @@ void ReleaseHeldWeave(gentity_t * ent)
 
 	if(pstate->weapon && (pstate->weapon >= MIN_WEAPON_WEAVE))
 	{
-		//this is a weave)
+		// This is a weave
 		if(pstate->ammo[pstate->weapon])
 		{
 			heldWeave = &g_entities[pstate->ammo[pstate->weapon]];
@@ -976,13 +985,12 @@ void ClearHeldWeaveCast(gentity_t * ent, int castClear)
 	//[MAX_WEAPONS - i - 1]
 	for(i = MIN_WEAPON_WEAVE; i < MAX_WEAPONS; i++)
 	{
-		//where the weave is being held
-		//Com_Printf("player->ammo[%i] = %i == ent->s.number = %i\n", i, player->ammo[i], ent->s.number);
+		// Where the weave is being held
 		if(player->ammo[i] == ent->s.number)
 		{
-			//weave is no longer held
+			// Weave is no longer held
 			player->ammo[i] = 0;
-			//weapon slot is no longer available
+			// Weapon slot is no longer available
 			player->stats[STAT_WEAPONS] &= ~(1 << i);
 			if(i == player->weapon)
 			{

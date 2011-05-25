@@ -75,7 +75,10 @@ void ClientWeaverDie(gentity_t * self)
 	// Free this players threads
 	if(self->client->threadEnt)
 	{
-		Com_Printf("Free ThreadsEnt player %d\n", self->client->ps.clientNum);
+		if(DEBUGWEAVEING_TST(1))
+		{
+			Com_Printf("Free ThreadsEnt player %d\n", self->client->ps.clientNum);
+		}
 		G_FreeEntity(self->client->threadEnt);
 		self->client->threadEnt = NULL;
 	}

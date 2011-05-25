@@ -291,7 +291,7 @@ void ClientLink(gclient_t * leadClient, gclient_t * followClient)
 	gentity_t      *bolt;
 
 	DEBUGWEAVEING("ClientLink: start");
-	Com_Printf("LINK: ClientLink: beginning\n");
+
 	//Link clients
 	leadClient->linkFollower = followClient;
 	followClient->linkTarget = leadClient;
@@ -319,7 +319,7 @@ void ClientLink(gclient_t * leadClient, gclient_t * followClient)
 
 	bolt->s.pos.trType = TR_INTERPOLATE;
 
-	Com_Printf("LINK: ClientLink: bolt created, about to run\n");
+	DEBUGWEAVEING("ClientLink: bolt created, about to run\n");
 	
 	//VectorCopy(bolt->parent->s.origin, bolt->s.origin);
 	//VectorCopy(bolt->parent->s.origin, bolt->s.pos.trBase);
@@ -362,22 +362,21 @@ Post:
 void ClientUnlink(gclient_t * followClient, qboolean temporary)
 {
 	DEBUGWEAVEING("ClientUnlink: start");
-	Com_Printf("LINK: ClientUnlink: beginning\n");
 	//unlink entitities
 	followClient->linkTarget->linkFollower = NULL;
 	followClient->linkTarget = NULL;
-	Com_Printf("LINK: ClientUnlink: link ent\n");
+	DEBUGWEAVEING("ClientUnlink: link ent\n");
 	//eliminate link entity
 	G_FreeEntity(followClient->linkEnt);
 	followClient->linkEnt = NULL;
-	Com_Printf("LINK: ClientUnlink: temp select\n");
+	DEBUGWEAVEING("ClientUnlink: temp select\n");
 	//if temporary, leave the held weave
 	if(temporary)
 	{
 		//temporary unlink, ie when c is unlinked to be relinked to b
 		//b <- a <- c
 		//b <- c    a
-		Com_Printf("LINK: ClientUnlink: temp, held->target_ent = null\n");
+		DEBUGWEAVEING("ClientUnlink: temp, held->target_ent = null\n");
 		followClient->linkHeld->target_ent = NULL;
 	}
 	else
@@ -385,7 +384,7 @@ void ClientUnlink(gclient_t * followClient, qboolean temporary)
 		//unlink, ie when a unlinked
 		//b <- a <- c
 		//b <- c    a
-		Com_Printf("LINK: ClientUnlink: nontemp, held cleared\n");
+		DEBUGWEAVEING("ClientUnlink: nontemp, held cleared\n");
 		ClearHeldWeave(followClient->linkHeld);
 	}
 	DEBUGWEAVEING("ClientUnlink: end");
@@ -433,7 +432,6 @@ qboolean ClientLinkJoin(gclient_t * leadClient, gclient_t * followClient)
 	gclient_t      *leader;
 
 	DEBUGWEAVEING("ClientLinkJoin: start");
-	Com_Printf("LINK: ClientLinkJoin: beginning\n");
 	//check target client isn't higher in list
 	//to avoid circular linked list
 	leader = leadClient;
@@ -450,6 +448,7 @@ qboolean ClientLinkJoin(gclient_t * leadClient, gclient_t * followClient)
 		}
 	}
 
+	DEBUGWEAVEING("ClientLinkJoin: find end of linked list");
 	//find end of linked list
 	if(leadClient->ps.clientNum == followClient->ps.clientNum)
 	{
@@ -465,7 +464,7 @@ qboolean ClientLinkJoin(gclient_t * leadClient, gclient_t * followClient)
 	}
 	if(DEBUGWEAVEING_TST(1))
 	{
-		Com_Printf("LINK: ClientLinkJoin: lead=%d foll=%d", leadClient->ps.clientNum, followClient->ps.clientNum);
+		Com_Printf("ClientLinkJoin: lead=%d follow=%d", leadClient->ps.clientNum, followClient->ps.clientNum);
 	}
 	//create the link
 	ClientLink(leadClient, followClient);
@@ -488,27 +487,26 @@ void ClientLinkLeave(gclient_t * followClient)
 	gclient_t      *follower;
 
 	DEBUGWEAVEING("ClientLinkLeave: start");
-	DEBUGWEAVEING("LINK: ClientLinkLeave: beginning");
 
 	target = followClient->linkTarget;
 	follower = followClient->linkFollower;
 
 	if(!target && !follower)
 	{
-		DEBUGWEAVEING("LINK: ClientLinkLeave: no link");
+		DEBUGWEAVEING("ClientLinkLeave: no link");
 		return;
 	}
 	else if(!target)
 	{
 		// This client is the top of the list, only unlink next link
-		DEBUGWEAVEING("LINK: ClientLinkLeave: top unlink");
+		DEBUGWEAVEING("ClientLinkLeave: top unlink");
 		// Permenent unlink
 		ClientUnlink(follower, qfalse);
 	}
 	else if(!follower)
 	{
 		// This client is the end of the list, only unlink this client
-		DEBUGWEAVEING("LINK: ClientLinkLeave: end unlink");
+		DEBUGWEAVEING("ClientLinkLeave: end unlink");
 		// Permenent unlink
 		ClientUnlink(followClient, qfalse);
 	}
@@ -516,7 +514,7 @@ void ClientLinkLeave(gclient_t * followClient)
 	{
 		// This client is in the middle of the list
 		// Unlink this client (both sides) and link around it
-		DEBUGWEAVEING("LINK: ClientLinkLeave: mid unlink");
+		DEBUGWEAVEING("ClientLinkLeave: mid unlink");
 
 		// Unlink this client
 		// Permenent unlink

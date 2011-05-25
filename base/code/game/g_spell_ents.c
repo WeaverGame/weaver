@@ -94,10 +94,13 @@ void Think_SetupShieldTargets(gentity_t * ent)
 	ent->target_ent = G_Find(NULL, FOFS(name), ent->target);
 	if(!ent->target_ent)
 	{
-		G_Printf("func_shield at %s with an unfound target\n", vtos(ent->r.absmin));
+		Com_Printf("Warning: func_shield at %s with an unfound target\n", vtos(ent->r.absmin));
 		return;
 	}
-	G_Printf("func_shield at %s targeting %s\n", vtos(ent->r.absmin), ent->target);
+	if(g_debugEntities.integer >= 1)
+	{
+		Com_Printf("func_shield at %s targeting %s\n", vtos(ent->r.absmin), ent->target);
+	}
 
 	ent->s.otherEntityNum2 = ent->target_ent->s.number;
 
