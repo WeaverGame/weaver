@@ -160,6 +160,18 @@ static void CG_DrawProgress(void)
 	}
 }
 
+int DrawDrawInfoLine(int x, int y, int h, const char *str)
+{
+	const float     infoScale = 0.30f;
+
+	// background
+	trap_R_DrawStretchPic(0, y - 8, CG_INFO_SIDE_GRADIENT_WIDTH, h, 0, 0, 1, 1, black_gradient);
+	// string
+	CG_Text_PaintAligned(x, y, str, infoScale, UI_DROPSHADOW, colorText, &cgs.media.freeSansFont);
+	// spacing
+	return y + h;
+}
+
 /*
 ====================
 CG_DrawInformation
@@ -180,8 +192,6 @@ void CG_DrawInformation(void)
 
 	int             y_offset;
 
-	const float     infoScale = 0.35f;
-
 	info = CG_ConfigString(CS_SERVERINFO);
 	sysInfo = CG_ConfigString(CS_SYSTEMINFO);
 
@@ -198,7 +208,7 @@ void CG_DrawInformation(void)
 		load1 = trap_R_RegisterShaderNoMip("gfx/menu/load1");
 
 	if(!black_gradient)
-		black_gradient = trap_R_RegisterShaderNoMip("gfx/menu/black_gradient");
+		black_gradient = trap_R_RegisterShaderNoMip("gfx/menu/black_gradient_l");
 	if(!blackbar)
 		blackbar = trap_R_RegisterShaderNoMip("gfx/menu/black_bar");
 
@@ -223,23 +233,12 @@ void CG_DrawInformation(void)
 	CG_Text_PaintAligned(cgs.screenXSize - 2, cgs.screenYSize - 2 - pc_h, s, 0.85f, UI_RIGHT,
 		colorText, &cgs.media.freeSansFont);
 
-
-	// left side
-	//trap_R_DrawStretchPic(0, 0, CG_INFO_SIDE_GRADIENT_WIDTH * cgs.screenXScale, cgs.screenYSize, 0, 0, 1, 1, black_gradient);
-
 	// draw the cg.progress
 	CG_DrawProgress();
 
-	// server-specific message of the day
-	s = CG_ConfigString(CS_MOTD);
-	if(s[0])
-	{
-		CG_Text_PaintAligned(cgs.screenXSize/2, 110, s, 0.5f, UI_CENTER | UI_DROPSHADOW, text_color_normal, &cgs.media.freeSansFont);
-	}
-
 	// draw info string information
 	y = 100;
-	y_offset = 24;
+	y_offset = 18;
 	x = 6;
 
 	// don't print server lines if playing a local game
@@ -250,15 +249,13 @@ void CG_DrawInformation(void)
 		Q_strncpyz(buf, Info_ValueForKey(info, "sv_hostname"), 1024);
 		Q_CleanStr(buf);
 		s = va("%s", buf);
-		CG_Text_PaintAligned(x, y, s, infoScale, UI_DROPSHADOW, text_color_normal, &cgs.media.freeSansFont);
-		y += y_offset;
+		y = DrawDrawInfoLine(x, y, y_offset, s);
 
 		// pure server
 		s = Info_ValueForKey(sysInfo, "sv_pure");
 		if(s[0] == '1')
 		{
-			CG_Text_PaintAligned(x, y, "Pure Server", infoScale, UI_DROPSHADOW, text_color_normal, &cgs.media.freeSansFont);
-			y += y_offset;
+			y = DrawDrawInfoLine(x, y, y_offset, "Pure Server");
 		}
 	}
 
@@ -266,16 +263,14 @@ void CG_DrawInformation(void)
 	s = CG_ConfigString(CS_MESSAGE);
 	if(s[0])
 	{
-		CG_Text_PaintAligned(x, y, s, infoScale, UI_DROPSHADOW, text_color_normal, &cgs.media.freeSansFont);
-		y += y_offset;
+		y = DrawDrawInfoLine(x, y, y_offset, s);
 	}
 
 	// cheats warning
 	s = Info_ValueForKey(sysInfo, "sv_cheats");
 	if(s[0] == '1')
 	{
-		CG_Text_PaintAligned(x, y, "Cheats enabled", infoScale, UI_DROPSHADOW, text_color_normal, &cgs.media.freeSansFont);
-		y += y_offset;
+		y = DrawDrawInfoLine(x, y, y_offset, "Cheats enabled");
 	}
 
 	// game type
@@ -315,16 +310,13 @@ void CG_DrawInformation(void)
 			s = "Unknown Gametype";
 			break;
 	}
-	CG_Text_PaintAligned(x, y, s, infoScale, UI_DROPSHADOW, text_color_normal, &cgs.media.freeSansFont);
-	y += y_offset;
+	y = DrawDrawInfoLine(x, y, y_offset, s);
 
 	value = atoi(Info_ValueForKey(info, "timelimit"));
 	if(value)
 	{
-
-		CG_Text_PaintAligned(x, y, va("Timelimit %i", value), infoScale, UI_DROPSHADOW, text_color_normal,
-							 &cgs.media.freeSansFont);
-		y += y_offset;
+		s = va("Timelimit %i", value);
+		y = DrawDrawInfoLine(x, y, y_offset, s);
 	}
 
 	if(cgs.gametype < GT_CTF)
@@ -332,10 +324,8 @@ void CG_DrawInformation(void)
 		value = atoi(Info_ValueForKey(info, "fraglimit"));
 		if(value)
 		{
-			CG_Text_PaintAligned(x, y, va("Fraglimit %i", value), infoScale, UI_DROPSHADOW, text_color_normal,
-								 &cgs.media.freeSansFont);
-
-			y += y_offset;
+			s = va("Fraglimit %i", value);
+			y = DrawDrawInfoLine(x, y, y_offset, s);
 		}
 	}
 	else if(cgs.gametype >= GT_CTF)
@@ -343,10 +333,16 @@ void CG_DrawInformation(void)
 		value = atoi(Info_ValueForKey(info, "capturelimit"));
 		if(value)
 		{
-			CG_Text_PaintAligned(x, y, va("Capturelimit %i", value), infoScale, UI_DROPSHADOW, text_color_normal,
-								 &cgs.media.freeSansFont);
-			y += y_offset;
+			s = va("Capturelimit %i", value);
+			y = DrawDrawInfoLine(x, y, y_offset, s);
 		}
 	}
 
+	// server-specific message of the day
+	s = CG_ConfigString(CS_MOTD);
+	if(s[0])
+	{
+		DrawDrawInfoLine(x, y, y_offset, "");
+		y = DrawDrawInfoLine(x, y, y_offset, s);
+	}
 }

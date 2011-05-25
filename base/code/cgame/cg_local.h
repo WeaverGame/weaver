@@ -693,6 +693,7 @@ typedef struct particle_s
 #define CG_INFO_LEFT_X 20
 #define CG_INFO_RIGHT_X 260
 #define CG_INFO_DOT_W 12
+#define CG_INFO_SIDE_GRADIENT_WIDTH 256
 
 #define NUM_PROGRESS 30
 
