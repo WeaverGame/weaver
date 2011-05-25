@@ -1664,7 +1664,7 @@ byte R_CalcLightCubeSideBits(trRefLight_t * light, vec3_t worldBounds[2])
 	return cubeSideBits;
 #endif
 
-	if(light->l.rlType != RL_OMNI || r_shadows->integer < SHADOWING_VSM16 || r_noShadowPyramids->integer)
+	if(light->l.rlType != RL_OMNI || r_shadows->integer < SHADOWING_ESM16 || r_noShadowPyramids->integer)
 		return CUBESIDE_CLIPALL;
 
 	cubeSideBits = 0;
@@ -1813,6 +1813,12 @@ void R_SetupLightLOD(trRefLight_t * light)
 	float           projectedRadius;
 	int             lod;
 	int             numLods;
+
+	if(light->l.noShadows)
+	{
+		light->shadowLOD = -1;
+		return;
+	}
 
 	numLods = 5;
 
