@@ -148,6 +148,22 @@ License(s):
 	CC-BY-NC-SA 3.0 Unported
 These assets are located at:	base/models/weaphits/rlboom_*.png
 ===============================================================
+Decals
+By: Willi Hammes
+License(s):
+	CC-BY-NC-SA 3.0 Unported
+These assets are located at:	base/textures/decals/blood_splat01.png
+								base/textures/decals/blood_splat02.png
+								base/textures/decals/blood_splat03.png
+								base/textures/decals/blood_splat04.png
+								base/textures/decals/blood_splat05.png
+								base/textures/decals/blood_splat06.png
+								base/textures/decals/explo_burn01.png
+								base/textures/decals/explo_burn01_local.png
+								base/textures/decals/glow2.png
+								base/textures/decals/lavaburn.png
+								base/textures/decals/particle_burn01.png
+===============================================================
 Debris models
 By: ratty redemption
 License(s):
@@ -178,3 +194,65 @@ These assets are located at:	base/gfx/effect/invismap.png
 								base/gfx/effect/effmap01.png
 								base/gfx/effect/flare01.png
 ===============================================================
+Editor Textures
+By: William Joseph
+License(s):
+	Public Domain
+These assets are located at:	base/textures/common/nolightmap.png
+								base/textures/common/nodrawnonsolid.png
+								base/textures/common/qer_portal.png
+								base/textures/common/white.png
+								base/textures/common/nodraw.png
+								base/textures/common/areaportal.png
+								base/textures/common/nodrawsolid.png
+								base/textures/common/lightgrid.png
+								base/textures/common/ikclip.png
+								base/textures/common/shadow.png
+								base/textures/common/donotenter.png
+								base/textures/common/cushion.png
+								base/textures/common/antiportal.png
+								base/textures/common/black.png
+								base/textures/common/clipplus.png
+								base/textures/common/moveable_clip.png
+								base/textures/common/hint.png
+								base/textures/common/botclip.png
+								base/textures/common/trigger.png
+								base/textures/common/metalclip.png
+								base/textures/common/missileclip.png
+								base/textures/common/terrain.png
+								base/textures/common/qer_mirror.png
+								base/textures/common/weapclip.png
+								base/textures/common/origin.png
+								base/textures/common/clusterportal.png
+								base/textures/common/caulk.png
+								base/textures/common/ladder.png
+								base/textures/common/slick.png
+								base/textures/common/invisible.png
+								base/textures/common/mirror1.png
+								base/textures/common/nodrop.png
+								base/textures/common/collision.png
+								base/textures/common/clip.png
+								base/textures/common/full_clip.png
+								base/textures/common/monster_clip.png
+								base/textures/common/visportal.png
+								base/textures/radiant/notex.png
+								base/textures/radiant/shadernotex.png
+===============================================================
+Light intensity maps
+By: Michael Denno
+License(s): 
+	CC-BY-NC-SA 3.0 Unported
+These assets are located at:	base/lights/flashlight1.png
+===============================================================
+Light intensity maps
+By: Robert Beckebans
+License(s): 
+	CC-BY-NC-SA 2.5
+These assets are located at:	base/lights/round.png
+								base/lights/squarelight.png
+								base/lights/skyline1.png
+								base/lights/squarelight1a.png
+								base/lights/squarelight1.png
+								base/lights/squarelight1b.png
+
+
