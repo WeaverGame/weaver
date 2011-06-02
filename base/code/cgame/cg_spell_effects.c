@@ -312,7 +312,7 @@ Instance + multiple models + vibrations + light
 */
 void WeaveEffect_Earthquake(centity_t * cent)
 {
-	refEntity_t     ent[4];
+	refEntity_t     ent;
 	entityState_t  *s1;
 	const weaver_weaveCGInfo *weave;
 	vec3_t          normalaxis[3];
@@ -359,23 +359,22 @@ void WeaveEffect_Earthquake(centity_t * cent)
 	}
 
 	//Com_Printf("Normal=%s\n", vtos(normalaxis[2]));
+	memset(&ent, 0, sizeof(ent));
+	AxisCopy(normalaxis, ent.axis);
 
 	for(k = 0; k < 4; k++)
 	{
 		// create the render entity
-		memset(&ent[k], 0, sizeof(ent[k]));
 
-		VectorMA(cent->lerpOrigin, 4 * sin(k + (double)(cg.time >> 4) / 4.0f), cent->currentState.angles, ent[k].origin);
+		VectorMA(cent->lerpOrigin, 4 * sin(k + (double)(cg.time >> 4) / 4.0f), cent->currentState.angles, ent.origin);
 
 		// flicker between two skins
-		ent[k].skinNum = cg.clientFrame;
-		ent[k].hModel = weave->instanceModel[k];
-		ent[k].renderfx = weave->instanceRenderfx | RF_NOSHADOW;
-
-		AxisCopy(normalaxis, ent[k].axis);
+		ent.skinNum = cg.clientFrame;
+		ent.hModel = weave->instanceModel[k];
+		ent.renderfx = weave->instanceRenderfx | RF_NOSHADOW;
 
 		// add to refresh list
-		trap_R_AddRefEntityToScene(&ent[k]);
+		trap_R_AddRefEntityToScene(&ent);
 	}
 }
 
