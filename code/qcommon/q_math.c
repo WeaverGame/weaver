@@ -524,6 +524,34 @@ void RotateAroundDirection(vec3_t axis[3], vec_t angle)
 }
 
 /*
+===============
+RotateAroundAxis
+===============
+*/
+void RotateAroundAxis(vec3_t axis[3], vec_t angle, int ra)
+{
+	vec_t           scale;
+
+	angle = DEG2RAD(angle);
+
+	// create an arbitrary axis[1]
+	PerpendicularVector(axis[(ra + 2) % 3], axis[(ra + 0) % 3]);
+
+	// cross to get axis[2]
+	CrossProduct(axis[(ra + 0) % 3], axis[(ra + 1) % 3], axis[(ra + 2) % 3]);
+
+	// rotate
+	scale = cos(angle);
+	VectorScale(axis[(ra + 1) % 3], scale, axis[(ra + 1) % 3]);
+
+	scale = sin(angle);
+	VectorMA(axis[(ra + 1) % 3], scale, axis[(ra + 2) % 3], axis[(ra + 1) % 3]);
+
+	// recalculate axis[2]
+	CrossProduct(axis[(ra + 0) % 3], axis[(ra + 1) % 3], axis[(ra + 2) % 3]);
+}
+
+/*
 =====================
 Q_acos
 
