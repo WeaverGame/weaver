@@ -570,7 +570,7 @@ typedef struct weaver_weaveCGInfo_s
 	qhandle_t       instanceLightShader;
 	int             instanceRenderfx;
 	sfxHandle_t     instanceSound;
-	qhandle_t       instanceShader[1];
+	qhandle_t       instanceShader[2];
 } weaver_weaveCGInfo;
 
 // each IT_* item has an associated itemInfo_t
@@ -1857,7 +1857,7 @@ void            CG_ShieldInfo(centity_t * cent);
 void            CG_ShowThreads(centity_t * cent);
 void            CG_AddPlayerThreads(centity_t * player, playerState_t * ps, refEntity_t * parent);
 void            CG_AddPlayerHeldWeave(centity_t * player, playerState_t * ps, refEntity_t * parent);
-void            CG_AddPlayerProtects(centity_t * player, playerState_t * ps, refEntity_t * parent);
+void            CG_AddPlayerProtects(centity_t * player, playerState_t * ps, refEntity_t * body);
 void            CG_HeldWeave(centity_t * cent);
 void            CG_WeaveSelect_f(void);
 void            CG_WeaveNext_f(void);

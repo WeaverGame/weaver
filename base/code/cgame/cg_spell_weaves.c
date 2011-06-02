@@ -167,9 +167,10 @@ Adds protect weave entities to a player model
 =================
 */
 
-void CG_AddPlayerProtects(centity_t * player, playerState_t * ps, refEntity_t * parent)
+void CG_AddPlayerProtects(centity_t * player, playerState_t * ps, refEntity_t * body)
 {
 	int             i;
+	int             entinit = 0;
 	refEntity_t     ent;
 	playerEntity_t *pe;
 	centity_t      *protectWeave;
@@ -182,35 +183,6 @@ void CG_AddPlayerProtects(centity_t * player, playerState_t * ps, refEntity_t * 
 	}
 
 	pe = &player->pe;
-
-	memset(&ent, 0, sizeof(ent));
-
-	/*
-#ifdef XPPM
-	if(ps)
-	{
-		CG_PositionEntityOnTag(&ent[0], parent, parent->hModel, "Head");
-	}
-	else
-	{
-		boneIndex = trap_R_BoneIndex(parent->hModel, "Head");
-		if(boneIndex >= 0 && boneIndex < pe->torso.skeleton.numBones)
-		{
-			AxisClear(ent[0].axis);
-			CG_PositionRotatedEntityOnBone(&ent[0], parent, parent->hModel, "Head");
-		}
-		else
-		{
-			CG_Error("No tag found while adding held weave.");
-		}
-	}
-#else
-	CG_PositionEntityOnTag(&ent[0], parent, parent->hModel, "tag_weapon");
-#endif
-	*/
-
-	VectorCopy(parent->origin, ent.origin);
-	VectorAdd(ent.origin, protectOffset, ent.origin);
 
 	for(i = 0; i <= 3; i++)
 	{
@@ -229,13 +201,26 @@ void CG_AddPlayerProtects(centity_t * player, playerState_t * ps, refEntity_t * 
 			continue;
 		}
 
+		if(entinit == 0)
+		{
+			memset(&ent, 0, sizeof(ent));
+
+			VectorCopy(body->origin, ent.origin);
+			//VectorAdd(ent.origin, protectOffset, ent.origin);
+			AxisCopy(body->axis, ent.axis);
+			entinit = 1;
+		}
+
 		weave = &cg_weaves[protectWeave->currentState.weapon];
 
-		//Com_Printf("DRAWING A PROTECT weaveid=%d\n", cent->currentState.weapon);
-		ent.customShader = weave->instanceShader[0];
-		ent.reType = RT_SPRITE;
-		ent.radius = 40;
+		// Model overlay
+		body->customShader = weave->instanceShader[1];
+		trap_R_AddRefEntityToScene(body);
 
+		// Extra torso shield model
+		ent.customShader = weave->instanceShader[0];
+		ent.hModel = weave->instanceModel[0];
+		RotateAroundAxis(ent.axis, cg.time / 2, 2);
 		trap_R_AddRefEntityToScene(&ent);
 	}
 }
@@ -786,10 +771,11 @@ void CG_RegisterWeave(int weaveNum)
 			//weaveInfo->missileSound;
 
 			//instance
-			//weaveInfo->instanceModel = trap_R_RegisterModel("models/projectiles/spike/spike.md3");
+			weaveInfo->instanceModel[0] = trap_R_RegisterModel("models/weaves/protect/protect.md5mesh");
 			weaveInfo->instanceLight = 250;
 			MAKERGB(weaveInfo->instanceLightColor, 1.0f, 0.8f, 0.0f);
 			weaveInfo->instanceShader[0] = trap_R_RegisterShader("models/weaves/protect/protect_air");
+			weaveInfo->instanceShader[1] = trap_R_RegisterShader("models/weaves/protect/protect_air_skin");
 			//weaveInfo->instanceRenderfx;
 			//weaveInfo->instanceSound;
 			break;
@@ -807,10 +793,11 @@ void CG_RegisterWeave(int weaveNum)
 			//weaveInfo->missileTrailFunc;
 
 			//instance
-			//weaveInfo->instanceModel = trap_R_RegisterModel("models/projectiles/spike/spike.md3", qtrue);
+			weaveInfo->instanceModel[0] = trap_R_RegisterModel("models/weaves/protect/protect.md5mesh");
 			weaveInfo->instanceLight = 250;
 			MAKERGB(weaveInfo->instanceLightColor, 1, 0, 0);
 			weaveInfo->instanceShader[0] = trap_R_RegisterShader("models/weaves/protect/protect_fire");
+			weaveInfo->instanceShader[1] = trap_R_RegisterShader("models/weaves/protect/protect_fire_skin");
 			//weaveInfo->instanceRenderfx;
 			//weaveInfo->instanceSound;
 			break;
@@ -828,10 +815,11 @@ void CG_RegisterWeave(int weaveNum)
 			//weaveInfo->missileTrailFunc;
 
 			//instance
-			//weaveInfo->instanceModel = trap_R_RegisterModel("models/projectiles/spike/spike.md3");
+			weaveInfo->instanceModel[0] = trap_R_RegisterModel("models/weaves/protect/protect.md5mesh");
 			weaveInfo->instanceLight = 250;
 			MAKERGB(weaveInfo->instanceLightColor, 1, 0, 0);
 			weaveInfo->instanceShader[0] = trap_R_RegisterShader("models/weaves/protect/protect_earth");
+			weaveInfo->instanceShader[1] = trap_R_RegisterShader("models/weaves/protect/protect_earth_skin");
 			//weaveInfo->instanceRenderfx;
 			//weaveInfo->instanceSound;
 			break;
@@ -849,10 +837,11 @@ void CG_RegisterWeave(int weaveNum)
 			//weaveInfo->missileTrailFunc;
 
 			//instance
-			//weaveInfo->instanceModel = trap_R_RegisterModel("models/projectiles/spike/spike.md3");
+			weaveInfo->instanceModel[0] = trap_R_RegisterModel("models/weaves/protect/protect.md5mesh");
 			weaveInfo->instanceLight = 250;
 			MAKERGB(weaveInfo->instanceLightColor, 1, 0, 0);
 			weaveInfo->instanceShader[0] = trap_R_RegisterShader("models/weaves/protect/protect_water");
+			weaveInfo->instanceShader[1] = trap_R_RegisterShader("models/weaves/protect/protect_water_skin");
 			//weaveInfo->instanceRenderfx;
 			//weaveInfo->instanceSound;
 			break;

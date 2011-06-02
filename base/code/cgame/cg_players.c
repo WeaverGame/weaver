@@ -2670,8 +2670,8 @@ void CG_AddRefEntityWithPowerups(refEntity_t * ent, entityState_t * state, int t
 	{
 		trap_R_AddRefEntityToScene(ent);
 
-		ent->customShader = cgs.media.unlinkEffect;
-		trap_R_AddRefEntityToScene(ent);
+		//ent->customShader = cgs.media.unlinkEffect;
+		//trap_R_AddRefEntityToScene(ent);
 	}
 	else if(state->powerups & (1 << PW_INVIS))
 	{
@@ -2692,6 +2692,7 @@ void CG_AddRefEntityWithPowerups(refEntity_t * ent, entityState_t * state, int t
 		trap_R_AddRefEntityToScene(ent);
 		//}
 
+		/*
 		if(state->powerups & (1 << PW_QUAD))
 		{
 			if(team == TEAM_RED)
@@ -2713,6 +2714,7 @@ void CG_AddRefEntityWithPowerups(refEntity_t * ent, entityState_t * state, int t
 			ent->customShader = cgs.media.battleSuitShader;
 			trap_R_AddRefEntityToScene(ent);
 		}
+		*/
 	}
 }
 
