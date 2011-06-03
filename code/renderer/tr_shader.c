@@ -1611,6 +1611,21 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 			}
 			stage->bundle[0].imageAnimationSpeed = atof(token);
 
+			imageBits = 0;
+			if(stage->overrideNoPicMip || shader.noPicMip)
+			{
+				imageBits |= IF_NOPICMIP;
+			}
+
+			if(stage->overrideFilterType)
+			{
+				filterType = stage->filterType;
+			}
+			else
+			{
+				filterType = shader.filterType;
+			}
+
 			// parse up to MAX_IMAGE_ANIMATIONS animations
 			while(1)
 			{
@@ -1624,7 +1639,7 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 				num = stage->bundle[0].numImages;
 				if(num < MAX_IMAGE_ANIMATIONS)
 				{
-					stage->bundle[0].image[num] = R_FindImageFile(token, IF_NONE, FT_DEFAULT, WT_REPEAT, shader.name);
+					stage->bundle[0].image[num] = R_FindImageFile(token, imageBits, filterType, WT_REPEAT, shader.name);
 					if(!stage->bundle[0].image[num])
 					{
 						ri.Printf(PRINT_WARNING, "WARNING: R_FindImageFile could not find '%s' in shader '%s'\n", token,
