@@ -249,6 +249,10 @@ void SP_func_shield_info(gentity_t * ent)
 /*QUAKED team_CTF_capturepoint (0 0 1) (-16 -16 -24) (16 16 32)
 Capturable flag, to alter spawn ownership in team games.
 */
+// x 44   y 44   z 180
+const vec3_t    capPointMins = { -20, -20, 0 };
+const vec3_t    capPointMaxs = { 20, 20, 180 };
+
 void SP_team_CTF_capturepoint(gentity_t * ent)
 {
 	VectorCopy(ent->s.origin, ent->s.pos.trBase);
@@ -256,6 +260,10 @@ void SP_team_CTF_capturepoint(gentity_t * ent)
 
 	VectorCopy(ent->s.angles, ent->s.apos.trBase);
 	VectorCopy(ent->s.angles, ent->r.currentAngles);
+
+	VectorCopy(capPointMins, ent->r.mins);
+	VectorCopy(capPointMaxs, ent->r.maxs);
+	ent->r.contents = -1;
 
 	ent->s.eType = ET_CAPTURE_POINT;
 	if( Q_stricmp(ent->team, "red") == 0 || Q_stricmp(ent->team, "1") == 0)
