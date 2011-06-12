@@ -1259,6 +1259,24 @@ static int _et_GetLuaFunction(lua_State * L)
 	return 1;
 }
 
+// et.SetModelindex(entnum, value)
+static int _et_SetModelindex(lua_State * L)
+{
+	gentity_t      *ent;
+	int            *val;
+	int             entnum;
+
+	entnum = luaL_checkint(L, 1);
+	val = luaL_checkint(L, 2);
+	DEBUG_LUA("et_SetModelindex: start: ent=%d val=%d", entnum, val);
+	ent = &g_entities[entnum];
+	if(ent)
+	{
+		ent->s.modelindex = val;
+	}
+	DEBUG_LUA("et_SetModelindex: return: ent=%d", entnum);
+	return 0;
+}
 
 // et.SetLuaFunction(entnum, keyname, value)
 static int _et_SetLuaFunction(lua_State * L)
@@ -1468,6 +1486,8 @@ static const luaL_Reg etlib[] = {
 	{"GetLuaFunction", _et_GetLuaFunction},
 	{"GetLuaParam", _et_GetLuaParam},
 	{"GetEntityByName", _et_GetEntityByName},
+
+	{"SetModelindex", _et_SetModelindex},
 
 	{"RunThink", _et_RunThink},
 	{"RunUse", _et_RunUse},

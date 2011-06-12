@@ -111,8 +111,8 @@ static int game_SpawnGroup(lua_State * L)
 	int             status;
 
 	team = luaL_checkint(L, 1);
-	spawnGroup = luaL_checkint(L, 1);
-	status = luaL_checkint(L, 1);
+	spawnGroup = luaL_checkint(L, 2);
+	status = luaL_checkint(L, 3);
 
 	DEBUG_LUA("game_SpawnGroup: start: team=%d group=%d status=%d", team, spawnGroup, status);
 
