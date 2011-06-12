@@ -938,6 +938,40 @@ static void CG_Portal(centity_t * cent)
 	trap_R_AddRefEntityToScene(&ent);
 }
 
+/*
+===============
+CG_CapturePoint
+===============
+*/
+static void CG_CapturePoint(centity_t * cent)
+{
+	refEntity_t     ent;
+	entityState_t  *s1;
+
+	s1 = &cent->currentState;
+
+	// create the render entity
+	memset(&ent, 0, sizeof(ent));
+
+	if(s1->modelindex == TEAM_FREE || s1->modelindex == TEAM_RED || s1->modelindex == TEAM_BLUE)
+	{
+		ent.hModel = cgs.media.capturePointFlag[s1->modelindex];
+	}
+	else
+	{
+		return;
+	}
+
+	VectorCopy(cent->lerpOrigin, ent.origin);
+	VectorCopy(cent->lerpOrigin, ent.oldorigin);
+	AnglesToAxis(cent->lerpAngles, ent.axis);
+
+	// Tr3B - let movers cast shadows
+	ent.renderfx = RF_NOSHADOW;
+
+	// add to refresh list
+	trap_R_AddRefEntityToScene(&ent);
+}
 
 /*
 ==================
@@ -1725,6 +1759,10 @@ static void CG_AddCEntity(centity_t * cent)
 		case ET_SHIELD:
 			//shielding a func_exlosive or something
 			CG_Mover(cent);
+			break;
+		case ET_CAPTURE_POINT:
+			//capturable spawn flag
+			CG_CapturePoint(cent);
 			break;
 		case ET_SHIELD_INFO:
 			//info for shield

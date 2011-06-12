@@ -1364,6 +1364,7 @@ typedef struct
 	qhandle_t       debugPlayerAABB_twoSided;
 
 	// weaver resorces
+	qhandle_t       capturePointFlag[3];
 
 	// weaver sword
 	qhandle_t       swordModel;

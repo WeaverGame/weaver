@@ -245,3 +245,31 @@ void SP_func_shield_info(gentity_t * ent)
 
 	trap_LinkEntity(ent);
 }
+
+/*QUAKED team_CTF_capturepoint (0 0 1) (-16 -16 -24) (16 16 32)
+Capturable flag, to alter spawn ownership in team games.
+*/
+void SP_team_CTF_capturepoint(gentity_t * ent)
+{
+	VectorCopy(ent->s.origin, ent->s.pos.trBase);
+	VectorCopy(ent->s.origin, ent->r.currentOrigin);
+
+	VectorCopy(ent->s.angles, ent->s.apos.trBase);
+	VectorCopy(ent->s.angles, ent->r.currentAngles);
+
+	ent->s.eType = ET_CAPTURE_POINT;
+	if( Q_stricmp(ent->team, "red") == 0 || Q_stricmp(ent->team, "1") == 0)
+	{
+		ent->s.modelindex = TEAM_RED;
+	}
+	else if( Q_stricmp(ent->team, "blue") == 0 || Q_stricmp(ent->team, "2") == 0)
+	{
+		ent->s.modelindex = TEAM_BLUE;
+	}
+	else
+	{
+		ent->s.modelindex = TEAM_FREE;
+	}
+
+	trap_LinkEntity(ent);
+}

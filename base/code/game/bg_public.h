@@ -830,6 +830,7 @@ typedef enum
 	ET_EXPLOSIVE,
 	ET_SHIELD,
 	ET_SHIELD_INFO,
+	ET_CAPTURE_POINT,			// Capturable spawn point
 	ET_FIRE,
 	ET_PHYSICS_BOX,				// JBullet visualization tool
 

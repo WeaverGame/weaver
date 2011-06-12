@@ -1283,6 +1283,11 @@ static void CG_RegisterGraphics(void)
 
 	CG_LoadingString("Misc", qfalse);
 
+	// capture point flags
+	cgs.media.capturePointFlag[TEAM_FREE] = trap_R_RegisterModel("models/entities/flag_neut.md5mesh");
+	cgs.media.capturePointFlag[TEAM_RED] = trap_R_RegisterModel("models/entities/flag_red.md5mesh");
+	cgs.media.capturePointFlag[TEAM_BLUE] = trap_R_RegisterModel("models/entities/flag_blue.md5mesh");
+
 	// weaver sword
 	cgs.media.swordModel = trap_R_RegisterModel("models/sword/sword.md5mesh");
 	cgs.media.weaverShieldInfo = trap_R_RegisterModel("models/entities/shield_info.md5mesh");
