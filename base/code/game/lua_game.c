@@ -102,115 +102,58 @@ static int game_Broadcast(lua_State * L)
 	return 0;
 }
 
-static int game_SpawnGroupRedDisable(lua_State * L)
+// game.SpawnGroup(team, group, status)
+static int game_SpawnGroup(lua_State * L)
 {
 	gentity_t      *next;
+	int             team;
 	int             spawnGroup;
+	int             status;
 
+	team = luaL_checkint(L, 1);
 	spawnGroup = luaL_checkint(L, 1);
+	status = luaL_checkint(L, 1);
 
-	DEBUG_LUA("game_SpawnGroupRedDisable: start: group=%d", spawnGroup);
+	DEBUG_LUA("game_SpawnGroup: start: team=%d group=%d status=%d", team, spawnGroup, status);
 
 	next = NULL;
 	do
 	{
-		next = G_Find(next, FOFS(classname), "team_ctf_redspawn");
+		switch(team)
+		{
+			case TEAM_RED:
+				next = G_Find(next, FOFS(classname), "team_ctf_redspawn");
+				break;
+			case TEAM_BLUE:
+				next = G_Find(next, FOFS(classname), "team_ctf_bluespawn");
+				break;
+			default:
+				DEBUG_LUA("game_SpawnGroup: return: warning - team should be red (1) or blue (2)");
+				return;
+		}
 		if(!next)
 		{
-			DEBUG_LUA("game_SpawnGroupRedDisable: return: next spawn not found");
+			DEBUG_LUA("game_SpawnGroup: return: next spawn not found");
 			return 0;
 		}
 		if(next->group == spawnGroup)
 		{
-			trap_UnlinkEntity(next);
+			switch(status)
+			{
+				case 0:
+					trap_UnlinkEntity(next);
+					break;
+				case 1:
+					trap_LinkEntity(next);
+					break;
+				default:
+					DEBUG_LUA("game_SpawnGroup: return: warning - status should be disable (0) or enable (1)");
+					return;
+			}
 		}
-	} while(!Q_stricmp(next->classname, "team_ctf_redspawn"));
+	} while(!Q_stricmp(next->classname, "team_ctf_redspawn") || !Q_stricmp(next->classname, "team_ctf_bluespawn"));
 
-	DEBUG_LUA("game_SpawnGroupRedDisable: return: no more spawns");
-	return 0;
-}
-
-static int game_SpawnGroupBlueDisable(lua_State * L)
-{
-	gentity_t      *next;
-	int             spawnGroup;
-
-	spawnGroup = luaL_checkint(L, 1);
-
-	DEBUG_LUA("game_SpawnGroupBlueDisable: start: group=%d", spawnGroup);
-
-	next = NULL;
-	do
-	{
-		next = G_Find(next, FOFS(classname), "team_ctf_bluespawn");
-		if(!next)
-		{
-			DEBUG_LUA("game_SpawnGroupBlueDisable: return: next spawn not found");
-			return 0;
-		}
-		if(next->group == spawnGroup)
-		{
-			trap_UnlinkEntity(next);
-		}
-	} while(!Q_stricmp(next->classname, "team_ctf_bluespawn"));
-
-	DEBUG_LUA("game_SpawnGroupBlueDisable: return: no more spawns");
-	return 0;
-}
-
-static int game_SpawnGroupRedEnable(lua_State * L)
-{
-	gentity_t      *next;
-	int             spawnGroup;
-
-	spawnGroup = luaL_checkint(L, 1);
-
-	DEBUG_LUA("game_SpawnGroupRedEnable: start: group=%d", spawnGroup);
-
-	next = NULL;
-	do
-	{
-		next = G_Find(next, FOFS(classname), "team_ctf_redspawn");
-		if(!next)
-		{
-			DEBUG_LUA("game_SpawnGroupRedEnable: return: next spawn not found");
-			return 0;
-		}
-		if(next->group == spawnGroup)
-		{
-			trap_LinkEntity(next);
-		}
-	} while(!Q_stricmp(next->classname, "team_ctf_redspawn"));
-
-	DEBUG_LUA("game_SpawnGroupRedEnable: return: no more spawns");
-	return 0;
-}
-
-static int game_SpawnGroupBlueEnable(lua_State * L)
-{
-	gentity_t      *next;
-	int             spawnGroup;
-
-	spawnGroup = luaL_checkint(L, 1);
-
-	DEBUG_LUA("game_SpawnGroupBlueEnable: start: group=%d", spawnGroup);
-
-	next = NULL;
-	do
-	{
-		next = G_Find(next, FOFS(classname), "team_ctf_bluespawn");
-		if(!next)
-		{
-			DEBUG_LUA("game_SpawnGroupBlueEnable: return: next spawn not found");
-			return 0;
-		}
-		if(next->group == spawnGroup)
-		{
-			trap_LinkEntity(next);
-		}
-	} while(!Q_stricmp(next->classname, "team_ctf_bluespawn"));
-
-	DEBUG_LUA("game_SpawnGroupBlueEnable: return: no more spawns");
+	DEBUG_LUA("game_SpawnGroup: return: no more spawns");
 	return 0;
 }
 
@@ -317,10 +260,7 @@ static const luaL_reg gamelib[] = {
 	{"SetDefender", game_SetDefender},
 	{"SetWinner", game_SetWinner},
 	{"SetTimeLimit", game_SetTimeLimit},
-	{"SpawnGroupRedDisable", game_SpawnGroupRedDisable},
-	{"SpawnGroupBlueDisable", game_SpawnGroupBlueDisable},
-	{"SpawnGroupRedEnable", game_SpawnGroupRedEnable},
-	{"SpawnGroupBlueEnable", game_SpawnGroupBlueEnable},
+	{"SpawnGroup", game_SpawnGroup},
 	{NULL, NULL}
 };
 
