@@ -6,6 +6,8 @@ light_props
 lights
 mikeplus16
 nature
+nobiax
+obj
 particles
 props
 raedwulf_water
@@ -24,5 +26,3 @@ trak8
 trak9
 weave_effects
 weaves
-cpd
-nobiax
