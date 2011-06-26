@@ -670,6 +670,8 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 	// Add team bonuses
 	Team_FragBonuses(self, inflictor, attacker);
 
+	TossObjItems(self);
+
 	// if I committed suicide, the flag does not fall, it returns.
 	if(meansOfDeath == MOD_SUICIDE)
 	{

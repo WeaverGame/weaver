@@ -64,3 +64,22 @@ void CG_ShieldInfo(centity_t * cent)
 	// add to refresh list
 	trap_R_AddRefEntityToScene(&ent);
 }
+
+centity_t * CG_ObjItem(playerEntity_t * pe, int clientNum)
+{
+	centity_t *     objItem = NULL;
+	if(pe->objEnt != 0)
+	{
+		// Player entity currently has a objItem assigned.
+		// May be have been dropped since.
+		// ObjItem ent will not go invalid.
+		objItem = &cg_entities[pe->objEnt];
+		if((objItem->currentValid < 1) || (objItem->currentState.otherEntityNum != clientNum))
+		{
+			// It has been invalidated.
+			pe->objEnt = 0;
+			objItem = NULL;
+		}
+	}
+	return objItem;
+}

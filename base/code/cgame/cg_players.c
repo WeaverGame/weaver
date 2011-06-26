@@ -2332,10 +2332,19 @@ Float sprites over the player's head
 void CG_PlayerSprites(centity_t * cent)
 {
 	int             team;
+	centity_t      *obj;
 
 	if(cent->currentState.eFlags & EF_CONNECTION)
 	{
 		CG_PlayerFloatSprite(cent, cgs.media.connectionShader);
+		return;
+	}
+
+	obj = CG_ObjItem(&cent->pe, cent->currentState.clientNum);
+	if(obj != NULL)
+	{
+		//cg_entities[cent->pe.objEnt]
+		CG_PlayerFloatSprite(cent, cgs.media.objItemIcon);
 		return;
 	}
 

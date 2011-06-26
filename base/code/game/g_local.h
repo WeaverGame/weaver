@@ -494,6 +494,9 @@ struct gclient_s
 #endif
 
 	char           *areabits;
+
+	gentity_t      *objItem;
+
 	// WEAVER
 	//current weave info
 	qboolean        weaving;	//is this player weaving?
@@ -828,6 +831,10 @@ void            ClientThreadEnd(gclient_t * client);
 void            ClientWeaveEnd(gclient_t * client, gentity_t * ent);
 void            ClientWeaveUpdateStats(gentity_t * ent, gclient_t * client);
 void            ClientPoisonUpdateStats(gentity_t *ent);
+
+// g_spell_ents.c
+//
+void            G_RunObjItem(gentity_t * ent);
 
 // g_spell_misc.c
 //

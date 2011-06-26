@@ -674,6 +674,7 @@ static void CG_DrawWeaverPowerups(void)
 	int             i;
 	int             t;
 	int             x, y;
+	centity_t      *obj;
 
 	ps = &cg.snap->ps;
 
@@ -710,7 +711,16 @@ static void CG_DrawWeaverPowerups(void)
 		y -= HUD_STATUS_HEIGHT;
 	}
 
-	return;
+	y -= HUD_STATUS_HEIGHT;
+
+	// Draw objective icons
+	obj = CG_ObjItem(&cg.predictedPlayerEntity.pe, cg.predictedPlayerState.clientNum);
+	if(obj != NULL)
+	{
+		CG_DrawPic(x, y, HUD_STATUS_WIDTH, HUD_STATUS_HEIGHT, cgs.media.objItemIcon);
+
+		y -= HUD_STATUS_HEIGHT;
+	}
 }
 
 /*

@@ -246,14 +246,13 @@ void SP_func_shield_info(gentity_t * ent)
 	trap_LinkEntity(ent);
 }
 
-/*QUAKED team_CTF_capturepoint (0 0 1) (-16 -16 -24) (16 16 32)
+/*QUAKED team_OBJ_capturepoint (0 0 1) (-16 -16 -24) (16 16 32)
 Capturable flag, to alter spawn ownership in team games.
 */
-// x 44   y 44   z 180
 const vec3_t    capPointMins = { -20, -20, 0 };
 const vec3_t    capPointMaxs = { 20, 20, 180 };
 
-void SP_team_CTF_capturepoint(gentity_t * ent)
+void SP_team_OBJ_capturepoint(gentity_t * ent)
 {
 	VectorCopy(ent->s.origin, ent->s.pos.trBase);
 	VectorCopy(ent->s.origin, ent->r.currentOrigin);
@@ -280,4 +279,291 @@ void SP_team_CTF_capturepoint(gentity_t * ent)
 	}
 
 	trap_LinkEntity(ent);
+}
+
+void Obj_Item_ReadyPickup(gentity_t * ent)
+{
+	// Its on the ground to be picked up.
+	ent->s.otherEntityNum = ENTITYNUM_WORLD;
+}
+
+void Return_Obj_Item(gentity_t * ent)
+{
+	G_SetOrigin(ent, ent->pos1);
+
+	// No need to auto return
+	ent->nextthink = -1;
+	ent->think = NULL;
+	ent->crusher = qfalse;
+	// crusher if it is not at original location.
+
+	Obj_Item_ReadyPickup(ent);
+}
+
+/*
+================
+Drop_Obj_Item
+Based on Drop_Item
+Spawns an item and tosses it forward
+================
+*/
+gentity_t      *Drop_Obj_Item(gentity_t * ent, gentity_t * dropped, float angle)
+{
+	vec3_t          velocity;
+	vec3_t          angles;
+
+	if(ent && ent->client)
+	{
+		// Plyar no longer has this.
+		ent->client->objItem = NULL;
+	}
+
+	// Calculate drop
+	VectorCopy(ent->s.apos.trBase, angles);
+	angles[YAW] += angle;
+	angles[PITCH] = 0;			// always forward
+
+	AngleVectors(angles, velocity, NULL, NULL);
+	VectorScale(velocity, 100, velocity);
+	velocity[2] += 100 + crandom() * 50;
+
+	// Set drop position and velocity
+	G_SetOrigin(dropped, ent->s.pos.trBase);
+	dropped->s.pos.trType = TR_GRAVITY;
+	dropped->s.pos.trAcceleration = g_gravity.value;
+	dropped->s.pos.trTime = level.time;
+	VectorCopy(velocity, dropped->s.pos.trDelta);
+	dropped->s.eFlags |= EF_BOUNCE_HALF;
+
+	// Return on next think.
+	dropped->think = Return_Obj_Item;
+	dropped->nextthink = level.time + (dropped->wait * 1000);
+
+	// Players can pick it up now.
+	Obj_Item_ReadyPickup(dropped);
+
+	return dropped;
+}
+
+/*
+=================
+TossObjItems
+Based on TossClientItems
+
+Toss the objective items for the killed player
+=================
+*/
+void TossObjItems(gentity_t * self)
+{
+	if(self->client->objItem)
+	{
+		// drop the item
+		Drop_Obj_Item(self, self->client->objItem, 0);
+	}
+}
+
+/*
+===============
+Touch_Obj_Item
+Based on Touch_Item
+===============
+*/
+void Touch_Obj_Item(gentity_t * ent, gentity_t * other, trace_t * trace)
+{
+	int             respawn;
+	qboolean        predict;
+
+	if(ent->s.otherEntityNum != ENTITYNUM_WORLD)	// Someone else already carrying this.
+		return;
+	if(!other->client)
+		return;
+	if(other->health < 1)
+		return;					// dead people can't pickup
+
+	// Check if this player is on the right team.
+	if(other->client->ps.persistant[PERS_TEAM] == TEAM_RED)
+	{
+		if(ent->blue_only && ent->crusher)
+		{
+			// Touching enemy objective returns it.
+			Return_Obj_Item(ent);
+			return;
+		}
+	}
+	else if(other->client->ps.persistant[PERS_TEAM] == TEAM_BLUE)
+	{
+		if(ent->red_only && ent->crusher)
+		{
+			// Touching enemy objective returns it.
+			Return_Obj_Item(ent);
+			return;
+		}
+	}
+
+	predict = other->client->pers.predictItemPickup;
+
+	PrintMsg(NULL, "%s" S_COLOR_WHITE " picked up %s!\n", other->client->pers.netname, ent->message);
+	ent->s.otherEntityNum = other->s.number;
+	other->client->objItem = ent;
+	ent->crusher = qtrue; // No longer at original position
+
+	// play the normal pickup sound
+	if(predict)
+	{
+		G_AddPredictableEvent(other, EV_OBJ_ITEM_PICKUP, ent->s.modelindex);
+	}
+	else
+	{
+		G_AddEvent(other, EV_OBJ_ITEM_PICKUP, ent->s.modelindex);
+	}
+
+	// Announce pickup
+	{
+		gentity_t      *te;
+
+		te = G_TempEntity(ent->s.pos.trBase, EV_GLOBAL_OBJ);
+		te->s.eventParm = ent->s.modelindex;
+		te->r.svFlags |= SVF_BROADCAST;
+	}
+
+	// fire item targets
+	G_UseTargets(ent, other);
+}
+
+/*QUAKED team_OBJ_captureitem (0 0 1) (-24 -24 -24) (24 24 24)
+Capturable item.
+*/
+const vec3_t    capItemMins = { -24, -24, -24 };
+const vec3_t    capItemMaxs = { 24, 24, 24 };
+
+void SP_team_OBJ_captureitem(gentity_t * ent)
+{
+	VectorCopy(ent->s.origin, ent->s.pos.trBase);
+	VectorCopy(ent->s.origin, ent->r.currentOrigin);
+
+	VectorCopy(ent->s.angles, ent->s.apos.trBase);
+	VectorCopy(ent->s.angles, ent->r.currentAngles);
+
+	VectorCopy(capItemMins, ent->r.mins);
+	VectorCopy(capItemMaxs, ent->r.maxs);
+
+	VectorCopy(ent->s.origin, ent->pos1);
+	ent->r.contents = CONTENTS_TRIGGER;
+
+	if(ent->wait == 0)
+	{
+		// Default, return after 30 seconds on the ground.
+		ent->wait = 30;
+	}
+
+	ent->s.eType = ET_CAPTURE_ITEM;
+	if( Q_stricmp(ent->team, "red") == 0 || Q_stricmp(ent->team, "1") == 0)
+	{
+		// Only red players can steal it.
+		ent->red_only = qtrue;
+		ent->blue_only = qfalse;
+	}
+	else if( Q_stricmp(ent->team, "blue") == 0 || Q_stricmp(ent->team, "2") == 0)
+	{
+		// Only blue players can steal it.
+		ent->red_only = qfalse;
+		ent->blue_only = qtrue;
+	}
+	else
+	{
+		ent->red_only = qfalse;
+		ent->blue_only = qfalse;
+	}
+
+	if(ent->gamemodel != NULL)
+	{
+		ent->s.modelindex = G_ModelIndex( ent->gamemodel );
+	}
+	else
+	{
+		G_Printf("Warnings: team_OBJ_captureitem at %s has no gamemodel.", vtos(ent->pos1));
+	}
+
+	// No need to auto return
+	ent->nextthink = -1;
+	ent->think = NULL;
+	ent->crusher = qfalse;
+	// crusher if it is not at original location.
+
+	Obj_Item_ReadyPickup(ent);
+
+	trap_LinkEntity(ent);
+}
+
+/*
+================
+G_RunObjItem
+Based on G_RunItem
+================
+*/
+void G_RunObjItem(gentity_t * ent)
+{
+	vec3_t          origin;
+	trace_t         tr;
+	int             contents;
+	int             mask;
+
+	// if groundentity has been set to -1, it may have been pushed off an edge
+	if(ent->s.groundEntityNum == -1)
+	{
+		if(ent->s.pos.trType != TR_GRAVITY)
+		{
+			ent->s.pos.trType = TR_GRAVITY;
+			ent->s.pos.trAcceleration = g_gravity.value;
+			ent->s.pos.trTime = level.time;
+		}
+	}
+
+	if(ent->s.pos.trType == TR_STATIONARY)
+	{
+		// check think function
+		G_RunThink(ent);
+		return;
+	}
+
+	// get current position
+	BG_EvaluateTrajectory(&ent->s.pos, level.time, origin);
+
+	// trace a line from the previous position to the current position
+	if(ent->clipmask)
+	{
+		mask = ent->clipmask;
+	}
+	else
+	{
+		mask = MASK_PLAYERSOLID & ~CONTENTS_BODY;	//MASK_SOLID;
+	}
+	trap_Trace(&tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, origin, ent->r.ownerNum, mask);
+
+	VectorCopy(tr.endpos, ent->r.currentOrigin);
+
+	if(tr.startsolid)
+	{
+		tr.fraction = 0;
+	}
+
+	trap_LinkEntity(ent);		// FIXME: avoid this for stationary?
+
+	// check think function
+	G_RunThink(ent);
+
+	if(tr.fraction == 1)
+	{
+		return;
+	}
+
+	// if it is in a nodrop volume, return it
+	contents = trap_PointContents(ent->r.currentOrigin, -1);
+	if(contents & CONTENTS_NODROP)
+	{
+		Return_Obj_Item(ent);
+		return;
+	}
+
+	G_BounceItem(ent, &tr);
 }

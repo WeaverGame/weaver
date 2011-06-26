@@ -974,6 +974,54 @@ static void CG_CapturePoint(centity_t * cent)
 }
 
 /*
+===============
+CG_CaptureItem
+===============
+*/
+static void CG_CaptureItem(centity_t * cent)
+{
+	refEntity_t     ent;
+	entityState_t  *s1;
+	playerEntity_t *pe;
+
+	s1 = &cent->currentState;
+
+	if(s1->otherEntityNum == ENTITYNUM_WORLD)
+	{
+		// Item is on the floor
+
+		// create the render entity
+		memset(&ent, 0, sizeof(ent));
+
+		ent.hModel = cgs.gameModels[s1->modelindex];
+
+		VectorCopy(cent->lerpOrigin, ent.origin);
+		VectorCopy(cent->lerpOrigin, ent.oldorigin);
+		AnglesToAxis(cent->lerpAngles, ent.axis);
+
+		// add to refresh list
+		trap_R_AddRefEntityToScene(&ent);
+	}
+	else
+	{
+		// Item is being carried
+
+		if(cg.predictedPlayerState.clientNum == s1->otherEntityNum)
+		{
+			// Carried by this client.
+			pe = &cg.predictedPlayerEntity.pe;
+		}
+		else
+		{
+			// Carried by another player.
+			pe = &cg_entities[s1->otherEntityNum].pe;
+		}
+
+		pe->objEnt = cent->currentState.number;
+	}
+}
+
+/*
 ==================
 CG_AI_Node
 ==================
@@ -1763,6 +1811,10 @@ static void CG_AddCEntity(centity_t * cent)
 		case ET_CAPTURE_POINT:
 			//capturable spawn flag
 			CG_CapturePoint(cent);
+			break;
+		case ET_CAPTURE_ITEM:
+			//capturable item
+			CG_CaptureItem(cent);
 			break;
 		case ET_SHIELD_INFO:
 			//info for shield

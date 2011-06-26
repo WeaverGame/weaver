@@ -207,6 +207,9 @@ typedef struct
 	vec3_t          lastAxis[3];
 	smooth_t        sList[MAXSMOOTHS];
 
+	// objectives
+	int             objEnt;
+
 	// casting effects
 	int             threads[MAX_THREADS];
 	int             threadsLight;
@@ -1365,6 +1368,7 @@ typedef struct
 
 	// weaver resorces
 	qhandle_t       capturePointFlag[3];
+	qhandle_t       objItemIcon;
 
 	// weaver sword
 	qhandle_t       swordModel;
@@ -1853,6 +1857,7 @@ void            CG_WeaveMissileHitWall(int weapon, int clientNum, vec3_t origin,
 
 // cg_spell_ents.c
 void            CG_ShieldInfo(centity_t * cent);
+centity_t      *CG_ObjItem(playerEntity_t * pe, int clientNum);
 
 // cg_spell_weaves.c
 void            CG_ShowThreads(centity_t * cent);

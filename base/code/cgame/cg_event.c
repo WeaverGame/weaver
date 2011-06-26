@@ -1242,6 +1242,16 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 			es->loopSound = 0;
 			break;
 
+		case EV_GLOBAL_OBJ:
+			DEBUGNAME("EV_GLOBAL_OBJ");
+			//TODO: play announce sound
+			break;
+
+		case EV_OBJ_ITEM_PICKUP:
+			DEBUGNAME("EV_OBJ_ITEM_PICKUP");
+			//TODO: play pickup sound
+			break;
+
 		case EV_SPAWNTIME:
 			DEBUGNAME("EV_SPAWNTIME");
 			// sets up spawn timer for client

@@ -469,7 +469,15 @@ entityDef team_CTF_neutralflag
 }
 
 
-entityDef team_CTF_capturepoint
+/*
+============================================================================================================
+
+Weapon Pickups
+____________________________________________________________________________________________________________
+============================================================================================================
+*/
+
+entityDef team_obj_capturepoint
 {  
 	"editor_color"				"1 .2 1" 
 	"editor_mins"				"16 -16 0"
@@ -480,6 +488,21 @@ entityDef team_CTF_capturepoint
 	"editor_usage"				"Captureable Spawn Point."
 	
 	"editor_var team"			"Initial team, 'red' or 'blue', anything else is neutral."
+	
+	"spawnclass"				"idSpawnableEntity"
+	"team"						""
+}
+
+entityDef team_obj_captureitem
+{  
+	"editor_color"				"1 .2 1" 
+	"editor_mins"				"-16 -16 -16"
+	"editor_maxs"				"16 16 16"
+	"editor_showangle"			"1"
+	"model"						"models/entities/obj.md5mesh"
+	
+	"editor_usage"				"Captureable Item."
+	"editor_var team"			"Owner team, 'red' or 'blue', anything else is neutral."
 	
 	"spawnclass"				"idSpawnableEntity"
 	"team"						""

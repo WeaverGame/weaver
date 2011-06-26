@@ -529,6 +529,9 @@ typedef enum
 	EV_LIGHTNINGBOLT,			// lightning bolt bounced of invulnerability sphere
 //#endif
 
+	EV_GLOBAL_OBJ,				// announce an objective event
+	EV_OBJ_ITEM_PICKUP,			// normal item pickups are predictable
+
 	EV_SPAWNTIME,				// sends value of spawn time
 
 	EV_EFFECT,					// Lua scripted special effect
@@ -831,6 +834,7 @@ typedef enum
 	ET_SHIELD,
 	ET_SHIELD_INFO,
 	ET_CAPTURE_POINT,			// Capturable spawn point
+	ET_CAPTURE_ITEM,			// Capturable item
 	ET_FIRE,
 	ET_PHYSICS_BOX,				// JBullet visualization tool
 

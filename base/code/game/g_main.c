@@ -2539,6 +2539,12 @@ void G_RunFrame(int levelTime)
 			continue;
 		}
 
+		if(ent->s.eType == ET_CAPTURE_ITEM)
+		{
+			G_RunObjItem(ent);
+			continue;
+		}
+
 		if(ent->s.eType == ET_MOVER)
 		{
 			G_RunMover(ent);
