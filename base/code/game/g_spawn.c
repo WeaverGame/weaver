@@ -131,6 +131,7 @@ typedef struct
 field_t         fields[] = {
 	{"classname", FOFS(classname), F_LSTRING},
 	{"origin", FOFS(s.origin), F_VECTOR},
+	{"gamemodel", FOFS(gamemodel), F_LSTRING},
 	{"model", FOFS(model), F_LSTRING},
 	{"model2", FOFS(model2), F_LSTRING},
 	{"spawnflags", FOFS(spawnflags), F_INT},

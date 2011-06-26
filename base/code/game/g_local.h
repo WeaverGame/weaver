@@ -144,6 +144,7 @@ struct gentity_s
 
 	int             flags;		// FL_* variables
 
+	char           *gamemodel;
 	char           *model;
 	char           *model2;
 
