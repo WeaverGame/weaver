@@ -162,6 +162,12 @@ static int game_EndRound(lua_State * L)
 {
 	DEBUG_LUA("game_EndRound: start: round ending");
 
+	if(GameIsInWarmup())
+	{
+		DEBUG_LUA("game_EndRound: return: in warm up");
+		return 0;
+	}
+
 	trap_SendServerCommand(-1, "print \"Round Ended.\n\"");
 	LogExit("Round Ended.");
 
