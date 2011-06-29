@@ -94,12 +94,12 @@ void Think_SetupShieldTargets(gentity_t * ent)
 	ent->target_ent = G_Find(NULL, FOFS(name), ent->target);
 	if(!ent->target_ent)
 	{
-		Com_Printf("Warning: func_shield at %s with an unfound target\n", vtos(ent->r.absmin));
+		G_Printf("Warning: func_shield at %s with an unfound target\n", vtos(ent->s.origin));
 		return;
 	}
 	if(g_debugEntities.integer >= 1)
 	{
-		Com_Printf("func_shield at %s targeting %s\n", vtos(ent->r.absmin), ent->target);
+		G_Printf("func_shield at %s targeting %s\n", vtos(ent->s.origin), ent->target);
 	}
 
 	ent->s.otherEntityNum2 = ent->target_ent->s.number;
@@ -172,10 +172,10 @@ void Think_SetupShieldInfoTargets(gentity_t * ent)
 	ent->target_ent = G_Find(NULL, FOFS(name), ent->target);
 	if(!ent->target_ent)
 	{
-		G_Printf("func_shield_info at %s with an unfound target (MAPPER: GO FIX THIS ENTITY)\n", vtos(ent->r.absmin));
+		G_Printf("func_shield_info at %s with an unfound target (MAPPER: GO FIX THIS ENTITY)\n", vtos(ent->s.origin));
 		return;
 	}
-	G_Printf("func_shield_info at %s targeting %s\n", vtos(ent->r.absmin), ent->target);
+	G_Printf("func_shield_info at %s targeting %s\n", vtos(ent->s.origin), ent->target);
 
 	ent->s.otherEntityNum2 = ent->target_ent->s.number;
 	ent->s.frame = ent->target_ent->count;
@@ -195,13 +195,13 @@ void Think_SetupShieldInfoTargets(gentity_t * ent)
 		shieldInfoChain = shieldInfoChain->shield_ent;
 		if((shieldInfoChain->s.eType != ET_SHIELD_INFO) && (shieldInfoChain->s.eType != ET_SHIELD))
 		{
-			G_Printf("func_shield_info at %s found unexpected entity type (MAPPER: GO FIX THIS ENTITY)\n", vtos(ent->r.absmin));
+			G_Printf("func_shield_info at %s found unexpected entity type (MAPPER: GO FIX THIS ENTITY)\n", vtos(ent->s.origin));
 			return;
 		}
 		i++; // Protect against entities which target in a loop
 		if(i > 8)
 		{
-			G_Printf("func_shield_info at %s has a long chain, may be looped (MAPPER: GO FIX THIS ENTITY)\n", vtos(ent->r.absmin));
+			G_Printf("func_shield_info at %s has a long chain, may be looped (MAPPER: GO FIX THIS ENTITY)\n", vtos(ent->s.origin));
 			return;
 		}
 	}
