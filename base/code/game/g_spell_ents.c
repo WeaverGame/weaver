@@ -291,13 +291,16 @@ void Return_Obj_Item(gentity_t * ent)
 {
 	G_SetOrigin(ent, ent->pos1);
 
+	PrintMsg(NULL, S_COLOR_WHITE "An ancient magic returned %s!\n", ent->message);
+
 	// No need to auto return
-	ent->nextthink = -1;
+	ent->nextthink = 0;
 	ent->think = NULL;
 	ent->crusher = qfalse;
 	// crusher if it is not at original location.
 
 	Obj_Item_ReadyPickup(ent);
+	trap_LinkEntity(ent);
 }
 
 /*
@@ -335,12 +338,16 @@ gentity_t      *Drop_Obj_Item(gentity_t * ent, gentity_t * dropped, float angle)
 	VectorCopy(velocity, dropped->s.pos.trDelta);
 	dropped->s.eFlags |= EF_BOUNCE_HALF;
 
+	PrintMsg(NULL, "%s" S_COLOR_WHITE " dropped %s!\n", ent->client->pers.netname, dropped->message);
+
 	// Return on next think.
 	dropped->think = Return_Obj_Item;
-	dropped->nextthink = level.time + (dropped->wait * 1000);
+	dropped->nextthink = level.time + (dropped->wait * 1000.0f);
 
 	// Players can pick it up now.
 	Obj_Item_ReadyPickup(dropped);
+
+	trap_LinkEntity(ent);
 
 	return dropped;
 }
@@ -403,6 +410,7 @@ void Touch_Obj_Item(gentity_t * ent, gentity_t * other, trace_t * trace)
 	predict = other->client->pers.predictItemPickup;
 
 	PrintMsg(NULL, "%s" S_COLOR_WHITE " picked up %s!\n", other->client->pers.netname, ent->message);
+
 	ent->s.otherEntityNum = other->s.number;
 	other->client->objItem = ent;
 	ent->crusher = qtrue; // No longer at original position
@@ -485,10 +493,12 @@ void SP_team_OBJ_captureitem(gentity_t * ent)
 	}
 
 	// No need to auto return
-	ent->nextthink = -1;
+	ent->nextthink = 0;
 	ent->think = NULL;
 	ent->crusher = qfalse;
 	// crusher if it is not at original location.
+
+	ent->touch = Touch_Obj_Item;
 
 	Obj_Item_ReadyPickup(ent);
 
