@@ -970,6 +970,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\objective_common.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\code\qcommon\q_platform.h"
 				>
 			</File>

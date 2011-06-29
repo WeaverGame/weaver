@@ -865,6 +865,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\game\objective_common.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\code\qcommon\q_shared.h"
 				>
 			</File>
