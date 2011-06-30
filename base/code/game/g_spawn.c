@@ -254,8 +254,9 @@ void            SP_team_CTF_blueplayer(gentity_t * ent);
 void            SP_team_CTF_redspawn(gentity_t * ent);
 void            SP_team_CTF_bluespawn(gentity_t * ent);
 
-void            SP_team_OBJ_capturepoint(gentity_t * ent);
+void            SP_team_OBJ_spawnflag(gentity_t * ent);
 void            SP_team_OBJ_captureitem(gentity_t * ent);
+void            SP_team_OBJ_capturepoint(gentity_t * ent);
 
 void            SP_team_blueobelisk(gentity_t * ent);
 void            SP_team_redobelisk(gentity_t * ent);
@@ -344,8 +345,9 @@ spawn_t         spawns[] = {
 	{"team_CTF_redspawn", SP_team_CTF_redspawn},
 	{"team_CTF_bluespawn", SP_team_CTF_bluespawn},
 
-	{"team_OBJ_capturepoint", SP_team_OBJ_capturepoint},
+	{"team_OBJ_spawnflag", SP_team_OBJ_spawnflag},
 	{"team_OBJ_captureitem", SP_team_OBJ_captureitem},
+	{"team_OBJ_capturepoint", SP_team_OBJ_capturepoint},
 
 	{"team_redobelisk", SP_team_redobelisk},
 	{"team_blueobelisk", SP_team_blueobelisk},

@@ -246,13 +246,13 @@ void SP_func_shield_info(gentity_t * ent)
 	trap_LinkEntity(ent);
 }
 
-/*QUAKED team_OBJ_capturepoint (0 0 1) (-16 -16 -24) (16 16 32)
-Capturable flag, to alter spawn ownership in team games.
+/*QUAKED team_OBJ_spawnflag (0 0 1) (-16 -16 -24) (16 16 32)
+Capturable spawn flag, to alter spawn ownership in team games.
 */
 const vec3_t    capPointMins = { -20, -20, 0 };
 const vec3_t    capPointMaxs = { 20, 20, 180 };
 
-void SP_team_OBJ_capturepoint(gentity_t * ent)
+void SP_team_OBJ_spawnflag(gentity_t * ent)
 {
 	VectorCopy(ent->s.origin, ent->s.pos.trBase);
 	VectorCopy(ent->s.origin, ent->r.currentOrigin);
@@ -386,6 +386,8 @@ void Touch_Obj_Item(gentity_t * ent, gentity_t * other, trace_t * trace)
 		return;
 	if(other->health < 1)
 		return;					// dead people can't pickup
+	if(other->client->objItem != NULL)	// Player is already carrying another item.
+		return;
 
 	// Check if this player is on the right team.
 	if(other->client->ps.persistant[PERS_TEAM] == TEAM_RED)
@@ -407,6 +409,8 @@ void Touch_Obj_Item(gentity_t * ent, gentity_t * other, trace_t * trace)
 		}
 	}
 
+	// Player is able to pick this up.
+
 	predict = other->client->pers.predictItemPickup;
 
 	PrintMsg(NULL, "%s" S_COLOR_WHITE " picked up %s!\n", other->client->pers.netname, ent->message);
@@ -414,6 +418,7 @@ void Touch_Obj_Item(gentity_t * ent, gentity_t * other, trace_t * trace)
 	ent->s.otherEntityNum = other->s.number;
 	other->client->objItem = ent;
 	ent->crusher = qtrue; // No longer at original position
+
 
 	// play the normal pickup sound
 	if(predict)
@@ -465,23 +470,9 @@ void SP_team_OBJ_captureitem(gentity_t * ent)
 	}
 
 	ent->s.eType = ET_CAPTURE_ITEM;
-	if( Q_stricmp(ent->team, "red") == 0 || Q_stricmp(ent->team, "1") == 0)
-	{
-		// Only red players can steal it.
-		ent->red_only = qtrue;
-		ent->blue_only = qfalse;
-	}
-	else if( Q_stricmp(ent->team, "blue") == 0 || Q_stricmp(ent->team, "2") == 0)
-	{
-		// Only blue players can steal it.
-		ent->red_only = qfalse;
-		ent->blue_only = qtrue;
-	}
-	else
-	{
-		ent->red_only = qfalse;
-		ent->blue_only = qfalse;
-	}
+
+	G_SpawnBoolean("red_only", "0", &ent->red_only);
+	G_SpawnBoolean("blue_only", "0", &ent->blue_only);
 
 	if(ent->gamemodel != NULL)
 	{
@@ -576,4 +567,106 @@ void G_RunObjItem(gentity_t * ent)
 	}
 
 	G_BounceItem(ent, &tr);
+}
+
+/*
+==============================================================================
+
+team_OBJ_capturepoint
+
+==============================================================================
+*/
+
+/*
+================
+multi_capturepoint_trigger
+Based on: multi_flagonly_trigger
+the trigger was just activated
+================
+*/
+void multi_capturepoint_trigger(gentity_t * ent, gentity_t * activator)
+{
+	ent->activator = activator;
+
+	if(!activator->client)
+	{
+		return;
+	}
+
+	// Check if this player is on the right team.
+	if(activator->client->ps.persistant[PERS_TEAM] == TEAM_RED)
+	{
+		if(ent->blue_only)
+		{
+			return;
+		}
+	}
+	else if(activator->client->ps.persistant[PERS_TEAM] == TEAM_BLUE)
+	{
+		if(ent->red_only)
+		{
+			return;
+		}
+	}
+
+	G_UseTargets(ent, ent->activator);
+	//Team_CaptureFlag(ent, activator, TEAM_RED);
+
+#ifdef G_LUA
+	// Lua API callbacks
+	if(ent->luaTrigger)
+	{
+		if(activator)
+		{
+			G_LuaHook_EntityTrigger(ent->luaTrigger, ent->s.number, activator->s.number);
+		}
+		else
+		{
+			G_LuaHook_EntityTrigger(ent->luaTrigger, ent->s.number, ENTITYNUM_WORLD);
+		}
+	}
+#endif
+}
+/*
+================
+CapturePoint_Multi
+Based on Touch_Flagonly_Multi
+================
+*/
+void CapturePoint_Multi(gentity_t * self, gentity_t * other, trace_t * trace)
+{
+	if(!other->client)
+	{
+		return;
+	}
+	multi_capturepoint_trigger(self, other);
+}
+
+/*QUAKED SP_team_OBJ_capturepoint (.5 .5 .5) ?
+Player must be carrying the appropriate flag for it to trigger.
+Either red_only or blue_only must be set.
+*/
+void SP_team_OBJ_capturepoint(gentity_t * ent)
+{
+	G_SpawnBoolean("red_only", "0", &ent->red_only);
+	G_SpawnBoolean("blue_only", "0", &ent->blue_only);
+
+	ent->touch = CapturePoint_Multi;
+
+	if(!VectorCompare(ent->s.angles, vec3_origin))
+		G_SetMovedir(ent->s.angles, ent->movedir);
+
+	if(strstr(ent->model, ".ase") || strstr(ent->model, ".lwo") || strstr(ent->model, ".prt"))
+	{
+		// don't set brush model
+	}
+	else
+	{
+		trap_SetBrushModel(ent, ent->model);
+	}
+
+	ent->r.contents = CONTENTS_TRIGGER;	// replaces the -1 from trap_SetBrushModel
+	ent->r.svFlags = SVF_NOCLIENT;
+
+	trap_LinkEntity(ent);
 }

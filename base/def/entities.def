@@ -477,7 +477,7 @@ ________________________________________________________________________________
 ============================================================================================================
 */
 
-entityDef team_obj_capturepoint
+entityDef team_obj_spawnflag
 {  
 	"editor_color"				"1 .2 1" 
 	"editor_mins"				"16 -16 0"
@@ -502,11 +502,31 @@ entityDef team_obj_captureitem
 	"model"						"models/entities/obj.md5mesh"
 	
 	"editor_usage"				"Captureable Item."
-	"editor_var team"			"Owner team, 'red' or 'blue', anything else is neutral."
+	"editor_bool red_only"		"When set to 1, only players on the Red team can steal this item."
+	"editor_bool blue_only"		"When set to 1, only players on the Blue team can steal this item."
 	
 	"spawnclass"				"idSpawnableEntity"
-	"team"						""
 }
+
+entityDef team_obj_capturepoint
+{   
+	"editor_color"				"1 .2 1"
+	
+	"editor_usage"				"Capture items can be captured at this trigger."
+	
+	"editor_bool notfree"		"Hidden For FFA: when set to 1, entity will not spawn in 'Free for all' and 'Tournament' modes."
+	"editor_bool notteam"		"Hidden For Teamplay: when set to 1, entity will not spawn in 'Teamplay' and 'CTF' modes."
+	"editor_bool notsingle"		"Hidden For SP: when set to 1, entity will not spawn in Single Player mode (bot play mode)."
+	
+	"editor_bool red_only"		"When set to 1, only players on the Red team can capture items here."
+	"editor_bool blue_only"		"When set to 1, only players on the Blue team can capture items here."
+	
+	"spawnclass"				"idTrigger"
+	"notfree" 					"0"
+	"notteam" 					"0"
+	"notsingle"					"0"
+}
+
 
 /*
 ============================================================================================================
