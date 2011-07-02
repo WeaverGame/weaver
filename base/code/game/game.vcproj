@@ -658,6 +658,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\g_spell_objective.c"
+				>
+			</File>
+			<File
 				RelativePath=".\g_spell_power.c"
 				>
 			</File>

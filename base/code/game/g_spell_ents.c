@@ -33,6 +33,22 @@ SHIELD
 
 void func_shield_ActivateUse(gentity_t * ent, gentity_t * other, qboolean firstActivate)
 {
+	// Check if this player is on the right team.
+	if(other->client->ps.persistant[PERS_TEAM] == TEAM_RED)
+	{
+		if(ent->blue_only)
+		{
+			return;
+		}
+	}
+	else if(other->client->ps.persistant[PERS_TEAM] == TEAM_BLUE)
+	{
+		if(ent->red_only)
+		{
+			return;
+		}
+	}
+
 	if(ent->count > 0)
 	{
 		//expend shield
@@ -67,6 +83,18 @@ void func_shield_die(gentity_t * self, gentity_t * inflictor, gentity_t * attack
 	self->freeAfterEvent = qtrue;
 	self->s.solid = 0;
 	self->s.otherEntityNum2 = 0;
+
+	if(inflictor->client)
+	{
+		if(inflictor->client->ps.persistant[PERS_TEAM] == TEAM_RED)
+		{
+			G_ObjectiveAnnounce(OBJEV_SHIELD_RED_KILL, self, inflictor);
+		}
+		else
+		{
+			G_ObjectiveAnnounce(OBJEV_SHIELD_BLUE_KILL, self, inflictor);
+		}
+	}
 
 #ifdef G_LUA
 	// Lua API callbacks
@@ -121,11 +149,15 @@ void SP_func_shield(gentity_t * ent)
 	VectorCopy(ent->s.angles, ent->r.currentAngles);
 
 	G_SpawnInt("power", "1000", &ent->count);
+	G_SpawnBoolean("red_only", "0", &ent->red_only);
+	G_SpawnBoolean("blue_only", "0", &ent->blue_only);
 
 	//Full shield
 	ent->s.torsoAnim = ent->count;
 
 	ent->s.eType = ET_SHIELD;
+
+	ent->r.svFlags = SVF_BROADCAST;
 
 	// start trains on the second frame, to make sure their targets have had
 	// a chance to spawn
@@ -198,8 +230,9 @@ void Think_SetupShieldInfoTargets(gentity_t * ent)
 			G_Printf("func_shield_info at %s found unexpected entity type (MAPPER: GO FIX THIS ENTITY)\n", vtos(ent->s.origin));
 			return;
 		}
-		i++; // Protect against entities which target in a loop
-		if(i > 8)
+		// Protect against entities which target in a loop
+		i++;
+		if(i > 4)
 		{
 			G_Printf("func_shield_info at %s has a long chain, may be looped (MAPPER: GO FIX THIS ENTITY)\n", vtos(ent->s.origin));
 			return;
@@ -231,6 +264,8 @@ void SP_func_shield_info(gentity_t * ent)
 	VectorCopy(ent->s.angles, ent->r.currentAngles);
 
 	ent->s.eType = ET_SHIELD_INFO;
+
+	ent->r.svFlags = SVF_BROADCAST;
 
 	// start trains on the second frame, to make sure their targets have had
 	// a chance to spawn
@@ -265,6 +300,9 @@ void SP_team_OBJ_spawnflag(gentity_t * ent)
 	ent->r.contents = -1;
 
 	ent->s.eType = ET_CAPTURE_POINT;
+
+	ent->r.svFlags = SVF_BROADCAST;
+
 	if( Q_stricmp(ent->team, "red") == 0 || Q_stricmp(ent->team, "1") == 0)
 	{
 		ent->s.modelindex = TEAM_RED;
@@ -287,11 +325,32 @@ void Obj_Item_ReadyPickup(gentity_t * ent)
 	ent->s.otherEntityNum = ENTITYNUM_WORLD;
 }
 
-void Return_Obj_Item(gentity_t * ent)
+void Return_Obj_Item(gentity_t * ent, gentity_t * other)
 {
 	G_SetOrigin(ent, ent->pos1);
 
-	PrintMsg(NULL, S_COLOR_WHITE "An ancient magic returned %s!\n", ent->message);
+	if(other == NULL)
+	{
+		PrintMsg(NULL, S_COLOR_WHITE "An ancient magic returned %s!\n", ent->message);
+		G_ObjectiveAnnounce(OBJEV_ITEM_TIME_RETURNED, ent, NULL);
+	}
+	else if (other->s.number == ENTITYNUM_WORLD)
+	{
+		PrintMsg(NULL, S_COLOR_WHITE "An ancient magic returned %s because it fell out of play!\n", ent->message);
+		G_ObjectiveAnnounce(OBJEV_ITEM_DROP_RETURNED, ent, other);
+	}
+	else
+	{
+		PrintMsg(NULL, "%s" S_COLOR_WHITE " returned %s!\n", other->client->pers.netname, ent->message);
+		if(other->client->ps.persistant[PERS_TEAM] == TEAM_RED)
+		{
+			G_ObjectiveAnnounce(OBJEV_ITEM_RED_RETURNED, ent, other);
+		}
+		else
+		{
+			G_ObjectiveAnnounce(OBJEV_ITEM_BLUE_RETURNED, ent, other);
+		}
+	}
 
 	// No need to auto return
 	ent->nextthink = 0;
@@ -301,6 +360,11 @@ void Return_Obj_Item(gentity_t * ent)
 
 	Obj_Item_ReadyPickup(ent);
 	trap_LinkEntity(ent);
+}
+
+void Return_Obj_Item_Think(gentity_t * ent)
+{
+	Return_Obj_Item(ent, NULL);
 }
 
 /*
@@ -341,8 +405,17 @@ gentity_t      *Drop_Obj_Item(gentity_t * ent, gentity_t * dropped, float angle)
 	PrintMsg(NULL, "%s" S_COLOR_WHITE " dropped %s!\n", ent->client->pers.netname, dropped->message);
 
 	// Return on next think.
-	dropped->think = Return_Obj_Item;
+	dropped->think = Return_Obj_Item_Think;
 	dropped->nextthink = level.time + (dropped->wait * 1000.0f);
+
+	if(ent->client->ps.persistant[PERS_TEAM] == TEAM_RED)
+	{
+		G_ObjectiveAnnounce(OBJEV_ITEM_RED_DROPPED, dropped, ent);
+	}
+	else
+	{
+		G_ObjectiveAnnounce(OBJEV_ITEM_BLUE_DROPPED, dropped, ent);
+	}
 
 	// Players can pick it up now.
 	Obj_Item_ReadyPickup(dropped);
@@ -392,19 +465,25 @@ void Touch_Obj_Item(gentity_t * ent, gentity_t * other, trace_t * trace)
 	// Check if this player is on the right team.
 	if(other->client->ps.persistant[PERS_TEAM] == TEAM_RED)
 	{
-		if(ent->blue_only && ent->crusher)
+		if(ent->blue_only)
 		{
-			// Touching enemy objective returns it.
-			Return_Obj_Item(ent);
+			if(ent->crusher)
+			{
+				// Touching enemy objective returns it.
+				Return_Obj_Item(ent, other);
+			}
 			return;
 		}
 	}
 	else if(other->client->ps.persistant[PERS_TEAM] == TEAM_BLUE)
 	{
-		if(ent->red_only && ent->crusher)
+		if(ent->red_only)
 		{
-			// Touching enemy objective returns it.
-			Return_Obj_Item(ent);
+			if(ent->crusher)
+			{
+				// Touching enemy objective returns it.
+				Return_Obj_Item(ent, other);
+			}
 			return;
 		}
 	}
@@ -430,13 +509,13 @@ void Touch_Obj_Item(gentity_t * ent, gentity_t * other, trace_t * trace)
 		G_AddEvent(other, EV_OBJ_ITEM_PICKUP, ent->s.modelindex);
 	}
 
-	// Announce pickup
+	if(other->client->ps.persistant[PERS_TEAM] == TEAM_RED)
 	{
-		gentity_t      *te;
-
-		te = G_TempEntity(ent->s.pos.trBase, EV_GLOBAL_OBJ);
-		te->s.eventParm = ent->s.modelindex;
-		te->r.svFlags |= SVF_BROADCAST;
+		G_ObjectiveAnnounce(OBJEV_ITEM_RED_STOLEN, ent, other);
+	}
+	else
+	{
+		G_ObjectiveAnnounce(OBJEV_ITEM_BLUE_STOLEN, ent, other);
 	}
 
 	// fire item targets
@@ -470,6 +549,8 @@ void SP_team_OBJ_captureitem(gentity_t * ent)
 	}
 
 	ent->s.eType = ET_CAPTURE_ITEM;
+
+	ent->r.svFlags = SVF_BROADCAST;
 
 	G_SpawnBoolean("red_only", "0", &ent->red_only);
 	G_SpawnBoolean("blue_only", "0", &ent->blue_only);
@@ -562,7 +643,7 @@ void G_RunObjItem(gentity_t * ent)
 	contents = trap_PointContents(ent->r.currentOrigin, -1);
 	if(contents & CONTENTS_NODROP)
 	{
-		Return_Obj_Item(ent);
+		Return_Obj_Item(ent, NULL);
 		return;
 	}
 
@@ -600,6 +681,7 @@ void multi_capturepoint_trigger(gentity_t * ent, gentity_t * activator)
 		{
 			return;
 		}
+		G_ObjectiveAnnounce(OBJEV_ITEM_RED_CAPTURED, ent, activator);
 	}
 	else if(activator->client->ps.persistant[PERS_TEAM] == TEAM_BLUE)
 	{
@@ -607,10 +689,10 @@ void multi_capturepoint_trigger(gentity_t * ent, gentity_t * activator)
 		{
 			return;
 		}
+		G_ObjectiveAnnounce(OBJEV_ITEM_BLUE_CAPTURED, ent, activator);
 	}
 
 	G_UseTargets(ent, ent->activator);
-	//Team_CaptureFlag(ent, activator, TEAM_RED);
 
 #ifdef G_LUA
 	// Lua API callbacks
@@ -666,7 +748,7 @@ void SP_team_OBJ_capturepoint(gentity_t * ent)
 	}
 
 	ent->r.contents = CONTENTS_TRIGGER;	// replaces the -1 from trap_SetBrushModel
-	ent->r.svFlags = SVF_NOCLIENT;
+	ent->r.svFlags = SVF_BROADCAST;
 
 	trap_LinkEntity(ent);
 }

@@ -41,6 +41,7 @@ game_src = [
 'base/code/game/g_spell_weave.c',
 'base/code/game/g_spell_misc.c',
 'base/code/game/g_spell_power.c',
+'base/code/game/g_spell_objective.c',
 'base/code/game/g_sword.c',
 'base/code/game/spell_shared.c',
 'base/code/game/g_statistics.c',

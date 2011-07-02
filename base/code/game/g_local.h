@@ -842,6 +842,10 @@ void            G_RunObjItem(gentity_t * ent);
 void            WeaveProtectCheck(gclient_t * checkClient);
 int             PowerEncode(int threads[MAX_THREADS], int offset, int count);
 
+// g_spell_objective.c
+//
+void            G_ObjectiveAnnounce(objective_events objevp, gentity_t * ent, gentity_t * other);
+
 /* g_statistics.c */
 void            G_StatInitPlayer(gentity_t * ent);
 void            G_StatInit(void);
