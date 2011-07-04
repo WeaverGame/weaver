@@ -2272,6 +2272,75 @@ static void CG_PlayerPowerups(centity_t * cent, refEntity_t * torso, int noShado
 
 
 /*
+=============
+CG_AddPlayerObjItem
+=============
+*/
+void CG_AddPlayerObjItem(centity_t * cent, playerState_t * ps, refEntity_t * parent)
+{
+	refEntity_t     obj;
+	int             boneIndex;
+	centity_t *     objcent;
+	int             rf;
+	refEntity_t     ent; // sprite marker
+	vec3_t          surfNormal;
+
+	objcent = CG_ObjItem(&cent->pe, cent->currentState.number);
+	if(objcent == NULL)
+	{
+		return;
+	}
+
+	if(cent->currentState.number == cg.snap->ps.clientNum && !cg.renderingThirdPerson)
+	{
+		rf = RF_THIRD_PERSON;	// only show in mirrors
+	}
+	else
+	{
+		rf = 0;
+	}
+
+	// add the item
+	memset(&obj, 0, sizeof(obj));
+	VectorCopy(parent->lightingOrigin, obj.lightingOrigin);
+	obj.shadowPlane = parent->shadowPlane;
+	obj.renderfx = parent->renderfx;
+	obj.noShadowID = parent->noShadowID;
+	obj.renderfx = rf;
+	obj.hModel = cgs.gameModels[objcent->currentState.modelindex];
+
+	if(!obj.hModel)
+	{
+		return;
+	}
+
+#ifdef XPPM
+	if(ps)
+	{
+		CG_PositionEntityOnTag(&obj, parent, parent->hModel, "hand.L");
+	}
+	else
+	{
+		boneIndex = trap_R_BoneIndex(parent->hModel, "hand.L");
+		if(boneIndex >= 0 && boneIndex < cent->pe.torso.skeleton.numBones)
+		{
+			AxisClear(obj.axis);
+			CG_PositionRotatedEntityOnBone(&obj, parent, parent->hModel, "hand.L");
+		}
+		else
+		{
+			CG_Error("No tag found while adding objitem.");
+		}
+	}
+#else
+	CG_PositionEntityOnTag(&obj, parent, parent->hModel, "tag_weapon");
+#endif
+
+	trap_R_AddRefEntityToScene(&obj);
+}
+
+
+/*
 ===============
 CG_PlayerFloatSprite
 
@@ -2396,6 +2465,8 @@ void CG_PlayerSprites(centity_t * cent)
 		return;
 	}
 
+	/*
+	// No more friend idicators, they're a bit derpy and theres spell icons and other junk to show.
 	team = cgs.clientinfo[cent->currentState.clientNum].team;
 	if(!(cent->currentState.eFlags & EF_DEAD) && cg.snap->ps.persistant[PERS_TEAM] == team && cgs.gametype >= GT_TEAM)
 	{
@@ -2405,6 +2476,7 @@ void CG_PlayerSprites(centity_t * cent)
 		}
 		return;
 	}
+	*/
 }
 
 /*
@@ -3124,6 +3196,9 @@ void CG_Player(centity_t * cent)
 
 	// add powerups floating behind the player
 	CG_PlayerPowerups(cent, &body, noShadowID);
+
+	// add objective item
+	CG_AddPlayerObjItem(cent, NULL, &body);
 
 	// add the bounding box (if cg_drawPlayerCollision is 1)
 	MatrixFromVectorsFLU(bodyRotation, body.axis[0], body.axis[1], body.axis[2]);
