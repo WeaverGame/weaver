@@ -2917,7 +2917,8 @@ entityDef func_shield
 	"editor_bool notfree"		"when set to 1, entity will not spawn in 'Free for all' and 'Tournament' modes."
 	"editor_bool notteam"		"when set to 1, entity will not spawn in 'Teamplay' and 'CTF' modes."
 	"editor_bool notsingle"		"when set to 1, entity will not spawn in Single Player mode (bot play mode)."
-	
+	"editor_bool red_only"		"When set to 1, only players on the Red team can dispell this shield."
+	"editor_bool blue_only"		"When set to 1, only players on the Blue team can dispell this shield."
 	
 	"spawnclass"				"idSpawnableEntity"
 	"power"						"0"
@@ -2932,6 +2933,7 @@ entityDef func_shield_info
 	"editor_mins"				"-8 -8 -8"
 	"editor_maxs"				"8 8 8"
 	"editor_rotatable"			"1"
+/* "model"						"models/entities/shield_info.md5mesh" */
 	
 	"editor_usage"				"Weaver func_shield_info defines a location for shield information. Typically, there would be one of these on either side of a door being shielded."
 	"editor_usage1"				"Multiple func_shield_infos can target one func_shield (which then typically targets a func_explosive)."
