@@ -84,15 +84,15 @@ void func_shield_die(gentity_t * self, gentity_t * inflictor, gentity_t * attack
 	self->s.solid = 0;
 	self->s.otherEntityNum2 = 0;
 
-	if(inflictor->client)
+	if(attacker && attacker->client)
 	{
-		if(inflictor->client->ps.persistant[PERS_TEAM] == TEAM_RED)
+		if(attacker->client->ps.persistant[PERS_TEAM] == TEAM_RED)
 		{
-			G_ObjectiveAnnounce(OBJEV_SHIELD_RED_KILL, self, inflictor);
+			G_ObjectiveAnnounce(OBJEV_SHIELD_RED_KILL, self, attacker);
 		}
 		else
 		{
-			G_ObjectiveAnnounce(OBJEV_SHIELD_BLUE_KILL, self, inflictor);
+			G_ObjectiveAnnounce(OBJEV_SHIELD_BLUE_KILL, self, attacker);
 		}
 	}
 
