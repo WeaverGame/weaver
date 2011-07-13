@@ -217,11 +217,13 @@ void CG_AddPlayerProtects(centity_t * player, playerState_t * ps, refEntity_t * 
 		body->customShader = weave->instanceShader[1];
 		trap_R_AddRefEntityToScene(body);
 
+		/*
 		// Extra torso shield model
 		ent.customShader = weave->instanceShader[0];
 		ent.hModel = weave->instanceModel[0];
 		RotateAroundAxis(ent.axis, cg.time / 2, 2);
 		trap_R_AddRefEntityToScene(&ent);
+		*/
 	}
 }
 
