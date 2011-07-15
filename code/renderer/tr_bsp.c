@@ -938,11 +938,11 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 		}
 		else
 		{
-			lightmapFiles = ri.FS_ListFilteredFiles(mapName, ".png", "/lm_*.png", &numLightmaps);
+			lightmapFiles = ri.FS_ListFiles(mapName, ".png", &numLightmaps);
 
 			if(!lightmapFiles || !numLightmaps)
 			{
-				lightmapFiles = ri.FS_ListFilteredFiles(mapName, ".tga", "/lm_*.png", &numLightmaps);
+				lightmapFiles = ri.FS_ListFiles(mapName, ".tga", &numLightmaps);
 
 				if(!lightmapFiles || !numLightmaps)
 				{
