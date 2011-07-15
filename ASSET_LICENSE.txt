@@ -123,6 +123,13 @@ License(s):
 	Freeware "anyone to download and use as they please"
 These assets are located at:	base/sound/weapons/rocket/rocklx1a.ogg
 ===============================================================
+Terrain (cliffs)
+By: ratty redemption
+License(s):
+	CC BY-SA
+These assets are located at:	base/models/mapobjects/terrain/bow_cliffs*.ASE
+								base/models/mapobjects/terrain/ratty*
+===============================================================
 Weapon Impact Sounds
 By: Alone Team - MacBeth
 License(s):
@@ -197,6 +204,23 @@ These assets are located at:	base/gfx/effect/invismap.png
 								base/gfx/effect/effmap01.png
 								base/gfx/effect/flare01.png
 ===============================================================
+Light intensity maps
+By: Michael Denno
+License(s): 
+	CC-BY-NC-SA 3.0 Unported
+These assets are located at:	base/lights/flashlight1.png
+===============================================================
+Light intensity maps
+By: Robert Beckebans
+License(s): 
+	CC-BY-NC-SA 2.5
+These assets are located at:	base/lights/round.png
+								base/lights/squarelight.png
+								base/lights/skyline1.png
+								base/lights/squarelight1a.png
+								base/lights/squarelight1.png
+								base/lights/squarelight1b.png
+===============================================================
 Editor Textures
 By: William Joseph
 License(s):
@@ -240,22 +264,5 @@ These assets are located at:	base/textures/common/nolightmap.png
 								base/textures/common/visportal.png
 								base/textures/radiant/notex.png
 								base/textures/radiant/shadernotex.png
-===============================================================
-Light intensity maps
-By: Michael Denno
-License(s): 
-	CC-BY-NC-SA 3.0 Unported
-These assets are located at:	base/lights/flashlight1.png
-===============================================================
-Light intensity maps
-By: Robert Beckebans
-License(s): 
-	CC-BY-NC-SA 2.5
-These assets are located at:	base/lights/round.png
-								base/lights/squarelight.png
-								base/lights/skyline1.png
-								base/lights/squarelight1a.png
-								base/lights/squarelight1.png
-								base/lights/squarelight1b.png
 
 
