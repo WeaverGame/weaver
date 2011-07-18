@@ -674,6 +674,12 @@ void multi_capturepoint_trigger(gentity_t * ent, gentity_t * activator)
 		return;
 	}
 
+	if(activator->client->objItem == NULL)
+	{
+		// Not carying anything
+		return;
+	}
+
 	// Check if this player is on the right team.
 	if(activator->client->ps.persistant[PERS_TEAM] == TEAM_RED)
 	{

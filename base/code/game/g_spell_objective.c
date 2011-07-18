@@ -25,5 +25,16 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 void G_ObjectiveAnnounce(objective_events objevp, gentity_t * ent, gentity_t * other)
 {
-	gentity_t      *te;	te = G_TempEntity(ent->s.pos.trBase, EV_GLOBAL_OBJ);	te->s.eventParm = objevp;	te->r.svFlags |= SVF_BROADCAST;	if(ent != NULL)	{		te->s.otherEntityNum = ent->s.number;	}	if(other != NULL)	{		te->s.otherEntityNum2 = other->s.number;	}
+	gentity_t      *te;
+	te = G_TempEntity(ent->s.pos.trBase, EV_GLOBAL_OBJ);
+	te->s.eventParm = objevp;
+	te->r.svFlags |= SVF_BROADCAST;
+	if(ent != NULL)
+	{
+		te->s.otherEntityNum = ent->s.number;
+	}
+	if(other != NULL)
+	{
+		te->s.otherEntityNum2 = other->s.number;
+	}
 }
