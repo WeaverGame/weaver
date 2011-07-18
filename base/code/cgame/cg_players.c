@@ -609,7 +609,8 @@ static void CG_LoadClientInfo(clientInfo_t * ci)
 	}
 #endif
 	modelloaded = qtrue;
-	if(!CG_RegisterClientModel(ci, ci->modelName, ci->skinName, teamname))
+	//if(!CG_RegisterClientModel(ci, ci->modelName, ci->skinName, teamname))
+	if(!CG_RegisterClientModel(ci, DEFAULT_MODEL, ci->skinName, teamname))
 	{
 		if(cg_buildScript.integer)
 		{
