@@ -1505,6 +1505,7 @@ void RunWeave_EarthQuake_Impact(gentity_t * ent, trace_t * trace)
 	gentity_t      *other;
 	gentity_t      *bolt;
 	qboolean        hitClient = qfalse;
+	qboolean        hitEntity = qfalse;
 	gentity_t      *heldWeave;
 
 	heldWeave = &g_entities[ent->s.otherEntityNum2];
@@ -1525,6 +1526,7 @@ void RunWeave_EarthQuake_Impact(gentity_t * ent, trace_t * trace)
 
 		if(ent->damage)
 		{
+			hitEntity = qtrue;
 			if(LogAccuracyHit(other, &g_entities[ent->r.ownerNum]))
 			{
 				g_entities[ent->r.ownerNum].client->accuracy_hits++;
@@ -1549,6 +1551,14 @@ void RunWeave_EarthQuake_Impact(gentity_t * ent, trace_t * trace)
 				g_entities[ent->r.ownerNum].client->accuracy_hits++;
 			}
 		}
+	}
+
+	if(hitEntity)
+	{
+		// Hit a player or some entity, damaged that entity
+		// The entity can't have an earthquake on it.
+		// Skip to projectile cleanup.
+		goto end_earthquake_impact;
 	}
 
 	//Spawn the effect
@@ -1620,6 +1630,7 @@ void RunWeave_EarthQuake_Impact(gentity_t * ent, trace_t * trace)
 
 	trap_LinkEntity(bolt);
 
+end_earthquake_impact:
 	G_FreeEntity(ent);
 }
 
