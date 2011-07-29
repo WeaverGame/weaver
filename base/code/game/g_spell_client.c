@@ -414,13 +414,13 @@ void ClientPoisonUpdateStats(gentity_t *ent)
 		if(ent->client->poisonTicks <= 0)
 		{
 			G_Damage(ent, ent->client->poisonAttacker, ent->client->poisonAttacker, NULL, NULL, ent->client->poisonDamage, 0, MOD_A_EARTHWATER_POISON);
+			ent->client->poisonTicks = WEAVE_POISON_TICKS;
+			// Damage increases
 			ent->client->poisonDamage += WEAVE_POISON_DMGINCREMENT;
 			if(ent->client->poisonDamage > WEAVE_POISON_MAXDMG)
 			{
-				ent->client->poisonDamage = WEAVE_POISON_MINDMG;
+				ent->client->poisonDamage = WEAVE_POISON_MAXDMG;
 			}
-
-			ent->client->poisonTicks = WEAVE_POISON_TICKS;
 		}
 	}
 }
