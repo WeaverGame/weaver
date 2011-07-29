@@ -1337,7 +1337,7 @@ static void CG_DrawCrosshairNames(void)
 
 		color[3] *= 0.85f;
 		w = CG_Text_Width(name, 0.2f, 0, &cgs.media.freeSansBoldFont);
-		CG_Text_Paint(cgs.screenXSize - w / 2, 265, 0.2f, color, name, 0, 0, 0, &cgs.media.freeSansBoldFont);
+		CG_Text_Paint((cgs.screenXSize - w) / 2, (2 * cgs.screenYSize) / 3, 0.2f, color, name, 0, 0, 0, &cgs.media.freeSansBoldFont);
 
 
 		trap_R_SetColor(NULL);
@@ -1346,7 +1346,7 @@ static void CG_DrawCrosshairNames(void)
 
 	color[3] *= 0.5f;
 	w = CG_Text_Width(name, 0.3f, 0, &cgs.media.freeSansBoldFont);
-	CG_Text_Paint(cgs.screenXSize - w / 2, 190, 0.3f, color, name, 0, 0, UI_DROPSHADOW, &cgs.media.freeSansBoldFont);
+	CG_Text_Paint((cgs.screenXSize - w) / 2, cgs.screenYSize / 3, 0.3f, color, name, 0, 0, UI_DROPSHADOW, &cgs.media.freeSansBoldFont);
 
 	trap_R_SetColor(NULL);
 }
