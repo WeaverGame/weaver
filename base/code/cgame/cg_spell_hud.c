@@ -557,6 +557,9 @@ static void CG_DrawWeaverDisc(void)
 	da = cg_drawWeaverDisc.integer;
 	w = h = cg_weaverDiscSize.integer * (cgs.screenMinSize / 100);
 
+	x = cg_weaverDiscX.integer + (cgs.screenXSize / 2);
+	y = cg_weaverDiscY.integer + (cgs.screenYSize / 2);
+
 	if(da >= 1 && da <= NUM_WEAVERDISCS)
 	{
 		//TODO: reimplement move scale
@@ -570,15 +573,7 @@ static void CG_DrawWeaverDisc(void)
 
 		weaverDisc = cgs.media.weaverDiscShader[da];
 
-		x = cg_weaverDiscX.integer + cg.refdef.x + (0.5 * cg.refdef.width);
-		y = cg_weaverDiscY.integer + cg.refdef.y + (0.5 * cg.refdef.height);
-
 		trap_R_DrawStretchPic(x - (0.5 * w), y - (0.5 * w), w, w, 0, 0, 1, 1, weaverDisc);
-	}
-	else
-	{
-		x = cg_weaverDiscX.integer + cg.refdef.x + (0.5 * cg.refdef.width);
-		y = cg_weaverDiscY.integer + cg.refdef.y + (0.5 * cg.refdef.height);
 	}
 
 	CG_DrawWeaverStroke(x, y);
