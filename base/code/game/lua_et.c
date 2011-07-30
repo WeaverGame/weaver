@@ -1263,7 +1263,7 @@ static int _et_GetLuaFunction(lua_State * L)
 static int _et_SetModelindex(lua_State * L)
 {
 	gentity_t      *ent;
-	int            *val;
+	int             val;
 	int             entnum;
 
 	entnum = luaL_checkint(L, 1);

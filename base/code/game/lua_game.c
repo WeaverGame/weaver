@@ -129,7 +129,7 @@ static int game_SpawnGroup(lua_State * L)
 				break;
 			default:
 				DEBUG_LUA("game_SpawnGroup: return: warning - team should be red (1) or blue (2)");
-				return;
+				return 0;
 		}
 		if(!next)
 		{
@@ -148,7 +148,7 @@ static int game_SpawnGroup(lua_State * L)
 					break;
 				default:
 					DEBUG_LUA("game_SpawnGroup: return: warning - status should be disable (0) or enable (1)");
-					return;
+					return 0;
 			}
 		}
 	} while(!Q_stricmp(next->classname, "team_ctf_redspawn") || !Q_stricmp(next->classname, "team_ctf_bluespawn"));

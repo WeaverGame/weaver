@@ -381,19 +381,22 @@ void QDECL G_Printf(const char *fmt, ...)
  */
 void QDECL G_PrintfClient(gentity_t * ent, const char *fmt, ...)
 {
+	char            msg[1024];
 	va_list         argptr;
-	char            text[1024];
-
-	if(!ent || !ent->client)
-	{
-		return;
-	}
+	char           *p;
 
 	va_start(argptr, fmt);
-	Q_vsnprintf(text, sizeof(text), fmt, argptr);
+	if(Q_vsnprintf(msg, sizeof(msg), fmt, argptr) > sizeof(msg))
+	{
+		G_Error("PrintMsg overrun");
+	}
 	va_end(argptr);
 
-	trap_SendServerCommand(ent - g_entities, va("print \"%s\n\"", text));
+	// double quotes are bad
+	while((p = strchr(msg, '"')) != NULL)
+		*p = '\'';
+
+	trap_SendServerCommand(((ent == NULL) ? -1 : ent - g_entities), va("print \"%s\"", msg));
 }
 
 void QDECL G_Error(const char *fmt, ...)

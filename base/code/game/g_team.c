@@ -110,27 +110,6 @@ const char     *TeamColorString(int team)
 	return S_COLOR_WHITE;
 }
 
-// NULL for everyone
-void QDECL PrintMsg(gentity_t * ent, const char *fmt, ...)
-{
-	char            msg[1024];
-	va_list         argptr;
-	char           *p;
-
-	va_start(argptr, fmt);
-	if(Q_vsnprintf(msg, sizeof(msg), fmt, argptr) > sizeof(msg))
-	{
-		G_Error("PrintMsg overrun");
-	}
-	va_end(argptr);
-
-	// double quotes are bad
-	while((p = strchr(msg, '"')) != NULL)
-		*p = '\'';
-
-	trap_SendServerCommand(((ent == NULL) ? -1 : ent - g_entities), va("print \"%s\"", msg));
-}
-
 /*
 ==============
 AddTeamScore
@@ -368,7 +347,7 @@ void Team_FragBonuses(gentity_t * targ, gentity_t * inflictor, gentity_t * attac
 		attacker->client->pers.teamState.lastfraggedcarrier = level.time;
 		AddScore(attacker, targ->r.currentOrigin, CTF_FRAG_CARRIER_BONUS);
 		attacker->client->pers.teamState.fragcarrier++;
-		PrintMsg(NULL, "%s" S_COLOR_WHITE " fragged %s's flag carrier!\n", attacker->client->pers.netname, TeamName(team));
+		G_PrintfClient(NULL, "%s" S_COLOR_WHITE " fragged %s's flag carrier!\n", attacker->client->pers.netname, TeamName(team));
 
 		// the target had the flag, clear the hurt carrier
 		// field on the other team
@@ -387,7 +366,7 @@ void Team_FragBonuses(gentity_t * targ, gentity_t * inflictor, gentity_t * attac
 		attacker->client->pers.teamState.lastfraggedcarrier = level.time;
 		AddScore(attacker, targ->r.currentOrigin, CTF_FRAG_CARRIER_BONUS * tokens * tokens);
 		attacker->client->pers.teamState.fragcarrier++;
-		PrintMsg(NULL, "%s" S_COLOR_WHITE " fragged %s's skull carrier!\n", attacker->client->pers.netname, TeamName(team));
+		G_PrintfClient(NULL, "%s" S_COLOR_WHITE " fragged %s's skull carrier!\n", attacker->client->pers.netname, TeamName(team));
 
 		// the target had the flag, clear the hurt carrier
 		// field on the other team
@@ -731,11 +710,11 @@ void Team_ReturnFlag(int team)
 	Team_ReturnFlagSound(Team_ResetFlag(team), team);
 	if(team == TEAM_FREE)
 	{
-		PrintMsg(NULL, "The flag has returned!\n");
+		G_PrintfClient(NULL, "The flag has returned!\n");
 	}
 	else
 	{
-		PrintMsg(NULL, "The %s flag has returned!\n", TeamName(team));
+		G_PrintfClient(NULL, "The %s flag has returned!\n", TeamName(team));
 	}
 }
 
@@ -798,7 +777,7 @@ int Team_TouchOurFlag(gentity_t * ent, gentity_t * other, int team)
 		if(ent->flags & FL_DROPPED_ITEM)
 		{
 			// hey, its not home.  return it by teleporting it back
-			PrintMsg(NULL, "%s" S_COLOR_WHITE " returned the %s flag!\n", other->client->pers.netname, TeamName(team));
+			G_PrintfClient(NULL, "%s" S_COLOR_WHITE " returned the %s flag!\n", other->client->pers.netname, TeamName(team));
 			AddScore(other, ent->r.currentOrigin, CTF_RECOVERY_BONUS);
 			other->client->pers.teamState.flagrecovery++;
 			other->client->pers.teamState.lastreturnedflag = level.time;
@@ -850,11 +829,11 @@ int Team_CaptureFlag(gentity_t * ent, gentity_t * other, int team)
 
 	if(g_gametype.integer == GT_1FCTF)
 	{
-		PrintMsg(NULL, "%s" S_COLOR_WHITE " captured the flag!\n", cl->pers.netname);
+		G_PrintfClient(NULL, "%s" S_COLOR_WHITE " captured the flag!\n", cl->pers.netname);
 	}
 	else
 	{
-		PrintMsg(NULL, "%s" S_COLOR_WHITE " captured the %s flag!\n", cl->pers.netname, TeamName(OtherTeam(team)));
+		G_PrintfClient(NULL, "%s" S_COLOR_WHITE " captured the %s flag!\n", cl->pers.netname, TeamName(OtherTeam(team)));
 	}
 
 	cl->ps.powerups[enemy_flag] = 0;
@@ -937,7 +916,7 @@ int Team_TouchEnemyFlag(gentity_t * ent, gentity_t * other, int team)
 
 	if(g_gametype.integer == GT_1FCTF)
 	{
-		PrintMsg(NULL, "%s" S_COLOR_WHITE " got the flag!\n", other->client->pers.netname);
+		G_PrintfClient(NULL, "%s" S_COLOR_WHITE " got the flag!\n", other->client->pers.netname);
 
 		cl->ps.powerups[PW_NEUTRALFLAG] = INT_MAX;	// flags never expire
 
@@ -952,7 +931,7 @@ int Team_TouchEnemyFlag(gentity_t * ent, gentity_t * other, int team)
 	}
 	else
 	{
-		PrintMsg(NULL, "%s" S_COLOR_WHITE " got the %s flag!\n", other->client->pers.netname, TeamName(team));
+		G_PrintfClient(NULL, "%s" S_COLOR_WHITE " got the %s flag!\n", other->client->pers.netname, TeamName(team));
 
 		if(team == TEAM_RED)
 			cl->ps.powerups[PW_REDFLAG] = INT_MAX;	// flags never expire
@@ -1018,7 +997,7 @@ int Pickup_Team(gentity_t * ent, gentity_t * other)
 	}
 	else
 	{
-		PrintMsg(other, "Don't know what team the flag is on.\n");
+		G_PrintfClient(other, "Don't know what team the flag is on.\n");
 		return 0;
 	}
 
@@ -1516,7 +1495,7 @@ static void ObeliskTouch(gentity_t * self, gentity_t * other, trace_t * trace)
 		return;
 	}
 
-	PrintMsg(NULL, "%s" S_COLOR_WHITE " brought in %i skull%s.\n", other->client->pers.netname, tokens, tokens ? "s" : "");
+	G_PrintfClient(NULL, "%s" S_COLOR_WHITE " brought in %i skull%s.\n", other->client->pers.netname, tokens, tokens ? "s" : "");
 
 	AddTeamScore(self->s.pos.trBase, other->client->sess.sessionTeam, tokens);
 	Team_ForceGesture(other->client->sess.sessionTeam);

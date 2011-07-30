@@ -331,17 +331,17 @@ void Return_Obj_Item(gentity_t * ent, gentity_t * other)
 
 	if(other == NULL)
 	{
-		PrintMsg(NULL, S_COLOR_WHITE "An ancient magic returned %s!\n", ent->message);
+		G_PrintfClient(NULL, S_COLOR_WHITE "An ancient magic returned %s!\n", ent->message);
 		G_ObjectiveAnnounce(OBJEV_ITEM_TIME_RETURNED, ent, NULL);
 	}
 	else if (other->s.number == ENTITYNUM_WORLD)
 	{
-		PrintMsg(NULL, S_COLOR_WHITE "An ancient magic returned %s because it fell out of play!\n", ent->message);
+		G_PrintfClient(NULL, S_COLOR_WHITE "An ancient magic returned %s because it fell out of play!\n", ent->message);
 		G_ObjectiveAnnounce(OBJEV_ITEM_DROP_RETURNED, ent, other);
 	}
 	else
 	{
-		PrintMsg(NULL, "%s" S_COLOR_WHITE " returned %s!\n", other->client->pers.netname, ent->message);
+		G_PrintfClient(NULL, "%s" S_COLOR_WHITE " returned %s!\n", other->client->pers.netname, ent->message);
 		if(other->client->ps.persistant[PERS_TEAM] == TEAM_RED)
 		{
 			G_ObjectiveAnnounce(OBJEV_ITEM_RED_RETURNED, ent, other);
@@ -402,7 +402,7 @@ gentity_t      *Drop_Obj_Item(gentity_t * ent, gentity_t * dropped, float angle)
 	VectorCopy(velocity, dropped->s.pos.trDelta);
 	dropped->s.eFlags |= EF_BOUNCE_HALF;
 
-	PrintMsg(NULL, "%s" S_COLOR_WHITE " dropped %s!\n", ent->client->pers.netname, dropped->message);
+	G_PrintfClient(NULL, "%s" S_COLOR_WHITE " dropped %s!\n", ent->client->pers.netname, dropped->message);
 
 	// Return on next think.
 	dropped->think = Return_Obj_Item_Think;
@@ -492,7 +492,7 @@ void Touch_Obj_Item(gentity_t * ent, gentity_t * other, trace_t * trace)
 
 	predict = other->client->pers.predictItemPickup;
 
-	PrintMsg(NULL, "%s" S_COLOR_WHITE " picked up %s!\n", other->client->pers.netname, ent->message);
+	G_PrintfClient(NULL, "%s" S_COLOR_WHITE " picked up %s!\n", other->client->pers.netname, ent->message);
 
 	ent->s.otherEntityNum = other->s.number;
 	other->client->objItem = ent;
