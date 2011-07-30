@@ -685,6 +685,7 @@ char           *ConcatArgs(int start);
 void            G_CheckTeamItems(void);
 void            G_RunItem(gentity_t * ent);
 void            RespawnItem(gentity_t * ent);
+void            G_BounceItem(gentity_t * ent, trace_t * trace);
 
 void            UseHoldableItem(gentity_t * ent);
 void            PrecacheItem(gitem_t * it);

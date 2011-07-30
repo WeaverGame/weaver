@@ -52,7 +52,6 @@ void CG_DrawWeaveSense(void)
 	float           rad;
 	int             radius;
 	qhandle_t       dShader;
-	vec4_t          colorWhite = { 1.0f, 1.0f, 1.0f, 1.0f };
 
 	vec4_t          dcolor = { 1.0f, 1.0f, 1.0f, 1.0f };
 	radius = cg_weaverSenseRadius.integer;

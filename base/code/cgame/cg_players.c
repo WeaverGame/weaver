@@ -2284,7 +2284,6 @@ void CG_AddPlayerObjItem(centity_t * cent, playerState_t * ps, refEntity_t * par
 	centity_t *     objcent;
 	int             rf;
 	refEntity_t     ent; // sprite marker
-	vec3_t          surfNormal;
 
 	objcent = CG_ObjItem(&cent->pe, cent->currentState.number);
 	if(objcent == NULL)

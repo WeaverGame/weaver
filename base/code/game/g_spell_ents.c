@@ -450,7 +450,6 @@ Based on Touch_Item
 */
 void Touch_Obj_Item(gentity_t * ent, gentity_t * other, trace_t * trace)
 {
-	int             respawn;
 	qboolean        predict;
 
 	if(ent->s.otherEntityNum != ENTITYNUM_WORLD)	// Someone else already carrying this.
