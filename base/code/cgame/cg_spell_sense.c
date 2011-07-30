@@ -49,8 +49,8 @@ void CG_DrawWeaveSense(void)
 	int             i;
 	float           w, h;
 	float           x, y;
+	float           rad;
 	int             radius;
-	char           *thread;
 	qhandle_t       dShader;
 	vec4_t          colorWhite = { 1.0f, 1.0f, 1.0f, 1.0f };
 
@@ -64,46 +64,42 @@ void CG_DrawWeaveSense(void)
 			continue;
 		}
 
-		x = 320.0f;				//640/2;
-		y = 240.0f;				//480/2;
+		x = cgs.screenXSize / 2;
+		y = cgs.screenYSize / 2;
+		rad = DEG2RAD((float)dotAngles[i]);
 
 		dShader = cgs.media.weaverSenseDot1;
-		x += radius * cos(DEG2RAD((float)dotAngles[i]));
-		y -= radius * sin(DEG2RAD((float)dotAngles[i]));
-
-		thread = va("c=%i p=%i", i, dotPowers[i]);
-		CG_Text_PaintAligned(100, (10 + 10 * i), thread, 0.125f, UI_LEFT, colorWhite, &cgs.media.freeSansBoldFont);
-
-		CG_Text_PaintAligned(x, y, "*", 0.125f, UI_LEFT, colorWhite, &cgs.media.freeSansBoldFont);
+		x += (radius * cos(rad));
+		y -= (radius * sin(rad));
 
 		if(dotPowers[i] >= POWER_LEVEL_3)
 		{
 			//Draw largest indicator
 			dcolor[3] = 1.0f;
-			w = h = 10 * (POWER_LEVEL_3 / dotPowers[i]);
+			w = h = 6 * (dotPowers[i] / POWER_LEVEL_3);
 			dShader = cgs.media.weaverSenseDot3;
 		}
 		else if(dotPowers[i] >= POWER_LEVEL_2)
 		{
 			//Draw medium indicator
 			dcolor[3] = 1.0f;
-			w = h = 10 * (POWER_LEVEL_2 / dotPowers[i]);
+			w = h = 6 * (dotPowers[i] / POWER_LEVEL_2);
 			dShader = cgs.media.weaverSenseDot2;
 		}
 		else if(dotPowers[i] >= POWER_LEVEL_1)
 		{
 			//Draw small indicator
 			dcolor[3] = 0.85f;
-			w = h = 10 * (POWER_LEVEL_1 / dotPowers[i]);
+			w = h = 6 * (dotPowers[i] / POWER_LEVEL_1);
 		}
 		else
 		{
 			//Draw minimum indicator
 			dcolor[3] = 0.70f;
-			w = h = 10;
+			w = h = 6;
 		}
 
 		trap_R_SetColor(dcolor);
-		CG_DrawPic(x - 0.5 * w, y - 0.5 * h, w, h, dShader);
+		trap_R_DrawStretchPic(x - (w/2), y - (h/2), w, h, 0, 0, 1, 1, dShader);
 	}
 }
