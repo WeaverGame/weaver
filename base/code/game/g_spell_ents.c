@@ -433,7 +433,7 @@ Based on TossClientItems
 Toss the objective items for the killed player
 =================
 */
-void TossObjItems(gentity_t * self)
+void G_TossObjItems(gentity_t * self)
 {
 	if(self->client->objItem)
 	{

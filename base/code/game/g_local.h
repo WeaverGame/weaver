@@ -836,6 +836,7 @@ void            ClientPoisonUpdateStats(gentity_t *ent);
 // g_spell_ents.c
 //
 void            G_RunObjItem(gentity_t * ent);
+void            G_TossObjItems(gentity_t * self);
 
 // g_spell_misc.c
 //
