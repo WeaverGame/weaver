@@ -1307,6 +1307,16 @@ void CG_EntityEvent(centity_t * cent, vec3_t position)
 			}
 			break;
 
+		case EV_WEAVE_ADDHELD:
+			// New held weave was added to this player (this event is always on a player).
+			DEBUGNAME("EV_WEAVE_ADDHELD");
+			// select it immediately
+			if(cg_autoswitch.integer) {
+				cg.weaponSelectTime = cg.time;
+				cg.weaponSelect = es->eventParm;
+			}
+			break;
+
 		case EV_WEAVEMISSILE_HIT:
 			DEBUGNAME("EV_WEAVEMISSILE_HIT");
 			ByteToDir(es->eventParm, dir);

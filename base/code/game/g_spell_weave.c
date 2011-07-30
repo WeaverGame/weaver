@@ -407,6 +407,7 @@ player is playerState of player to add it to
 void AddHeldWeaveToPlayer(gentity_t * ent, playerState_t * player)
 {
 	int             i;
+	gentity_t      *pent;
 
 	if(!ent)
 	{
@@ -420,7 +421,6 @@ void AddHeldWeaveToPlayer(gentity_t * ent, playerState_t * player)
 	}
 
 	DEBUGWEAVEING("AddHeldWeaveToPlayer: start");
-
 	for(i = MIN_WEAPON_WEAVE; i < MAX_WEAPONS; i++)
 	{
 		if(player->ammo[i] <= 0)
@@ -429,7 +429,9 @@ void AddHeldWeaveToPlayer(gentity_t * ent, playerState_t * player)
 			ent->s.modelindex2 = i;	// remember slot
 			player->weapon = i;
 			player->stats[STAT_WEAPONS] |= 1 << i;
-
+			// Event to indicate new weave
+			pent = &g_entities[ent->s.otherEntityNum2];
+			G_AddEvent(pent, EV_WEAVE_ADDHELD, i);
 			break;
 		}
 	}
