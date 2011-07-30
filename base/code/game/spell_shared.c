@@ -496,3 +496,6 @@ void LoadWeaveInfo(weaver_weaveInfo_t *info, int weaveID)
 	info->name = WeaveName(weaveID);
 	info->nameP = WeaveNameP(weaveID);
 }
+
+const char *WeaveGroupNames[2] = {"A", "D"};
+const char *WeavePowerNames[10] = {"none", "air", "airfire", "fire", "earthfire", "earth", "earthwater", "water", "airwater", "spirit"};
