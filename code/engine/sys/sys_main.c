@@ -660,10 +660,12 @@ int main(int argc, char **argv)
 
 	// hide the early console since we've reached the point where we
 	// have a working graphics subsystems
+#if !defined(DEDICATED)
 	//if(!com_dedicated->integer && !com_viewlog->integer)
 	{
 		CON_SetVisibility(0);
 	}
+#endif
 
 	// Tr3B: don't set the signal handlers
 	// as it effectively breaks all debugging features

@@ -4118,6 +4118,7 @@ void Com_Frame(void)
 	// write config file if anything changed
 	Com_WriteConfiguration();
 
+#if !defined(DEDICATED)
 	// if "viewlog" has been modified, show or hide the log console
 	if(com_viewlog->modified)
 	{
@@ -4127,6 +4128,7 @@ void Com_Frame(void)
 		}
 		com_viewlog->modified = qfalse;
 	}
+#endif
 
 	//
 	// main event loop

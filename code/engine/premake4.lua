@@ -302,24 +302,15 @@ project "XreaL"
 		{
 			--"/NODEFAULTLIB:libcmt.lib",
 			--"/NODEFAULTLIB:libcmtd.lib"
-			"/NODEFAULTLIB:libc"
+			--"/NODEFAULTLIB:libc"
 		}
-		--linkoptions
-		--{
-		--	"/NODEFAULTLIB:libc"
-		--}
 		defines
 		{
 			"WIN32",
 			"_CRT_SECURE_NO_WARNINGS",
-			--"USE_INTERNAL_SPEEX",
-			--"USE_INTERNAL_ZLIB",
-			--"FLOATING_POINT",
-			--"USE_ALLOCA"
 		}
 		
 		
-	configuration { "vs*", "x32" }
 	configuration { "vs*", "x32" }
 		files
 		{
@@ -344,34 +335,33 @@ project "XreaL"
 	configuration { "linux", "gmake" }
 		buildoptions
 		{
-			"`pkg-config --cflags x11`",
-			"`pkg-config --cflags xext`",
-			"`pkg-config --cflags xxf86dga`",
-			"`pkg-config --cflags xxf86vm`",
+			--"`pkg-config --cflags x11`",
+			--"`pkg-config --cflags xext`",
+			--"`pkg-config --cflags xxf86dga`",
+			--"`pkg-config --cflags xxf86vm`",
 			"`pkg-config --cflags sdl`",
 			"`pkg-config --cflags libcurl`",
 		}
 		linkoptions
 		{
-			"`pkg-config --libs x11`",
-			"`pkg-config --libs xext`",
-			"`pkg-config --libs xxf86dga`",
-			"`pkg-config --libs xxf86vm`",
+			--"`pkg-config --libs x11`",
+			--"`pkg-config --libs xext`",
+			--"`pkg-config --libs xxf86dga`",
+			--"`pkg-config --libs xxf86vm`",
 			"`pkg-config --libs sdl`",
 			"`pkg-config --libs libcurl`",
 		}
 	
 	configuration "linux"
-		targetname  "etxreal"
+		targetname  "xreal"
 		files
 		{
-			"unix/linux_signals.c",
-			"unix/unix_main.c",
-			"unix/unix_net.c",
-			"unix/unix_shared.c",
-			"unix/sdl_snd.c",
-			"unix/linux_joystick.c",
-			"unix/linux_gl3imp.c",
+			"sys/sys_main.c",
+			"sys/sys_unix.c",
+			"sys/con_log.c",
+			"sys/con_passive.c",
+			"sys/sdl_input.c",
+			"sys/sdl_snd.c",
 			"../libs/glew/src/glew.c",
 		}
 		--buildoptions
@@ -385,6 +375,147 @@ project "XreaL"
 		defines
 		{
             "PNG_NO_ASSEMBLER_CODE",
+		}
+		
+
+project "XreaL-dedicated"
+	targetname  "XreaL-dedicated"
+	language    "C++"
+	kind        "ConsoleApp"
+	targetdir 	"../.."
+	flags       { "ExtraWarnings" }
+	files
+	{
+		"../shared/**.c", "../shared/**.h",
+		
+		"botlib/**.c", "botlib/**.h",
+		"server/**.c", "server/**.h",
+		
+		"splines/**.cpp", "splines/**.h",
+
+		"null/null_client.c",
+		"null/null_input.c",
+		"null/null_snddma.c",
+		
+		"qcommon/**.h", 
+		"qcommon/cmd.c",
+		"qcommon/common.c",
+		"qcommon/cvar.c",
+		"qcommon/files.c",
+		"qcommon/huffman.c",
+		"qcommon/md4.c",
+		"qcommon/md5.c",
+		"qcommon/msg.c",
+		"qcommon/vm.c",
+		"qcommon/net_*.c",
+		"qcommon/cm_*.c",
+		"qcommon/unzip.c",
+		
+		"../libs/zlib/**.c", "../../libs/zlib/**.h",
+	}
+	includedirs
+	{
+		"../libs/zlib",
+		"../shared",
+	}
+	defines
+	{ 
+		"DEDICATED",
+		"STANDALONE",
+		--"USE_MUMBLE",
+		--"USE_VOIP",
+	}
+	excludes
+	{
+		"server/sv_rankings.c",
+	}
+	
+	--
+	-- Platform Configurations
+	-- 	
+	configuration "x32"
+		targetdir 	"../../bin32"
+		files
+		{ 
+			--"code/qcommon/vm_x86.c",
+		}
+	
+	configuration "x64"
+		targetdir 	"../../bin64"
+	
+	-- 
+	-- Project Configurations
+	-- 
+	configuration "vs*"
+		flags       { "WinMain" }
+		files
+		{
+			"sys/sys_main.c",
+			"sys/sys_win32.c",
+			"sys/con_log.c",
+			"sys/con_win32.c",
+			
+			"sys/xreal.ico",
+			"sys/win_resource.rc",
+		}
+		libdirs
+		{
+			--"../libs/curl-7.12.2/lib"
+		}
+		links
+		{ 
+			"winmm",
+			"wsock32",
+			"user32",
+			"advapi32",
+			"ws2_32",
+			"Psapi"
+		}
+		--linkoptions
+		--{
+		--	"/NODEFAULTLIB:libc"
+		--}
+		-- buildoptions
+		-- {
+			-- "/EHa",
+		-- }
+		defines
+		{
+			"WIN32",
+			"_CRT_SECURE_NO_WARNINGS",
+			--"USE_INTERNAL_SPEEX",
+			--"USE_INTERNAL_ZLIB",
+			--"FLOATING_POINT",
+			--"USE_ALLOCA"
+		}
+
+	configuration { "linux", "gmake" }
+		buildoptions
+		{
+			"`pkg-config --cflags sdl`",
+		}
+		linkoptions
+		{
+			"`pkg-config --libs sdl`",
+		}
+	
+	configuration "linux"
+		targetname  "xreal-dedicated"
+		files
+		{
+			"sys/sys_main.c",
+			"sys/sys_unix.c",
+			"sys/con_log.c",
+			"sys/con_tty.c",
+		}
+		--buildoptions
+		--{
+		--	"-pthread"
+		--}
+		links
+		{
+			"dl",
+			"m",
 		}
 		
 		
