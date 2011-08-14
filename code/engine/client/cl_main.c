@@ -3227,6 +3227,10 @@ int CL_ScaledMilliseconds(void)
 static cvar_t  *cl_renderer = NULL;
 static void    *rendererLib = NULL;
 
+#if defined(REF_HARD_LINKED)
+extern refexport_t* GetRefAPI(int apiVersion, refimport_t * rimp);
+#endif
+
 // Input subsystem
 extern void            IN_Init(void);
 extern void            IN_Shutdown(void);
@@ -3241,12 +3245,17 @@ void CL_InitRef(void)
 {
 	refimport_t     ri;
 	refexport_t    *ret;
+
+#if !defined(REF_HARD_LINKED)
 	GetRefAPI_t		GetRefAPI;
 	char            dllName[MAX_OSPATH];
+#endif
 
 	Com_Printf("----- Initializing Renderer ----\n");
 
 	cl_renderer = Cvar_Get("cl_renderer", "GL", CVAR_ARCHIVE | CVAR_LATCH);
+
+#if !defined(REF_HARD_LINKED)
 
 #ifdef _WIN32
 	Q_snprintf(dllName, sizeof(dllName), "renderer%s" DLL_EXT, cl_renderer->string);
@@ -3281,6 +3290,8 @@ void CL_InitRef(void)
 	{
 		Com_Error(ERR_FATAL, "Can't load symbol GetRefAPI: '%s'",  Sys_LibraryError());
 	}
+
+#endif
 
 	ri.Cmd_AddCommand = Cmd_AddCommand;
 	ri.Cmd_RemoveCommand = Cmd_RemoveCommand;

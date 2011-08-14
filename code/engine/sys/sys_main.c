@@ -44,7 +44,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "sys_local.h"
 #include "sys_loadlib.h"
 
-#include "../qcommon/q_shared.h"
+#include <q_shared.h>
 #include "../qcommon/qcommon.h"
 
 static char     binaryPath[MAX_OSPATH] = { 0 };
@@ -78,6 +78,17 @@ Sys_SetDefaultInstallPath
 void Sys_SetDefaultInstallPath(const char *path)
 {
 	Q_strncpyz(installPath, path, sizeof(installPath));
+
+	if(strstr(installPath, "bin32") ||  strstr(installPath, "bin64"))
+	{
+		int				i, len;
+
+		len = strlen(installPath);
+		for(i = len; i >= len - 6; i--)
+		{
+			installPath[i] = '\0';
+		}
+	}
 }
 
 /*

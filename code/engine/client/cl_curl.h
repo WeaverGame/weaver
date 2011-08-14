@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 extern cvar_t  *cl_cURLLib;
 
-#include "../qcommon/q_shared.h"
+#include <q_shared.h>
 #include "../qcommon/qcommon.h"
 
 #ifdef WIN32

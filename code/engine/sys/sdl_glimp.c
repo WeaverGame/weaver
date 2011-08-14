@@ -852,11 +852,11 @@ static int GLimp_SetMode(int mode, qboolean fullscreen, qboolean noborder)
 	{
 		// glewInit failed, something is seriously wrong
 		ri.Error(ERR_FATAL, "GLW_StartOpenGL() - could not load OpenGL subsystem: %s", glewGetErrorString(glewResult));
-		}
-		else
-		{
+	}
+	else
+	{
 		ri.Printf(PRINT_ALL, "Using GLEW %s\n", glewGetString(GLEW_VERSION));
-		}
+	}
 
 	GLimp_InitOpenGL3xContext();
 
@@ -951,10 +951,10 @@ static void GLimp_InitExtensions(void)
 				ri.Error(ERR_FATAL, "...not using GL_ARB_multitexture, < 2 texture units\n");
 			}
 		}
-	   else
-	   {
-	   ri.Error(ERR_FATAL, "...GL_ARB_multitexture not found\n");
-	   }
+		else
+		{
+			ri.Error(ERR_FATAL, "...GL_ARB_multitexture not found\n");
+		}
 	}
 	
 
