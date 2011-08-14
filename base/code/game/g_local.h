@@ -26,8 +26,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define __G_LOCAL_H
 
 // g_local.h -- local definitions for game module
-#include "../../../code/qcommon/q_shared.h"
-#include "bg_public.h"
+#include <q_shared.h>
+#include <bg_public.h>
 #include "g_public.h"
 #include "spell_common.h"
 #include "spell_shared.h"
