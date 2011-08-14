@@ -31,14 +31,17 @@ several games based on the Quake III Arena engine, in the form of "Q3Map2."
 /* marker */
 #define FACEBSP_C
 
+//#define DEBUG_SPLITS 1
+
 
 
 /* dependencies */
-#include "xmap2.h"
+#include "q3map2.h"
 
 
 
 int             c_faceLeafs;
+int				c_faceNodes;
 
 
 /*
@@ -93,8 +96,8 @@ static void SelectSplitPlaneNum(node_t * node, face_t * list, int *splitPlaneNum
 	float           dist;
 	int             planenum;
 	float           sizeBias;
-
-	//int frontC,backC,splitsC,facingC;
+	//int				checks;
+	int				frontC, backC, splitsC, facingC;
 
 
 	/* ydnar: set some defaults */
@@ -105,10 +108,12 @@ static void SelectSplitPlaneNum(node_t * node, face_t * list, int *splitPlaneNum
 	/* ydnar 2002-09-21: changed blocksize to be a vector, so mappers can specify a 3 element value */
 
 	/* if it is crossing a block boundary, force a split */
+#if 0
 	for(i = 0; i < 3; i++)
 	{
 		if(blockSize[i] <= 0)
 			continue;
+
 		dist = blockSize[i] * (floor(node->mins[i] / blockSize[i]) + 1);
 		if(node->maxs[i] > dist)
 		{
@@ -119,26 +124,35 @@ static void SelectSplitPlaneNum(node_t * node, face_t * list, int *splitPlaneNum
 			return;
 		}
 	}
+#endif
 
 	/* pick one of the face planes */
 	bestValue = -99999;
 	bestSplit = list;
 
+	//checks = 0;
 
+#if 1
 	// div0: this check causes detail/structural mixes
-	//for( split = list; split; split = split->next )
-	//  split->checked = qfalse;
+	//for(split = list; split; split = split->next)
+	//	split->checked = qfalse;
 
+#if defined(DEBUG_SPLITS)
+	Sys_FPrintf(SYS_VRB, "split scores: [");
+#endif
 	for(split = list; split; split = split->next)
 	{
 		//if(split->checked)
 		//	continue;
+
+		//checks++;
 
 		plane = &mapplanes[split->planenum];
 		splits = 0;
 		facing = 0;
 		front = 0;
 		back = 0;
+
 		for(check = list; check; check = check->next)
 		{
 			if(check->planenum == split->planenum)
@@ -164,17 +178,60 @@ static void SelectSplitPlaneNum(node_t * node, face_t * list, int *splitPlaneNum
 
 		if(bspAlternateSplitWeights)
 		{
-			// from 27
-
-			//Bigger is better
-			sizeBias = WindingArea(split->w);
-
 			//Base score = 20000 perfectly balanced 
-			value = 20000 - (abs(front - back));
-			value -= plane->counter;	// If we've already used this plane sometime in the past try not to use it again 
-			value -= facing;	// if we're going to have alot of other surfs use this plane, we want to get it in quickly.
-			value -= splits * 5;	//more splits = bad
-			value += sizeBias * 10;	//We want a huge score bias based on plane size
+			value = 0;//20000;
+			value -= abs(front - back);	// prefer centered planes
+			value -= plane->counter;	// if we've already used this plane sometime in the past try not to use it again 
+			value += facing * 5;		// if we're going to have alot of other surfs use this plane, we want to get it in quickly.
+			value -= splits * 5;		// more splits = bad
+			//value += sizeBias * 10;		// we want a huge score bias based on plane size
+
+			if(plane->type < 3)
+			{
+				value += 5;		// axial is better
+			}
+
+			// we want a huge score bias based on plane size
+			#if 0
+			{
+				winding_t      *w;
+				node_t         *n;
+				plane_t        *plane;
+				vec3_t          normal;
+				vec_t           dist;
+
+				// create temporary winding to draw the split plane
+				w = CopyWinding(split->w);
+
+				// clip by all the parents
+				for(n = node->parent; n && w;)
+				{
+					plane = &mapplanes[n->planenum];
+
+					if(n->children[0] == node)
+					{						
+						// take front
+						ChopWindingInPlace(&w, plane->normal, plane->dist, 0.001);	// BASE_WINDING_EPSILON
+					}
+					else
+					{						
+						// take back
+						VectorNegate(plane->normal, normal);
+						dist = -plane->dist;
+						ChopWindingInPlace(&w, normal, dist, 0.001); // BASE_WINDING_EPSILON
+					}
+					node = n;
+					n = n->parent;
+				}
+
+				// clip by node AABB
+				if(w != NULL)
+					ChopWindingByBounds(&w, node->mins, node->maxs, CLIP_EPSILON);
+
+				if(w != NULL)
+					value += WindingArea(w);
+			}
+			#endif
 		}
 		else
 		{
@@ -187,28 +244,38 @@ static void SelectSplitPlaneNum(node_t * node, face_t * list, int *splitPlaneNum
 
 		value += split->priority;	// prioritize hints higher
 
+		#if defined(DEBUG_SPLITS)
+		Sys_FPrintf(SYS_VRB, " %d", value);
+		#endif
+
 		if(value > bestValue)
 		{
 			bestValue = value;
 			bestSplit = split;
-			//frontC=front;
-			//backC=back;
-			//splitsC=splits;
-			//facingC=facing;
+			
+			frontC = front;
+			backC = back;
+			splitsC = splits;
+			facingC = facing;
 		}
 	}
+#if defined(DEBUG_SPLITS)
+	Sys_FPrintf(SYS_VRB, "]\n");
+#endif
+
+#endif
 
 	/* nothing, we have a leaf */
 	if(bestValue == -99999)
 		return;
 
-	//Sys_FPrintf (SYS_VRB, "F: %d B:%d S:%d FA:%ds\n",frontC,backC,splitsC,facingC );
+	//Sys_FPrintf(SYS_VRB, "F: %9d B:%9d S:%9d FA:%9d\n", frontC, backC, splitsC, facingC);
 
 	/* set best split data */
 	*splitPlaneNum = bestSplit->planenum;
 	*compileFlags = bestSplit->compileFlags;
 
-#if 0
+#if defined(DEBUG_SPLITS)
 	if(bestSplit->compileFlags & C_DETAIL)
 		for(split = list; split; split = split->next)
 			if(!(split->compileFlags & C_DETAIL))
@@ -239,6 +306,72 @@ int CountFaceList(face_t * list)
 	return c;
 }
 
+static tree_t  *drawTree = NULL;
+static void DrawTreeNodes_r(node_t * node)
+{
+	int             s;
+	portal_t       *p, *nextp;
+	winding_t      *w;
+	vec4_t			nodeColor = {1, 1, 0, 0.3};
+	vec4_t			leafColor = {0, 0, 1, 0.3};
+
+	if(!node)
+		return;
+
+	if(node->planenum == PLANENUM_LEAF)
+	{
+		Draw_AABB(vec3_origin, node->mins, node->maxs, leafColor);
+		return;
+	}
+
+	Draw_AABB(vec3_origin, node->mins, node->maxs, nodeColor);
+
+	DrawTreeNodes_r(node->children[0]);
+	DrawTreeNodes_r(node->children[1]);
+}
+static void DrawNodes()
+{
+	DrawTreeNodes_r(drawTree->headnode);
+}
+
+static face_t  *drawChildLists[2];
+static node_t  *drawSplitNode;
+static void DrawPartitions()
+{
+	face_t         *face;
+	winding_t      *w;
+	
+	// create temporary winding to draw the split plane
+	w = BaseWindingForNode(drawSplitNode);
+
+	ChopWindingByBounds(&w, drawSplitNode->mins, drawSplitNode->maxs, 32);
+
+	if(w != NULL)
+	{
+		Draw_Winding(w, 0, 0, 1, 0.3);
+		FreeWinding(w);
+	}
+
+	for(face = drawChildLists[0]; face != NULL; face = face->next)
+	{
+		w = face->w;
+
+		Draw_Winding(w, 0, 1, 0, 0.3);
+	}
+
+	for(face = drawChildLists[1]; face != NULL; face = face->next)
+	{
+		w = face->w;
+
+		Draw_Winding(w, 1, 0, 0, 0.3);
+	}
+}
+
+static void DrawAll(void)
+{
+	DrawPartitions();
+	DrawNodes();
+}
 
 
 /*
@@ -258,15 +391,20 @@ void BuildFaceTree_r(node_t * node, face_t * list)
 	int             i;
 	int             splitPlaneNum, compileFlags;
 	qboolean        isstruct = qfalse;
+	int             splits, front, back;
 
 
 	/* count faces left */
 	i = CountFaceList(list);
 
+#if defined(DEBUG_SPLITS)
+	Sys_FPrintf(SYS_VRB, "faces left = %d\n", i);
+#endif
+
 	/* select the best split plane */
 	SelectSplitPlaneNum(node, list, &splitPlaneNum, &compileFlags);
 
-	/* if we don't have any more faces, this is a node */
+	/* if we don't have any more faces, this is a leaf */
 	if(splitPlaneNum == -1)
 	{
 		node->planenum = PLANENUM_LEAF;
@@ -282,6 +420,8 @@ void BuildFaceTree_r(node_t * node, face_t * list)
 	plane = &mapplanes[splitPlaneNum];
 	childLists[0] = NULL;
 	childLists[1] = NULL;
+
+	splits = front = back = 0;
 
 	for(split = list; split; split = next)
 	{
@@ -304,6 +444,8 @@ void BuildFaceTree_r(node_t * node, face_t * list)
 		/* switch on side */
 		if(side == SIDE_CROSS)
 		{
+			splits++;
+
 			ClipWindingEpsilon(split->w, plane->normal, plane->dist, CLIP_EPSILON * 2, &frontWinding, &backWinding);
 			if(frontWinding)
 			{
@@ -314,6 +456,8 @@ void BuildFaceTree_r(node_t * node, face_t * list)
 				newFace->priority = split->priority;
 				newFace->compileFlags = split->compileFlags;
 				childLists[0] = newFace;
+
+				front++;
 			}
 			if(backWinding)
 			{
@@ -324,6 +468,8 @@ void BuildFaceTree_r(node_t * node, face_t * list)
 				newFace->priority = split->priority;
 				newFace->compileFlags = split->compileFlags;
 				childLists[1] = newFace;
+
+				back++;
 			}
 			FreeBspFace(split);
 		}
@@ -331,11 +477,15 @@ void BuildFaceTree_r(node_t * node, face_t * list)
 		{
 			split->next = childLists[0];
 			childLists[0] = split;
+
+			front++;
 		}
 		else if(side == SIDE_BACK)
 		{
 			split->next = childLists[1];
 			childLists[1] = split;
+
+			back++;
 		}
 	}
 
@@ -347,6 +497,8 @@ void BuildFaceTree_r(node_t * node, face_t * list)
 		node->children[i]->parent = node;
 		VectorCopy(node->mins, node->children[i]->mins);
 		VectorCopy(node->maxs, node->children[i]->maxs);
+
+		c_faceNodes++;
 	}
 
 	for(i = 0; i < 3; i++)
@@ -359,7 +511,17 @@ void BuildFaceTree_r(node_t * node, face_t * list)
 		}
 	}
 
-#if 0
+#if 1
+	if(drawBSP && drawTree)
+	{
+		drawChildLists[0] = childLists[0];
+		drawChildLists[1] = childLists[1];
+		drawSplitNode = node;
+		Draw_Scene(DrawAll);
+	}
+#endif
+
+#if defined(DEBUG_SPLITS)
 	if((node->compileFlags & C_DETAIL) && isstruct)
 		Sys_FPrintf(SYS_ERR, "I am detail, my child is structural, this is a wtf1\n", node->has_structural_children);
 #endif
@@ -370,7 +532,7 @@ void BuildFaceTree_r(node_t * node, face_t * list)
 		node->has_structural_children |= node->children[i]->has_structural_children;
 	}
 
-#if 0
+#if defined(DEBUG_SPLITS)
 	if((node->compileFlags & C_DETAIL) && !(node->children[0]->compileFlags & C_DETAIL) &&
 	   node->children[0]->planenum != PLANENUM_LEAF)
 		Sys_FPrintf(SYS_ERR, "I am detail, my child is structural\n", node->has_structural_children);
@@ -387,7 +549,7 @@ FaceBSP
 List will be freed before returning
 ================
 */
-tree_t         *FaceBSP(face_t * list)
+tree_t         *FaceBSP(face_t * list, qboolean drawDebug)
 {
 	tree_t         *tree;
 	face_t         *face;
@@ -418,10 +580,20 @@ tree_t         *FaceBSP(face_t * list)
 	VectorCopy(tree->mins, tree->headnode->mins);
 	VectorCopy(tree->maxs, tree->headnode->maxs);
 	c_faceLeafs = 0;
+	c_faceNodes = 1;
+
+#if 1
+	if(drawBSP && drawDebug)
+	{
+		drawTree = tree;
+	}
+#endif
 
 	BuildFaceTree_r(tree->headnode, list);
 
+	Sys_FPrintf(SYS_VRB, "%9d nodes\n", c_faceNodes);
 	Sys_FPrintf(SYS_VRB, "%9d leafs\n", c_faceLeafs);
+	Sys_FPrintf(SYS_VRB, "%9d depth\n", (int)(logf(c_faceNodes) / logf(2)));
 
 	return tree;
 }

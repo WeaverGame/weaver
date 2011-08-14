@@ -1,6 +1,6 @@
 /* -------------------------------------------------------------------------------
 
-Copyright (C) 1999-2006 Id Software, Inc. and contributors.
+Copyright (C) 1999-2007 id Software, Inc. and contributors.
 For a list of contributors, see the accompanying CONTRIBUTORS file.
 
 This file is part of GtkRadiant.
@@ -34,8 +34,9 @@ several games based on the Quake III Arena engine, in the form of "Q3Map2."
 
 
 /* dependencies */
-#include "xmap2.h"
+#include "q3map2.h"
 
+convertType_t   convertType = CONVERT_NOTHING;
 
 
 /*
@@ -794,85 +795,6 @@ int MiniMapBSPMain(int argc, char **argv)
 
 
 
-
-/*
-MD4BlockChecksum()
-calculates an md4 checksum for a block of data
-*/
-
-static int MD4BlockChecksum(void *buffer, int length)
-{
-	return Com_BlockChecksum(buffer, length);
-}
-
-/*
-FixAAS()
-resets an aas checksum to match the given BSP
-*/
-#if 0
-int FixAAS(int argc, char **argv)
-{
-	int             length, checksum;
-	void           *buffer;
-	FILE           *file;
-	char            aas[1024], **ext;
-	char           *exts[] = {
-		".aas",
-		"_b0.aas",
-		"_b1.aas",
-		NULL
-	};
-
-
-	/* arg checking */
-	if(argc < 2)
-	{
-		Sys_Printf("Usage: xmap -fixaas [-v] <mapname>\n");
-		return 0;
-	}
-
-	/* do some path mangling */
-	strcpy(source, ExpandArg(argv[argc - 1]));
-	StripExtension(source);
-	DefaultExtension(source, ".bsp");
-
-	/* note it */
-	Sys_Printf("--- FixAAS ---\n");
-
-	/* load the bsp */
-	Sys_Printf("Loading %s\n", source);
-	length = LoadFile(source, &buffer);
-
-	/* create bsp checksum */
-	Sys_Printf("Creating checksum...\n");
-	checksum = LittleLong(Com_BlockChecksum(buffer, length));
-
-	/* write checksum to aas */
-	ext = exts;
-	while(*ext)
-	{
-		/* mangle name */
-		strcpy(aas, source);
-		StripExtension(aas);
-		strcat(aas, *ext);
-		Sys_Printf("Trying %s\n", aas);
-		ext++;
-
-		/* fix it */
-		file = fopen(aas, "r+b");
-		if(!file)
-			continue;
-		if(fwrite(&checksum, 4, 1, file) != 1)
-			Error("Error writing checksum to %s", aas);
-		fclose(file);
-	}
-
-	/* return to sender */
-	return 0;
-}
-#endif
-
-
 /*
 AnalyzeBSP() - ydnar
 analyzes a Quake engine BSP file
@@ -1513,9 +1435,308 @@ int ConvertBSPMain(int argc, char **argv)
 
 
 
+
+/*
+==================
+WriteMapFileDoom3
+==================
+*/
+void WriteMapFileDoom3(char *filename)
+{
+	FILE           *f;
+	int             i, j, k, l;
+	entity_t       *entity;
+	epair_t        *ep;
+	brush_t        *brush;
+	side_t         *side;
+	plane_t        *plane;
+	parseMesh_t    *pm;
+
+//  winding_t      *w;
+	shaderInfo_t   *si;
+
+	Sys_Printf("writing %s\n", filename);
+	f = fopen(filename, "wb");
+	if(!f)
+		Error("Can't write %s\b", filename);
+
+	fprintf(f, "Version 2\n");
+
+	for(i = 0; i < numEntities; i++)
+	{
+		entity = &entities[i];
+
+		// write entity header
+		fprintf(f, "// entity %i\n", i);
+		fprintf(f, "{\n");
+
+		// write epairs
+		for(ep = entity->epairs; ep; ep = ep->next)
+		{
+			fprintf(f, "\"%s\" \"%s\"\n", ep->key, ep->value);
+		}
+
+		// write brush list
+		for(j = 0, brush = entity->brushes; brush; j++, brush = brush->next)
+		{
+			fprintf(f, "// brush %i\n", j);
+			fprintf(f, "{\n");
+			fprintf(f, "brushDef3\n");
+			fprintf(f, "{\n");
+			for(k = 0, side = brush->sides; k < brush->numsides; k++, side++)
+			{
+				// write plane equation
+				plane = &mapplanes[side->planenum];
+
+				fprintf(f, "( %f %f %f %f ) ", plane->normal[0], plane->normal[1], plane->normal[2], -plane->dist);
+
+				// write texture matrix
+				if(g_bBrushPrimit == BPRIMIT_OLDBRUSHES)
+				{
+					// old quake-style texturing
+					// Tr3B: ported code from Q3Radiant void FaceToBrushPrimitFace(face_t *f)
+
+					float			STfromXYZ[2][4];
+					float           texMat[2][3];
+
+					vec3_t			texX,texY;
+					vec3_t			proj;
+					
+					// ST of (0,0) (1,0) (0,1)
+					vec_t			ST[3][5]; // [ point index ] [ xyz ST ]
+					
+					
+					#if 0 //def _DEBUG
+					if ( f->plane.normal[0]==0.0f && f->plane.normal[1]==0.0f && f->plane.normal[2]==0.0f )
+					{
+						Sys_Printf("Warning : f->plane.normal is (0,0,0) in FaceToBrushPrimitFace\n");
+					}
+					#endif
+					
+					// compute axis base
+					ComputeAxisBase(mapplanes[side->planenum].normal, texX, texY);
+					
+					// compute projection vector
+					VectorCopy(mapplanes[side->planenum].normal, proj);
+					VectorScale(proj, mapplanes[side->planenum].dist, proj);
+
+					si = side->shaderInfo;
+					for (l = 0; l < 4; l++)
+					{
+						STfromXYZ[0][l] = side->vecs[0][l];
+						STfromXYZ[1][l] = side->vecs[1][l];
+
+						STfromXYZ[0][l] /= si->shaderWidth;
+						STfromXYZ[1][l] /= si->shaderHeight;
+					}
+
+					// (0,0) in plane axis base is (0,0,0) in world coordinates + projection on the affine plane
+					// (1,0) in plane axis base is texX in world coordinates + projection on the affine plane
+					// (0,1) in plane axis base is texY in world coordinates + projection on the affine plane
+					// use old texture code to compute the ST coords of these points
+					VectorCopy(proj,ST[0]);
+					ST[0][3] = DotProduct(ST[0], STfromXYZ[0]) + STfromXYZ[0][3];
+					ST[0][4] = DotProduct(ST[0], STfromXYZ[1]) + STfromXYZ[1][3];
+					
+					VectorCopy(texX,ST[1]);
+					VectorAdd(ST[1],proj,ST[1]);
+					ST[1][3] = DotProduct(ST[1], STfromXYZ[0]) + STfromXYZ[0][3];
+					ST[1][4] = DotProduct(ST[1], STfromXYZ[1]) + STfromXYZ[1][3];
+
+					VectorCopy(texY,ST[2]);
+					VectorAdd(ST[2],proj,ST[2]);
+					ST[2][3] = DotProduct(ST[2], STfromXYZ[0]) + STfromXYZ[0][3];
+					ST[2][4] = DotProduct(ST[2], STfromXYZ[1]) + STfromXYZ[1][3];
+					
+					// compute texture matrix
+					texMat[0][2] = ST[0][3];
+					texMat[1][2] = ST[0][4];
+					texMat[0][0] = ST[1][3] - texMat[0][2];
+					texMat[1][0] = ST[1][4] - texMat[1][2];
+					texMat[0][1] = ST[2][3] - texMat[0][2];
+					texMat[1][1] = ST[2][4] - texMat[1][2];
+
+					Write2DMatrix(f, 2, 3, (float *)texMat);
+				}
+				else
+				{
+					Write2DMatrix(f, 2, 3, (float *)side->texMat);
+				}
+
+				si = side->shaderInfo;
+				fprintf(f, " \"%s\"", si->shader);
+
+				// support detail flags
+				if(side->compileFlags & C_DETAIL)
+					fprintf(f, " %i 0 0\n", C_DETAIL);
+				else
+					fprintf(f, " 0 0 0\n");
+
+			}
+			fprintf(f, "}\n");
+			fprintf(f, "}\n");
+		}
+
+		// write patch list
+#if 1
+		for(j = 0, pm = entity->patches; pm; j++, pm = pm->next)
+		{
+
+			fprintf(f, "// patch %i\n", j);
+			fprintf(f, "{\n");
+
+			if(pm->patchDef3)
+				fprintf(f, "patchDef3\n");
+			else
+				fprintf(f, "patchDef2\n");
+
+			fprintf(f, "{\n");
+
+			// write shader
+			si = pm->shaderInfo;
+			fprintf(f, "\"%s\"\n", si->shader);
+
+			// write patch dimensions
+			if(pm->patchDef3)
+				fprintf(f, "( %i %i %i %i %i %i %i )\n", (int)pm->info[0], (int)pm->info[1], (int)pm->info[2], (int)pm->info[3],
+						(int)pm->info[4], (int)pm->info[5], (int)pm->info[6]);
+			else
+
+				fprintf(f, "( %i %i %i %i %i )\n", (int)pm->info[0], (int)pm->info[1], (int)pm->info[2], (int)pm->info[3],
+						(int)pm->info[4]);
+
+			fprintf(f, "(\n");
+			for(k = 0; k < pm->mesh.width; k++)
+			{
+				fprintf(f, "(");
+				for(l = 0; l < pm->mesh.height; l++)
+				{
+					// write drawVert_t::xyz + st
+					Write1DMatrix(f, 5, pm->mesh.verts[l * pm->mesh.width + k].xyz);
+				}
+				fprintf(f, ")\n");
+			}
+			fprintf(f, ")\n");
+
+			fprintf(f, "}\n");
+			fprintf(f, "}\n");
+		}
+#endif
+
+		fprintf(f, "}\n");
+	}
+
+	fclose(f);
+}
+
+/**
+	ConvertMapMain()
+	main argument processing function for map conversion
+
+	@author	Tr3B
+*/
+int ConvertMapMain(int argc, char **argv)
+{
+	int             i;
+	//const char     *name;
+	//int             (*convertFunc) (char *);
+	//game_t         *convertGame;
+
+
+	// set default
+	convertType = CONVERT_QUAKE3;
+	//convertGame = NULL;
+
+	// process arguments
+	for(i = 1; i < (argc - 1); i++)
+	{
+		/* -format map|ase|... */
+		if(!strcmp(argv[i], "-format"))
+		{
+			i++;
+			if(!Q_stricmp(argv[i], "quake3"))
+			{
+				convertType = CONVERT_QUAKE3;
+				Sys_Printf("converting from Quake 3 to Doom 3\n");
+			}
+			else if(!Q_stricmp(argv[i], "quake4"))
+			{
+				convertType = CONVERT_QUAKE4;
+				Sys_Printf("converting from Quake 3 to Doom 3\n");
+			}
+			else
+			{
+				//convertGame = GetGame(argv[i]);
+				//if(convertGame == NULL)
+				{
+					convertType = CONVERT_QUAKE3;
+					Sys_Printf("Unknown conversion format \"%s\". Defaulting to Quake 3.\n", argv[i]);
+				}
+			}
+		}
+		else if(!strcmp(argv[i], "-ne"))
+		{
+			normalEpsilon = atof(argv[i + 1]);
+			i++;
+			Sys_Printf("Normal epsilon set to %f\n", normalEpsilon);
+		}
+		else if(!strcmp(argv[i], "-de"))
+		{
+			distanceEpsilon = atof(argv[i + 1]);
+			i++;
+			Sys_Printf("Distance epsilon set to %f\n", distanceEpsilon);
+		}
+	}
+
+	if(i != argc - 1)
+	{
+		Error("usage: etxmap [general options] -map2map [-<switch> [-<switch> ...]] <mapname.map>\n"
+			  "\n"
+			  "Switches:\n"
+			  " -v                     = verbose output\n"
+			  //"   quake1       = convert from QuakeWorld to XreaL\n"
+			  //"   quake2       = convert from Quake2 to XreaL\n"
+			  " -format quake3         = convert from Quake3 or ET to Doom 3\n"
+			  " -format quake4         = convert from Quake4 to Doom 3\n");
+	}
+
+	/* clean up map name */
+	strcpy(source, ExpandArg(argv[i]));
+	StripExtension(source);
+	DefaultExtension(source, ".map");
+
+	LoadShaderInfo();
+
+	Sys_Printf("Loading %s\n", source);
+
+	LoadMapFile(source, qfalse);
+
+	// Tr3B: append temporary func_static containing the worldspawn detail brushes
+	/*
+	if(convertDetailBrushesFuncStaticEntity.lastBrush != NULL)
+	{
+		mapEnt = &entities[numEntities];
+		numEntities++;
+		memcpy(mapEnt, &convertDetailBrushesFuncStaticEntity, sizeof(*mapEnt));
+
+		// true entity numbering
+		mapEnt->mapEntityNum = numMapEntities;
+		numMapEntities++;
+	}
+	*/
+	
+	StripExtension(source);
+	DefaultExtension(source, "_converted.map");
+	Sys_Printf("Writing %s\n", source);
+	WriteMapFileDoom3(source);
+
+	return 0;
+}
+
+
 /*
 main()
-xmap2 mojo...
+q3map mojo...
 */
 
 int main(int argc, char **argv)
@@ -1531,7 +1752,7 @@ int main(int argc, char **argv)
 	start = I_FloatTime();
 
 	/* this was changed to emit version number over the network */
-	printf(XMAP_VERSION "\n");
+	printf(Q3MAP_VERSION "\n");
 
 	/* set exit call */
 	atexit(ExitQ3Map);
@@ -1604,12 +1825,12 @@ int main(int argc, char **argv)
 		//% Sys_Printf( "Jitter %4d: %f\n", i, jitters[ i ] );
 	}
 
-	/* we print out two versions, xmap's main version (since it evolves a bit out of GtkRadiant)
+	/* we print out two versions, q3map's main version (since it evolves a bit out of GtkRadiant)
 	   and we put the GtkRadiant version to make it easy to track with what version of Radiant it was built with */
 
 	Sys_Printf("q3map          - v1.0r (c) 1999-2006 Id Software Inc.\n");
 	Sys_Printf("q3map2 (ydnar) - v2.5.16\n");
-	Sys_Printf("xmap2  (Tr3B)  - v" XMAP_VERSION "\n");
+	Sys_Printf("xmap2  (Tr3B)  - v" Q3MAP_VERSION "\n");
 //  Sys_Printf("GtkRadiant    - v" RADIANT_VERSION " " __DATE__ " " __TIME__ "\n");
 
 	/* ydnar: new path initialization */
@@ -1662,6 +1883,10 @@ int main(int argc, char **argv)
 	/* ydnar: bsp conversion */
 	else if(!strcmp(argv[1], "-convert"))
 		r = ConvertBSPMain(argc - 1, argv + 1);
+
+	/* Tr3B: map conversion */
+	else if(!strcmp(argv[1], "-map2map"))
+		r = ConvertMapMain(argc - 1, argv + 1);
 
 	/* div0: minimap */
 	else if(!strcmp(argv[1], "-minimap"))

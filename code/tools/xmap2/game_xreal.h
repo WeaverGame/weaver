@@ -40,6 +40,8 @@ content and surface flags
 
 ------------------------------------------------------------------------------- */
 
+// *INDENT-OFF*
+
 /* game flags */
 #define Q_CONT_SOLID				1			/* an eye is never valid in a solid */
 #define Q_CONT_LAVA					8
@@ -137,7 +139,7 @@ game_t struct
 	1.0f,               /* minimap sharpener */
 	0.0f,               /* minimap border */
 	qtrue,              /* minimap keep aspect */
-	MINIMAP_MODE_BLACK, /* minimap mode */
+	MINIMAP_MODE_BLACK,  /* minimap mode */
 	"%s.png",           /* minimap name format */
 	"XBSP",				/* bsp file prefix */
 	48,					/* bsp file version */

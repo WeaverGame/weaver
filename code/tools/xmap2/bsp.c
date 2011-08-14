@@ -34,7 +34,7 @@ several games based on the Quake III Arena engine, in the form of "Q3Map2."
 
 
 /* dependencies */
-#include "xmap2.h"
+#include "q3map2.h"
 
 
 
@@ -156,7 +156,7 @@ static void SetCloneModelNumbers(void)
 
 		/* only entities with brushes or patches get a model number */
 		if(ent->brushes || ent->patches ||
-		   (!ent->brushes && !ent->patches && model[0] != '\0' && Q_stricmp("misc_model", classname)))
+		   (inlineEntityModels && !ent->brushes && !ent->patches && model[0] != '\0' && Q_stricmp("misc_model", classname)))
 		{
 			/* is this a clone? */
 			/*
@@ -275,6 +275,154 @@ static void FixBrushSides(entity_t * e)
 
 
 
+int PortalVisibleSides(portal_t * p)
+{
+	int             fcon, bcon;
+
+	if(!p->onnode)
+		return 0;				// outside
+
+	fcon = p->nodes[0]->opaque;
+	bcon = p->nodes[1]->opaque;
+
+	// same contents never create a face
+	if(fcon == bcon)
+		return 0;
+
+	if(!fcon)
+		return 1;
+	if(!bcon)
+		return 2;
+	return 0;
+}
+
+static void DrawPortal(portal_t * p, qboolean areaportal)
+{
+	winding_t      *w;
+	int             sides;
+
+	sides = PortalVisibleSides(p);
+	if(!sides)
+		return;
+
+	w = p->winding;
+
+	if(sides == 2)				// back side
+		w = ReverseWinding(w);
+
+	if(areaportal)
+	{
+		Draw_Winding(w, 1, 0, 0, 0.3);
+	}
+	else
+	{
+		Draw_Winding(w, 0, 0, 1, 0.3);
+	}
+
+	if(sides == 2)
+		FreeWinding(w);
+}
+
+static void DrawTreePortals_r(node_t * node)
+{
+	int             s;
+	portal_t       *p, *nextp;
+	winding_t      *w;
+
+	if(node->planenum != PLANENUM_LEAF)
+	{
+		DrawTreePortals_r(node->children[0]);
+		DrawTreePortals_r(node->children[1]);
+		return;
+	}
+
+	// draw all the portals
+	for(p = node->portals; p; p = p->next[s])
+	{
+		w = p->winding;
+		s = (p->nodes[1] == node);
+
+		if(w)					// && p->nodes[0] == node)
+		{
+			//if(PortalPassable(p))
+			//	continue;
+
+			DrawPortal(p, node->areaportal);
+		}
+	}
+}
+
+static tree_t  *drawTree = NULL;
+static int		drawTreeNodesNum;
+static void DrawTreePortals(void)
+{
+	DrawTreePortals_r(drawTree->headnode);
+}
+
+
+static void DrawTreeNodes_r(node_t * node)
+{
+	int             i, s;
+	brush_t        *b;
+	winding_t      *w;
+	vec4_t			nodeColor = {1, 1, 0, 0.3};
+	vec4_t			leafColor = {0, 0, 1, 0.3};
+
+	if(!node)
+		return;
+
+	drawTreeNodesNum++;
+
+	if(node->planenum == PLANENUM_LEAF)
+	{
+		//VectorCopy(debugColors[drawTreeNodesNum % 12], leafColor);
+
+		Draw_AABB(vec3_origin, node->mins, node->maxs, leafColor);
+
+		for(b = node->brushlist; b != NULL; b = b->next)
+		{
+			for(i = 0; i < b->numsides; i++)
+			{
+				w = b->sides[i].winding;
+				if(!w)
+					continue;
+
+				if(node->areaportal)
+				{
+					Draw_Winding(w, 1, 0, 0, 0.3);
+				}
+				else if(b->detail)
+				{
+					Draw_Winding(w, 0, 1, 0, 0.3);
+				}
+				else
+				{
+					// opaque
+					Draw_Winding(w, 0, 0, 0, 0.1);
+				}
+			}
+		}
+		return;
+	}
+
+	//Draw_AABB(vec3_origin, node->mins, node->maxs, nodeColor);
+
+	DrawTreeNodes_r(node->children[0]);
+	DrawTreeNodes_r(node->children[1]);
+}
+static void DrawNodes(void)
+{
+	drawTreeNodesNum = 0;
+	DrawTreeNodes_r(drawTree->headnode);
+}
+
+static void DrawTree(void)
+{
+	DrawNodes();
+}
+
+
+
 /*
 ProcessWorldModel()
 creates a full bsp + surfaces for the worldspawn entity
@@ -335,9 +483,18 @@ void ProcessWorldModel(void)
 
 	/* build an initial bsp tree using all of the sides of all of the structural brushes */
 	faces = MakeStructuralBSPFaceList(entities[0].brushes);
-	tree = FaceBSP(faces);
+	tree = FaceBSP(faces, qtrue);
 	MakeTreePortals(tree);
 	FilterStructuralBrushesIntoTree(e, tree);
+
+#if 0
+	if(drawBSP)
+	{
+		drawTree = tree;
+		Draw_Scene(DrawNodes);
+		Draw_Scene(DrawTreePortals);
+	}
+#endif
 
 	/* see if the bsp is completely enclosed */
 	if(FloodEntities(tree) || ignoreLeaks)
@@ -351,7 +508,7 @@ void ProcessWorldModel(void)
 		/* build a visible face tree */
 		faces = MakeVisibleBSPFaceList(entities[0].brushes);
 		FreeTree(tree);
-		tree = FaceBSP(faces);
+		tree = FaceBSP(faces, qtrue);
 		MakeTreePortals(tree);
 		FilterStructuralBrushesIntoTree(e, tree);
 		leaked = qfalse;
@@ -387,6 +544,15 @@ void ProcessWorldModel(void)
 		/* chop the sides to the convex hull of their visible fragments, giving us the smallest polygons */
 		ClipSidesIntoTree(e, tree);
 	}
+
+#if 1
+	if(drawBSP)
+	{
+		drawTree = tree;
+		Draw_Scene(DrawNodes);
+		Draw_Scene(DrawTreePortals);
+	}
+#endif
 
 	/* save out information for visibility processing */
 	NumberClusters(tree);
@@ -501,6 +667,16 @@ void ProcessWorldModel(void)
 
 	/* finish */
 	EndModel(e, tree->headnode);
+
+#if 1
+	if(drawBSP)
+	{
+		// draw unoptimized portals in new window
+		drawTree = tree;
+		Draw_Scene(DrawNodes);
+	}
+#endif
+
 	FreeTree(tree);
 }
 
@@ -621,7 +797,7 @@ void ProcessModels(void)
 		name = ValueForKey(entity, "name");
 
 		if(entity->brushes || entity->patches ||
-		   (!entity->brushes && !entity->patches && model[0] != '\0' && Q_stricmp("misc_model", classname)))
+		   (inlineEntityModels && !entity->brushes && !entity->patches && model[0] != '\0' && Q_stricmp("misc_model", classname)))
 		{
 			/* process the model */
 			Sys_FPrintf(SYS_VRB, "############### model %i '%s' ###############\n", numBSPModels, name);
@@ -931,7 +1107,14 @@ int BSPMain(int argc, char **argv)
 			deepBSP = qtrue;
 		}
 		else if(!strcmp(argv[i], "-bsp"))
+		{
 			Sys_Printf("-bsp argument unnecessary\n");
+		}
+		else if(!strcmp(argv[i], "-draw"))
+		{
+			Sys_Printf("SDL BSP tree viewer enabled\n");
+			drawBSP = qtrue;
+		}
 		else
 		{
 			Sys_Printf("WARNING: Unknown option \"%s\"\n", argv[i]);

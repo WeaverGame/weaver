@@ -1,6 +1,6 @@
 /* -------------------------------------------------------------------------------
 
-Copyright (C) 1999-2006 Id Software, Inc. and contributors.
+Copyright (C) 1999-2007 id Software, Inc. and contributors.
 For a list of contributors, see the accompanying CONTRIBUTORS file.
 
 This file is part of GtkRadiant.
@@ -34,7 +34,7 @@ several games based on the Quake III Arena engine, in the form of "Q3Map2."
 
 
 /* dependencies */
-#include "xmap2.h"
+#include "q3map2.h"
 
 
 
@@ -402,16 +402,16 @@ image_t        *ImageLoad(const char *filename)
 			LoadPNGBuffer(buffer, &image->pixels, &image->width, &image->height);
 		else
 		{
-#if 0
+#if 1
 			/* attempt to load jpg */
 			StripExtension(name);
 			strcat(name, ".jpg");
 			size = vfsLoadFile((const char *)name, (void **)&buffer, 0);
 			if(size > 0)
 			{
-				LoadJPGBuffer(buffer, &image->pixels, &image->width, &image->height);
-				if(image->pixels != NULL)
-					Sys_Printf("WARNING: LoadJPGBuffer: %s\n", (unsigned char *)image->pixels);
+				LoadJPGBuffer((const char *)name, buffer, size, &image->pixels, &image->width, &image->height);
+				if(image->pixels == NULL)
+					Sys_Printf("WARNING: LoadJPGBuffer: '%s'\n", image->name);
 			}
 			else
 			{

@@ -34,7 +34,7 @@ several games based on the Quake III Arena engine, in the form of "Q3Map2."
 
 
 /* dependencies */
-#include "xmap2.h"
+#include "q3map2.h"
 
 
 
@@ -42,7 +42,7 @@ several games based on the Quake III Arena engine, in the form of "Q3Map2."
 /* -------------------------------------------------------------------------------
 
 this file was copied out of the common directory in order to not break
-compatibility with the xmap 1.x tree. it was moved out in order to support
+compatibility with the q3map 1.x tree. it was moved out in order to support
 the raven bsp format (RBSP) used in soldier of fortune 2 and jedi knight 2.
 
 since each game has its own set of particular features, the data structures
@@ -234,7 +234,7 @@ void SwapBSPFile(void)
 	SwapBlock((int *)bspDrawIndexes, numBSPDrawIndexes * sizeof(bspDrawIndexes[0]));
 
 	/* drawsurfs */
-	/* note: rbsp files (and hence xmap2 abstract bsp) have byte lightstyles index arrays, this follows sof2map convention */
+	/* note: rbsp files (and hence q3map2 abstract bsp) have byte lightstyles index arrays, this follows sof2map convention */
 	SwapBlock((int *)bspDrawSurfaces, numBSPDrawSurfaces * sizeof(bspDrawSurfaces[0]));
 
 	/* fogs */
@@ -592,7 +592,7 @@ void InjectCommandLine(char **argv, int beginArgs, int endArgs)
 
 	*outpos = 0;
 	SetKeyValue(&entities[0], "_xmap2_cmdline", newCommandLine);
-	SetKeyValue(&entities[0], "_xmap2_version", XMAP_VERSION);
+	SetKeyValue(&entities[0], "_xmap2_version", Q3MAP_VERSION);
 }
 
 /*
@@ -725,7 +725,7 @@ const char     *UniqueEntityName(const entity_t * ent, const char *suggestion)
 
 	classname = ValueForKey(ent, "classname");
 
-	for(i = 0; i < 9999; i++)
+	for(i = 0; i < 100000; i++)
 	{
 		uniquename = va("%s_%i", classname, i);
 
@@ -812,12 +812,20 @@ void RemoveKey(entity_t * ent, const char *key)
 			// unlink
 			if(ep->next == NULL)
 			{
-				// last element
+				// first element
 				ep_prev->next = NULL;
+				//ent->epairs = NULL;
+			}
+			else if(ep == ent->epairs)
+			{
+				// last element
+				ent->epairs = ep->next;
 			}
 			else
 			{
+				// in between
 				ep_prev->next = ep->next;
+				//ent->epairs = 
 			}
 
 			free(ep);
@@ -925,6 +933,10 @@ entity_t       *FindTargetEntity(const char *target)
 	for(i = 0; i < numEntities; i++)
 	{
 		n = ValueForKey(&entities[i], "name");
+		if(!strcmp(n, target))
+			return &entities[i];
+
+		n = ValueForKey(&entities[i], "targetname");
 		if(!strcmp(n, target))
 			return &entities[i];
 	}

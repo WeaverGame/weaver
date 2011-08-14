@@ -1,6 +1,6 @@
 /* -------------------------------------------------------------------------------
 
-Copyright (C) 1999-2006 Id Software, Inc. and contributors.
+Copyright (C) 1999-2007 id Software, Inc. and contributors.
 For a list of contributors, see the accompanying CONTRIBUTORS file.
 
 This file is part of GtkRadiant.
@@ -34,7 +34,7 @@ several games based on the Quake III Arena engine, in the form of "Q3Map2."
 
 
 /* dependencies */
-#include "xmap2.h"
+#include "q3map2.h"
 
 
 
@@ -214,7 +214,7 @@ ydnar: changed to allow a number of test points to be supplied that
 must be within an epsilon distance of the plane
 */
 // *INDENT-OFF*
-int FindFloatPlane(vec3_t normal, vec_t dist, int numPoints, vec3_t * points)
+int FindFloatPlane(vec3_t innormal, vec_t dist, int numPoints, vec3_t * points)
 #ifdef USE_HASHING
 {
 	int             i, j, hash, h;
@@ -222,12 +222,14 @@ int FindFloatPlane(vec3_t normal, vec_t dist, int numPoints, vec3_t * points)
 	plane_t        *p;
 	vec_t           d;
 	vec3_t          centerofweight;
+	vec3_t          normal;
 
 	VectorClear(centerofweight);
 	for(i = 0; i < numPoints; ++i)
 		VectorMA(centerofweight, 1.0 / numPoints, points[i], centerofweight);
 
 	/* hash the plane */
+	VectorCopy(innormal, normal);
 	SnapPlane(normal, &dist, centerofweight);
 	hash = (PLANE_HASHES - 1) & (int)fabs(dist);
 
@@ -268,6 +270,7 @@ int FindFloatPlane(vec3_t normal, vec_t dist, int numPoints, vec3_t * points)
 {
 	int             i;
 	plane_t        *p;
+	vec3_t          normal;
 
 
 	vec3_t          centerofweight;
@@ -276,6 +279,7 @@ int FindFloatPlane(vec3_t normal, vec_t dist, int numPoints, vec3_t * points)
 	for(i = 0; i < numPoints; ++i)
 		VectorMA(centerofweight, 1.0 / numPoints, points[i], centerofweight);
 
+	VectorCopy(innormal, normal);
 	SnapPlane(normal, &dist, centerofweight);
 	for(i = 0, p = mapplanes; i < nummapplanes; i++, p++)
 	{
@@ -385,7 +389,9 @@ void SetBrushContents(brush_t * b)
 	{
 		s = &b->sides[i];
 		if(s->shaderInfo == NULL)
+		{
 			continue;
+		}
 
 		if(s->contentFlags != contentFlags || s->compileFlags != compileFlags)
 			mixed = qtrue;
@@ -745,7 +751,10 @@ brush_t        *FinishBrush(void)
 	}
 
 	/* add bevel planes */
-	AddBrushBevels();
+	if(convertType == CONVERT_NOTHING)
+	{
+		AddBrushBevels();
+	}
 
 	/* keep it */
 	b = CopyBrush(buildBrush);
@@ -777,6 +786,21 @@ brush_t        *FinishBrush(void)
 	{
 		b->nextColorModBrush = mapEnt->colorModBrushes;
 		mapEnt->colorModBrushes = b;
+	}
+
+	{
+		side_t         *s;
+		int             i;
+
+		/* get the content/compile flags for every side in the brush */
+		for(i = 0, s = &b->sides[0]; i < b->numsides; i++, s++)
+		{
+			s = &b->sides[i];
+			if(s->shaderInfo == NULL)
+			{
+				continue;
+			}
+		}
 	}
 
 	/* return to sender */
@@ -1060,7 +1084,7 @@ static void ParseRawBrush(qboolean onlyLights)
 		   was previously the content flags. and only then did a single bit matter, the detail
 		   bit. because every game has its own special flags for specifying detail, the
 		   traditionally game-specified CONTENTS_DETAIL flag was overridden for Q3Map 2.3.0
-		   by C_DETAIL, defined in xmap2.h. the value is exactly as it was before, but
+		   by C_DETAIL, defined in q3map2.h. the value is exactly as it was before, but
 		   is stored in compileFlags, as opposed to contentFlags, for multiple-game
 		   portability. :sigh:
 		 */
@@ -1575,7 +1599,7 @@ static qboolean ParseMapEntity(qboolean onlyLights)
 	entity_t       *otherEnt;
 	float           lightmapScale, shadeAngle;
 	int             lightmapSampleSize;
-	char            shader[MAX_QPATH];
+//	char            shader[MAX_QPATH];
 	shaderInfo_t   *celShader = NULL;
 	brush_t        *brush;
 	parseMesh_t    *patch;
@@ -1717,52 +1741,271 @@ static qboolean ParseMapEntity(qboolean onlyLights)
 	model = ValueForKey(mapEnt, "model");
 	GetVectorForKey(mapEnt, "origin", mapEnt->origin);
 
+	/* ydnar: determine if this is a func_group */
+	if(!Q_stricmp("func_group", classname))
+		funcGroup = qtrue;
+	else
+		funcGroup = qfalse;
+
+	if(convertType == CONVERT_QUAKE3)
+	{
+		// Tr3B: rename misc_model to func_static
 #if 0
-	/* Tr3B: rename targetname to name if necessary */
-	targetname = ValueForKey(mapEnt, "targetname");
-	if(targetname[0])
-	{
-		SetKeyValue(mapEnt, "name", targetname);
-		name = ValueForKey(mapEnt, "name");
-		RemoveKey(mapEnt, "targetname");
-	}
-
-
-	/* Tr3B: check for empty name */
-	if(!name[0] && numEntities != 1)
-	{
-		name = UniqueEntityName(mapEnt, classname);
-		if(!name[0])
-			xml_Select("UniqueEntityName failed", mapEnt->mapEntityNum, 0, qtrue);
-
-		SetKeyValue(mapEnt, "name", name);
-		name = ValueForKey(mapEnt, "name");
-	}
-
-	/* Tr3B: check for bad duplicated names */
-	for(i = 0; i < numEntities; i++)
-	{
-		otherEnt = &entities[i];
-
-		if(mapEnt == otherEnt)
-			continue;
-
-		name2 = ValueForKey(otherEnt, "name");
-
-		if(!Q_stricmp(name, name2))
+		if(!Q_stricmp("misc_model", classname) && model[0] != '\0')
 		{
-			xml_Select("duplicated entity name", mapEnt->mapEntityNum, 0, qfalse);
+			SetKeyValue(mapEnt, "classname", "func_static");
+		}
+#endif
 
+		/* Tr3B: rename targetname to name if necessary */
+		targetname = ValueForKey(mapEnt, "targetname");
+		if(targetname[0])
+		{
+			SetKeyValue(mapEnt, "name", targetname);
+			name = ValueForKey(mapEnt, "name");
+			RemoveKey(mapEnt, "targetname");
+		}
+
+		/* Tr3B: check for empty name */
+		if(!name[0] && numEntities != 1)
+		{
 			name = UniqueEntityName(mapEnt, classname);
 			if(!name[0])
+			{
+#if defined(USE_XML)
 				xml_Select("UniqueEntityName failed", mapEnt->mapEntityNum, 0, qtrue);
+#else
+				Error("Entity %i, Brush %i: UniqueEntityName failed\n", mapEnt->mapEntityNum, 0);
+#endif
+		}
 
 			SetKeyValue(mapEnt, "name", name);
 			name = ValueForKey(mapEnt, "name");
-			break;
+		}
+
+		/* Tr3B: check for bad duplicated names */
+		for(i = 0; i < numEntities; i++)
+		{
+			otherEnt = &entities[i];
+
+			if(mapEnt == otherEnt)
+				continue;
+
+			name2 = ValueForKey(otherEnt, "name");
+
+			if(!Q_stricmp(name, name2))
+			{
+#if defined(USE_XML)
+				xml_Select("duplicated entity name", mapEnt->mapEntityNum, 0, qfalse);
+#else
+				Sys_Printf("Entity %i, Brush %i: duplicated entity name\n", mapEnt->mapEntityNum, 0);
+#endif
+				name = UniqueEntityName(mapEnt, classname);
+				if(!name[0])
+				{
+#if defined(USE_XML)
+				xml_Select("UniqueEntityName failed", mapEnt->mapEntityNum, 0, qtrue);
+#else
+				Sys_Printf("Entity %i, Brush %i: UniqueEntityName failed\n", mapEnt->mapEntityNum, 0);
+#endif
+				}
+
+				SetKeyValue(mapEnt, "name", name);
+				name = ValueForKey(mapEnt, "name");
+				break;
+			}
+		}
+
+		// Tr3B
+		if(!model[0] && Q_stricmp("func_static", classname) && (mapEnt->brushes || mapEnt->patches) && numEntities != 1)
+		{
+			SetKeyValue(mapEnt, "model", name);
+			model = ValueForKey(mapEnt, "model");
+		}
+
+		// Tr3B: move modelscale to rotation key because DarkRadiant does not support modelscale
+		#if 1
+		if(!Q_stricmp("misc_model", classname))
+		{
+			vec_t			temp;
+			vec3_t          angles, scale;
+			matrix_t        rotation, rotationScaled;
+
+			/* get "angle" (yaw) or "angles" (pitch yaw roll) */
+			MatrixIdentity(rotation);
+			angles[0] = angles[1] = angles[2] = 0.0f;
+
+			value = ValueForKey(mapEnt, "angle");
+			if(value[0] != '\0')
+			{
+				angles[1] = atof(value);
+				MatrixFromAngles(rotation, angles[PITCH], angles[YAW], angles[ROLL]);
+				RemoveKey(mapEnt, "angle");
+			}
+
+			value = ValueForKey(mapEnt, "angles");
+			if(value[0] != '\0')
+			{
+				sscanf(value, "%f %f %f", &angles[0], &angles[1], &angles[2]);
+				MatrixFromAngles(rotation, angles[PITCH], angles[YAW], angles[ROLL]);
+				RemoveKey(mapEnt, "angles");
+			}
+
+			value = ValueForKey(mapEnt, "rotation");
+			if(value[0] != '\0')
+			{
+				sscanf(value, "%f %f %f %f %f %f %f %f %f", &rotation[0], &rotation[1], &rotation[2],
+					   &rotation[4], &rotation[5], &rotation[6], &rotation[8], &rotation[9], &rotation[10]);
+			}
+
+			/* get scale */
+			MatrixCopy(rotation, rotationScaled);
+
+			scale[0] = scale[1] = scale[2] = 1.0f;
+			temp = FloatForKey(mapEnt, "modelscale");
+			if(temp != 0.0f)
+			{
+				scale[0] = scale[1] = scale[2] = temp;
+				RemoveKey(mapEnt, "modelscale");
+			}
+			value = ValueForKey(mapEnt, "modelscale_vec");
+			if(value[0] != '\0')
+			{
+				sscanf(value, "%f %f %f", &scale[0], &scale[1], &scale[2]);
+				RemoveKey(mapEnt, "modelscale_vec");
+			}
+
+			MatrixMultiplyScale(rotationScaled, scale[0], scale[1], scale[2]);
+
+			SetKeyValue(mapEnt, "rotation", va("%f %f %f %f %f %f %f %f %f", rotationScaled[0], rotationScaled[1], rotationScaled[2],
+				   rotationScaled[4], rotationScaled[5], rotationScaled[6], rotationScaled[8], rotationScaled[9], rotationScaled[10]));
+		}
+		#endif
+
+		// Tr3B: move detail brushes from world spawn into separate func_static
+		// or the detail brush flags will be lost and the brushes will generate really many bsp splits
+		if(numEntities == 1 || funcGroup)
+		{
+			brush_t        *b, *prev, *next;
+			GSList         *structuralBrushes = NULL;
+			GSList         *detailBrushes = NULL;
+			guint			numDetailBrushes;
+
+			memset(&convertDetailBrushesEntity, 0, sizeof(convertDetailBrushesEntity));
+
+			if(funcGroup)
+			{
+				epair_t        *ep;
+				const char     *name;
+
+				// duplicate epairs
+				for(ep = mapEnt->epairs; ep != NULL; ep = ep->next)
+				{
+					SetKeyValue(&convertDetailBrushesEntity, ep->key, ep->value);
+				}
+
+				name = ValueForKey(mapEnt, "name");
+				SetKeyValue(&convertDetailBrushesEntity, "name", va("%s_detail", name));
+				SetKeyValue(&convertDetailBrushesEntity, "model", va("%s_detail", name));
+			}
+			else
+			{
+				// processing worldspawn entity
+				SetKeyValue(&convertDetailBrushesEntity, "classname", "func_static");
+				SetKeyValue(&convertDetailBrushesEntity, "name", "worldspawn_detail_brushes_0");
+				SetKeyValue(&convertDetailBrushesEntity, "model", "worldspawn_detail_brushes_0");
+				SetKeyValue(&convertDetailBrushesEntity, "description", "Generated by ETXMap (XreaL)");
+			}
+
+			// move brushes
+			for(b = mapEnt->brushes, prev = NULL; b != NULL; b = next)
+			{
+				// get next brush
+				next = b->next;
+
+				if(b->compileFlags & C_DETAIL)
+				{
+					detailBrushes = g_slist_append(detailBrushes, b);
+				}
+				else
+				{
+					structuralBrushes = g_slist_append(structuralBrushes, b);
+				}
+
+				numDetailBrushes = g_list_length(detailBrushes);
+			}
+
+			// add detail brushes to new func_static entity
+			while(detailBrushes)
+			{
+				b = (brush_t*) detailBrushes->data;
+
+				// link opaque brushes to head of list, translucent brushes to end
+				if(b->opaque || convertDetailBrushesEntity.lastBrush == NULL)
+				{
+					b->next = convertDetailBrushesEntity.brushes;
+					convertDetailBrushesEntity.brushes = b;
+					if(convertDetailBrushesEntity.lastBrush == NULL)
+						convertDetailBrushesEntity.lastBrush = b;
+				}
+				else
+				{
+					b->next = NULL;
+					convertDetailBrushesEntity.lastBrush->next = b;
+					convertDetailBrushesEntity.lastBrush = b;
+				}
+
+				// link colorMod volume brushes to the entity directly
+				if(b->contentShader != NULL && b->contentShader->colorMod != NULL && b->contentShader->colorMod->type == CM_VOLUME)
+				{
+					b->nextColorModBrush = convertDetailBrushesEntity.colorModBrushes;
+					convertDetailBrushesEntity.colorModBrushes = b;
+				}
+				
+				detailBrushes = g_slist_remove(detailBrushes, detailBrushes->data);
+			}
+
+			mapEnt->brushes = NULL;
+			mapEnt->colorModBrushes = NULL;
+
+			// readd structural brushes to current entity
+			while(structuralBrushes)
+			{
+				b = (brush_t*) structuralBrushes->data;
+
+				// link opaque brushes to head of list, translucent brushes to end
+				if(b->opaque || mapEnt->lastBrush == NULL)
+				{
+					b->next = mapEnt->brushes;
+					mapEnt->brushes = b;
+					if(mapEnt->lastBrush == NULL)
+						mapEnt->lastBrush = b;
+				}
+				else
+				{
+					b->next = NULL;
+					mapEnt->lastBrush->next = b;
+					mapEnt->lastBrush = b;
+				}
+
+				// link colorMod volume brushes to the entity directly
+				if(b->contentShader != NULL && b->contentShader->colorMod != NULL && b->contentShader->colorMod->type == CM_VOLUME)
+				{
+					b->nextColorModBrush = mapEnt->colorModBrushes;
+					mapEnt->colorModBrushes = b;
+				}
+				
+				structuralBrushes = g_slist_remove(structuralBrushes, structuralBrushes->data);
+			}
 		}
 	}
-#endif
+
+
+	if(model[0] && !Q_stricmp("func_group", classname) && !mapEnt->brushes && !mapEnt->patches)
+	{
+		RemoveKey(mapEnt, "model");
+	}
+
 
 	/* ydnar: only lights? */
 	if(onlyLights && Q_strncasecmp(classname, "light", 5))
@@ -1770,12 +2013,6 @@ static qboolean ParseMapEntity(qboolean onlyLights)
 		numEntities--;
 		return qtrue;
 	}
-
-	/* ydnar: determine if this is a func_group */
-	if(!Q_stricmp("func_group", classname))
-		funcGroup = qtrue;
-	else
-		funcGroup = qfalse;
 
 	/* worldspawn (and func_groups) default to cast/recv shadows in worldspawn group */
 	if(funcGroup || mapEnt->mapEntityNum == 0)
@@ -1814,18 +2051,8 @@ static qboolean ParseMapEntity(qboolean onlyLights)
 			Sys_Printf("Entity %d (%s) has lightmap scale of %.4f\n", mapEnt->mapEntityNum, classname, lightmapScale);
 	}
 
-	/* ydnar: get cel shader :) for this entity */
-	value = ValueForKey(mapEnt, "_celshader");
-	if(value[0] == '\0')
-		value = ValueForKey(&entities[0], "_celshader");
-	if(value[0] != '\0')
-	{
-		sprintf(shader, "textures/%s", value);
-		celShader = ShaderInfoForShader(shader);
-		Sys_Printf("Entity %d (%s) has cel shader %s\n", mapEnt->mapEntityNum, classname, celShader->shader);
-	}
-	else
-		celShader = NULL;
+	// Tr3B: removed cel shader support
+	celShader = NULL;
 
 	/* jal : entity based _shadeangle */
 	shadeAngle = 0.0f;
@@ -1881,7 +2108,7 @@ static qboolean ParseMapEntity(qboolean onlyLights)
 	}
 
 	/* Tr3B: convert Doom3's func_static entities with custom models into misc_models */
-	if(!Q_stricmp("func_static", classname) && !mapEnt->brushes && !mapEnt->patches && model[0] != '\0')
+	if(convertType == CONVERT_NOTHING && !Q_stricmp("func_static", classname) && !mapEnt->brushes && !mapEnt->patches && model[0] != '\0')
 	{
 		SetKeyValue(mapEnt, "classname", "misc_model");
 	}
@@ -1897,16 +2124,17 @@ static qboolean ParseMapEntity(qboolean onlyLights)
 
 #if 0
 	// HACK:
-	if(!Q_stricmp("func_rotating", classname) && !mapEnt->brushes && !mapEnt->patches && model[0] != '\0')
+	if(!Q_stricmp("func_rotating", classname))// && !mapEnt->brushes && !mapEnt->patches && model[0] != '\0')
 	{
-		numEntities--;
-		return qtrue;
+		Sys_Printf(".\n");
+		//numEntities--;
+		//return qtrue;
 	}
 #endif
 
 #if 1
 	// HACK: determine if this is a func_static that can be merged into worldspawn
-	if(!Q_stricmp("func_static", classname) && name[0] != '\0' && model[0] != '\0' && !Q_stricmp(name, model))
+	if(convertType == CONVERT_NOTHING && !Q_stricmp("func_static", classname) && name[0] != '\0' && model[0] != '\0' && !Q_stricmp(name, model))
 	{
 		brush_t        *brush;
 		vec3_t          originNeg;
@@ -1961,18 +2189,22 @@ static qboolean ParseMapEntity(qboolean onlyLights)
 	}
 #endif
 
-	/* get entity origin and adjust brushes */
+	// Tr3B: moved this up before SetEntityBounds() is called
+	// move brushes and patches from world space into entity space
 	if(mapEnt->origin[0] || mapEnt->origin[1] || mapEnt->origin[2])
 	{
-		if((name[0] != '\0' && model[0] != '\0' && !Q_stricmp(name, model)))
+		if(mapEnt->brushes || mapEnt->patches)
 		{
-			AdjustBrushesForOrigin(mapEnt, vec3_origin);
-			AdjustPatchesForOrigin(mapEnt, mapEnt->origin);
-		}
-		else
-		{
-			AdjustBrushesForOrigin(mapEnt, mapEnt->origin);
-			AdjustPatchesForOrigin(mapEnt, mapEnt->origin);
+			if(convertType != CONVERT_QUAKE3 && (name[0] != '\0' && model[0] != '\0' && !Q_stricmp(name, model)))
+			{
+				AdjustBrushesForOrigin(mapEnt, vec3_origin);
+				AdjustPatchesForOrigin(mapEnt, mapEnt->origin);
+			}
+			else
+			{
+				AdjustBrushesForOrigin(mapEnt, mapEnt->origin);
+				AdjustPatchesForOrigin(mapEnt, mapEnt->origin);
+			}
 		}
 	}
 
@@ -1983,14 +2215,14 @@ static qboolean ParseMapEntity(qboolean onlyLights)
 	LoadEntityIndexMap(mapEnt);
 
 	/* group_info entities are just for editor grouping (fixme: leak!) */
-	if(!Q_stricmp("group_info", classname))
+	if(convertType == CONVERT_NOTHING && !Q_stricmp("group_info", classname))
 	{
 		numEntities--;
 		return qtrue;
 	}
 
 	/* group entities are just for editor convenience, toss all brushes into worldspawn */
-	if(funcGroup)
+	if(convertType == CONVERT_NOTHING && funcGroup)
 	{
 		vec3_t          originNeg;
 
@@ -1999,10 +2231,38 @@ static qboolean ParseMapEntity(qboolean onlyLights)
 		AdjustBrushesForOrigin(mapEnt, originNeg);
 		AdjustPatchesForOrigin(mapEnt, originNeg);
 
+		// group entities should always contain detail brushes
+		#if 0
+		for(brush = mapEnt->brushes; brush != NULL; brush = brush->next)
+		{
+			if(!(brush->compileFlags & C_DETAIL) || !brush->detail)
+			{
+				c_detail++;
+				c_structural--;
+				brush->detail = qtrue;
+				brush->compileFlags |= C_DETAIL;
+			}
+		}
+		#endif
+
 		MoveBrushesToWorld(mapEnt);
 		MovePatchesToWorld(mapEnt);
 		numEntities--;
 		return qtrue;
+	}
+
+	// Tr3B: append temporary func_group containing the detail brushes
+	if(convertDetailBrushesEntity.lastBrush != NULL)
+	{
+		mapEnt = &entities[numEntities];
+		numEntities++;
+		memcpy(mapEnt, &convertDetailBrushesEntity, sizeof(*mapEnt));
+
+		memset(&convertDetailBrushesEntity, 0, sizeof(convertDetailBrushesEntity));
+
+		// true entity numbering
+		mapEnt->mapEntityNum = numMapEntities;
+		numMapEntities++;
 	}
 
 	/* done */

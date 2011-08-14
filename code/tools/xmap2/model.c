@@ -34,7 +34,7 @@ several games based on the Quake III Arena engine, in the form of "Q3Map2."
 
 
 /* dependencies */
-#include "xmap2.h"
+#include "q3map2.h"
 
 
 
@@ -323,7 +323,7 @@ void InsertModel(char *name, int frame, matrix_t transform, matrix_t nTransform,
 			si = ShaderInfoForShader(picoShaderName);
 
 			// Tr3B: HACK to support the messy Doom 3 materials provided by .ASE files
-			if(!si->explicit)
+			if(!si->explicitDef)
 			{
 				picoShaderName = PicoGetShaderMapName(shader);
 
@@ -546,8 +546,12 @@ void InsertModel(char *name, int frame, matrix_t transform, matrix_t nTransform,
 					buildBrush->contentShader = si;
 					buildBrush->compileFlags = si->compileFlags;
 					buildBrush->contentFlags = si->contentFlags;
+
+					buildBrush->generatedClipBrush = qtrue;
+
 					normalEpsilon_save = normalEpsilon;
 					distanceEpsilon_save = distanceEpsilon;
+
 					if(si->compileFlags & C_STRUCTURAL)	// allow forced structural brushes here
 					{
 						buildBrush->detail = qfalse;
@@ -950,7 +954,7 @@ void AddTriangleModels(entity_t * e)
 		temp = FloatForKey(e2, "modelscale");
 		if(temp != 0.0f)
 			scale[0] = scale[1] = scale[2] = temp;
-		value = ValueForKey(e, "modelscale_vec");
+		value = ValueForKey(e2, "modelscale_vec");
 		if(value[0] != '\0')
 			sscanf(value, "%f %f %f", &scale[0], &scale[1], &scale[2]);
 

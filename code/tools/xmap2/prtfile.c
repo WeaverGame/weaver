@@ -1,6 +1,6 @@
 /* -------------------------------------------------------------------------------
 
-Copyright (C) 1999-2006 Id Software, Inc. and contributors.
+Copyright (C) 1999-2007 id Software, Inc. and contributors.
 For a list of contributors, see the accompanying CONTRIBUTORS file.
 
 This file is part of GtkRadiant.
@@ -34,7 +34,7 @@ several games based on the Quake III Arena engine, in the form of "Q3Map2."
 
 
 /* dependencies */
-#include "xmap2.h"
+#include "q3map2.h"
 
 
 
@@ -279,8 +279,9 @@ NumberLeafs_r
 */
 void NumberLeafs_r(node_t * node, int c)
 {
+#if 0
 	portal_t       *p;
-
+#endif
 	if(node->planenum != PLANENUM_LEAF)
 	{
 		// decision node
