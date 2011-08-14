@@ -32,6 +32,9 @@ vec4_t          redTeamColor = { 1.0f, 0.0f, 0.1f, 0.95f };
 vec4_t          blueTeamColor = { 0.1f, 0.0f, 1.0f, 0.95f };
 vec4_t          baseTeamColor = { 1.0f, 1.0f, 1.0f, 0.80f };
 
+
+
+
 int             drawTeamOverlayModificationCount = -1;
 
 int             sortedTeamPlayers[TEAM_MAXOVERLAY];
