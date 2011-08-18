@@ -293,4 +293,14 @@ void	main()
 	
 	
 #endif // USE_NORMAL_MAPPING
+
+#if 0
+#if defined(USE_PARALLAX_MAPPING)
+	gl_FragColor = vec4(vec3(1.0, 0.0, 0.0), 1.0);
+#elif defined(USE_NORMAL_MAPPING)
+	gl_FragColor = vec4(vec3(0.0, 0.0, 1.0), 1.0);
+#else
+	gl_FragColor = vec4(vec3(0.0, 1.0, 0.0), 1.0);
+#endif
+#endif
 }

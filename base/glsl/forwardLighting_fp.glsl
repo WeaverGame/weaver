@@ -144,6 +144,7 @@ sigma = standard deviation
 Pr(X -mu >= k * sigma) <= 1 / ( 1 + k^2)
 */
 
+#if defined(VSM) || defined(EVSM)
 float ChebyshevUpperBound(vec2 shadowMoments, float vertexDistance, float minVariance)
 {
 	float shadowDistance = shadowMoments.x;
@@ -153,7 +154,7 @@ float ChebyshevUpperBound(vec2 shadowMoments, float vertexDistance, float minVar
 	float E_x2 = shadowDistanceSquared;
 	float Ex_2 = shadowDistance * shadowDistance;
 
-	float variance = max(E_x2 - Ex_2, minVariance);
+	float variance = max(E_x2 - Ex_2, max(minVariance, VSM_EPSILON));
 	// float variance = smoothstep(minVariance, 1.0, max(E_x2 - Ex_2, 0.0));
 
 	// compute probabilistic upper bound
@@ -169,9 +170,10 @@ float ChebyshevUpperBound(vec2 shadowMoments, float vertexDistance, float minVar
 	// one-tailed Chebyshev with k > 0
 	return (vertexDistance <= shadowDistance ? 1.0 : pMax);
 }
+#endif
+
 
 #if defined(EVSM)
-
 vec2 WarpDepth(float depth)
 {
     // rescale depth into [-1, 1]
@@ -187,7 +189,6 @@ vec4 ShadowDepthToEVSM(float depth)
 	vec2 warpedDepth = WarpDepth(depth);
 	return vec4(warpedDepth.xy, warpedDepth.xy * warpedDepth.xy);
 }
-
 #endif // #if defined(EVSM)
 
 

@@ -276,8 +276,8 @@ void FetchShadowMoments(vec3 Pworld, inout vec4 shadowVert, inout vec4 shadowMom
 	}
 #endif
 
-#if defined(EVSM)
-	shadowMoments = ShadowDepthToEVSM(shadowMoments.a);
+#if defined(EVSM) && defined(r_EVSMPostProcess)
+	shadowMoments = ShadowDepthToEVSM(shadowMoments.x);
 #endif
 
 	// return shadowMoments;
@@ -338,7 +338,7 @@ vec4 PCF(vec3 Pworld, float filterWidth, float samples)
 
 vec4 FetchShadowMoments(vec2 st)
 {
-#if defined(EVSM)
+#if defined(EVSM) && defined(r_EVSMPostProcess)
 	return ShadowDepthToEVSM(texture2D(u_ShadowMap0, st).a);
 #else
 	return texture2D(u_ShadowMap0, st);
@@ -386,7 +386,7 @@ vec4 PCF(vec4 shadowVert, float filterWidth, float samples)
 
 vec4 FetchShadowMoments(vec3 I)
 {
-#if defined(EVSM)
+#if defined(EVSM) && defined(r_EVSMPostProcess)
 	return ShadowDepthToEVSM(textureCube(u_ShadowMap, I).a);
 #else
 	return textureCube(u_ShadowMap, I);
@@ -887,7 +887,39 @@ void	main()
 	#endif
 #endif
 
-#if defined(VSM)
+
+
+
+#if defined(ESM)
+	{		
+		const float	SHADOW_BIAS = 0.001;
+		
+#if defined(LIGHT_DIRECTIONAL)
+		float vertexDistance = shadowVert.z - SHADOW_BIAS; // * r_ShadowMapDepthScale;
+#else
+		float vertexDistance = (length(I) / u_LightRadius) - SHADOW_BIAS; // * r_ShadowMapDepthScale;
+#endif
+		
+		float shadowDistance = shadowMoments.a;
+		
+		// standard shadow mapping
+		shadow = vertexDistance <= shadowDistance ? 1.0 : 0.0;
+		
+		// exponential shadow mapping
+		// shadow = clamp(exp(r_OverDarkeningFactor * (shadowDistance - log(vertexDistance))), 0.0, 1.0);
+		// shadow = clamp(exp(r_OverDarkeningFactor * shadowDistance) * exp(-r_OverDarkeningFactor * vertexDistance), 0.0, 1.0);
+		// shadow = smoothstep(0.0, 1.0, shadow);
+		
+		#if defined(r_DebugShadowMaps)
+		#extension GL_EXT_gpu_shader4 : enable
+		gl_FragColor.r = (r_DebugShadowMaps & 1) != 0 ? shadowDistance : 0.0;
+		gl_FragColor.g = (r_DebugShadowMaps & 2) != 0 ? -(shadowDistance - vertexDistance) : 0.0;
+		gl_FragColor.b = (r_DebugShadowMaps & 4) != 0 ? shadow : 0.0;
+		gl_FragColor.a = 1.0;
+		return;
+		#endif
+	}
+#elif defined(VSM)
 	{
 		#if defined(VSM_CLAMP)
 		// convert to [-1, 1] vector space
@@ -909,7 +941,7 @@ void	main()
 		const float	SHADOW_BIAS = 0.001;
 		
 #if defined(LIGHT_DIRECTIONAL)
-		float vertexDistance = shadowVert.z - SHADOW_BIAS;
+		float vertexDistance = shadowVert.z - 0.0001;
 #else
 		float vertexDistance = (length(I) / u_LightRadius) - SHADOW_BIAS; // * r_ShadowMapDepthScale;// - SHADOW_BIAS;
 #endif
@@ -925,17 +957,17 @@ void	main()
 		
 		shadow = min(posContrib, negContrib);
 		
-		#if defined(DEBUG_EVSM)
+		#if defined(r_DebugShadowMaps)
 		#extension GL_EXT_gpu_shader4 : enable
-		gl_FragColor.r = (DEBUG_EVSM & 1) != 0 ? posContrib : 0.0;
-		gl_FragColor.g = (DEBUG_EVSM & 2) != 0 ? negContrib : 0.0;
-		gl_FragColor.b = (DEBUG_EVSM & 4) != 0 ? shadow : 0.0;
+		gl_FragColor.r = (r_DebugShadowMaps & 1) != 0 ? posContrib : 0.0;
+		gl_FragColor.g = (r_DebugShadowMaps & 2) != 0 ? negContrib : 0.0;
+		gl_FragColor.b = (r_DebugShadowMaps & 4) != 0 ? shadow : 0.0;
 		gl_FragColor.a = 1.0;
 		return;
 		#endif
 		
 	}
-#endif // ESM
+#endif
 
 	if(shadow <= 0.0)
 	{

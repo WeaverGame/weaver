@@ -1307,22 +1307,6 @@ void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 		image->uploadHeight = scaledHeight;
 		image->internalFormat = internalFormat;
 
-		if(image->filterType == FT_DEFAULT)
-		{
-			if(glConfig.driverType == GLDRV_OPENGL3)// || glConfig2.framebufferObjectAvailable)
-			{
-				glGenerateMipmap(image->type);
-				glTexParameteri(image->type, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);	// default to trilinear
-			}
-			else if(glConfig2.generateMipmapAvailable)
-		{
-			// raynorpat: if hardware mipmap generation is available, use it
-			//glHint(GL_GENERATE_MIPMAP_HINT_SGIS, GL_NICEST);	// make sure its nice
-			glTexParameteri(image->type, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
-			glTexParameteri(image->type, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);	// default to trilinear
-		}
-		}
-
 		switch (image->type)
 		{
 			case GL_TEXTURE_CUBE_MAP_ARB:
@@ -1340,6 +1324,22 @@ void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 					glTexImage2D(target, 0, internalFormat, scaledWidth, scaledHeight, 0, format, GL_UNSIGNED_BYTE, scaledBuffer);
 				}
 				break;
+		}
+
+		if(image->filterType == FT_DEFAULT)
+		{
+			if(glConfig.driverType == GLDRV_OPENGL3 || glConfig2.framebufferObjectAvailable)
+			{
+				glGenerateMipmap(image->type);
+				glTexParameteri(image->type, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);	// default to trilinear
+			}
+			else if(glConfig2.generateMipmapAvailable)
+			{
+				// raynorpat: if hardware mipmap generation is available, use it
+				//glHint(GL_GENERATE_MIPMAP_HINT_SGIS, GL_NICEST);	// make sure its nice
+				glTexParameteri(image->type, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
+				glTexParameteri(image->type, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);	// default to trilinear
+			}
 		}
 
 		if(glConfig.driverType != GLDRV_OPENGL3 && !glConfig2.framebufferObjectAvailable && !glConfig2.generateMipmapAvailable)
@@ -1911,8 +1911,8 @@ typedef struct
 // Note that the ordering indicates the order of preference used
 // when there are multiple images of different formats available
 static imageExtToLoaderMap_t imageLoaders[] = {
-	{"tga", LoadTGA},
 	{"png", LoadPNG},
+	{"tga", LoadTGA},
 	{"jpg", LoadJPG},
 	{"jpeg", LoadJPG},
 //	{"dds", LoadDDS},	// need to write some direct uploader routines first

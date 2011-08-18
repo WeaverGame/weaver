@@ -87,6 +87,8 @@ typedef unsigned short glIndex_t;
 
 #define GLSL_COMPILE_STARTUP_ONLY 1
 
+//#define USE_BSP_CLUSTERSURFACE_MERGING 1
+
 typedef enum
 {
 	DS_DISABLED,				// traditional Doom 3 style rendering
@@ -1310,11 +1312,11 @@ enum
 
 #if !defined(COMPAT_Q3A) && !defined(COMPAT_ET)
 				ATTR_PAINTCOLOR |
-				ATTR_LIGHTDIRECTION |
+				ATTR_LIGHTDIRECTION// |
 #endif
 
-				ATTR_BONE_INDEXES |
-				ATTR_BONE_WEIGHTS
+				//ATTR_BONE_INDEXES |
+				//ATTR_BONE_WEIGHTS
 };
 
 // Tr3B - shaderProgram_t represents a pair of one
@@ -1376,12 +1378,6 @@ typedef struct shaderProgram_s
 	vec3_t			t_ViewOrigin;
 
 	GLint			u_DeformParms;
-
-	int32_t         u_ColorGen;
-	colorGen_t		t_ColorGen;
-
-	int32_t         u_AlphaGen;
-	alphaGen_t		t_AlphaGen;
 
 	int32_t         u_Color;
 	vec4_t			t_Color;
@@ -2953,6 +2949,7 @@ typedef struct bspNode_s
 	bspSurface_t  **markSurfaces;
 } bspNode_t;
 
+#if defined(USE_BSP_CLUSTERSURFACE_MERGING)
 typedef struct
 {
 	int             numMarkSurfaces;
@@ -2960,6 +2957,7 @@ typedef struct
 
 	vec3_t			origin;		// used for cubemaps
 } bspCluster_t;
+#endif
 
 /*
 typedef struct
@@ -3077,13 +3075,17 @@ typedef struct
 	interactionCache_t **interactions;
 
 	int             numClusters;
+#if defined(USE_BSP_CLUSTERSURFACE_MERGING)
 	bspCluster_t   *clusters;
+#endif
 	int             clusterBytes;
 	const byte     *vis;		// may be passed in by CM_LoadMap to save space
 	byte           *novis;		// clusterBytes of 0xff
 
+#if defined(USE_BSP_CLUSTERSURFACE_MERGING)
 	int             numClusterVBOSurfaces[MAX_VISCOUNTS];
 	growList_t      clusterVBOSurfaces[MAX_VISCOUNTS];	// updated every time when changing the view cluster
+#endif
 
 	char           *entityString;
 	char           *entityParsePoint;
@@ -4145,10 +4147,12 @@ extern cvar_t  *r_vboVertexSkinning;
 extern cvar_t  *r_vboDeformVertexes;
 extern cvar_t  *r_vboSmoothNormals;
 
+#if defined(USE_BSP_CLUSTERSURFACE_MERGING)
 extern cvar_t  *r_mergeClusterSurfaces;
 extern cvar_t  *r_mergeClusterFaces;
 extern cvar_t  *r_mergeClusterCurves;
 extern cvar_t  *r_mergeClusterTriangles;
+#endif
 
 extern cvar_t  *r_deferredShading;
 extern cvar_t  *r_parallaxMapping;

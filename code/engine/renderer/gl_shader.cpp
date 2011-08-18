@@ -1122,7 +1122,8 @@ void GLShader::BindProgram()
 	if(_currentProgram->program == 0)
 	{
 		std::string activeMacros = "";
-		for(size_t j = 0; j < _compileMacros.size(); j++)
+		size_t numMacros = _compileMacros.size();
+		for(size_t j = 0; j < numMacros; j++)
 		{
 			GLCompileMacro* macro = _compileMacros[j];
 
@@ -1145,7 +1146,8 @@ void GLShader::BindProgram()
 void GLShader::SetRequiredVertexPointers()
 {
 	uint32_t macroVertexAttribs = 0;
-	for(size_t j = 0; j < _compileMacros.size(); j++)
+	size_t numMacros = _compileMacros.size();
+	for(size_t j = 0; j < numMacros; j++)
 	{
 		GLCompileMacro* macro = _compileMacros[j];
 

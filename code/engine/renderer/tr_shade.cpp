@@ -1428,7 +1428,10 @@ void GLSL_ShutdownGPUShaders(void)
 #endif // #if !defined(GLSL_COMPILE_STARTUP_ONLY)
 
 	glState.currentProgram = 0;
-	glUseProgramObjectARB(0);
+	if(glUseProgramObjectARB != NULL)
+	{
+		glUseProgramObjectARB(0);
+	}
 }
 
 /*
@@ -2102,7 +2105,7 @@ static void Render_vertexLighting_DBS_world(int stage)
 
 	stateBits = pStage->stateBits;
 
-	bool normalMapping = r_normalMapping->integer && (pStage->bundle[TB_NORMALMAP].image[0] != NULL);
+	bool normalMapping = tr.worldDeluxeMapping && r_normalMapping->integer && (pStage->bundle[TB_NORMALMAP].image[0] != NULL);
 
 	// choose right shader program ----------------------------------
 	gl_vertexLightingShader_DBS_world->SetPortalClipping(backEnd.viewParms.isPortal);

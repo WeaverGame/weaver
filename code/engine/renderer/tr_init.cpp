@@ -267,10 +267,12 @@ cvar_t         *r_vboVertexSkinning;
 cvar_t         *r_vboDeformVertexes;
 cvar_t         *r_vboSmoothNormals;
 
+#if defined(USE_BSP_CLUSTERSURFACE_MERGING)
 cvar_t         *r_mergeClusterSurfaces;
 cvar_t         *r_mergeClusterFaces;
 cvar_t         *r_mergeClusterCurves;
 cvar_t         *r_mergeClusterTriangles;
+#endif
 
 cvar_t         *r_deferredShading;
 cvar_t         *r_parallaxMapping;
@@ -622,18 +624,18 @@ static void RB_TakeScreenshotJPEG(int x, int y, int width, int height, char *fil
 {
 	byte           *buffer;
 
-	buffer = (byte*) ri.Hunk_AllocateTempMemory(glConfig.vidWidth * glConfig.vidHeight * 4);
+	buffer = (byte*) ri.Hunk_AllocateTempMemory(glConfig.vidWidth * glConfig.vidHeight * 3);
 
 #if defined(USE_D3D10)
 	// TODO
 #else
-	glReadPixels(x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+	glReadPixels(x, y, width, height, GL_RGB, GL_UNSIGNED_BYTE, buffer);
 #endif
 
 	// gamma correct
 	if((tr.overbrightBits > 0) && glConfig.deviceSupportsGamma)
 	{
-		R_GammaCorrect(buffer, glConfig.vidWidth * glConfig.vidHeight * 4);
+		R_GammaCorrect(buffer, glConfig.vidWidth * glConfig.vidHeight * 3);
 	}
 
 	ri.FS_WriteFile(fileName, buffer, 1);	// create path
@@ -1358,12 +1360,12 @@ R_Register
 */
 void R_Register(void)
 {
-#if defined(_WIN32)
-	r_glCoreProfile = ri.Cvar_Get("r_glCoreProfile", "1", CVAR_INIT);
-#else
+//#if defined(_WIN32)
+//	r_glCoreProfile = ri.Cvar_Get("r_glCoreProfile", "1", CVAR_INIT);
+//#else
 	// most open source Linux drivers don't support OpenGL 3
 	r_glCoreProfile = ri.Cvar_Get("r_glCoreProfile", "0", CVAR_INIT);
-#endif
+//#endif
 
 	r_glMinMajorVersion = ri.Cvar_Get("r_glMinMajorVersion", "3", CVAR_LATCH);
 	r_glMinMinorVersion = ri.Cvar_Get("r_glMinMinorVersion", "2", CVAR_LATCH);
@@ -1501,10 +1503,12 @@ void R_Register(void)
 	r_vboDeformVertexes = ri.Cvar_Get("r_vboDeformVertexes", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	r_vboSmoothNormals = ri.Cvar_Get("r_vboSmoothNormals", "1", CVAR_ARCHIVE | CVAR_LATCH);
 
+#if defined(USE_BSP_CLUSTERSURFACE_MERGING)
 	r_mergeClusterSurfaces = ri.Cvar_Get("r_mergeClusterSurfaces", "0", CVAR_CHEAT);
 	r_mergeClusterFaces = ri.Cvar_Get("r_mergeClusterFaces", "1", CVAR_CHEAT);
 	r_mergeClusterCurves = ri.Cvar_Get("r_mergeClusterCurves", "1", CVAR_CHEAT);
 	r_mergeClusterTriangles = ri.Cvar_Get("r_mergeClusterTriangles", "1", CVAR_CHEAT);
+#endif
 
 	r_dynamicBspOcclusionCulling = ri.Cvar_Get("r_dynamicBspOcclusionCulling", "0", CVAR_ARCHIVE);
 	r_dynamicEntityOcclusionCulling = ri.Cvar_Get("r_dynamicEntityOcclusionCulling", "0", CVAR_CHEAT);
@@ -1524,9 +1528,9 @@ void R_Register(void)
 
 	r_hdrMinLuminance = ri.Cvar_Get("r_hdrMinLuminance", "0.18", CVAR_CHEAT);
 	r_hdrMaxLuminance = ri.Cvar_Get("r_hdrMaxLuminance", "3000", CVAR_CHEAT);
-	r_hdrKey = ri.Cvar_Get("r_hdrKey", "0.72", CVAR_CHEAT);
-	r_hdrContrastThreshold = ri.Cvar_Get("r_hdrContrastThreshold", "3.0", CVAR_CHEAT);
-	r_hdrContrastOffset = ri.Cvar_Get("r_hdrContrastOffset", "6.0", CVAR_CHEAT);
+	r_hdrKey = ri.Cvar_Get("r_hdrKey", "0.28", CVAR_CHEAT);
+	r_hdrContrastThreshold = ri.Cvar_Get("r_hdrContrastThreshold", "1.3", CVAR_CHEAT);
+	r_hdrContrastOffset = ri.Cvar_Get("r_hdrContrastOffset", "3.0", CVAR_CHEAT);
 	r_hdrLightmap = ri.Cvar_Get("r_hdrLightmap", "1", CVAR_CHEAT | CVAR_LATCH);
 	r_hdrLightmapExposure = ri.Cvar_Get("r_hdrLightmapExposure", "1.0", CVAR_CHEAT | CVAR_LATCH);
 	r_hdrLightmapGamma = ri.Cvar_Get("r_hdrLightmapGamma", "1.7", CVAR_CHEAT | CVAR_LATCH);
