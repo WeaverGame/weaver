@@ -157,7 +157,6 @@ project "XreaL"
 	includedirs
 	{
 		"../shared",
-		"../libs/sdl/include",
 		"../libs/zlib",
 		"../libs/glew/include",
 		"../libs/freetype/include",
@@ -275,6 +274,10 @@ project "XreaL"
 			--"win32/win_glimp.c",
 			--"win32/win_eh.cpp",
 		}
+		includedirs
+		{
+			"../libs/sdl/include",
+		}
 		libdirs
 		{
 			--"../libs/curl-7.12.2/lib"
@@ -360,6 +363,8 @@ project "XreaL"
 			"sys/sys_unix.c",
 			"sys/con_log.c",
 			"sys/con_passive.c",
+			"sys/sdl_gamma.c",
+			"sys/sdl_glimp.c",
 			"sys/sdl_input.c",
 			"sys/sdl_snd.c",
 			"../libs/glew/src/glew.c",
