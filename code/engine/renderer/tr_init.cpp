@@ -1027,7 +1027,7 @@ const void     *RB_TakeVideoFrameCmd(const void *data)
 	// video recording
 	if(ri.CL_VideoRecording())
 	{
-		glReadPixels(0, 0, cmd->width, cmd->height, GL_RGBA, GL_UNSIGNED_BYTE, cmd->captureBuffer);
+		glReadPixels(0, 0, cmd->width, cmd->height, GL_RGB, GL_UNSIGNED_BYTE, cmd->captureBuffer);
 
 		// gamma correct
 		if((tr.overbrightBits > 0) && glConfig.deviceSupportsGamma)
@@ -1037,7 +1037,7 @@ const void     *RB_TakeVideoFrameCmd(const void *data)
 
 		if(cmd->motionJpeg)
 		{
-			frameSize = SaveJPGToBuffer(cmd->encodeBuffer, 90, cmd->width, cmd->height, cmd->captureBuffer);
+			frameSize = SaveJPGToBuffer(cmd->encodeBuffer, cmd->width * cmd->height * 3, 90, cmd->width, cmd->height, cmd->captureBuffer);
 			ri.CL_WriteAVIVideoFrame(cmd->encodeBuffer, frameSize);
 		}
 		else
@@ -1046,9 +1046,9 @@ const void     *RB_TakeVideoFrameCmd(const void *data)
 
 			for(i = 0; i < frameSize; i++)	// Pack to 24bpp and swap R and B
 			{
-				cmd->encodeBuffer[i * 3] = cmd->captureBuffer[i * 4 + 2];
-				cmd->encodeBuffer[i * 3 + 1] = cmd->captureBuffer[i * 4 + 1];
-				cmd->encodeBuffer[i * 3 + 2] = cmd->captureBuffer[i * 4];
+				cmd->encodeBuffer[i * 3] = cmd->captureBuffer[i * 3 + 2];
+				cmd->encodeBuffer[i * 3 + 1] = cmd->captureBuffer[i * 3 + 1];
+				cmd->encodeBuffer[i * 3 + 2] = cmd->captureBuffer[i * 3];
 			}
 
 			ri.CL_WriteAVIVideoFrame(cmd->encodeBuffer, frameSize * 3);
@@ -1358,7 +1358,13 @@ R_Register
 */
 void R_Register(void)
 {
+#if defined(_WIN32)
+	r_glCoreProfile = ri.Cvar_Get("r_glCoreProfile", "1", CVAR_INIT);
+#else
+	// most open source Linux drivers don't support OpenGL 3
 	r_glCoreProfile = ri.Cvar_Get("r_glCoreProfile", "0", CVAR_INIT);
+#endif
+
 	r_glMinMajorVersion = ri.Cvar_Get("r_glMinMajorVersion", "3", CVAR_LATCH);
 	r_glMinMinorVersion = ri.Cvar_Get("r_glMinMinorVersion", "2", CVAR_LATCH);
 
@@ -1392,7 +1398,7 @@ void R_Register(void)
 	r_depthbits = ri.Cvar_Get("r_depthbits", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ignorehwgamma = ri.Cvar_Get("r_ignorehwgamma", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_mode = ri.Cvar_Get("r_mode", "3", CVAR_ARCHIVE | CVAR_LATCH);
-	r_fullscreen = ri.Cvar_Get("r_fullscreen", "1", CVAR_ARCHIVE | CVAR_LATCH);
+	r_fullscreen = ri.Cvar_Get("r_fullscreen", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	r_customwidth = ri.Cvar_Get("r_customwidth", "1600", CVAR_ARCHIVE | CVAR_LATCH);
 	r_customheight = ri.Cvar_Get("r_customheight", "1024", CVAR_ARCHIVE | CVAR_LATCH);
 	r_customaspect = ri.Cvar_Get("r_customaspect", "1", CVAR_ARCHIVE | CVAR_LATCH);

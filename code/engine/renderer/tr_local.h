@@ -5126,7 +5126,7 @@ void			LoadTGA(const char *name, byte ** pic, int *width, int *height, byte alph
 
 void            LoadJPG(const char *filename, unsigned char **pic, int *width, int *height, byte alphaByte);
 void            SaveJPG(char *filename, int quality, int image_width, int image_height, unsigned char *image_buffer);
-int             SaveJPGToBuffer(byte * buffer, int quality, int image_width, int image_height, byte * image_buffer);
+int             SaveJPGToBuffer(byte * buffer, size_t bufferSize, int quality, int image_width, int image_height, byte * image_buffer);
 
 void			LoadPNG(const char *name, byte ** pic, int *width, int *height, byte alphaByte);
 void            SavePNG(const char *name, const byte * pic, int width, int height, int numBytes, qboolean flip);
