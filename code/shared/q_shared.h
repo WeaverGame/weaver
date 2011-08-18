@@ -38,7 +38,7 @@ extern "C" {
 #define PRODUCT_VERSION         "0.1.0"
 
 #define ENGINE_NAME             "XreaL Engine"
-#define ENGINE_VERSION          "0.8.2"
+#define ENGINE_VERSION          "0.9.7"
 
 #if 0
 #if !defined(COMPAT_Q3A)
