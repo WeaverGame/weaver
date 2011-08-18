@@ -14,7 +14,7 @@ project "base_game"
 		"../../../code/shared/surfaceflags.h",
 		
 		"**.c", "**.cpp", "**.h",
-		"spell_info.def"
+		"spell_info.def",
 		
 		"../../../code/libs/lua/src/lapi.c",
 		"../../../code/libs/lua/src/lcode.c",

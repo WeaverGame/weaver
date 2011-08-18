@@ -19,12 +19,12 @@ project "base_cgame"
 		
 		"../game/bg_**.c", "../game/bg_**.cpp", "../game/bg_**.h",
 		
-		"../game/objective_common.h"
+		"../game/objective_common.h",
 		
-		"../game/spell_shared.c"
-		"../game/spell_common.h"
-		"../game/spell_info.def"
-		"../game/spell_shared.h"
+		"../game/spell_shared.c",
+		"../game/spell_common.h",
+		"../game/spell_info.def",
+		"../game/spell_shared.h",
 		
 		"../game/lua_qmath.c",
 		"../game/lua_vector.c",
