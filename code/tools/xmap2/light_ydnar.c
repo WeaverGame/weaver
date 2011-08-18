@@ -205,9 +205,9 @@ void ColorToFloats(const float *color, float * colorFloats, float scale)
 	VectorScale(sample, (1.0f / lightmapCompensate), sample);
 
 	/* store it off */
-	colorFloats[0] = sample[0];// * (1.0f / 255.0f);
-	colorFloats[1] = sample[1];// * (1.0f / 255.0f);
-	colorFloats[2] = sample[2];// * (1.0f / 255.0f);
+	colorFloats[0] = sample[0] * (1.0f / 255.0f);
+	colorFloats[1] = sample[1] * (1.0f / 255.0f);
+	colorFloats[2] = sample[2] * (1.0f / 255.0f);
 }
 
 /*
