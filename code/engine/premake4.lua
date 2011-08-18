@@ -136,8 +136,8 @@ project "XreaL"
 		-- "../libs/speex/speex_lpc.c",
 		-- "../libs/speex/speex_lsp.c",
 		-- "../libs/speex/speex_window.c",
-		-- "../libs/speex/stereo.c",
 		-- "../libs/speex/vbr.c",
+		-- "../libs/speex/stereo.c",
 		-- "../libs/speex/vq.c",
 		
 		"../libs/theora/lib/dec/apiwrapper.c",
@@ -274,9 +274,14 @@ project "XreaL"
 			--"win32/win_glimp.c",
 			--"win32/win_eh.cpp",
 		}
+		defines
+		{
+			"USE_OPENAL",
+		}
 		includedirs
 		{
 			"../libs/sdl/include",
+			"../libs/openal/include",
 		}
 		libdirs
 		{
@@ -322,18 +327,27 @@ project "XreaL"
 		libdirs
 		{
 			"../libs/sdl/lib",
+			"../libs/openal/libs/win32",
 			--"../libs/curl-7.12.2/lib"
 		}
 		links
 		{ 
 			--"libcurl",
+			"OpenAL32",
 		}
 		
 	configuration { "vs*", "x64" }
-		--files
-		--{
-		--	"qcommon/dl_main_stubs.c",
-		--}
+		libdirs
+		{
+			"../libs/sdl/lib64",
+			"../libs/openal/libs/win64",
+			--"../libs/curl-7.12.2/lib"
+		}
+		links
+		{ 
+			--"libcurl",
+			"OpenAL32",
+		}
 
 	configuration { "linux", "gmake" }
 		buildoptions
@@ -353,6 +367,11 @@ project "XreaL"
 			--"`pkg-config --libs xxf86vm`",
 			"`pkg-config --libs sdl`",
 			"`pkg-config --libs libcurl`",
+		}
+		links
+		{ 
+			--"libcurl",
+			"openal",
 		}
 	
 	configuration "linux"

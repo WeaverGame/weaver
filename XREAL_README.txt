@@ -144,11 +144,11 @@ _________________________
  
 	On Debian or Ubuntu:
 
-		> apt-get install libboost-dev libcurl4-openssl-dev libsdl1.2-dev libxxf86dga-dev libxxf86vm-dev libglu1-mesa-dev
+		> apt-get install libcurl4-openssl-dev libsdl1.2-dev libopenal-dev libglu1-mesa-dev
 	
 	On Fedora
 
-		> yum install boost-devel SDL-devel libXxf86dga-devel libXxf86vm-devel mesa-libGLU-devel
+		> yum install SDL-devel openal-devel mesa-libGLU-devel
 
 
 2. Download and extract Premake 4.x to the XreaL/ root directory or install it using your
