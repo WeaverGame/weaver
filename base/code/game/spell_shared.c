@@ -21,8 +21,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 // spell_shared.c -- misc weaver functions, used by both game and cgame
-#include "../../../code/qcommon/q_shared.h"
-#include "../game/spell_common.h"
+#include <q_shared.h>
+#include "spell_common.h"
 
 /*
 =================

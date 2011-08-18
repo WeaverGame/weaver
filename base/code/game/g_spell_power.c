@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 // g_spell_power -- misc weaver power functions, including linking functions
-#include "../../../code/qcommon/q_shared.h"
+#include <q_shared.h>
 #include "g_local.h"
 #include "g_spell_util.h"
 

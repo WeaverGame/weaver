@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef SPELL_COMMON_H
 #define SPELL_COMMON_H
 
-#include "../../../code/qcommon/q_shared.h"
+#include <q_shared.h>
 
 //Game
 #define MAX_THREADS         8

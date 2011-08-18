@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef OBJECTIVE_COMMON_H
 #define OBJECTIVE_COMMON_H
 
-#include "../../../code/qcommon/q_shared.h"
+#include <q_shared.h>
 
 // Used as event param for EV_GLOBAL_OBJ events
 typedef enum
