@@ -1,6 +1,6 @@
 
 project "XreaL"
-	targetname  "XreaL"
+	targetname  "weaver"
 	language    "C++"
 	kind        "WindowedApp"
 	flags       { "ExtraWarnings", "NoRTTI" }
@@ -308,6 +308,7 @@ project "XreaL"
 		}
 		linkoptions 
 		{
+			"/LARGEADDRESSAWARE",
 			--"/NODEFAULTLIB:libcmt.lib",
 			--"/NODEFAULTLIB:libcmtd.lib"
 			--"/NODEFAULTLIB:libc"

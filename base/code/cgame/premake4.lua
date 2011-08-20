@@ -23,7 +23,6 @@ project "base_cgame"
 		
 		"../game/spell_shared.c",
 		"../game/spell_common.h",
-		"../game/spell_info.def",
 		"../game/spell_shared.h",
 		
 		"../game/lua_qmath.c",
