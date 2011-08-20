@@ -48,7 +48,6 @@ project "base_game"
 	}
 	excludes
 	{
-		"g_unlagged.c",
 		"g_rankings.c",
 	}
 	includedirs
