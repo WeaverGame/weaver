@@ -61,7 +61,6 @@ project "base_cgame"
 	}
 	excludes
 	{
-		"cg_unlagged.c",
 		"cg_newdraw.c",
 	}
 	includedirs
