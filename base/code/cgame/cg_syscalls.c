@@ -131,6 +131,11 @@ void trap_AddCommand(const char *cmdName)
 	syscall(CG_ADDCOMMAND, cmdName);
 }
 
+void trap_AddCommandAlias(const char *cmdName, const char *cmdOther)
+{
+	syscall(CG_ADDCOMMANDALIAS, cmdName, cmdOther);
+}
+
 void trap_RemoveCommand(const char *cmdName)
 {
 	syscall(CG_REMOVECOMMAND, cmdName);

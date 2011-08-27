@@ -1353,6 +1353,21 @@ static void CG_RegisterWeaves(void)
 	CG_Printf("^3Weaves registered.\n");
 }
 
+/*
+===================
+CG_RegisterWeaves
+===================
+*/
+static void CG_RegisterCommandAliases(void)
+{
+	trap_AddCommandAlias("+thread", "+button7");
+	trap_AddCommandAlias("-thread", "-button7");
+	trap_AddCommandAlias("+weave", "+button8");
+	trap_AddCommandAlias("-weave", "-button8");
+	trap_AddCommandAlias("+sprint", "+button9");
+	trap_AddCommandAlias("-sprint", "-button9");
+}
+
 //===========================================================================
 
 
@@ -1500,6 +1515,8 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 
 
 	CG_RegisterCvars();
+
+	CG_RegisterCommandAliases();
 
 	CG_InitConsoleCommands();
 

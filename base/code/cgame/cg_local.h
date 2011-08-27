@@ -2205,6 +2205,10 @@ void            trap_SendConsoleCommand(const char *text);
 // FIXME: replace this with a normal console command "defineCommand"?
 void            trap_AddCommand(const char *cmdName);
 
+// register a command name as an alias for an existing engine command.
+// this allows gamecode to register aliases for binds like "+button6".
+void            trap_AddCommandAlias(const char *cmdName, const char *cmdOther);
+
 // send a string to the server over the network
 void            trap_SendClientCommand(const char *s);
 

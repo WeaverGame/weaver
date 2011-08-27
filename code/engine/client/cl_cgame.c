@@ -232,6 +232,26 @@ void CL_AddCgameCommand(const char *cmdName)
 
 /*
 =====================
+CL_AddCgameButtonAlias
+=====================
+*/
+void CL_AddCgameCommandAlias(const char *cmdName, const char *cmdOther)
+{
+	xcommand_t funcOther = NULL;
+
+	funcOther = Cmd_GetCommandFunction(cmdOther);
+
+	if(funcOther == NULL)
+	{
+		Com_Error(ERR_DROP, "CL_AddCgameCommandAlias: ignored alias %s because %s is completion-only or not a registered command\n", cmdName, cmdOther);
+		return;
+	}
+
+	Cmd_AddCommand(cmdName, funcOther);
+}
+
+/*
+=====================
 CL_CgameError
 =====================
 */
@@ -544,6 +564,9 @@ intptr_t CL_CgameSystemCalls(intptr_t * args)
 			return 0;
 		case CG_REMOVECOMMAND:
 			Cmd_RemoveCommand(VMA(1));
+			return 0;
+		case CG_ADDCOMMANDALIAS:
+			CL_AddCgameCommandAlias(VMA(1), VMA(2));
 			return 0;
 		case CG_SENDCLIENTCOMMAND:
 			CL_AddReliableCommand(VMA(1), qfalse);

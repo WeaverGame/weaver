@@ -754,6 +754,27 @@ void Cmd_CompleteArgument(const char *command, char *args, int argNum)
 	}
 }
 
+/*
+============
+Cmd_GetCommandFunction
+
+Return the function registered for the command (may be NULL.
+Return NULL if the command is not registered.
+============
+*/
+xcommand_t Cmd_GetCommandFunction(const char *cmdName)
+{
+	cmd_function_t *cmd;
+
+	for(cmd = cmd_functions; cmd; cmd = cmd->next)
+	{
+		if(!strcmp(cmdName, cmd->name))
+		{
+			return cmd->function;
+		}
+	}
+	return NULL;
+}
 
 /*
 ============

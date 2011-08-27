@@ -1418,13 +1418,6 @@ void CL_InitInput(void)
 	Cmd_AddCommand("+mlook", IN_MLookDown);
 	Cmd_AddCommand("-mlook", IN_MLookUp);
 
-	Cmd_AddCommand("+thread", IN_Button7Down);
-	Cmd_AddCommand("-thread", IN_Button7Up);
-	Cmd_AddCommand("+weave", IN_Button8Down);
-	Cmd_AddCommand("-weave", IN_Button8Up);
-	Cmd_AddCommand("+sprint", IN_Button9Down);
-	Cmd_AddCommand("-sprint", IN_Button9Up);
-
 #ifdef USE_VOIP
 	Cmd_AddCommand("+voiprecord", IN_VoipRecordDown);
 	Cmd_AddCommand("-voiprecord", IN_VoipRecordUp);
