@@ -4,7 +4,7 @@
 solution "XreaL"
 	--configurations { "Release", "ReleaseWithSymbols", "Debug" }
 	configurations { "Release", "Debug" }
-	platforms {"x32", "x64"}
+	platforms {"native", "x32", "x64"}
 	
 	--
 	-- Release/Debug Configurations

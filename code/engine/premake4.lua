@@ -196,7 +196,7 @@ project "XreaL"
 		targetdir 	"../../bin32"
 		files
 		{ 
-			"code/qcommon/vm_x86.c",
+			--"code/qcommon/vm_x86.c",
 			"../libs/theora/lib/dec/x86/mmxidct.c",
 			"../libs/theora/lib/dec/x86/mmxfrag.c",
 			"../libs/theora/lib/dec/x86/mmxstate.c",
@@ -207,8 +207,8 @@ project "XreaL"
 		targetdir 	"../../bin64"
 		files
 		{ 
-			"qcommon/vm_x86_64.c",
-			"qcommon/vm_x86_64_assembler.c",
+			--"qcommon/vm_x86_64.c",
+			--"qcommon/vm_x86_64_assembler.c",
 			"../libs/theora/lib/dec/x86/mmxidct.c",
 			"../libs/theora/lib/dec/x86/mmxfrag.c",
 			"../libs/theora/lib/dec/x86/mmxstate.c",
