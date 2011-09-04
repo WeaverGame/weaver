@@ -1635,6 +1635,7 @@ extern vmCvar_t cg_gravity;
 extern vmCvar_t cg_drawWeaverDisc;
 extern vmCvar_t cg_drawWeaverThread;
 extern vmCvar_t cg_weaverTutorial;
+extern vmCvar_t cg_tutorial;
 extern vmCvar_t cg_weaverDiscSize;
 extern vmCvar_t cg_weaverDiscX;
 extern vmCvar_t cg_weaverDiscY;
@@ -1791,6 +1792,8 @@ void            CG_Text_Paint(float x, float y, float scale, const vec4_t color,
 							  int style, const fontInfo_t * font);
 void            CG_Text_PaintAligned(int x, int y, const char *s, float scale, int style, const vec4_t color,
 									 const fontInfo_t * font);
+void            CG_Text_PaintAlignedBlock(int x, int y, const char *s, float scale, int style, const vec4_t color,
+									 const fontInfo_t * font);
 
 void            CG_AddLagometerFrameInfo(void);
 void            CG_AddLagometerSnapshotInfo(snapshot_t * snap);
@@ -1859,10 +1862,13 @@ void            CG_WeaveMissileHitWall(int weapon, int clientNum, vec3_t origin,
 
 // cg_spell_ents.c
 void            CG_ShieldInfo(centity_t * cent);
+qboolean        CG_ShieldTeamAttacking(centity_t *ent, team_t team);
 centity_t      *CG_ObjItem(playerEntity_t * pe, int clientNum);
 
 // cg_spell_weaves.c
 void            CG_ShowThreads(centity_t * cent);
+qboolean        CG_PlayerIsCasting(playerState_t * ps);
+qboolean        CG_PlayerIsThreading(playerState_t * ps);
 void            CG_AddPlayerThreads(centity_t * player, playerState_t * ps, refEntity_t * parent);
 void            CG_AddPlayerHeldWeave(centity_t * player, playerState_t * ps, refEntity_t * parent);
 void            CG_AddPlayerProtects(centity_t * player, playerState_t * ps, refEntity_t * body);

@@ -65,6 +65,21 @@ void CG_ShieldInfo(centity_t * cent)
 	trap_R_AddRefEntityToScene(&ent);
 }
 
+qboolean CG_ShieldTeamAttacking(centity_t *ent, team_t team)
+{
+	if(team == TEAM_RED)
+	{
+		// Red can attack this shield if first bit set
+		return (ent->currentState.generic1 & 1) != 0;
+	}
+	else if(team == TEAM_BLUE)
+	{
+		// Red can attack this shield if second bit set
+		return (ent->currentState.generic1 & (1<<1)) != 0;
+	}
+	return qfalse;
+}
+
 centity_t * CG_ObjItem(playerEntity_t * pe, int clientNum)
 {
 	centity_t *     objItem = NULL;

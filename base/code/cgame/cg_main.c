@@ -222,6 +222,7 @@ vmCvar_t        cg_gravity;
 vmCvar_t        cg_drawWeaverDisc;
 vmCvar_t        cg_drawWeaverThread;
 vmCvar_t        cg_weaverTutorial;
+vmCvar_t        cg_tutorial;
 vmCvar_t        cg_weaverDiscSize;
 vmCvar_t        cg_weaverDiscX;
 vmCvar_t        cg_weaverDiscY;
@@ -426,6 +427,7 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_drawWeaverDisc, "cg_drawWeaverDisc", "1", CVAR_ARCHIVE},
 	{&cg_drawWeaverThread, "cg_drawWeaverThread", "1", CVAR_ARCHIVE},
 	{&cg_weaverTutorial, "cg_weaverTutorial", "2", CVAR_ARCHIVE},
+	{&cg_tutorial, "cg_tutorial", "1", CVAR_ARCHIVE},
 	{&cg_weaverDiscSize, "cg_weaverDiscSize", "128", CVAR_ARCHIVE},
 	{&cg_weaverDiscX, "cg_weaverDiscX", "0", CVAR_ARCHIVE},
 	{&cg_weaverDiscY, "cg_weaverDiscY", "0", CVAR_ARCHIVE},

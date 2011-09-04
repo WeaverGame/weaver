@@ -149,8 +149,12 @@ void SP_func_shield(gentity_t * ent)
 	VectorCopy(ent->s.angles, ent->r.currentAngles);
 
 	G_SpawnInt("power", "1000", &ent->count);
+	// Which team can activate (i.e, dispell) this shield?
 	G_SpawnBoolean("red_only", "0", &ent->red_only);
 	G_SpawnBoolean("blue_only", "0", &ent->blue_only);
+
+	// Encode team ownership.
+	ent->s.generic1 = (ent->red_only & (ent->blue_only << 1));
 
 	//Full shield
 	ent->s.torsoAnim = ent->count;

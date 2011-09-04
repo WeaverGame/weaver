@@ -159,6 +159,16 @@ void CG_ShowThreads(centity_t * cent)
 	pe->threadsLight = PowerColor(pe->threads, &pe->threadsColor);
 }
 
+qboolean CG_PlayerIsCasting(playerState_t * ps)
+{
+	return (ps->eFlags & EF_WEAVEA || ps->eFlags & EF_WEAVED);
+}
+
+qboolean CG_PlayerIsThreading(playerState_t * ps)
+{
+	return (ps->eFlags & EF_THREAD);
+}
+
 /*
 =================
 CG_AddPlayerProtects

@@ -226,6 +226,55 @@ void CG_Text_PaintAligned(int x, int y, const char *s, float scale, int style, c
 	}
 }
 
+void CG_Text_PaintAlignedBlock(int x, int y, const char *s, float scale, int style, const vec4_t color, const fontInfo_t * font)
+{
+	char           *lines[32];
+	unsigned int    lineNum = 0;
+	char           *p;
+	int             h;
+	int             i;
+
+	if(s == NULL)
+		return;
+
+	h = CG_Text_Height(s, scale, 0, font);
+	h = h + (h/2); // Add some spacing.
+
+	// Find new lines, separate strings reference each line
+	lines[lineNum] = s;
+	p = s;
+	do
+	{
+		// Check for end of string.
+		if(*p == '\0') break;
+
+		// Check for new line
+		if(*p == '\n')
+		{
+			// End line as a complete string
+			*p = '\0';
+			lineNum++;
+			p++;
+			lines[lineNum] = p;
+			continue;
+		}
+
+		p++;
+	} while(p < (s + 1024));
+	// Should terminate on '\0', but limit the loop anyway.
+
+	// Number of lines is just above the last index
+	lineNum++;
+
+	// Draw each line
+	for(i = 0; i < lineNum; i++)
+	{
+		if(*(lines[i]) != '\0')
+			CG_Text_PaintAligned(x, y, lines[i], scale, style, color, font);
+		y += h;
+	}
+}
+
 /*
 ================
 CG_DrawTeamBackground

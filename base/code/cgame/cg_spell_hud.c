@@ -719,6 +719,19 @@ static void CG_DrawWeaverPowerups(void)
 }
 
 /*
+===================
+CG_DrawBindsTutorial
+===================
+*/
+static void CG_DrawBindsTutorial(void)
+{
+	if( !cg_tutorial.integer )
+		return;
+
+	CG_Text_PaintAlignedBlock(5, 80, CG_TutorialText(), s.f * 0.30f, UI_LEFT, colorWhite, &cgs.media.freeSansBoldFont);
+}
+
+/*
 =================
 CG_DrawWeaverHUD
 
@@ -738,6 +751,9 @@ void CG_DrawWeaverHUD(void)
 
 	//Weaver Sense
 	CG_DrawWeaveSense();
+
+	//Binds tutorial
+	CG_DrawBindsTutorial();
 
 	//Powerups
 	CG_DrawWeaverPowerups();
