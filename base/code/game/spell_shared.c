@@ -247,7 +247,7 @@ void WeaveProtectScales(int weavenum, float *airprotect, float *fireprotect, flo
 	{
 		case WVW_A_AIRFIRE_LIGHTNING:
 		case WVW_A_AIRFIRE_SWORD:
-			*airprotect = 1.4f;
+			*airprotect = 1.0f;
 			break;
 		case WVW_D_AIR_PROTECT:
 		case WVW_D_FIRE_PROTECT:
@@ -256,17 +256,18 @@ void WeaveProtectScales(int weavenum, float *airprotect, float *fireprotect, flo
 		case WVW_D_SPIRIT_TRAVEL:
 			break;
 		case WVW_D_AIRFIRE_WALL:
-			*fireprotect = 1.2f;
+			*fireprotect = 1.0f;
 			break;
 		case WVW_D_EARTHFIRE_EXPLOSIVE_S:
 		case WVW_D_EARTHFIRE_EXPLOSIVE_M:
 			*airprotect = 0.4f;
 			*fireprotect = 0.8f;
+			*earthprotect = 0.4f;
 			break;
 		case WVW_D_SPIRIT_LINK:
 			break;
 		case WVW_A_FIRE_BLOSSOMS:
-			*fireprotect = 1.1f;
+			*fireprotect = 1.0f;
 			break;
 		case WVW_A_SPIRIT_DEATHGATE:
 			break;
@@ -289,47 +290,46 @@ void WeaveProtectScales(int weavenum, float *airprotect, float *fireprotect, flo
 		case WVW_A_SPIRIT_BALEFIRE:
 			break;
 		case WVW_A_AIR_BLAST:
-			*airprotect = 1.4f;
+			*airprotect = 1.0f;
 			break;
 		case WVW_A_EARTH_QUAKE_S:
 		case WVW_A_EARTH_QUAKE_M:
 		case WVW_A_EARTH_QUAKE_L:
 		case WVW_A_FIRE_BALL:
-			*fireprotect = 1.2f;
+			*fireprotect = 0.85f;
 			break;
 		case WVW_A_FIRE_DARTS:
-			*fireprotect = 1.2f;
+			*fireprotect = 0.9f;
 			break;
 		case WVW_A_FIRE_MULTIDARTS:
-			*fireprotect = 1.2f;
+			*fireprotect = 0.85f;
 			break;
 		case WVW_A_AIRWATER_DARTS_S:
 			*waterprotect = 1.0f;
-			*airprotect = 0.5f;
+			*airprotect = 0.3f;
 			break;
 		case WVW_A_AIRWATER_DARTS_M:
 			*waterprotect = 1.0f;
-			*airprotect = 0.5f;
+			*airprotect = 0.2f;
 			break;
 		case WVW_A_EARTHWATER_SLOW:
-			*waterprotect = 1.1f;
+			*waterprotect = 1.0f;
 			break;
 		case WVW_A_EARTHWATER_POISON:
-			*waterprotect = 1.1f;
+			*waterprotect = 1.0f;
+			*earthprotect = 0.4f;
 			break;
 		case WVW_A_WATER_ICESHARDS_S:
-			*waterprotect = 1.2f;
+			*waterprotect = 1.0f;
 			*airprotect = 0.45f;
-			*fireprotect = 0.18f;
 			break;
 		case WVW_A_WATER_ICESHARDS_M:
-			*waterprotect = 1.2f;
+			*waterprotect = 1.0f;
 			*airprotect = 0.45f;
-			*fireprotect = 0.18f;
 			break;
 		case WVW_A_AIRWATER_RIP:
-			*waterprotect = 1.2f;
-			*airprotect = 0.6f;
+			*waterprotect = 0.9f;
+			*airprotect = 0.4f;
 			break;
 			//Fail
 		case WVW_NONE:

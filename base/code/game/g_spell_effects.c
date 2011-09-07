@@ -433,6 +433,9 @@ qboolean FireWeave_FireDartsBase(gentity_t * self, vec3_t start, vec3_t dir, int
 
 	gentity_t      *tent;
 	gentity_t      *traceEnt;
+	gentity_t      *heldWeave;
+
+	heldWeave = &g_entities[heldWeaveNum];
 
 	VectorMA(start, 8192 * 16, dir, end);
 
@@ -464,7 +467,7 @@ qboolean FireWeave_FireDartsBase(gentity_t * self, vec3_t start, vec3_t dir, int
 	if(traceEnt->takedamage)
 	{
 		//TODO: change mod per weaveID
-		G_Damage(traceEnt, self, self, dir, tr.endpos, WEAVE_FIREDARTS_DAMAGE, 0, MOD_A_FIRE_DARTS);
+		G_Damage(traceEnt, heldWeave, self, dir, tr.endpos, WEAVE_FIREDARTS_DAMAGE, 0, MOD_A_FIRE_DARTS);
 	}
 
 	VectorCopy(tr.endpos, end);
@@ -2248,6 +2251,9 @@ qboolean FireWeave_Rip(gentity_t * self, vec3_t start, vec3_t dir, int heldWeave
 	gentity_t      *tent;
 	gentity_t      *traceEnt;
 	team_t          targetTeam;
+	gentity_t      *heldWeave;
+
+	heldWeave = &g_entities[heldWeaveNum];
 
 	if(G_IsTeamGame())
 	{
@@ -2275,7 +2281,7 @@ qboolean FireWeave_Rip(gentity_t * self, vec3_t start, vec3_t dir, int heldWeave
 	//Damage target
 	if(traceEnt->takedamage)
 	{
-		G_Damage(traceEnt, self, self, NULL, traceEnt->r.currentOrigin, WEAVE_RIP_DAMAGE, 0, MOD_TARGET_LASER);
+		G_Damage(traceEnt, heldWeave, self, NULL, traceEnt->r.currentOrigin, WEAVE_RIP_DAMAGE, 0, MOD_TARGET_LASER);
 
 		tent = G_TempEntity(start, EV_WEAVE_SHOT);
 		G_SetOrigin(tent, traceEnt->r.currentOrigin);
