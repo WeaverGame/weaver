@@ -59,7 +59,7 @@ project "base_ui"
 		}
 	
 	configuration { "linux", "x32" }
-		targetname  "uix86"
+		targetname  "uii386"
 		targetprefix ""
 	
 	configuration { "linux", "x64" }

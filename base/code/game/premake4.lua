@@ -84,7 +84,7 @@ project "base_game"
 		}
 	
 	configuration { "linux", "x32" }
-		targetname  "qagamex86"
+		targetname  "qagamei386"
 		targetprefix ""
 	
 	configuration { "linux", "x64" }
