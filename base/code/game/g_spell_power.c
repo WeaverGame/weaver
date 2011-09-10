@@ -69,12 +69,21 @@ int ClientPowerInUse(gclient_t * holdingClient)
 ClientPowerMax
 
 Returns the maximum amount of power given client can have.
-This is a method so it can be modified by stuff like angreal
+This is a method so it can be modified by stuff like angreal, or a link.
 =================
 */
 int ClientPowerMax(gclient_t * holdingClient)
 {
-	return holdingClient->powerMax;
+	int             power;
+
+	DEBUGWEAVEING_LVL("ClientPowerMax: start", 3);
+	power = holdingClient->powerMax;
+	if(holdingClient->linkFollower)
+	{
+		power += (ClientPowerMax(holdingClient->linkFollower));
+	}
+	DEBUGWEAVEING_LVL("ClientPowerMax: end", 3);
+	return power;
 }
 
 /*
