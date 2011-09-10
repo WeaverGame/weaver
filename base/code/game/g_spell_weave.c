@@ -438,6 +438,31 @@ void AddHeldWeaveToPlayer(gentity_t * ent, playerState_t * player)
 	DEBUGWEAVEING("AddHeldWeaveToPlayer: end");
 }
 
+qboolean HeldWeaveBelongsToPlayer(gentity_t * held, playerState_t * player)
+{
+	// Held must be a valid entity
+	if((!held) || (!held->inuse))
+	{
+		return qfalse;
+	}
+	// Held must be a heldweave entity
+	if(held->s.eType != ET_WEAVE_HELD)
+	{
+		return qfalse;
+	}
+	// Must belong to the specific player
+	if(held->s.otherEntityNum2 != player->clientNum)
+	{
+		return qfalse;
+	}
+	// Player should have the weave available in a slot
+	if(player->ammo[held->s.modelindex2] != held->s.number)
+	{
+		return qfalse;
+	}
+	return qtrue;
+}
+
 /*
 =================
 ExpireHeldWeave

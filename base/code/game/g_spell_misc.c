@@ -37,6 +37,7 @@ void WeaveProtectCheck(gclient_t * checkClient)
 	{
 		if(checkClient->protectHeldFire)
 		{
+			if(!HeldWeaveBelongsToPlayer(checkClient->protectHeldFire, &checkClient->ps)) G_Error("Bad protect fire\n");
 			G_ReleaseWeave(checkClient->protectHeldFire->target_ent);
 		}
 	}
@@ -44,6 +45,7 @@ void WeaveProtectCheck(gclient_t * checkClient)
 	{
 		if(checkClient->protectHeldAir)
 		{
+			if(!HeldWeaveBelongsToPlayer(checkClient->protectHeldAir, &checkClient->ps)) G_Error("Bad protect air\n");
 			G_ReleaseWeave(checkClient->protectHeldAir->target_ent);
 		}
 	}
@@ -51,6 +53,7 @@ void WeaveProtectCheck(gclient_t * checkClient)
 	{
 		if(checkClient->protectHeldEarth)
 		{
+			if(!HeldWeaveBelongsToPlayer(checkClient->protectHeldEarth, &checkClient->ps)) G_Error("Bad protect earth\n");
 			G_ReleaseWeave(checkClient->protectHeldEarth->target_ent);
 		}
 	}
@@ -58,6 +61,7 @@ void WeaveProtectCheck(gclient_t * checkClient)
 	{
 		if(checkClient->protectHeldWater)
 		{
+			if(!HeldWeaveBelongsToPlayer(checkClient->protectHeldWater, &checkClient->ps)) G_Error("Bad protect water\n");
 			G_ReleaseWeave(checkClient->protectHeldWater->target_ent);
 		}
 	}
