@@ -1095,7 +1095,7 @@ void CG_RegisterWeave(int weaveNum)
 			MAKERGB(weaveInfo->instanceLightColor, 0.8f, 0.8f, 1.0f);
 			//weaveInfo->instanceRenderfx;
 			//weaveInfo->instanceSound;
-			weaveInfo->instanceShader[0] = trap_R_RegisterShader("railCore");
+			weaveInfo->instanceShader[0] = trap_R_RegisterShader("weave_effects/link/stream");
 			break;
 		case WVW_A_WATER_ICESHARDS_S:
 

@@ -1290,6 +1290,8 @@ static void CG_RegisterGraphics(void)
 	cgs.media.capturePointFlag[TEAM_RED] = trap_R_RegisterModel("models/entities/flag_red.md5mesh");
 	cgs.media.capturePointFlag[TEAM_BLUE] = trap_R_RegisterModel("models/entities/flag_blue.md5mesh");
 	cgs.media.objItemIcon = trap_R_RegisterShader("sprites/objitemicon");
+	cgs.media.spell_frame[0] = trap_R_RegisterShader("gfx/icons/spell_frame");
+	cgs.media.spell_frame[1] = trap_R_RegisterShader("gfx/icons/spell_frame_select");
 
 	// weaver sword
 	cgs.media.swordModel = trap_R_RegisterModel("models/sword/sword.md5mesh");

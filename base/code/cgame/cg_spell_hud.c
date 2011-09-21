@@ -110,6 +110,8 @@ typedef struct hudSizes_s {
 	float           power_spell_h;
 
 	float           spellicon_w;
+	float           spellicon_frame_w;
+	float           spellicon_frame_offset_x;
 
 	float           protect_1_offset_x;
 	float           protect_1_offset_y;
@@ -140,7 +142,9 @@ static hudSizes_t s;
 void CG_HudSizesRecalc(void)
 {
 	// Calculated from other fields
-	
+	s.spellicon_frame_offset_x = s.spellicon_frame_w - s.spellicon_w;
+	s.spellicon_frame_offset_x *= 0.5f;
+	s.spellicon_frame_offset_x += s.spellicon_w;
 }
 
 void CG_HudSizesInit(void)
@@ -169,6 +173,7 @@ void CG_HudSizesInit(void)
 	s.power_spell_h = 18.0f;
 
 	s.spellicon_w = 80.0f;
+	s.spellicon_frame_w = 85.0f;
 
 	s.protect_1_offset_x = 87.0f;
 	s.protect_1_offset_y = 120.0f;
@@ -222,6 +227,7 @@ void CG_HudSizesScale(float f)
 	s.power_spell_h *= f;
 
 	s.spellicon_w *= f;
+	s.spellicon_frame_w *= f;
 
 	s.protect_1_offset_x *= f;
 	s.protect_1_offset_y *= f;
@@ -640,11 +646,8 @@ static void CG_DrawWeaverHeld(void)
 			thread = va("%d/%d", cent->currentState.torsoAnim, weaveInfo->info.castCharges);
 			CG_Text_PaintAligned(x - (s.spellicon_w/2), y_icon + 9, thread, s.f * 0.22f, UI_CENTER, colorWhite, &cgs.media.freeSansBoldFont);
 
-			// Draw selection marker
-			if(i == cg.weaponSelect)
-			{
-				trap_R_DrawStretchPic(x - s.spellicon_w, y_icon - s.spellicon_w, s.spellicon_w, s.spellicon_w, 0, 0, 1, 1, cgs.media.weaponSelectShader);
-			}
+			// Draw frame
+			trap_R_DrawStretchPic(x - s.spellicon_frame_offset_x, y_icon - s.spellicon_frame_offset_x, s.spellicon_frame_w, s.spellicon_frame_w, 0, 0, 1, 1, cgs.media.spell_frame[(i == cg.weaponSelect)]);
 
 			// Move left
 			x -= power_spell_w;
