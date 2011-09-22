@@ -44,6 +44,7 @@ void ClientWeaverCleanup(gclient_t * client)
 			Com_Printf("Free ThreadsEnt player %d", client->ps.clientNum);
 		}
 		G_FreeEntity(client->threadEnt);
+		client->threadEnt = NULL;
 	}
 }
 

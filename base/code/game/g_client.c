@@ -1621,8 +1621,12 @@ void ClientDisconnect(int clientNum)
 		// They don't get to take powerups with them!
 		// Especially important for stuff like CTF flags
 
-		//WEAVER dont toss
+		//WEAVER dont toss normal items
 		//TossClientItems(ent);
+
+		ClientWeaverDie(ent);
+		G_TossObjItems(ent);
+
 #if defined(MISSIONPACK)
 		TossClientPersistantPowerups(ent);
 #endif
