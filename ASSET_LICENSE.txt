@@ -13,7 +13,11 @@ License(s):
 	GNU GPL 3.0
 	CC-BY 3.0
 	CC-BY-SA 3.0
-These assets are located at:	base/gfx/icons/spells/cure.png
+These assets are located at:	base/gfx/icons/spell_frame_black.png
+								base/gfx/icons/spell_frame_white.png
+								base/gfx/icons/spells/airblast.png
+								base/gfx/icons/spells/block.png
+								base/gfx/icons/spells/cure.png
 								base/gfx/icons/spells/equake1.png
 								base/gfx/icons/spells/equake2.png
 								base/gfx/icons/spells/equake3.png
@@ -30,6 +34,7 @@ These assets are located at:	base/gfx/icons/spells/cure.png
 								base/gfx/icons/spells/iceshards3.png
 								base/gfx/icons/spells/light.png
 								base/gfx/icons/spells/lightning.png
+								base/gfx/icons/spells/link.png
 								base/gfx/icons/spells/poisondps.png
 								base/gfx/icons/spells/poisonslow.png
 								base/gfx/icons/spells/protectair.png
@@ -37,6 +42,9 @@ These assets are located at:	base/gfx/icons/spells/cure.png
 								base/gfx/icons/spells/protectfire.png
 								base/gfx/icons/spells/protectwater.png
 								base/gfx/icons/spells/rip.png
+								base/gfx/icons/spells/slice1.png
+								base/gfx/icons/spells/slice2.png
+								base/gfx/icons/spells/slice3.png
 								base/gfx/icons/spells/stamina.png
 ===============================================================
 Spell Icons by Scribe
@@ -89,6 +97,13 @@ These assets are located at:	base/fonts/FreeMono.ttf
 								base/fonts/FreeSerifBold.ttf
 								base/fonts/FreeSerifBoldItalic.ttf
 								base/fonts/FreeSerifItalic.ttf
+===============================================================
+Bitstream Very Fonts
+By: Bitstream, Inc.
+License(s):
+	See base/fonts/Bitstream_Very_Fonts_Copyright.txt
+These assets are located at:	base/fonts/VeraMoBd.ttf
+								base/fonts/VeraMono.ttf
 ===============================================================
 Feedback announcements
 http://www.mancubus.net/svn/openarena/sound/feedback/
