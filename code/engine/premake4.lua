@@ -332,7 +332,7 @@ project "XreaL"
 			--"../libs/curl-7.12.2/lib"
 		}
 		links
-		{ 
+		{
 			--"libcurl",
 			"OpenAL32",
 		}
@@ -345,7 +345,7 @@ project "XreaL"
 			--"../libs/curl-7.12.2/lib"
 		}
 		links
-		{ 
+		{
 			--"libcurl",
 			"OpenAL32",
 		}
@@ -370,11 +370,36 @@ project "XreaL"
 			"`pkg-config --libs libcurl`",
 		}
 		links
-		{ 
+		{
 			--"libcurl",
 			"openal",
 		}
 	
+	configuration { "solaris", "gmake" }
+		buildoptions
+		{
+			--"`pkg-config --cflags x11`",
+			--"`pkg-config --cflags xext`",
+			--"`pkg-config --cflags xxf86dga`",
+			--"`pkg-config --cflags xxf86vm`",
+			"`pkg-config --cflags sdl`",
+			"`pkg-config --cflags libcurl`",
+		}
+		linkoptions
+		{
+			--"`pkg-config --libs x11`",
+			--"`pkg-config --libs xext`",
+			--"`pkg-config --libs xxf86dga`",
+			--"`pkg-config --libs xxf86vm`",
+			"`pkg-config --libs sdl`",
+			"`pkg-config --libs libcurl`",
+		}
+		links
+		{
+			--"libcurl",
+			"openal",
+		}
+
 	configuration "linux"
 		targetname  "xreal"
 		files
@@ -402,6 +427,35 @@ project "XreaL"
             "PNG_NO_ASSEMBLER_CODE",
 		}
 		
+	configuration "solaris"
+		targetname  "xreal"
+		files
+		{
+			"sys/sys_main.c",
+			"sys/sys_unix.c",
+			"sys/con_log.c",
+			"sys/con_passive.c",
+			"sys/sdl_gamma.c",
+			"sys/sdl_glimp.c",
+			"sys/sdl_input.c",
+			"sys/sdl_snd.c",
+			"../libs/glew/src/glew.c",
+		}
+		--buildoptions
+		--{
+		--	"-pthread"
+		--}
+		links
+		{
+			"GL",
+			"socket",
+			"nsl",
+			"SDL",
+		}
+		defines
+		{
+            "PNG_NO_ASSEMBLER_CODE",
+		}
 
 project "XreaL-dedicated"
 	targetname  "XreaL-dedicated"
@@ -524,6 +578,16 @@ project "XreaL-dedicated"
 			"`pkg-config --libs sdl`",
 		}
 	
+	configuration { "solaris", "gmake" }
+		buildoptions
+		{
+			"`pkg-config --cflags sdl`",
+		}
+		linkoptions
+		{
+			"`pkg-config --libs sdl`",
+		}
+	
 	configuration "linux"
 		targetname  "xreal-dedicated"
 		files
@@ -543,4 +607,25 @@ project "XreaL-dedicated"
 			"m",
 		}
 		
+	configuration "solaris"
+		targetname  "xreal-dedicated"
+		files
+		{
+			"sys/sys_main.c",
+			"sys/sys_unix.c",
+			"sys/con_log.c",
+			"sys/con_tty.c",
+		}
+		--buildoptions
+		--{
+		--	"-pthread"
+		--}
+		links
+		{
+			"dl",
+			"m",
+			"socket",
+			"nsl",
+			"SDL",
+		}
 		

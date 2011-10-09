@@ -17,3 +17,5 @@ glob:*.bak
 glob:*\Release\*
 glob:*\Debug\*
 glob:*.user
+glob:code/engine/obj/*
+glob:base/code/*/obj/*
