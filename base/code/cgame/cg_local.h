@@ -1909,6 +1909,8 @@ void            CG_Beam(centity_t * cent);
 
 float           CG_DrawLineSegment(const vec3_t start, const vec3_t end,
 								   float totalLength, float segmentSize, float scrollspeed, qhandle_t shader);
+void            CG_CurvedLine(const vec3_t start, const vec3_t end, const vec3_t startDir,
+							  qhandle_t shader, float segmentLen, float scrollSpeed);
 
 void            CG_AdjustPositionForMover(const vec3_t in, int moverNum, int fromTime, int toTime, vec3_t out);
 

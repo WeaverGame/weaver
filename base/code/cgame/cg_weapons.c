@@ -1358,51 +1358,6 @@ static void CG_CalculateWeaponPosition(vec3_t origin, vec3_t angles)
 	angles[PITCH] += scale * fracsin * 0.01;
 }
 
-
-/*
-===============
-JUHOX: CG_CurvedLine
-===============
-*/
-/*static void CG_CurvedLine(const vec3_t start, const vec3_t end, const vec3_t startDir,
-						  qhandle_t shader, float segmentLen, float scrollSpeed)
-{
-	float           dist;
-	vec3_t          dir1;
-	vec3_t          dir2;
-	int             n;
-	float           totalLength;
-	vec3_t          currentPos;
-	int             i;
-
-	VectorSubtract(end, start, dir2);
-	dist = VectorLength(dir2);
-	VectorScale(startDir, dist, dir1);
-	n = dist / 20;
-	if(n <= 0)
-		n = 1;
-	dist /= n;					// segment length
-
-	totalLength = 0;
-	VectorCopy(start, currentPos);
-	for(i = 0; i < n; i++)
-	{
-		float           x;
-		vec3_t          p1, p2;
-		vec3_t          nextPos;
-
-		x = (i + 1.0f) / (float)n;
-		VectorMA(start, x, dir1, p1);
-		VectorMA(start, x, dir2, p2);
-		VectorSubtract(p2, p1, p2);
-		VectorMA(p1, x * x * x, p2, nextPos);
-
-		totalLength = CG_DrawLineSegment(currentPos, nextPos, totalLength, segmentLen, scrollSpeed, shader);
-
-		VectorCopy(nextPos, currentPos);
-	}
-}*/
-
 /*
 ===============
 JUHOX: CG_LightningBolt (new version)

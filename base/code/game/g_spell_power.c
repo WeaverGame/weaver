@@ -311,11 +311,12 @@ void ClientLink(gclient_t * leadClient, gclient_t * followClient)
 	bolt->nextthink = level.time + WEAVE_LINKTHINK_TIME;
 	bolt->think = RunLinkEnt;
 	bolt->s.eType = ET_WEAVE_LINK;
-	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
+	bolt->r.svFlags = SVF_BROADCAST;
 	bolt->s.weapon = WVW_D_SPIRIT_LINK;
 	bolt->r.ownerNum = followClient->ps.clientNum;
 	bolt->s.otherEntityNum = leadClient->ps.clientNum;
 	bolt->s.otherEntityNum2 = followClient->linkHeld->s.number;
+	bolt->s.generic1= followClient->ps.clientNum;
 	bolt->parent = &g_entities[followClient->ps.clientNum];
 	bolt->damage = 0;
 	bolt->splashDamage = 0;
@@ -412,6 +413,15 @@ void RunLinkEnt(gentity_t * link)
 
 	DEBUGWEAVEING("RunLinkEnt: start");
 
+	if(!trap_InPVS(link->target_ent->s.pos.trBase, link->parent->s.pos.trBase))
+	{
+		// Follower and leader cannot see each other
+		// Break the link
+		ClientLinkLeave(link->parent->client);
+		DEBUGWEAVEING("RunLinkEnt: end, out of PVS");
+		return;
+	}
+
 	// New link origin = average of old origin and players' origins
 	VectorAdd(link->target_ent->s.pos.trBase, link->parent->s.pos.trBase, nextPos);
 	VectorMA(vec3_origin, 0.5f, nextPos, nextPos);
@@ -420,7 +430,7 @@ void RunLinkEnt(gentity_t * link)
 	VectorCopy(nextPos, link->s.pos.trBase);
 	VectorCopy(nextPos, link->r.currentOrigin);
 
-	link->s.pos.trTime = level.time;
+	//link->s.pos.trTime = level.time;
 	link->nextthink = level.time + WEAVE_LINKTHINK_TIME;
 
 	//G_Printf("LinkEnt type=%d weapon=%d pos=%f %f %f\n", link->s.eType, link->s.weapon, link->s.pos.trBase[0], link->s.pos.trBase[1], link->s.pos.trBase[2]);

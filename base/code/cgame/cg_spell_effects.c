@@ -432,8 +432,18 @@ void CG_WeaveEffect_Link(centity_t * cent)
 	refEntity_t     beam;
 	entityState_t  *s1;
 	const weaver_weaveCGInfo *weave;
+	vec3_t          dir;
 
-	//vec3_t          velocity;
+	unsigned int    ends;
+
+	centity_t      *lead;
+	centity_t      *follow;
+
+	// change all for testing
+	qhandle_t       linkShader;
+	float           linkLength = 800.0f;
+	float           linkSeg = 400.0f;
+	float           linkScroll = 1.0f;
 
 	s1 = &cent->currentState;
 	if(s1->weapon > WVW_NUM_WEAVES)
@@ -442,6 +452,88 @@ void CG_WeaveEffect_Link(centity_t * cent)
 	}
 	weave = &cg_weaves[s1->weapon];
 
+	lead = &cg_entities[s1->otherEntityNum];
+	follow = &cg_entities[s1->generic1];
+
+	ends = 0;
+	if(lead->currentState.number == cg.clientNum)
+	{
+		ends |= 1 << 0;
+	}
+	else if(trap_R_inPVS(cg.refdef.vieworg, lead->lerpOrigin))
+	{
+		ends |= 1 << 1;
+	}
+
+	if(follow->currentState.number == cg.clientNum)
+	{
+		ends |= 1 << 2;
+	}
+	else if(trap_R_inPVS(cg.refdef.vieworg, follow->lerpOrigin))
+	{
+		ends |= 1 << 3;
+	}
+
+	//linkShader = weave->instanceShader[0];
+	linkShader = cgs.media.lightningShader;
+
+	switch(ends)
+	{
+	case 0:
+		// No end visible.
+		return;
+	case 1:
+		// Lead is local client
+		// Follow is out of sight
+		CG_DrawLineSegment(cg.predictedPlayerEntity.lerpOrigin, cent->lerpOrigin, linkLength, linkSeg, linkScroll, linkShader);
+		break;
+	case 2:
+		// Lead is lead
+		// Follow is out of sight
+		CG_DrawLineSegment(lead->lerpOrigin, cent->lerpOrigin, linkLength, linkSeg, linkScroll, linkShader);
+		break;
+	case 3:
+		// Invalid (lead can't be local and not)
+		return;
+	case 4:
+		// Follow is local client
+		// Lead is out of sight
+		CG_DrawLineSegment(cent->lerpOrigin, cg.predictedPlayerEntity.lerpOrigin, linkLength, linkSeg, linkScroll, linkShader);
+		break;
+	case 5:
+		// Invalid (can't both be local)
+		return;
+	case 6:
+		// Follow is local client
+		// Lead is lead
+		CG_DrawLineSegment(lead->lerpOrigin, cg.predictedPlayerEntity.lerpOrigin, linkLength, linkSeg, linkScroll, linkShader);
+		break;
+	case 7:
+		// Invalid (cant have 3 bits)
+		return;
+	case 8:
+		// Follow is follow
+		// Lead is out of sight
+		CG_DrawLineSegment(cent->lerpOrigin, follow->lerpOrigin, linkLength, linkSeg, linkScroll, linkShader);
+		break;
+	case 9:
+		// Follow is follow
+		// Lead is local client
+		CG_DrawLineSegment(cg.predictedPlayerEntity.lerpOrigin, follow->lerpOrigin, linkLength, linkSeg, linkScroll, linkShader);
+		break;
+	case 10:
+		// Follow is follow
+		// Lead is local client
+		CG_DrawLineSegment(cg.predictedPlayerEntity.lerpOrigin, follow->lerpOrigin, linkLength, linkSeg, linkScroll, linkShader);
+		break;
+	default:
+		return;
+	}
+
+	//TODO: A linked to B, C can see A but not B.
+	//      Can C see the link? (atm no)
+#if 0
+	// Entity between players
 	memset(&beam, 0, sizeof(beam));
 
 	VectorCopy(cent->lerpOrigin, beam.origin);
@@ -449,11 +541,34 @@ void CG_WeaveEffect_Link(centity_t * cent)
 	//AnglesToAxis(cent->currentState.angles, beam.axis);
 	AxisClear(beam.axis);
 
-	//Com_Printf("DRAWING A LINK\n");
+	/*
+	beam.reType = RT_LIGHTNING;
+	beam.customShader = weave->instanceShader[0];
+	*/
+	/*
 	beam.reType = RT_MODEL;
-	//beam.customShader = weave->instanceShader[0];
 	beam.hModel = cgs.media.swordModel;
+	beam.customSkin = weave->instanceShader[0];
+	*/
+
+	beam.reType = RT_SPRITE;
+	beam.customShader = weave->instanceShader[0];
+	beam.radius = 100.0f;
+
 	trap_R_AddRefEntityToScene(&beam);
+#elif 0
+	// Curved line between players, with control point on follower's view vector.
+
+	//VectorSubtract(cent->lerpOrigin, follow->lerpOrigin, dir);
+	//VectorNormalize(dir);
+	AngleVectors(follow->lerpAngles, dir, NULL, NULL);
+	VectorNormalize(dir);
+
+	CG_CurvedLine(follow->lerpOrigin, lead->lerpOrigin, dir, weave->instanceShader[0], 512.0f, 1.0f);
+#else
+	// Strait line between players
+	//CG_DrawLineSegment(follow->lerpOrigin, lead->lerpOrigin, 100, 100, 1, weave->instanceShader[0]);
+#endif
 }
 
 /*

@@ -1168,7 +1168,7 @@ void CG_RegisterWeave(int weaveNum)
 			//misc resources
 			weaveInfo->firingSound = trap_S_RegisterSound("sound/weapons/machinegun/par_shot_1.ogg");
 
-			weaveInfo->instanceShader[0] = trap_R_RegisterShader("lightningBolt");;
+			weaveInfo->instanceShader[0] = trap_R_RegisterShader("lightningBolt");
 			//weaveInfo->instanceModel = trap_R_RegisterModel("models/projectiles/spike/spike.md3");
 			weaveInfo->instanceLight = 400;
 			MAKERGB(weaveInfo->instanceLightColor, 1, 1, 1);
@@ -1179,7 +1179,7 @@ void CG_RegisterWeave(int weaveNum)
 			//misc resources
 			weaveInfo->firingSound = trap_S_RegisterSound("sound/weapons/machinegun/par_shot_1.ogg");
 
-			//weaveInfo->instanceShader[0] = trap_R_RegisterShader("lightningBolt");;
+			//weaveInfo->instanceShader[0] = trap_R_RegisterShader("lightningBolt");
 			//weaveInfo->instanceModel = trap_R_RegisterModel("models/projectiles/spike/spike.md3");
 			//weaveInfo->instanceLight = 400;
 			//MAKERGB(weaveInfo->instanceLightColor, 1, 1, 1);
