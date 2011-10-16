@@ -474,8 +474,7 @@ void CG_WeaveEffect_Link(centity_t * cent)
 		ends |= 1 << 3;
 	}
 
-	//linkShader = weave->instanceShader[0];
-	linkShader = cgs.media.lightningShader;
+	linkShader = weave->instanceShader[0];
 
 	switch(ends)
 	{
@@ -530,8 +529,6 @@ void CG_WeaveEffect_Link(centity_t * cent)
 		return;
 	}
 
-	//TODO: A linked to B, C can see A but not B.
-	//      Can C see the link? (atm no)
 #if 0
 	// Entity between players
 	memset(&beam, 0, sizeof(beam));
@@ -565,7 +562,7 @@ void CG_WeaveEffect_Link(centity_t * cent)
 	VectorNormalize(dir);
 
 	CG_CurvedLine(follow->lerpOrigin, lead->lerpOrigin, dir, weave->instanceShader[0], 512.0f, 1.0f);
-#else
+#elif 0
 	// Strait line between players
 	//CG_DrawLineSegment(follow->lerpOrigin, lead->lerpOrigin, 100, 100, 1, weave->instanceShader[0]);
 #endif
