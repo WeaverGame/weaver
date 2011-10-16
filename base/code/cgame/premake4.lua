@@ -15,7 +15,45 @@ project "base_cgame"
 		"../../../code/shared/keycodes.h",
 		"../../../code/shared/surfaceflags.h",
 		
-		"**.c", "**.cpp", "**.h",
+		--"**.c", "**.cpp", "**.h",
+		
+		"cg_animation.c",
+		"cg_consolecmds.c",
+		"cg_draw.c",
+		"cg_drawtools.c",
+		"cg_effects.c",
+		"cg_ents.c",
+		"cg_event.c",
+		"cg_info.c",
+		"cg_local.h",
+		"cg_localents.c",
+		"cg_lua.c",
+		"cg_main.c",
+		"cg_marks.c",
+		"cg_osd.c",
+		"cg_particles.c",
+		"cg_players.c",
+		"cg_playerstate.c",
+		"cg_predict.c",
+		"cg_scoreboard.c",
+		"cg_servercmds.c",
+		"cg_snapshot.c",
+		"cg_spell_casts.c",
+		"cg_spell_effects.c",
+		"cg_spell_ents.c",
+		"cg_spell_hud.c",
+		"cg_spell_sense.c",
+		"cg_spell_util.h",
+		"cg_spell_weaves.c",
+		"cg_sword.c",
+		"cg_syscalls.c",
+		"cg_tutorial.c",
+		"cg_unlagged.c",
+		"cg_view.c",
+		"cg_weapons.c",
+		
+		"lua_cgame.c",
+		"lua_particle.c",
 		
 		"../game/bg_**.c", "../game/bg_**.cpp", "../game/bg_**.h",
 		
@@ -58,10 +96,10 @@ project "base_cgame"
 		"../../../code/libs/lua/src/linit.c",
 		"../../../code/libs/lua/src/loslib.c",
 	}
-	excludes
-	{
-		"cg_newdraw.c",
-	}
+	--excludes
+	--{
+	--	"cg_newdraw.c",
+	--}
 	includedirs
 	{
 		"../../../code/shared",
@@ -71,7 +109,7 @@ project "base_cgame"
 	{ 
 		"LUA",
 	}
-	
+
 	--
 	-- Platform Configurations
 	--

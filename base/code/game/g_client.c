@@ -473,7 +473,7 @@ void CopyToBodyQue(gentity_t * ent)
 	if(body->s.groundEntityNum == ENTITYNUM_NONE)
 	{
 		body->s.pos.trType = TR_GRAVITY;
-		body->s.pos.trAcceleration = g_gravity.value;
+		body->s.pos.trAcceleration = -g_gravityZ.value;
 		body->s.pos.trTime = level.time;
 		VectorCopy(ent->client->ps.velocity, body->s.pos.trDelta);
 	}

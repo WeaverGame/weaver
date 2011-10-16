@@ -56,7 +56,9 @@ vmCvar_t        g_maxclients;
 vmCvar_t        g_maxGameClients;
 vmCvar_t        g_dedicated;
 vmCvar_t        g_speed;
-vmCvar_t        g_gravity;
+vmCvar_t        g_gravityX;
+vmCvar_t        g_gravityY;
+vmCvar_t        g_gravityZ;
 vmCvar_t        g_cheats;
 vmCvar_t        g_knockback;
 vmCvar_t        g_knockbackZ;
@@ -141,6 +143,10 @@ vmCvar_t        pm_fixedPmoveFPS;
 vmCvar_t        lua_modules;
 vmCvar_t        lua_allowedModules;
 
+#if defined(USE_BULLET)
+vmCvar_t        g_physUseCCD;
+#endif
+
 #if defined(ACEBOT)
 vmCvar_t        ace_debug;
 vmCvar_t        ace_showNodes;
@@ -200,7 +206,9 @@ static cvarTable_t gameCvarTable[] = {
 	{&g_dedicated, "dedicated", "0", 0, 0, qfalse},
 
 	{&g_speed, "g_speed", "300", 0, 0, qtrue},
-	{&g_gravity, "g_gravity", DEFAULT_GRAVITY_STRING, CVAR_SYSTEMINFO, 0, qtrue},
+	{&g_gravityX, "g_gravityX", "0", CVAR_SYSTEMINFO, 0, qtrue},
+	{&g_gravityY, "g_gravityY", "0", CVAR_SYSTEMINFO, 0, qtrue},
+	{&g_gravityZ, "g_gravityZ", DEFAULT_GRAVITY_STRING, CVAR_SYSTEMINFO, 0, qtrue},
 	{&g_knockback, "g_knockback", "1000", 0, 0, qtrue},
 	{&g_knockbackZ, "g_knockbackZ", "40", 0, 0, qtrue},
 	{&g_quadfactor, "g_quadfactor", "4", 0, 0, qtrue},
@@ -270,6 +278,9 @@ static cvarTable_t gameCvarTable[] = {
 	{&lua_allowedModules, "lua_allowedModules", "", 0, 0, qfalse},
 	{&lua_modules, "lua_modules", "", 0, 0, qfalse},
 
+#if defined(USE_BULLET)
+	{&g_physUseCCD, "g_physUseCCD", "1", 0, 0, qfalse},
+#endif
 
 //unlagged - server options
 	{&g_delagHitscan, "g_delagHitscan", "1", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue},
@@ -410,6 +421,10 @@ void QDECL G_Error(const char *fmt, ...)
 
 #ifdef G_LUA
 	G_LuaShutdown();
+#endif
+
+#if defined(USE_BULLET)
+	G_ShutdownBulletPhysics();
 #endif
 
 	trap_Error(text);
@@ -613,6 +628,10 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 		G_Printf("Not logging to disk.\n");
 	}
 
+#if defined(USE_BULLET)
+	G_InitBulletPhysics();
+#endif
+
 #ifdef G_LUA
 	G_LuaInit();
 #endif
@@ -730,10 +749,14 @@ void G_ShutdownGame(int restart)
 {
 	G_Printf("==== ShutdownGame ====\n");
 
-#ifdef G_LUA
+#if defined(G_LUA)
 	// quad - Lua API
 	G_LuaHook_ShutdownGame(restart);
 	G_LuaShutdown();
+#endif
+
+#if defined(USE_BULLET)
+	G_ShutdownBulletPhysics();
 #endif
 
 	if(level.logFile)
@@ -2432,6 +2455,10 @@ void G_RunFrame(int levelTime)
 	// get any cvar changes
 	G_UpdateCvars();
 
+#if defined(USE_BULLET)
+	// simulate dynamics world
+	G_RunPhysics(msec);
+#endif
 
 	// spawns within G_RunClient(). 
 	// Check if this frame involves spawning any players.

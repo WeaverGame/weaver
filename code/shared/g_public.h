@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // g_public.h -- game module information visible to server
 
-#define	GAME_API_VERSION	10
+#define	GAME_API_VERSION	11
 
 // entity->svFlags
 // the server does not know how to interpret most of the values
@@ -234,6 +234,11 @@ typedef enum
 	BOTLIB_GET_CONSOLE_MESSAGE,	// ( int client, char *message, int size );
 	BOTLIB_USER_COMMAND,		// ( int client, usercmd_t *ucmd );
 	BOTLIB_CLIENT_COMMAND,		// ( int client, char *command );
+
+	//=========== Bullet physics functionality =============
+
+	BULLET_ADD_WORLD_BRUSHES_TO_DYNAMICS_WORLD // (plDynamicsWorldHandle * dynamicsWorldHandle)
+
 } gameImport_t;
 
 

@@ -401,7 +401,7 @@ gentity_t      *Drop_Obj_Item(gentity_t * ent, gentity_t * dropped, float angle)
 	// Set drop position and velocity
 	G_SetOrigin(dropped, ent->s.pos.trBase);
 	dropped->s.pos.trType = TR_GRAVITY;
-	dropped->s.pos.trAcceleration = g_gravity.value;
+	dropped->s.pos.trAcceleration = -g_gravityZ.value;
 	dropped->s.pos.trTime = level.time;
 	VectorCopy(velocity, dropped->s.pos.trDelta);
 	dropped->s.eFlags |= EF_BOUNCE_HALF;
@@ -599,7 +599,7 @@ void G_RunObjItem(gentity_t * ent)
 		if(ent->s.pos.trType != TR_GRAVITY)
 		{
 			ent->s.pos.trType = TR_GRAVITY;
-			ent->s.pos.trAcceleration = g_gravity.value;
+			ent->s.pos.trAcceleration = -g_gravityZ.value;
 			ent->s.pos.trTime = level.time;
 		}
 	}

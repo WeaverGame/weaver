@@ -477,6 +477,14 @@ intptr_t SV_GameSystemCalls(intptr_t * args)
 			SV_BotClientCommand(args[1], VMA(2));
 			return 0;
 
+			//====================================
+#if defined(USE_BULLET)
+
+		case BULLET_ADD_WORLD_BRUSHES_TO_DYNAMICS_WORLD:
+			CM_AddWorldBrushesToDynamicsWorld(VMA(1), VMA(2));
+			return 0;
+#endif
+
 		case TRAP_MEMSET:
 			Com_Memset(VMA(1), args[2], args[3]);
 			return 0;

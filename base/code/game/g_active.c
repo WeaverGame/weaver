@@ -1250,7 +1250,7 @@ void ClientThink_real(gentity_t * ent)
 		client->ps.pm_type = PM_NORMAL;
 	}
 
-	client->ps.gravity = g_gravity.value;
+	client->ps.gravity = -g_gravityZ.value;
 
 	// set speed
 	client->ps.speed = g_speed.value;

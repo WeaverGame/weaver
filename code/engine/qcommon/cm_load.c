@@ -862,6 +862,10 @@ void CM_LoadMap(const char *name, qboolean clientload, int *checksum)
 	Com_Memset(&cm, 0, sizeof(cm));
 	CM_ClearLevelPatches();
 
+#if defined(USE_BULLET)
+	CM_ShutdownBullet();
+#endif
+
 	if(!name[0])
 	{
 		cm.numLeafs = 1;
@@ -926,6 +930,10 @@ void CM_LoadMap(const char *name, qboolean clientload, int *checksum)
 	{
 		Q_strncpyz(cm.name, name, sizeof(cm.name));
 	}
+
+#if defined(USE_BULLET)
+	CM_InitBullet();
+#endif
 }
 
 /*
@@ -937,6 +945,10 @@ void CM_ClearMap(void)
 {
 	Com_Memset(&cm, 0, sizeof(cm));
 	CM_ClearLevelPatches();
+
+#if defined(USE_BULLET)
+	CM_ShutdownBullet();
+#endif
 }
 
 /*

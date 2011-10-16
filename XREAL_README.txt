@@ -452,7 +452,7 @@ Note that this cvar MUST be set as a command line parameter.
 
 ___________________________________________________
 
-13) CONTRIBUTIONS
+15) CONTRIBUTIONS
 __________________________________________
 
 If you want to contribute media assets like textures, models or sounds to the project then:
@@ -465,7 +465,7 @@ If you want to contribute media assets like textures, models or sounds to the pr
 
 ___________________________________________________
 
-14) DONATIONS
+16) DONATIONS
 __________________________________________
 
 If you think that this project is cool and helps you with your projects or you just have fun then make a small donation, please.

@@ -339,3 +339,9 @@ cmodel_t       *CM_ClipHandleToModel(clipHandle_t handle);
 
 qboolean        CM_BoundsIntersect(const vec3_t mins, const vec3_t maxs, const vec3_t mins2, const vec3_t maxs2);
 qboolean        CM_BoundsIntersectPoint(const vec3_t mins, const vec3_t maxs, const vec3_t point);
+
+
+#if defined(USE_BULLET)
+void			CM_InitBullet();
+void			CM_ShutdownBullet();
+#endif

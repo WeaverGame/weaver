@@ -1308,13 +1308,15 @@ enum
 				ATTR_TANGENT |
 				ATTR_BINORMAL |
 				ATTR_NORMAL |
-				ATTR_COLOR |
+				ATTR_COLOR
 
 #if !defined(COMPAT_Q3A) && !defined(COMPAT_ET)
+				|
 				ATTR_PAINTCOLOR |
-				ATTR_LIGHTDIRECTION// |
+				ATTR_LIGHTDIRECTION
 #endif
 
+				//|
 				//ATTR_BONE_INDEXES |
 				//ATTR_BONE_WEIGHTS
 };

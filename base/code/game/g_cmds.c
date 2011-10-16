@@ -2051,7 +2051,6 @@ void ClientCommand(int clientNum)
 	trap_Argv(0, cmd, sizeof(cmd));
 
 #ifdef G_LUA
-
 	if(Q_stricmp(cmd, "lua_status") == 0)
 	{
 		G_LuaStatus(ent);
@@ -2177,6 +2176,10 @@ void ClientCommand(int clientNum)
 		Cmd_SetViewpos_f(ent);
 	else if(Q_stricmp(cmd, "stats") == 0)
 		Cmd_Stats_f(ent);
+#if defined(USE_BULLET)
+    else if(Q_stricmp(cmd, "shootbox") == 0)
+        Cmd_PhysicsTest_ShootBox_f(ent);
+#endif
 	else if(Q_stricmp(cmd, "ready") == 0)
 		Cmd_Ready_f(ent);
 	else if(Q_stricmp(cmd, "unready") == 0)

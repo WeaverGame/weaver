@@ -1631,7 +1631,7 @@ extern vmCvar_t pm_fastWeaponSwitches;
 extern vmCvar_t pm_fixedPmove;
 extern vmCvar_t pm_fixedPmoveFPS;
 
-extern vmCvar_t cg_gravity;
+extern vmCvar_t cg_gravityZ;
 
 //weaver cvars
 extern vmCvar_t cg_drawWeaverDisc;

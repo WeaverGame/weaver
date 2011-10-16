@@ -555,7 +555,7 @@ void CG_LaunchGib(vec3_t origin, vec3_t velocity, qhandle_t hModel)
 	re->hModel = hModel;
 
 	le->pos.trType = TR_GRAVITY;
-	le->pos.trAcceleration = cg_gravity.value;
+	le->pos.trAcceleration = -cg_gravityZ.value;
 	VectorCopy(origin, le->pos.trBase);
 	VectorCopy(velocity, le->pos.trDelta);
 	le->pos.trTime = cg.time;
@@ -825,7 +825,7 @@ void CG_ExplosiveRubble(vec3_t origin, vec3_t mins, vec3_t maxs, qhandle_t model
 
 	//Initialize velocity
 	le->pos.trType = TR_GRAVITY;
-	le->pos.trAcceleration = 600;
+	le->pos.trAcceleration = -cg_gravityZ.value;
 	VectorClear(le->pos.trDelta);
 	VectorRandomUniform(le->pos.trDelta, velmax);
 

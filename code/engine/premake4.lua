@@ -24,9 +24,15 @@ project "XreaL"
 		"qcommon/msg.c",
 		"qcommon/vm.c",
 		"qcommon/net_*.c",
-		"qcommon/cm_*.c",
 		"qcommon/unzip.c",
 		"qcommon/parse.c",
+
+		"qcommon/cm_load.c",
+		"qcommon/cm_patch.c",
+		"qcommon/cm_polylib.c",
+		"qcommon/cm_test.c",
+		"qcommon/cm_trace.c",
+		"qcommon/cm_trisoup.c",
 		
 		"renderer/**.c", "renderer/**.cpp", "renderer/**.h",
 		
@@ -487,8 +493,14 @@ project "XreaL-dedicated"
 		"qcommon/msg.c",
 		"qcommon/vm.c",
 		"qcommon/net_*.c",
-		"qcommon/cm_*.c",
 		"qcommon/unzip.c",
+
+		"qcommon/cm_load.c",
+		"qcommon/cm_patch.c",
+		"qcommon/cm_polylib.c",
+		"qcommon/cm_test.c",
+		"qcommon/cm_trace.c",
+		"qcommon/cm_trisoup.c",
 		
 		"../libs/zlib/**.c", "../../libs/zlib/**.h",
 	}

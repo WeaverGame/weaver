@@ -779,6 +779,8 @@ Every map should have exactly one worldspawn.
 void SP_worldspawn(void)
 {
 	char           *s;
+	float           gravity;
+	char           *gravityStr;
 
 	G_SpawnString("classname", "", &s);
 	if(Q_stricmp(s, "worldspawn"))
@@ -799,8 +801,9 @@ void SP_worldspawn(void)
 
 	trap_SetConfigstring(CS_MOTD, g_motd.string);	// message of the day
 
-	G_SpawnString("gravity", "800", &s);
-	trap_Cvar_Set("g_gravity", s);
+	G_SpawnFloat("gravity", "800", &gravity);
+	gravityStr = va("%i", Q_ftol(-gravity));
+	trap_Cvar_Set("g_gravityZ", gravityStr);
 
 	G_SpawnString("enableDust", "0", &s);
 	trap_Cvar_Set("g_enableDust", s);

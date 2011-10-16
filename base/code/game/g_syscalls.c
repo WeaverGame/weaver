@@ -296,6 +296,13 @@ int trap_RealTime(qtime_t * qtime)
 	return syscall(G_REAL_TIME, qtime);
 }
 
+#if defined(USE_BULLET)
+void trap_Bullet_AddWorldBrushesToDynamicsWorld(void * collisionShapesHandle, plDynamicsWorldHandle * dynamicsWorldHandle)
+{
+	syscall(BULLET_ADD_WORLD_BRUSHES_TO_DYNAMICS_WORLD, collisionShapesHandle, dynamicsWorldHandle);
+}
+#endif
+
 #if defined(BRAINWORKS)
 
 // BotLib traps start here

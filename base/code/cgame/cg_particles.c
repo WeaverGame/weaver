@@ -852,7 +852,7 @@ void CG_AddParticles(void)
 	tail = NULL;
 
 	// Tr3B: allow gravity tweaks by the server
-	grav = cg_gravity.value;
+	grav = cg_gravityZ.value;
 	if(!grav)
 		grav = 1;
 	else
@@ -935,7 +935,7 @@ void CG_AddParticles(void)
 		org[2] = p->org[2] + p->vel[2] * time + p->accel[2] * time2;
 
 		// Tr3B: ah well particles shouldn't be affected by gravity
-		//org[2]-= 0.5 * cg_gravity.value * time2;
+		//org[2]-= 0.5 * cg_gravityZ.value * time2;
 
 		// Tr3B: add some collision tests
 		if(cg_particleCollision.integer)

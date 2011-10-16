@@ -13,7 +13,48 @@ project "base_game"
 		"../../../code/shared/g_public.h",
 		"../../../code/shared/surfaceflags.h",
 		
-		"**.c", "**.cpp", "**.h",
+		--"**.c", "**.cpp", "**.h",
+		"*.h",
+		"acebot_ai.c",
+		"acebot_cmds.c",
+		"acebot_items.c",
+		"acebot_movement.c",
+		"acebot_nodes.c",
+		"acebot_spawn.c",
+		"bg_misc.c",
+		"bg_pmove.c",
+		"bg_slidemove.c",
+		"g_active.c",
+		"g_arenas.c",
+		"g_bot.c",
+		"g_client.c",
+		"g_cmds.c",
+		"g_combat.c",
+		"g_explosive.c",
+		"g_items.c",
+		"g_lua.c",
+		"g_main.c",
+		"g_mem.c",
+		"g_misc.c",
+		"g_missile.c",
+		"g_mover.c",
+		"g_session.c",
+		"g_spawn.c",
+		"g_spell_**.c",
+		"g_statfields.def",
+		"g_statistics.c",
+		"g_svcmds.c",
+		"g_sword.c",
+		"g_syscalls.c",
+		"g_target.c",
+		"g_team.c",
+		"g_trigger.c",
+		"g_utils.c",
+		"g_weapon.c",
+		"lua_*.c",
+
+		"spell_info.def",
+		"spell_shared.c",
 		
 		"../../../code/libs/lua/src/lapi.c",
 		"../../../code/libs/lua/src/lcode.c",
@@ -45,10 +86,11 @@ project "base_game"
 		"../../../code/libs/lua/src/linit.c",
 		"../../../code/libs/lua/src/loslib.c",
 	}
-	excludes
-	{
-		"g_rankings.c",
-	}
+	--excludes
+	--{
+	--	"g_rankings.c",
+	--	"g_bullet.cpp",
+	--}
 	includedirs
 	{
 		"../../../code/shared",

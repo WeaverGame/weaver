@@ -216,7 +216,7 @@ vmCvar_t        pm_fastWeaponSwitches;
 vmCvar_t        pm_fixedPmove;
 vmCvar_t        pm_fixedPmoveFPS;
 
-vmCvar_t        cg_gravity;
+vmCvar_t        cg_gravityZ;
 
 //weaver cvars
 vmCvar_t        cg_drawWeaverDisc;
@@ -403,7 +403,7 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&pm_fixedPmove, "pm_fixedPmove", "0", 0},
 	{&pm_fixedPmoveFPS, "pm_fixedPmoveFPS", "125", 0},
 
-	{&cg_gravity, "g_gravity", "0", 0},	// communicated by systeminfo
+	{&cg_gravityZ, "g_gravityZ", "0", 0},	// communicated by systeminfo
 
 //unlagged - client options
 	{&cg_delag, "cg_delag", "1", CVAR_ARCHIVE | CVAR_USERINFO},
