@@ -601,6 +601,7 @@ static void CG_DrawWeaverHeld(void)
 	centity_t      *cent;
 	weaver_weaveCGInfo *weaveInfo;
 	float           x, y;
+	qhandle_t       frameShader;
 
 	float           power_spell_w;
 
@@ -647,7 +648,15 @@ static void CG_DrawWeaverHeld(void)
 			CG_Text_PaintAligned(x - (s.spellicon_w/2), y_icon + 9, thread, s.f * 0.22f, UI_CENTER, colorWhite, &cgs.media.freeSansBoldFont);
 
 			// Draw frame
-			trap_R_DrawStretchPic(x - s.spellicon_frame_offset_x, y_icon - s.spellicon_frame_offset_x, s.spellicon_frame_w, s.spellicon_frame_w, 0, 0, 1, 1, cgs.media.spell_frame[(i == cg.weaponSelect)]);
+			if(CG_HeldWeave_GetState(cent) == WST_INPROCESS)
+			{
+				frameShader = cgs.media.spell_frame[2 + (i == cg.weaponSelect)];
+			}
+			else
+			{
+				frameShader = cgs.media.spell_frame[(i == cg.weaponSelect)];
+			}
+			trap_R_DrawStretchPic(x - s.spellicon_frame_offset_x, y_icon - s.spellicon_frame_offset_x, s.spellicon_frame_w, s.spellicon_frame_w, 0, 0, 1, 1, frameShader);
 
 			// Move left
 			x -= power_spell_w;

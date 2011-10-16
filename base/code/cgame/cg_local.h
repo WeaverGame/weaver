@@ -1372,7 +1372,7 @@ typedef struct
 	qhandle_t       capturePointFlag[3];
 	qhandle_t       objItemIcon;
 
-	qhandle_t       spell_frame[2];
+	qhandle_t       spell_frame[4];
 
 	// weaver sword
 	qhandle_t       swordModel;
