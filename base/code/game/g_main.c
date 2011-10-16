@@ -1793,9 +1793,9 @@ void CheckExitRules(void)
 
 	if(level.intermissionQueued)
 	{
-		int             time = (g_gametype.integer == GT_SINGLE_PLAYER) ? SP_INTERMISSION_DELAY_TIME : INTERMISSION_DELAY_TIME;
+		//int             time = (g_gametype.integer == GT_SINGLE_PLAYER) ? SP_INTERMISSION_DELAY_TIME : INTERMISSION_DELAY_TIME;
 
-		if(level.time - level.intermissionQueued >= time)
+		if(level.time - level.intermissionQueued >= 0)
 		{
 			level.intermissionQueued = 0;
 			BeginIntermission();

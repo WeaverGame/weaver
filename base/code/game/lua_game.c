@@ -168,6 +168,12 @@ static int game_EndRound(lua_State * L)
 		return 0;
 	}
 
+	if(level.intermissionQueued)
+	{
+		DEBUG_LUA("game_EndRound: return: already queued");
+		return 0;
+	}
+
 	trap_SendServerCommand(-1, "print \"Round Ended.\n\"");
 	LogExit("Round Ended.");
 
