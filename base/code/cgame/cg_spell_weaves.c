@@ -133,7 +133,7 @@ void CG_ShowThreads(centity_t * cent)
 		//Threads belong to another player.
 		pe = &cg_entities[cent->currentState.otherEntityNum2].pe;
 		//Use info to update weave sense dots
-		CG_UpdateWeaveSense(cent->currentState.otherEntityNum2, cent->currentState.origin, cent->currentState.powerups);
+		//CG_UpdateWeaveSense(cent->currentState.otherEntityNum2, cent->currentState.origin, cent->currentState.powerups);
 	}
 
 	PowerDecode(pe, cent->currentState.constantLight, 0, 8);

@@ -753,7 +753,7 @@ void CG_DrawWeaverHUD(void)
 	CG_DrawWeaverDisc();
 
 	//Weaver Sense
-	CG_DrawWeaveSense();
+	//CG_DrawWeaveSense();
 
 	//Binds tutorial
 	CG_DrawBindsTutorial();
