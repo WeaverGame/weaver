@@ -49,6 +49,7 @@ project "base_game"
 		"g_target.c",
 		"g_team.c",
 		"g_trigger.c",
+		"g_unlagged.c",
 		"g_utils.c",
 		"g_weapon.c",
 		"lua_*.c",
