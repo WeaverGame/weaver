@@ -1337,6 +1337,15 @@ Heal
 */
 void RunWeave_Heal(gentity_t * ent)
 {
+	if(!trap_InPVS(ent->target_ent->s.pos.trBase, ent->parent->s.pos.trBase))
+	{
+		// Follower and leader cannot see each other
+		// Break the link
+		ClientLinkLeave(ent->parent->client);
+		DEBUGWEAVEING("RunLinkEnt: end, out of PVS");
+		return;
+	}
+
 	//apply shielding until next run
 	if(ent->damage <= 0)
 	{
@@ -1353,7 +1362,8 @@ void RunWeave_Heal(gentity_t * ent)
 		ent->damage--;
 	}
 
-	RunWeave_MoveToTarget(ent);
+	// New link origin = average of old origin and players' origins
+	VectorAdd(ent->target_ent->s.pos.trBase, ent->parent->s.pos.trBase, ent->s.pos.trBase);
 
 	//should probably copy trajectory too
 	G_RunThink(ent);

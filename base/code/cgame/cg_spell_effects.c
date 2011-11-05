@@ -429,21 +429,15 @@ CG_WeaveEffect_Link
 */
 void CG_WeaveEffect_Link(centity_t * cent)
 {
-	refEntity_t     beam;
 	entityState_t  *s1;
 	const weaver_weaveCGInfo *weave;
 	vec3_t          dir;
 
-	unsigned int    ends;
+	vec3_t         *start;
+	vec3_t         *end;
 
 	centity_t      *lead;
 	centity_t      *follow;
-
-	// change all for testing
-	qhandle_t       linkShader;
-	float           linkLength = 800.0f;
-	float           linkSeg = 400.0f;
-	float           linkScroll = 1.0f;
 
 	s1 = &cent->currentState;
 	if(s1->weapon > WVW_NUM_WEAVES)
@@ -455,117 +449,99 @@ void CG_WeaveEffect_Link(centity_t * cent)
 	lead = &cg_entities[s1->otherEntityNum];
 	follow = &cg_entities[s1->generic1];
 
-	ends = 0;
 	if(lead->currentState.number == cg.clientNum)
 	{
-		ends |= 1 << 0;
+		start = cg.predictedPlayerEntity.lerpOrigin;
 	}
 	else if(trap_R_inPVS(cg.refdef.vieworg, lead->lerpOrigin))
 	{
-		ends |= 1 << 1;
+		start = lead->lerpOrigin;
+	}
+	else
+	{
+		start = cent->lerpOrigin;
 	}
 
 	if(follow->currentState.number == cg.clientNum)
 	{
-		ends |= 1 << 2;
+		end = cg.predictedPlayerEntity.lerpOrigin;
 	}
 	else if(trap_R_inPVS(cg.refdef.vieworg, follow->lerpOrigin))
 	{
-		ends |= 1 << 3;
+		end = follow->lerpOrigin;
 	}
-
-	linkShader = weave->instanceShader[0];
-
-	switch(ends)
+	else
 	{
-	case 0:
-		// No end visible.
-		return;
-	case 1:
-		// Lead is local client
-		// Follow is out of sight
-		CG_DrawLineSegment(cg.predictedPlayerEntity.lerpOrigin, cent->lerpOrigin, linkLength, linkSeg, linkScroll, linkShader);
-		break;
-	case 2:
-		// Lead is lead
-		// Follow is out of sight
-		CG_DrawLineSegment(lead->lerpOrigin, cent->lerpOrigin, linkLength, linkSeg, linkScroll, linkShader);
-		break;
-	case 3:
-		// Invalid (lead can't be local and not)
-		return;
-	case 4:
-		// Follow is local client
-		// Lead is out of sight
-		CG_DrawLineSegment(cent->lerpOrigin, cg.predictedPlayerEntity.lerpOrigin, linkLength, linkSeg, linkScroll, linkShader);
-		break;
-	case 5:
-		// Invalid (can't both be local)
-		return;
-	case 6:
-		// Follow is local client
-		// Lead is lead
-		CG_DrawLineSegment(lead->lerpOrigin, cg.predictedPlayerEntity.lerpOrigin, linkLength, linkSeg, linkScroll, linkShader);
-		break;
-	case 7:
-		// Invalid (cant have 3 bits)
-		return;
-	case 8:
-		// Follow is follow
-		// Lead is out of sight
-		CG_DrawLineSegment(cent->lerpOrigin, follow->lerpOrigin, linkLength, linkSeg, linkScroll, linkShader);
-		break;
-	case 9:
-		// Follow is follow
-		// Lead is local client
-		CG_DrawLineSegment(cg.predictedPlayerEntity.lerpOrigin, follow->lerpOrigin, linkLength, linkSeg, linkScroll, linkShader);
-		break;
-	case 10:
-		// Follow is follow
-		// Lead is local client
-		CG_DrawLineSegment(cg.predictedPlayerEntity.lerpOrigin, follow->lerpOrigin, linkLength, linkSeg, linkScroll, linkShader);
-		break;
-	default:
-		return;
+		end = cent->lerpOrigin;
 	}
 
-#if 0
-	// Entity between players
-	memset(&beam, 0, sizeof(beam));
+	CG_DrawLineSegment(start, end, 800.0f, 400.0f, 1.0f, weave->instanceShader[0]);
+}
 
-	VectorCopy(cent->lerpOrigin, beam.origin);
-	//VectorCopy(cent->currentState.pos.trBase, beam.lightingOrigin);
-	//AnglesToAxis(cent->currentState.angles, beam.axis);
-	AxisClear(beam.axis);
+/*
+===============
+CG_WeaveEffect_Heal
+===============
+*/
+void CG_WeaveEffect_Heal(centity_t * cent)
+{
+	entityState_t  *s1;
+	const weaver_weaveCGInfo *weave;
+	vec3_t          dir;
+	float           size = 0.0f;
 
-	/*
-	beam.reType = RT_LIGHTNING;
-	beam.customShader = weave->instanceShader[0];
-	*/
-	/*
-	beam.reType = RT_MODEL;
-	beam.hModel = cgs.media.swordModel;
-	beam.customSkin = weave->instanceShader[0];
-	*/
+	vec3_t         *start;
+	vec3_t         *end;
 
-	beam.reType = RT_SPRITE;
-	beam.customShader = weave->instanceShader[0];
-	beam.radius = 100.0f;
+	centity_t      *lead;
+	centity_t      *follow;
 
-	trap_R_AddRefEntityToScene(&beam);
-#elif 0
-	// Curved line between players, with control point on follower's view vector.
+	s1 = &cent->currentState;
+	if(s1->weapon > WVW_NUM_WEAVES)
+	{
+		s1->weapon = 0;
+	}
+	weave = &cg_weaves[s1->weapon];
 
-	//VectorSubtract(cent->lerpOrigin, follow->lerpOrigin, dir);
-	//VectorNormalize(dir);
-	AngleVectors(follow->lerpAngles, dir, NULL, NULL);
-	VectorNormalize(dir);
+	lead = &cg_entities[s1->otherEntityNum];
+	follow = &cg_entities[s1->generic1];
 
-	CG_CurvedLine(follow->lerpOrigin, lead->lerpOrigin, dir, weave->instanceShader[0], 512.0f, 1.0f);
-#elif 0
-	// Strait line between players
-	//CG_DrawLineSegment(follow->lerpOrigin, lead->lerpOrigin, 100, 100, 1, weave->instanceShader[0]);
-#endif
+	if(lead->currentState.number == cg.clientNum)
+	{
+		start = cg.predictedPlayerEntity.lerpOrigin;
+	}
+	else if(trap_R_inPVS(cg.refdef.vieworg, lead->lerpOrigin))
+	{
+		start = lead->lerpOrigin;
+	}
+	else
+	{
+		start = cent->lerpOrigin;
+	}
+
+	if(follow->currentState.number == cg.clientNum)
+	{
+		end = cg.predictedPlayerEntity.lerpOrigin;
+	}
+	else if(trap_R_inPVS(cg.refdef.vieworg, follow->lerpOrigin))
+	{
+		end = follow->lerpOrigin;
+	}
+	else
+	{
+		end = cent->lerpOrigin;
+	}
+
+	if(s1->weapon == WVW_D_WATER_HEAL_S)
+	{
+		size = 10.0f;
+	}
+	else if(s1->weapon == WVW_D_WATER_HEAL_M)
+	{
+		size = 15.0f;
+	}
+
+	CG_ParticleHealStream(start, end, size, weave->instanceShader[0]);
 }
 
 /*

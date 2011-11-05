@@ -2594,6 +2594,58 @@ void CG_ParticleRailRick(vec3_t org, vec3_t dir, vec3_t clientColor)
 }
 
 
+void CG_ParticleHealStream(const vec3_t start, const vec3_t end, float size, qhandle_t shader)
+{
+	float           d;
+	int             j, i;
+	vec3_t          dir;
+	vec_t           length;
+	cparticle_t    *p;
+
+	VectorSubtract(end, start, dir);
+	length = VectorLength(dir);
+	VectorNormalize(dir);
+
+	// SPARKS
+	for(i = 0; i < 2; i++)
+	{
+		p = CG_AllocParticle();
+		if(!p)
+			return;
+
+		VectorClear(p->accel);
+		VectorClear(p->vel);
+
+		p->flags = PF_AIRONLY;
+
+		p->time = cg.time;
+
+		p->endTime = cg.time + 700 + (random() * 500);
+		p->type = P_SMOKE;
+		p->pshader = shader;
+		p->width = 5 + (random() * size);
+		p->height = p->width;
+		p->endHeight = p->width * 0.2;
+		p->endWidth = p->height * 0.2;
+
+		p->color[0] = 1.0f;
+		p->color[1] = 1.0f;
+		p->color[2] = 1.0f;
+		p->color[3] = 0.5f;
+
+		p->colorVel[0] = 0;
+		p->colorVel[1] = 0;
+		p->colorVel[2] = 0;
+		p->colorVel[3] = -1.0 / (0.3 + random() * 0.2);
+
+		VectorMA(start, length * random(), dir, p->org);
+		VectorCopy(dir, p->vel);
+		VectorCopy(dir, p->accel);
+
+		p->bounceFactor = 0.6f;
+	}
+}
+
 /*
 =================
 CG_TestParticles_f

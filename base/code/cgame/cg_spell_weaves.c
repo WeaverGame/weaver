@@ -1257,9 +1257,11 @@ void CG_RegisterWeave(int weaveNum)
 			break;
 
 		case WVW_D_WATER_HEAL_S:
+			weaveInfo->instanceShader[0] = trap_R_RegisterShader("weave_effects/heal/healparticle");
 			break;
 
 		case WVW_D_WATER_HEAL_M:
+			weaveInfo->instanceShader[0] = trap_R_RegisterShader("weave_effects/heal/healparticle");
 			break;
 
 		case WVW_D_SPIRIT_STAMINA:
