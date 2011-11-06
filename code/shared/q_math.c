@@ -434,12 +434,16 @@ void PlaneIntersectRay(const vec3_t rayPos, const vec3_t rayDir, const vec4_t pl
 {
 	vec3_t          dir;
 	float           sect;
+	float			distToPlane;
+	float			planeDotRay;
 
 	VectorNormalize2(rayDir, dir);
 
-	sect = -(DotProduct(plane, rayPos) - plane[3]) / DotProduct(plane, rayDir);
-	VectorScale(dir, sect, dir);
-	VectorAdd(rayPos, dir, res);
+	distToPlane = DotProduct(plane, rayPos) - plane[3];
+	planeDotRay = DotProduct(plane, dir);
+	sect = -(distToPlane) / planeDotRay;
+
+	VectorMA(rayPos, sect, dir, res);
 }
 /*
 ===============

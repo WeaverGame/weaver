@@ -1,5 +1,5 @@
 
-project "XreaL"
+project "Weaver"
 	targetname  "weaver"
 	language    "C++"
 	kind        "WindowedApp"
@@ -199,7 +199,6 @@ project "XreaL"
 	-- Platform Configurations
 	-- 	
 	configuration "x32"
-		targetdir 	"../../bin32"
 		files
 		{ 
 			--"code/qcommon/vm_x86.c",
@@ -210,7 +209,7 @@ project "XreaL"
 		}
 	
 	configuration "x64"
-		targetdir 	"../../bin64"
+		--targetdir 	"../../bin64"
 		files
 		{ 
 			--"qcommon/vm_x86_64.c",
@@ -327,6 +326,7 @@ project "XreaL"
 		
 		
 	configuration { "vs*", "x32" }
+		targetdir 	"../../bin/win32"
 		files
 		{
 			"gldraw.c",
@@ -344,6 +344,7 @@ project "XreaL"
 		}
 		
 	configuration { "vs*", "x64" }
+		targetdir 	"../../bin/win64"
 		libdirs
 		{
 			"../libs/sdl/lib64",
@@ -381,31 +382,12 @@ project "XreaL"
 			"openal",
 		}
 	
-	configuration { "solaris", "gmake" }
-		buildoptions
-		{
-			--"`pkg-config --cflags x11`",
-			--"`pkg-config --cflags xext`",
-			--"`pkg-config --cflags xxf86dga`",
-			--"`pkg-config --cflags xxf86vm`",
-			"`pkg-config --cflags sdl`",
-			"`pkg-config --cflags libcurl`",
-		}
-		linkoptions
-		{
-			--"`pkg-config --libs x11`",
-			--"`pkg-config --libs xext`",
-			--"`pkg-config --libs xxf86dga`",
-			--"`pkg-config --libs xxf86vm`",
-			"`pkg-config --libs sdl`",
-			"`pkg-config --libs libcurl`",
-		}
-		links
-		{
-			--"libcurl",
-			"openal",
-		}
-
+	configuration { "linux", "x32" }
+		targetdir 	"../../bin/linux-x86"
+		
+	configuration { "linux", "x64" }
+		targetdir 	"../../bin/linux-x86_64"
+	
 	configuration "linux"
 		targetname  "xreal"
 		files
@@ -432,7 +414,38 @@ project "XreaL"
 		{
             "PNG_NO_ASSEMBLER_CODE",
 		}
+	
+	configuration { "solaris", "gmake" }
+		buildoptions
+		{
+			--"`pkg-config --cflags x11`",
+			--"`pkg-config --cflags xext`",
+			--"`pkg-config --cflags xxf86dga`",
+			--"`pkg-config --cflags xxf86vm`",
+			"`pkg-config --cflags sdl`",
+			"`pkg-config --cflags libcurl`",
+		}
+		linkoptions
+		{
+			--"`pkg-config --libs x11`",
+			--"`pkg-config --libs xext`",
+			--"`pkg-config --libs xxf86dga`",
+			--"`pkg-config --libs xxf86vm`",
+			"`pkg-config --libs sdl`",
+			"`pkg-config --libs libcurl`",
+		}
+		links
+		{
+			--"libcurl",
+			"openal",
+		}
+	
+	configuration { "solaris", "x32" }
+		targetdir 	"../../bin/solaris-x86"
 		
+	configuration { "solaris", "x64" }
+		targetdir 	"../../bin/solaris-x86_64"
+	
 	configuration "solaris"
 		targetname  "xreal"
 		files
@@ -462,6 +475,7 @@ project "XreaL"
 		{
             "PNG_NO_ASSEMBLER_CODE",
 		}
+	
 
 project "XreaL-dedicated"
 	targetname  "XreaL-dedicated"
@@ -525,14 +539,13 @@ project "XreaL-dedicated"
 	-- Platform Configurations
 	-- 	
 	configuration "x32"
-		targetdir 	"../../bin32"
 		files
 		{ 
 			--"code/qcommon/vm_x86.c",
 		}
 	
-	configuration "x64"
-		targetdir 	"../../bin64"
+	--configuration "x64"
+	--	targetdir 	"../../bin64"
 	
 	-- 
 	-- Project Configurations
@@ -580,6 +593,12 @@ project "XreaL-dedicated"
 			--"USE_ALLOCA"
 		}
 
+	configuration { "vs*", "x32" }
+		targetdir 	"../../bin/win32"
+		
+	configuration { "vs*", "x64" }
+		targetdir 	"../../bin/win64"
+
 	configuration { "linux", "gmake" }
 		buildoptions
 		{
@@ -590,15 +609,11 @@ project "XreaL-dedicated"
 			"`pkg-config --libs sdl`",
 		}
 	
-	configuration { "solaris", "gmake" }
-		buildoptions
-		{
-			"`pkg-config --cflags sdl`",
-		}
-		linkoptions
-		{
-			"`pkg-config --libs sdl`",
-		}
+	configuration { "linux", "x32" }
+		targetdir 	"../../bin/linux-x86"
+		
+	configuration { "linux", "x64" }
+		targetdir 	"../../bin/linux-x86_64"
 	
 	configuration "linux"
 		targetname  "xreal-dedicated"
@@ -618,7 +633,23 @@ project "XreaL-dedicated"
 			"dl",
 			"m",
 		}
+	
+	configuration { "solaris", "gmake" }
+		buildoptions
+		{
+			"`pkg-config --cflags sdl`",
+		}
+		linkoptions
+		{
+			"`pkg-config --libs sdl`",
+		}
+	
+	configuration { "solaris", "x32" }
+		targetdir 	"../../bin/solaris-x86"
 		
+	configuration { "solaris", "x64" }
+		targetdir 	"../../bin/solaris-x86_64"
+	
 	configuration "solaris"
 		targetname  "xreal-dedicated"
 		files

@@ -809,7 +809,7 @@ void SCR_DrawScreenField(stereoFrame_t stereoFrame)
 #if defined(USE_JAVA)
 				Java_UI_Refresh(cls.realtime);
 				Java_UI_DrawConnectScreen(qfalse);
-#else-
+#else
 				VM_Call(uivm, UI_REFRESH, cls.realtime);
 				VM_Call(uivm, UI_DRAW_CONNECT_SCREEN, qfalse);
 #endif
@@ -825,7 +825,7 @@ void SCR_DrawScreenField(stereoFrame_t stereoFrame)
 #if defined(USE_JAVA)
 				Java_UI_Refresh(cls.realtime);
 				Java_UI_DrawConnectScreen(qtrue);
-#else-
+#else
 				VM_Call(uivm, UI_REFRESH, cls.realtime);
 				VM_Call(uivm, UI_DRAW_CONNECT_SCREEN, qtrue);
 #endif

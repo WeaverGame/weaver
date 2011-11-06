@@ -2966,7 +2966,7 @@ static void Com_PrintQuat(const quat_t q)
 static void Com_MathTest_f(void)
 {
 	vec3_t			forward, right, up;
-	matrix_t        m, world, view, proj, mvp;			//, m2;
+	matrix_t        m, world, view; //, proj, mvp;	//, m2;
 	const matrix_t  quakeToOpenGLMatrix = {
 		0, 0, -1, 0,
 		-1, 0, 0, 0,

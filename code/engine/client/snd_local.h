@@ -227,6 +227,8 @@ void            S_PaintChannels(int endtime);
 
 void            S_memoryLoad(sfx_t * sfx);
 
+void            S_FreeOldestSound(void);
+
 // spatializes a channel
 void            S_Spatialize(channel_t * ch);
 

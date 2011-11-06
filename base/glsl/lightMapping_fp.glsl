@@ -141,10 +141,15 @@ void	main()
 
 
 	// compute normal in world space from normalmap
-	vec3 N = tangentToWorldMatrix * (2.0 * (texture2D(u_NormalMap, texNormal).xyz - 0.5));
+	vec3 N = (2.0 * (texture2D(u_NormalMap, texNormal).xyz - 0.5));
+	//N.x = -N.x;
+	//N = normalize(N);
+	//N = normalize(var_Normal.xyz);
+	N = tangentToWorldMatrix * N;
 	
 	// compute light direction in world space
 	vec3 L = 2.0 * (texture2D(u_DeluxeMap, var_TexLight).xyz - 0.5);
+	//L = normalize(L);
 	
 	// compute half angle in world space
 	vec3 H = normalize(L + I);
@@ -155,10 +160,24 @@ void	main()
 	// compute the specular term
 	vec3 specular = texture2D(u_SpecularMap, texSpecular).rgb;
 	
+	float NdotL = clamp(dot(N, L), 0.0, 1.0);
+	
+	float NdotLnobump = clamp(dot(normalize(var_Normal.xyz), L), 0.004, 1.0);
+	//vec3 lightColorNoNdotL = clamp(lightColor.rgb / NdotLnobump, 0.0, 1.0);
+	
+	//float NdotLnobump = dot(normalize(var_Normal.xyz), L);
+	vec3 lightColorNoNdotL = lightColor.rgb / NdotLnobump;
+	
 	// compute final color
 	vec4 color = diffuse;
-	color.rgb *= lightColor.rgb * clamp(dot(N, L), 0.0, 1.0);
-	color.rgb += specular * lightColor * pow(clamp(dot(N, H), 0.0, 1.0), r_SpecularExponent) * r_SpecularScale;
+	// color = vec4(vec3(1.0, 1.0, 1.0), diffuse.a);
+	//color.rgb = vec3(NdotLnobump, NdotLnobump, NdotLnobump);
+	//color.rgb *= lightColor.rgb;
+	//color.rgb = lightColorNoNdotL.rgb * NdotL;
+	color.rgb *= clamp(lightColorNoNdotL.rgb * NdotL, lightColor.rgb * 0.3, lightColor.rgb);
+	//color.rgb *= diffuse.rgb;
+	//color.rgb = L * 0.5 + 0.5;
+	color.rgb += specular * lightColorNoNdotL * pow(clamp(dot(N, H), 0.0, 1.0), r_SpecularExponent) * r_SpecularScale;
 	color.a = var_Color.a;	// for terrain blending
 
 

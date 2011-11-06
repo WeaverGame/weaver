@@ -79,16 +79,20 @@ void Sys_SetDefaultInstallPath(const char *path)
 {
 	Q_strncpyz(installPath, path, sizeof(installPath));
 
-	if(strstr(installPath, "bin32") ||  strstr(installPath, "bin64"))
-	{
-		int				i, len;
+	Q_strreplace(installPath, sizeof(installPath), "bin32", "");
+	Q_strreplace(installPath, sizeof(installPath), "bin64", "");
 
-		len = strlen(installPath);
-		for(i = len; i >= len - 6; i--)
-		{
-			installPath[i] = '\0';
-		}
-	}
+	//Q_strreplace(installPath, sizeof(installPath), "code/engine", "");
+	//Q_strreplace(installPath, sizeof(installPath), "code\\engine", "");
+	
+	Q_strreplace(installPath, sizeof(installPath), "bin/win32", "");
+	Q_strreplace(installPath, sizeof(installPath), "bin\\win32", "");
+	
+	Q_strreplace(installPath, sizeof(installPath), "bin/win64", "");
+	Q_strreplace(installPath, sizeof(installPath), "bin\\win64", "");
+	
+	Q_strreplace(installPath, sizeof(installPath), "bin/linux-x86", "");
+	Q_strreplace(installPath, sizeof(installPath), "bin/linux-x86_64", "");
 }
 
 /*

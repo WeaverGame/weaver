@@ -1988,16 +1988,16 @@ jint JNICALL Java_xreal_client_renderer_Renderer_registerMaterialLightAttenuatio
 /*
  * Class:     xreal_client_renderer_Renderer
  * Method:    registerModel
- * Signature: (Ljava/lang/String;Z)I
+ * Signature: (Ljava/lang/String;)I
  */
-jint JNICALL Java_xreal_client_renderer_Renderer_registerModel(JNIEnv *env, jclass cls, jstring jname, jboolean forceStatic)
+jint JNICALL Java_xreal_client_renderer_Renderer_registerModel(JNIEnv *env, jclass cls, jstring jname)
 {
 	char           *name;
 	qhandle_t		handle;
 
 	name = (char *)((*env)->GetStringUTFChars(env, jname, 0));
 
-	handle = re.RegisterModel(name, forceStatic);
+	handle = re.RegisterModel(name);
 
 	(*env)->ReleaseStringUTFChars(env, jname, name);
 
@@ -2475,7 +2475,7 @@ static JNINativeMethod Renderer_methods[] = {
 	{"registerMaterial", "(Ljava/lang/String;)I", Java_xreal_client_renderer_Renderer_registerMaterial},
 	{"registerMaterialNoMip", "(Ljava/lang/String;)I", Java_xreal_client_renderer_Renderer_registerMaterialNoMip},
 	{"registerMaterialLightAttenuation", "(Ljava/lang/String;)I", Java_xreal_client_renderer_Renderer_registerMaterialLightAttenuation},
-	{"registerModel", "(Ljava/lang/String;Z)I", Java_xreal_client_renderer_Renderer_registerModel},
+	{"registerModel", "(Ljava/lang/String;)I", Java_xreal_client_renderer_Renderer_registerModel},
 	{"registerAnimation", "(Ljava/lang/String;)I", Java_xreal_client_renderer_Renderer_registerAnimation},
 	{"registerSkin", "(Ljava/lang/String;)I", Java_xreal_client_renderer_Renderer_registerSkin},
 	{"loadWorldBsp", "(Ljava/lang/String;)V", Java_xreal_client_renderer_Renderer_loadWorldBsp},

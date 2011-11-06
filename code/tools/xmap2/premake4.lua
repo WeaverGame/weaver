@@ -45,11 +45,11 @@ project "XMap2"
 	--
 	-- Platform Configurations
 	-- 	
-	configuration "x32"
-		targetdir 	"../../../bin32"
+	--configuration "x32"
+	--	targetdir 	"../../../bin32"
 	
-	configuration "x64"
-		targetdir 	"../../../bin64"
+	--configuration "x64"
+	--	targetdir 	"../../../bin64"
 	
 	
 	-- 
@@ -88,6 +88,7 @@ project "XMap2"
 		}
 		
 	configuration { "vs*", "x32" }
+		targetdir 	"../../../bin/win32"
 		defines
 		{
 			"USE_OPENGL",
@@ -107,6 +108,7 @@ project "XMap2"
 		}
 		
 	configuration { "vs*", "x64" }
+		targetdir 	"../../../bin/win64"
 		libdirs
 		{
 			"../../libs/glib/lib64",
@@ -128,6 +130,12 @@ project "XMap2"
 			"`pkg-config --libs glib-2.0`",
 			"`pkg-config --libs sdl`",
 		}
+		
+	configuration { "linux", "x32" }
+		targetdir 	"../../../bin/linux-x86"
+		
+	configuration { "linux", "x64" }
+		targetdir 	"../../../bin/linux-x86_64"
 
 	configuration "linux"
 		targetname  "xmap2"

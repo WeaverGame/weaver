@@ -1,7 +1,7 @@
 --
 -- XreaL build configuration script
 -- 
-solution "XreaL"
+solution "Weaver"
 	--configurations { "Release", "ReleaseWithSymbols", "Debug" }
 	configurations { "Release", "Debug" }
 	platforms {"x32", "x64", "native"}

@@ -21,11 +21,11 @@ project "XreaL-master"
 	--
 	-- Platform Configurations
 	-- 	
-	configuration "x32"
-		targetdir 	"../../../bin32"
+	--configuration "x32"
+	--	targetdir 	"../../../bin32"
 	
-	configuration "x64"
-		targetdir 	"../../../bin64"
+	--configuration "x64"
+	--	targetdir 	"../../../bin64"
 	
 	-- 
 	-- Project Configurations
@@ -47,6 +47,12 @@ project "XreaL-master"
 			--"USE_ALLOCA"
 		}
 
+	configuration { "vs*", "x32" }
+		targetdir 	"../../../bin/win32"
+		
+	configuration { "vs*", "x64" }
+		targetdir 	"../../../bin/win64"
+
 	configuration { "linux", "gmake" }
 		buildoptions
 		{
@@ -64,4 +70,9 @@ project "XreaL-master"
 			"m",
 		}
 		
+	configuration { "linux", "x32" }
+		targetdir 	"../../../bin/linux-x86"
+		
+	configuration { "linux", "x64" }
+		targetdir 	"../../../bin/linux-x86_64"
 		
