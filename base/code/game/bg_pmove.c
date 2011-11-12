@@ -3067,6 +3067,12 @@ void PmoveSingle(pmove_t * pmove)
 			pm->ps->eFlags &= ~EF_THREAD;
 		}
 	}
+	else
+	{
+		// Shielded, turn off weave disk
+		pm->ps->eFlags &= ~EF_WEAVEA;
+		pm->ps->eFlags &= ~EF_THREAD;
+	}
 
 	if(pm->ps->eFlags & EF_WEAVEA && pm->ps->eFlags & EF_WEAVED)
 	{
