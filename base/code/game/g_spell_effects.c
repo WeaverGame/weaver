@@ -991,6 +991,13 @@ Shield
 */
 void RunWeave_Shield(gentity_t * ent)
 {
+	if(!trap_InPVS(ent->target_ent->s.pos.trBase, ent->parent->s.pos.trBase))
+	{
+		// Follower and leader cannot see each other
+		G_ReleaseWeave(ent);
+		return;
+	}
+
 	//apply shielding until next run
 	ent->target_ent->client->ps.powerups[PW_SHIELDED] = level.time + WEAVE_SHIELD_PULSE_TIME;
 
@@ -1351,10 +1358,18 @@ void RunWeave_Heal(gentity_t * ent)
 	//apply shielding until next run
 	if(ent->damage <= 0)
 	{
-		ent->target_ent->health++;
-		if(ent->target_ent->health > ent->target_ent->client->ps.stats[STAT_MAX_HEALTH] * 1.2)
+		if(ent->target_ent->client->ps.pm_type == PM_WOUNDED)
 		{
-			ent->target_ent->health = ent->target_ent->client->ps.stats[STAT_MAX_HEALTH] * 1.2;
+			// Heal faster while wounded
+			ent->target_ent->health += 2;
+		}
+		else
+		{
+			ent->target_ent->health++;
+		}
+		if(ent->target_ent->health > ent->target_ent->client->ps.stats[STAT_MAX_HEALTH])
+		{
+			ent->target_ent->health = ent->target_ent->client->ps.stats[STAT_MAX_HEALTH];
 		}
 		ent->damage = ent->splashDamage;
 		ent->target_ent->client->ps.powerups[PW_REGEN] = level.time + WEAVE_HEAL_PULSE_TIME;
