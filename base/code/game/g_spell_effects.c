@@ -974,7 +974,9 @@ qboolean FireWeave_Shield(gentity_t * self, vec3_t start, vec3_t dir, int heldWe
 	//prevent held weave expiring
 	heldWeave->nextthink = 0;
 
-	//Com_Printf("SHIELD FIRE: shild spawned, EffectEnt = %d\n", bolt->s.number, bolt->s.otherEntityNum);
+	// Terminate current spells
+	ClientWeaverEndSpells(target);
+	
 	RunWeave_Shield(bolt);
 
 	//weave = bolt;

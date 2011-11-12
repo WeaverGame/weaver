@@ -835,6 +835,7 @@ void            RunLinkEnt(gentity_t * bolt);
 void            ClientWeaverCleanup(gclient_t * client);
 void            ClientWeaverInitialize(gclient_t * client);
 
+void            ClientWeaverEndSpells(gentity_t * self);
 void            ClientWeaverDie(gentity_t * self);
 int             ClientWeaverProtectDamage(gentity_t * targ, gclient_t *client, gentity_t * inflictor, gentity_t * attacker,
 										  const vec3_t dir, const vec3_t point, int damageBase, int dflags, int mod);

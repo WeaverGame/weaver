@@ -68,21 +68,10 @@ void ClientWeaverInitialize(gclient_t * client)
 	WeaveProtectCheck(client);
 }
 
-void ClientWeaverDie(gentity_t * self)
+void ClientWeaverEndSpells(gentity_t * self)
 {
 	int             j;
 	gentity_t      *heldWeave;
-
-	// Free this players threads
-	if(self->client->threadEnt)
-	{
-		if(DEBUGWEAVEING_TST(1))
-		{
-			Com_Printf("Free ThreadsEnt player %d\n", self->client->ps.clientNum);
-		}
-		G_FreeEntity(self->client->threadEnt);
-		self->client->threadEnt = NULL;
-	}
 
 	ClientLinkLeave(self->client);
 
@@ -99,6 +88,25 @@ void ClientWeaverDie(gentity_t * self)
 			break;
 		}
 	}
+}
+
+void ClientWeaverDie(gentity_t * self)
+{
+	// Free this players threads
+	if(self->client->threadEnt)
+	{
+		if(DEBUGWEAVEING_TST(1))
+		{
+			Com_Printf("Free ThreadsEnt player %d\n", self->client->ps.clientNum);
+		}
+		G_FreeEntity(self->client->threadEnt);
+		self->client->threadEnt = NULL;
+	}
+
+	// Block weaving on this player to terminate any weaving thats going on.
+	self->client->ps.powerups[PW_SHIELDED] = level.time + WEAVE_SHIELD_PULSE_TIME;
+
+	ClientWeaverEndSpells(self);
 }
 
 #define CHECK_PROTECT_ELEMENT(STAT, PROTECT) \
