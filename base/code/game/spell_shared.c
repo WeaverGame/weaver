@@ -296,7 +296,7 @@ void WeaveProtectScales(int weavenum, float *airprotect, float *fireprotect, flo
 		case WVW_A_EARTH_QUAKE_M:
 		case WVW_A_EARTH_QUAKE_L:
 		case WVW_A_FIRE_BALL:
-			*fireprotect = 0.85f;
+			*fireprotect = 0.95f;
 			break;
 		case WVW_A_FIRE_DARTS:
 			*fireprotect = 0.9f;
