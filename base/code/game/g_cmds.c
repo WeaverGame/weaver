@@ -945,7 +945,9 @@ static void G_SayTo(gentity_t * ent, gentity_t * other, int mode, int color, con
 												  mode == SAY_TEAM ? "tchat" : "chat", name, Q_COLOR_ESCAPE, color, message));
 }
 
-#define EC		"\x19"
+//#define EC		"\x19" //TODO: what is this for?
+#define EC		""
+#define Q_COLOR_WHITE "^7"
 
 void G_Say(gentity_t * ent, gentity_t * target, int mode, const char *chatText)
 {
@@ -968,28 +970,33 @@ void G_Say(gentity_t * ent, gentity_t * target, int mode, const char *chatText)
 		default:
 		case SAY_ALL:
 			G_LogPrintf("say: %s: %s\n", ent->client->pers.netname, chatText);
-			Com_sprintf(name, sizeof(name), "%s%c%c" EC ": ", ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE);
+			Com_sprintf(name, sizeof(name), "%s" EC Q_COLOR_WHITE ": ", ent->client->pers.netname);
 			color = COLOR_GREEN;
 			break;
 		case SAY_TEAM:
 			G_LogPrintf("sayteam: %s: %s\n", ent->client->pers.netname, chatText);
-			if(Team_GetLocationMsg(ent, location, sizeof(location)))
-				Com_sprintf(name, sizeof(name), EC "(%s%c%c" EC ") (%s)" EC ": ",
-							ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE, location);
+
+			if(ent->client->sess.sessionTeam == TEAM_RED)
+				color = COLOR_RED;
+			else if(ent->client->sess.sessionTeam == TEAM_RED)
+				color = COLOR_BLUE;
 			else
-				Com_sprintf(name, sizeof(name), EC "(%s%c%c" EC ")" EC ": ",
-							ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE);
+				color = COLOR_CYAN;
+
+			if(Team_GetLocationMsg(ent, location, sizeof(location)))
+				Com_sprintf(name, sizeof(name), EC "%s" EC Q_COLOR_WHITE " (%s)" EC Q_COLOR_WHITE "(%c%cteam" Q_COLOR_WHITE "): ", ent->client->pers.netname, location, Q_COLOR_ESCAPE, color);
+			else
+				Com_sprintf(name, sizeof(name), EC "%s" EC Q_COLOR_WHITE " (%c%cteam" Q_COLOR_WHITE "): ", ent->client->pers.netname, Q_COLOR_ESCAPE, color);
+
 			color = COLOR_CYAN;
 			break;
 		case SAY_TELL:
 			if(target && g_gametype.integer >= GT_TEAM &&
 			   target->client->sess.sessionTeam == ent->client->sess.sessionTeam &&
 			   Team_GetLocationMsg(ent, location, sizeof(location)))
-				Com_sprintf(name, sizeof(name), EC "[%s%c%c" EC "] (%s)" EC ": ", ent->client->pers.netname, Q_COLOR_ESCAPE,
-							COLOR_WHITE, location);
+				Com_sprintf(name, sizeof(name), EC "%s" EC Q_COLOR_WHITE " (%s)" EC Q_COLOR_WHITE " (priv): ", ent->client->pers.netname, location);
 			else
-				Com_sprintf(name, sizeof(name), EC "[%s%c%c" EC "]" EC ": ", ent->client->pers.netname, Q_COLOR_ESCAPE,
-							COLOR_WHITE);
+				Com_sprintf(name, sizeof(name), EC "%s" EC Q_COLOR_WHITE " (priv): ", ent->client->pers.netname);
 			color = COLOR_MAGENTA;
 			break;
 	}

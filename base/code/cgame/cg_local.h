@@ -78,7 +78,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	TEXT_ICON_SPACE		4
 
 #define	TEAMCHAT_WIDTH		80
-#define TEAMCHAT_HEIGHT		8
+#define TEAMCHAT_HEIGHT		10
 
 // very large characters
 #define	GIANT_WIDTH			32
@@ -1402,6 +1402,13 @@ typedef struct
 
 } cgMedia_t;
 
+typedef enum {
+	CHAT_MODE_ALL,
+	CHAT_MODE_TEAM,
+	CHAT_MODE_TELL,
+	CHAT_MODE_NUM
+} chat_mode_t;
+
 // The client game static (cgs) structure hold everything
 // loaded or calculated from the gamestate.  It will NOT
 // be cleared when a tournement restart is done, allowing
@@ -1476,6 +1483,7 @@ typedef struct
 	int             teamChatMsgTimes[TEAMCHAT_HEIGHT];
 	int             teamChatPos;
 	int             teamLastChatPos;
+	chat_mode_t     teamChatModes[TEAMCHAT_HEIGHT];
 
 	int             cursorX;
 	int             cursorY;
@@ -1890,6 +1898,10 @@ void            CG_HudeSizeRecalc(void);
 void            CG_HudSizesInit(void);
 void            CG_HudSizesScale(float f);
 void            CG_DrawWeaverHUD(void);
+void            CG_DrawWeaverChat(void);
+
+// cg_tutorial.c
+const char     *CG_TutorialText( void );
 
 //
 // cg_events.c

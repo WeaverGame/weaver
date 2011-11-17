@@ -31,6 +31,8 @@ const vec4_t    colorWater = { 0.0f, 0.32f, 0.906f, 0.7f };
 
 const vec4_t    colorTeamBlue = { 0.2f, 0.2f, 1.0f, 0.7f };	// blue
 const vec4_t    colorTeamRed = { 1.0f, 0.2f, 0.2f, 0.7f };	// red
+const vec4_t    colorTeamSpec = { 0.15f, 0.8f, 0.8f, 0.7f };	// cyan
+const vec4_t    colorTeamAll = { 0.3f, 0.7f, 0.3f, 0.7f };	// green
 
 const vec4_t    colorFull = { 1.0f, 1.0f, 1.0f, 1.0f };
 const vec4_t    colorEmpty = { 1.0f, 1.0f, 1.0f, 0.3f };
@@ -124,6 +126,10 @@ typedef struct hudSizes_s {
 	float           protect_w;
 	float           protect_h;
 
+	float           chat_x;
+	float           chat_offset_y;
+	float           chat_text_h;
+
 	float           s16;
 	float           s32;
 	float           s64;
@@ -186,6 +192,10 @@ void CG_HudSizesInit(void)
 	s.protect_w = 6.0f;
 	s.protect_h = 214.0f;
 
+	s.chat_x = 10.0f;
+	s.chat_offset_y = 260.0f;
+	s.chat_text_h = CG_Text_Height("!", 0.5f, 0, &cgs.media.freeSansBoldFont);
+
 	s.s16 = 16.0f;
 	s.s32 = 32.0f;
 	s.s64 = 64.0f;
@@ -240,6 +250,10 @@ void CG_HudSizesScale(float f)
 	s.protect_w *= f;
 	s.protect_h *= f;
 
+	s.chat_x *= f;
+	s.chat_offset_y *= f;
+	s.chat_text_h *= f;
+
 	s.s16 *= f;
 	s.s32 *= f;
 	s.s64 *= f;
@@ -250,6 +264,84 @@ void CG_HudSizesScale(float f)
 	s.power *= f;
 
 	CG_HudSizesRecalc();
+}
+
+/*
+=================
+CG_DrawWeaverChat
+Based on CG_DrawTeamInfo.
+=================
+*/
+void CG_DrawWeaverChat(void)
+{
+	int             i;
+	vec4_t          hcolor;
+	vec4_t          tcolor;
+	int             chatHeight;
+	int             mode;
+	float           fade;
+
+	if(cg_teamChatHeight.integer < TEAMCHAT_HEIGHT)
+		chatHeight = cg_teamChatHeight.integer;
+	else
+		chatHeight = TEAMCHAT_HEIGHT;
+	if(chatHeight <= 0)
+		return;					// disabled
+
+	if(cgs.teamLastChatPos != cgs.teamChatPos)
+	{
+		if(cg.time - cgs.teamChatMsgTimes[cgs.teamLastChatPos % chatHeight] > cg_teamChatTime.integer)
+		{
+			cgs.teamLastChatPos++;
+		}
+
+		trap_R_SetColor(NULL);
+
+		Vector4Copy(colorFull, hcolor);
+
+		for(i = cgs.teamChatPos - 1; i >= cgs.teamLastChatPos; i--)
+		{
+			/*
+			CG_DrawStringExt(CHATLOC_X + TINYCHAR_WIDTH,
+							 CHATLOC_Y - (cgs.teamChatPos - i) * TINYCHAR_HEIGHT,
+							 cgs.teamChatMsgs[i % chatHeight], hcolor, qfalse, qfalse, TINYCHAR_WIDTH, TINYCHAR_HEIGHT, 0);
+			*/
+			mode = cgs.teamChatModes[i % chatHeight];
+			if (mode == CHAT_MODE_ALL)
+			{
+				// Global Chat
+			}
+			else if (mode == CHAT_MODE_TEAM)
+			{
+				// Team Chat
+			}
+			else if (mode == CHAT_MODE_TELL)
+			{
+				// Team Chat
+			}
+			else
+			{
+				// Unkown mode
+				continue;
+			}
+
+			// Only fade for the last 1/3 of the time.
+			fade = 3.0f - (3.0f * ((cg.time - cgs.teamChatMsgTimes[i % chatHeight]) / (float)cg_teamChatTime.integer));
+			// Clamp
+			if (fade > 1.0f)
+			{
+				fade = 1.0f;
+			}
+			else if (fade <= 0.0f)
+			{
+				continue;
+			}
+			hcolor[3] = fade;
+
+			CG_Text_PaintAligned(s.chat_x, cgs.screenYSize - s.chat_offset_y - ((cgs.teamChatPos - i - 1) * s.chat_text_h), cgs.teamChatMsgs[i % chatHeight],
+				s.f * 0.4f, UI_LEFT, hcolor, &cgs.media.freeSansBoldFont);
+		}
+	}
 }
 
 /*

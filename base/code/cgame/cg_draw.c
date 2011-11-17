@@ -1949,6 +1949,7 @@ static void CG_Draw2D(void)
 
 	if(cg.snap->ps.pm_type == PM_INTERMISSION)
 	{
+		CG_DrawWeaverChat();
 		CG_DrawIntermission();
 		return;
 	}
@@ -1980,11 +1981,6 @@ static void CG_Draw2D(void)
 		{
 			CG_DrawWoundedInfo();
 		}
-
-		if(cgs.gametype >= GT_TEAM)
-		{
-			CG_DrawTeamInfo();
-		}
 	}
 
 	CG_DrawVote();
@@ -2001,6 +1997,8 @@ static void CG_Draw2D(void)
 	//cg.scoreBoardShowing = CG_DrawScoreboard();
 	if(noScoreboard)
 	{
+		CG_DrawWeaverChat();
+
 		CG_DrawLagometer();
 		CG_DrawTimers();
 		CG_DrawCenterString();

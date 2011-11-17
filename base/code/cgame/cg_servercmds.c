@@ -442,7 +442,7 @@ CG_AddToTeamChat
 
 =======================
 */
-static void CG_AddToTeamChat(const char *str)
+static void CG_AddToTeamChat(chat_mode_t mode, const char *str)
 {
 	int             len;
 	char           *p, *ls;
@@ -513,6 +513,7 @@ static void CG_AddToTeamChat(const char *str)
 	*p = 0;
 
 	cgs.teamChatMsgTimes[cgs.teamChatPos % chatHeight] = cg.time;
+	cgs.teamChatModes[cgs.teamChatPos % chatHeight] = mode;
 	cgs.teamChatPos++;
 
 	if(cgs.teamChatPos - cgs.teamLastChatPos > chatHeight)
@@ -1236,6 +1237,7 @@ static void CG_ServerCommand(void)
 			trap_S_StartLocalSound(cgs.media.talkSound, CHAN_LOCAL_SOUND);
 			Q_strncpyz(text, CG_Argv(1), MAX_SAY_TEXT);
 			CG_RemoveChatEscapeChar(text);
+			CG_AddToTeamChat(CHAT_MODE_ALL, text);
 			CG_Printf("%s\n", text);
 		}
 		return;
@@ -1246,7 +1248,7 @@ static void CG_ServerCommand(void)
 		trap_S_StartLocalSound(cgs.media.talkSound, CHAN_LOCAL_SOUND);
 		Q_strncpyz(text, CG_Argv(1), MAX_SAY_TEXT);
 		CG_RemoveChatEscapeChar(text);
-		CG_AddToTeamChat(text);
+		CG_AddToTeamChat(CHAT_MODE_TEAM, text);
 		CG_Printf("%s\n", text);
 		return;
 	}
