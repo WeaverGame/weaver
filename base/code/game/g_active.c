@@ -879,6 +879,8 @@ void ClientRevived(gentity_t * ent)
 
 	client->pers.teamState.state = TEAM_ACTIVE;
 
+	client->ps.stats[STAT_STAMINA] = 0;
+
 	ClientWeaverInitialize(client);
 
 	ent->s.groundEntityNum = ENTITYNUM_NONE;

@@ -25,58 +25,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "g_spell_effects.h"
 #include "g_spell_util.h"
 
-void CreateThreads(gclient_t * playerClient)
-{
-	gentity_t      *threadsEnt;
-	gentity_t      *playerEnt;
-
-	if(!playerClient)
-	{
-		DEBUGWEAVEING("CreateThreads: no playerClient");
-		return;
-	}
-
-	DEBUGWEAVEING("CreateThreads: start");
-
-	playerEnt = &g_entities[playerClient->ps.clientNum];
-
-	threadsEnt = G_Spawn();
-
-	threadsEnt->classname = THREAD_CLASSNAME;
-	threadsEnt->nextthink = 0;
-	threadsEnt->parent = playerEnt;
-	threadsEnt->r.ownerNum = playerClient->ps.clientNum;
-	threadsEnt->r.svFlags = SVF_BROADCAST;
-	threadsEnt->s.eType = ET_WEAVE_THREADS;
-	threadsEnt->s.otherEntityNum2 = playerClient->ps.clientNum;
-	//set owner
-	threadsEnt->s.torsoAnim = playerClient->ps.clientNum;
-
-	if(DEBUGWEAVEING_TST(1))
-	{
-		Com_Printf("Making Player ThreadsEnt for %d, svflags=%d threadsEnt=%d\n", threadsEnt->s.torsoAnim, threadsEnt->r.svFlags,
-				   threadsEnt->s.number);
-	}
-
-	//Weave group & status: threadsEnt->s.frame;
-	//8 threads, 4 in each, see PowerEncode(): threadsEnt->s.constantLight;
-	//finished thread num; threadsEnt->s.weapon;
-
-	threadsEnt->damage = 0;
-	threadsEnt->splashDamage = 0;
-	threadsEnt->splashRadius = 0;
-	threadsEnt->methodOfDeath = 0;
-	threadsEnt->splashMethodOfDeath = 0;
-	threadsEnt->clipmask = 0;
-	threadsEnt->target_ent = 0;
-
-	playerClient->threadEnt = threadsEnt;
-
-	trap_LinkEntity(threadsEnt);
-	DEBUGWEAVEING("CreateThreads: end");
-	return;
-}
-
 void ThreadsThink(void)
 {
 	int             i;

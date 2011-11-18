@@ -800,7 +800,6 @@ gentity_t      *fire_railsphere(gentity_t * self, vec3_t start, vec3_t aimdir);
 //
 void            CreateWeave(gentity_t * self, int group, int threads[MAX_THREADS]);
 void            CreateWeaveID(gentity_t * self, int weaveID, int powerUsing);
-void            CreateThreads(gclient_t * playerClient);
 qboolean        ExecuteWeave(gentity_t * weave);
 void            EndWeave(gentity_t * weave);
 void            AddHeldWeaveToPlayer(gentity_t * ent, playerState_t * player);

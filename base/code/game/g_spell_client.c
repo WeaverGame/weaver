@@ -33,6 +33,8 @@ void ClientWeaverCleanupSpells(gclient_t * client)
 {
 	int             i;
 
+	DEBUGWEAVEING("ClientWeaverCleanupSpells: start");
+
 	// Cleanup client's held weaves
 	for(i = MIN_WEAPON_WEAVE; i < MAX_WEAPONS; i++)
 	{
@@ -41,6 +43,67 @@ void ClientWeaverCleanupSpells(gclient_t * client)
 			ClearHeldWeave(&g_entities[client->ps.ammo[i]]);
 		}
 	}
+
+	DEBUGWEAVEING("ClientWeaverCleanupSpells: end");
+}
+
+/*
+=======================
+Create threadsEnt for this client.
+=======================
+*/
+void ClientWeaverCreateThreads(gclient_t * client)
+{
+	gentity_t      *threadsEnt;
+	gentity_t      *clientEnt;
+
+	if(!client)
+	{
+		DEBUGWEAVEING("ClientWeaverCreateThreads: no client");
+		return;
+	}
+
+	DEBUGWEAVEING("ClientWeaverCreateThreads: start");
+
+	clientEnt = &g_entities[client->ps.clientNum];
+
+	threadsEnt = G_Spawn();
+
+	threadsEnt->classname = THREAD_CLASSNAME;
+	threadsEnt->nextthink = 0;
+	threadsEnt->parent = clientEnt;
+	threadsEnt->r.ownerNum = client->ps.clientNum;
+	threadsEnt->r.svFlags = SVF_BROADCAST;
+	threadsEnt->s.eType = ET_WEAVE_THREADS;
+	threadsEnt->s.otherEntityNum2 = client->ps.clientNum;
+	//set owner
+	threadsEnt->s.torsoAnim = client->ps.clientNum;
+
+	if(DEBUGWEAVEING_TST(1))
+	{
+		Com_Printf("Making Player ThreadsEnt for %d, svflags=%d threadsEnt=%d\n", threadsEnt->s.torsoAnim, threadsEnt->r.svFlags,
+				   threadsEnt->s.number);
+	}
+
+	//Weave group & status: threadsEnt->s.frame;
+	//8 threads, 4 in each, see PowerEncode(): threadsEnt->s.constantLight;
+	//finished thread num; threadsEnt->s.weapon;
+
+	threadsEnt->damage = 0;
+	threadsEnt->splashDamage = 0;
+	threadsEnt->splashRadius = 0;
+	threadsEnt->methodOfDeath = 0;
+	threadsEnt->splashMethodOfDeath = 0;
+	threadsEnt->clipmask = 0;
+	threadsEnt->target_ent = 0;
+
+	client->threadEnt = threadsEnt;
+
+	trap_LinkEntity(threadsEnt);
+
+	DEBUGWEAVEING("ClientWeaverCreateThreads: end");
+
+	return;
 }
 
 /*
@@ -52,8 +115,9 @@ Applied when a client is spawned or revived.
 */
 void ClientWeaverInitialize(gclient_t * client)
 {
-	// Give stamina and power
-	client->ps.stats[STAT_STAMINA] = MAX_STAMINA;
+	DEBUGWEAVEING("ClientWeaverInitialize: start");
+
+	// Give power
 	ClientPowerInitialize(client);
 
 	// Clear Links
@@ -70,7 +134,9 @@ void ClientWeaverInitialize(gclient_t * client)
 	WeaveProtectCheck(client);
 
 	// create threads entity
-	CreateThreads(client);
+	ClientWeaverCreateThreads(client);
+
+	DEBUGWEAVEING("ClientWeaverInitialize: end");
 }
 
 /*
@@ -83,6 +149,8 @@ May be applied multiple times (i.e. dead/wounded player who then disconnects).
 */
 void ClientWeaverDestroy(gclient_t * client)
 {
+	DEBUGWEAVEING("ClientWeaverDestroy: start");
+
 	// Leave any links
 	ClientLinkLeave(client);
 
@@ -102,6 +170,8 @@ void ClientWeaverDestroy(gclient_t * client)
 
 	// Block weaving on this player to terminate any weaving thats going on.
 	client->ps.powerups[PW_SHIELDED] = level.time + WEAVE_SHIELD_PULSE_TIME;
+
+	DEBUGWEAVEING("ClientWeaverDestroy: end");
 }
 
 #define CHECK_PROTECT_ELEMENT(STAT, PROTECT) \
