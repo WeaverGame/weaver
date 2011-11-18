@@ -832,12 +832,8 @@ void            RunLinkEnt(gentity_t * bolt);
 // g_spell_client.c
 //
 void            ClientWeaverCleanupSpells(gclient_t * client);
-
 void            ClientWeaverInitialize(gclient_t * client);
 void            ClientWeaverDestroy(gclient_t * client);
-
-int             ClientWeaverProtectDamage(gentity_t * targ, gclient_t *client, gentity_t * inflictor, gentity_t * attacker,
-										  const vec3_t dir, const vec3_t point, int damageBase, int dflags, int mod);
 
 void            ClientWeaveStart(gclient_t * client);
 void            ClientThreadStart(gclient_t * client);
@@ -854,6 +850,8 @@ void            G_TossObjItems(gentity_t * self);
 // g_spell_misc.c
 //
 void            WeaveProtectCheck(gclient_t * checkClient);
+int             WeaveProtectDamage(gentity_t * targ, gclient_t *client, gentity_t * inflictor, gentity_t * attacker,
+										  const vec3_t dir, const vec3_t point, int damageBase, int dflags, int mod);
 int             PowerEncode(int threads[MAX_THREADS], int offset, int count);
 
 // g_spell_objective.c

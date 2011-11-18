@@ -174,55 +174,6 @@ void ClientWeaverDestroy(gclient_t * client)
 	DEBUGWEAVEING("ClientWeaverDestroy: end");
 }
 
-#define CHECK_PROTECT_ELEMENT(STAT, PROTECT) \
-		do { \
-		if(client->ps.stats[(STAT)] >= damage) \
-		{ \
-			client->ps.stats[(STAT)] -= damage; \
-			damage -= (damage * (PROTECT)); \
-		} \
-		else if(client->ps.stats[(STAT)] > 0) \
-		{ \
-			damage -= (client->ps.stats[(STAT)] * (PROTECT)); \
-			client->ps.stats[(STAT)] = 0; \
-		} \
-		} while(0);
-
-int ClientWeaverProtectDamage(gentity_t * targ, gclient_t *client, gentity_t * inflictor, gentity_t * attacker,
-				  const vec3_t dir, const vec3_t point, int damageBase, int dflags, int mod)
-{
-	int             damage;
-
-	//WEAVER
-	float           airprotect;
-	float           fireprotect;
-	float           earthprotect;
-	float           waterprotect;
-
-	damage = damageBase;
-
-	//Weaver
-	//reduce damage if target client has a relevant protect
-	//first check if the inflictor is a weave or weave effect
-	//or a held weave - some cases like fire darts never actually spawn an effect ent
-	if(client && (inflictor->s.eType == ET_WEAVE_EFFECT || inflictor->s.eType == ET_WEAVE_MISSILE || inflictor->s.eType == ET_WEAVE_HELD))
-	{
-		//Get protection factor for this weave
-		//Note, air shield is prioritized? checks first? is this good?
-		WeaveProtectScales(inflictor->s.weapon, &airprotect, &fireprotect, &earthprotect, &waterprotect);
-
-		// Apply protection for each element.
-		CHECK_PROTECT_ELEMENT(STAT_AIRPROTECT, airprotect);
-		CHECK_PROTECT_ELEMENT(STAT_FIREPROTECT, fireprotect);
-		CHECK_PROTECT_ELEMENT(STAT_EARTHPROTECT, earthprotect);
-		CHECK_PROTECT_ELEMENT(STAT_WATERPROTECT, waterprotect);
-
-		WeaveProtectCheck(client);
-	}
-
-	return damage;
-}
-
 /*
 =======================
 Weaver weaving events
