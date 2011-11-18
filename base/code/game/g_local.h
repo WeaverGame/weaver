@@ -802,7 +802,6 @@ void            CreateWeave(gentity_t * self, int group, int threads[MAX_THREADS
 void            CreateWeaveID(gentity_t * self, int weaveID, int powerUsing);
 qboolean        ExecuteWeave(gentity_t * weave);
 void            EndWeave(gentity_t * weave);
-void            AddHeldWeaveToPlayer(gentity_t * ent, playerState_t * player);
 qboolean        HeldWeaveBelongsToPlayer(gentity_t * held, playerState_t * player);
 void            UseHeldWeave(gentity_t * ent);
 void            ReleaseHeldWeave(gentity_t * ent);

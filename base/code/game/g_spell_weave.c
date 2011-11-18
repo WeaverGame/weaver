@@ -20,23 +20,102 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-// g_spell_weave.c -- cental functions for weaving system
+// g_spell_weave.c -- functions for held weaves
 #include "g_local.h"
 #include "g_spell_effects.h"
 #include "g_spell_util.h"
 
 /*
 =================
-MakeWeaveHeld
+HeldWeaveAddToPlayer
+
+Adds a weave to a players held weaves list.
+
+heldWeave is a ET_HELD_WEAVE
+player is playerState of player to add it to
+=================
+*/
+void HeldWeaveAddToPlayer(gentity_t * heldWeave, playerState_t * player)
+{
+	int             i;
+	gentity_t      *pent;
+
+	if(!heldWeave)
+	{
+		DEBUGWEAVEING("HeldWeaveAddToPlayer: no heldWeave");
+		return;
+	}
+	if(!player)
+	{
+		DEBUGWEAVEING("HeldWeaveAddToPlayer: no player");
+		return;
+	}
+
+	DEBUGWEAVEING("HeldWeaveAddToPlayer: start");
+	for(i = MIN_WEAPON_WEAVE; i < MAX_WEAPONS; i++)
+	{
+		if(player->ammo[i] <= 0)
+		{
+			player->ammo[i] = heldWeave->s.number;
+			heldWeave->s.modelindex2 = i;	// remember slot
+			player->weapon = i;
+			player->stats[STAT_WEAPONS] |= 1 << i;
+			// Event to indicate new weave
+			pent = &g_entities[heldWeave->s.otherEntityNum2];
+			G_AddEvent(pent, EV_WEAVE_ADDHELD, i);
+			break;
+		}
+	}
+	DEBUGWEAVEING("HeldWeaveAddToPlayer: end");
+}
+
+/*
+=================
+HeldWeaveBelongsToPlayer
+
+Returns true if heldWeave has been added to player.
+
+heldWeave is a ET_HELD_WEAVE
+player is playerState of player to add it to
+=================
+*/
+qboolean HeldWeaveBelongsToPlayer(gentity_t * heldWeave, playerState_t * player)
+{
+	// Held must be a valid entity
+	if((!heldWeave) || (!heldWeave->inuse))
+	{
+		return qfalse;
+	}
+	// Held must be a heldweave entity
+	if(heldWeave->s.eType != ET_WEAVE_HELD)
+	{
+		return qfalse;
+	}
+	// Must belong to the specific player
+	if(heldWeave->s.otherEntityNum2 != player->clientNum)
+	{
+		return qfalse;
+	}
+	// Player should have the weave available in a slot
+	if(player->ammo[heldWeave->s.modelindex2] != heldWeave->s.number)
+	{
+		return qfalse;
+	}
+	return qtrue;
+}
+
+/*
+=================
+HeldWeaveCreate
 
 Creates a held weave entity using parameters.
 =================
 */
-gentity_t      *MakeWeaveHeld(gentity_t * self, int weaveID, int holdTime, int holdPower, int switchable, qboolean runAtTime)
+gentity_t      *HeldWeaveCreate(gentity_t * self, int weaveID, int holdTime, int holdPower, int switchable, qboolean runAtTime)
 {
 	gentity_t      *weave;
 
-	DEBUGWEAVEING("MakeWeaveHeld: start");
+	DEBUGWEAVEING("HeldWeaveCreate: start");
 
 	weave = G_Spawn();
 
@@ -95,7 +174,7 @@ gentity_t      *MakeWeaveHeld(gentity_t * self, int weaveID, int holdTime, int h
 	}
 	trap_LinkEntity(weave);
 
-	DEBUGWEAVEING("MakeWeaveHeld: end");
+	DEBUGWEAVEING("HeldWeaveCreate: end");
 	return weave;
 }
 
@@ -152,7 +231,7 @@ CreateWeaveID
 */
 void CreateWeaveID(gentity_t * self, int weaveID, int powerUsing)
 {
-	gentity_t      *weave;
+	gentity_t      *heldWeave = NULL;
 
 	if(!self)
 	{
@@ -168,22 +247,19 @@ void CreateWeaveID(gentity_t * self, int weaveID, int powerUsing)
 		case WVW_A_AIRFIRE_SWORD:
 			//give item
 			//add held weave
-			weave = MakeWeaveHeld(self, weaveID, TIME_TWO_MIN, powerUsing, 1, qtrue);
-			AddHeldWeaveToPlayer(weave, &self->client->ps);
+			heldWeave = HeldWeaveCreate(self, weaveID, TIME_TWO_MIN, powerUsing, 1, qtrue);
 			break;
 		case WVW_D_AIRFIRE_LIGHT:
 		case WVW_D_AIRWATER_FOG:
 			//spawn ent (lasting 2 mins max)
 			//add held weave
-			weave = MakeWeaveHeld(self, weaveID, TIME_TWO_MIN, powerUsing, 1, qtrue);
-			AddHeldWeaveToPlayer(weave, &self->client->ps);
+			heldWeave = HeldWeaveCreate(self, weaveID, TIME_TWO_MIN, powerUsing, 1, qtrue);
 			//weave should ref the new entity thats created.
 			break;
 		case WVW_D_SPIRIT_TRAVEL:
 			//spawn ent (lasting 20 sec max)
 			//add held weave
-			weave = MakeWeaveHeld(self, weaveID, TIME_TWENTY_SEC, powerUsing, 1, qtrue);
-			AddHeldWeaveToPlayer(weave, &self->client->ps);
+			heldWeave = HeldWeaveCreate(self, weaveID, TIME_TWENTY_SEC, powerUsing, 1, qtrue);
 			//weave should ref the new entity thats created.
 			break;
 		case WVW_D_AIR_PROTECT:
@@ -192,8 +268,7 @@ void CreateWeaveID(gentity_t * self, int weaveID, int powerUsing)
 		case WVW_D_WATER_PROTECT:
 			//add powerup to self
 			//add held weave
-			weave = MakeWeaveHeld(self, weaveID, TIME_TWO_MIN, powerUsing, 1, qtrue);
-			AddHeldWeaveToPlayer(weave, &self->client->ps);
+			heldWeave = HeldWeaveCreate(self, weaveID, TIME_TWO_MIN, powerUsing, 1, qtrue);
 			break;
 			/*end end on exec */
 
@@ -214,8 +289,7 @@ void CreateWeaveID(gentity_t * self, int weaveID, int powerUsing)
 		case WVW_A_SPIRIT_BALEFIRE:
 		case WVW_A_SPIRIT_DEATHGATE:
 			//add held weave
-			weave = MakeWeaveHeld(self, weaveID, TIME_THREE_SEC, powerUsing, 0, qfalse);
-			AddHeldWeaveToPlayer(weave, &self->client->ps);
+			heldWeave = HeldWeaveCreate(self, weaveID, TIME_THREE_SEC, powerUsing, 0, qfalse);
 			break;
 			/*end holdable, no switch */
 
@@ -224,8 +298,7 @@ void CreateWeaveID(gentity_t * self, int weaveID, int powerUsing)
 		case WVW_A_SPIRIT_SLICE_M:
 		case WVW_A_SPIRIT_SLICE_L:
 			//add held weave
-			weave = MakeWeaveHeld(self, weaveID, TIME_THREE_SEC, powerUsing, 0, qtrue);
-			AddHeldWeaveToPlayer(weave, &self->client->ps);
+			heldWeave = HeldWeaveCreate(self, weaveID, TIME_THREE_SEC, powerUsing, 0, qtrue);
 			break;
 			/*end holdable, no switch, fire on expire */
 
@@ -248,19 +321,16 @@ void CreateWeaveID(gentity_t * self, int weaveID, int powerUsing)
 		case WVW_A_WATER_ICESHARDS_S:
 		case WVW_A_WATER_ICESHARDS_M:
 			//add held weave
-			weave = MakeWeaveHeld(self, weaveID, TIME_TWO_MIN, powerUsing, 1, qfalse);
-			AddHeldWeaveToPlayer(weave, &self->client->ps);
+			heldWeave = HeldWeaveCreate(self, weaveID, TIME_TWO_MIN, powerUsing, 1, qfalse);
 			break;
 			//this one is special because it has a different hold time limit
 		case WVW_A_AIRWATER_RIP:
 			// add held weave
-			weave = MakeWeaveHeld(self, weaveID, TIME_THREE_SEC, powerUsing, 1, qfalse);
-			AddHeldWeaveToPlayer(weave, &self->client->ps);
+			heldWeave = HeldWeaveCreate(self, weaveID, TIME_THREE_SEC, powerUsing, 1, qfalse);
 			break;
 		case WVW_A_SPIRIT_SHIELD:
 			//add held weave
-			weave = MakeWeaveHeld(self, weaveID, TIME_TWENTY_SEC, powerUsing, 1, qfalse);
-			AddHeldWeaveToPlayer(weave, &self->client->ps);
+			heldWeave = HeldWeaveCreate(self, weaveID, TIME_TWENTY_SEC, powerUsing, 1, qfalse);
 			break;
 			/*end holdable, switch */
 
@@ -271,77 +341,13 @@ void CreateWeaveID(gentity_t * self, int weaveID, int powerUsing)
 			break;
 	}
 
+	if(heldWeave != NULL)
+	{
+		HeldWeaveAddToPlayer(heldWeave, &self->client->ps);
+	}
+
 	DEBUGWEAVEING("CreateWeaveID: end");
 	return;
-}
-
-/*
-=================
-AddHeldWeaveToPlayer
-
-Adds a weave to a players held weaves list.
-
-ent is a ET_HELD_WEAVE
-player is playerState of player to add it to
-=================
-*/
-void AddHeldWeaveToPlayer(gentity_t * ent, playerState_t * player)
-{
-	int             i;
-	gentity_t      *pent;
-
-	if(!ent)
-	{
-		DEBUGWEAVEING("AddHeldWeaveToPlayer: no ent");
-		return;
-	}
-	if(!player)
-	{
-		DEBUGWEAVEING("AddHeldWeaveToPlayer: no player");
-		return;
-	}
-
-	DEBUGWEAVEING("AddHeldWeaveToPlayer: start");
-	for(i = MIN_WEAPON_WEAVE; i < MAX_WEAPONS; i++)
-	{
-		if(player->ammo[i] <= 0)
-		{
-			player->ammo[i] = ent->s.number;
-			ent->s.modelindex2 = i;	// remember slot
-			player->weapon = i;
-			player->stats[STAT_WEAPONS] |= 1 << i;
-			// Event to indicate new weave
-			pent = &g_entities[ent->s.otherEntityNum2];
-			G_AddEvent(pent, EV_WEAVE_ADDHELD, i);
-			break;
-		}
-	}
-	DEBUGWEAVEING("AddHeldWeaveToPlayer: end");
-}
-
-qboolean HeldWeaveBelongsToPlayer(gentity_t * held, playerState_t * player)
-{
-	// Held must be a valid entity
-	if((!held) || (!held->inuse))
-	{
-		return qfalse;
-	}
-	// Held must be a heldweave entity
-	if(held->s.eType != ET_WEAVE_HELD)
-	{
-		return qfalse;
-	}
-	// Must belong to the specific player
-	if(held->s.otherEntityNum2 != player->clientNum)
-	{
-		return qfalse;
-	}
-	// Player should have the weave available in a slot
-	if(player->ammo[held->s.modelindex2] != held->s.number)
-	{
-		return qfalse;
-	}
-	return qtrue;
 }
 
 /*
@@ -876,28 +882,28 @@ ClearHeldWeaveCast
 Removes weave from the player
 Frees the weave entity.
 
-ent is a ET_HELD_WEAVE
+heldWeave is a ET_HELD_WEAVE
 castClear if non zero (ie, non WVW_NONE), this weave is being cleared because it was just cast.
 	a CAST + CLEAR event can be sent instead of a CLEAR event which would overwrite the CAST.
 	castClear is the weave ID. Use WVW_NONE if weave was not cast.
 =================
 */
-void ClearHeldWeaveCast(gentity_t * ent, int castClear)
+void ClearHeldWeaveCast(gentity_t * heldWeave, int castClear)
 {
 	int             i;
 	playerState_t  *player;
 	gentity_t      *pent;
 
-	if(!ent)
+	if(!heldWeave)
 	{
-		DEBUGWEAVEING("ClearHeldWeave: no ent");
+		DEBUGWEAVEING("ClearHeldWeave: no heldWeave");
 		return;
 	}
 
 	DEBUGWEAVEING("ClearHeldWeave: start");
 
 	//get player who is holding weave
-	pent = &g_entities[ent->s.otherEntityNum2];
+	pent = &g_entities[heldWeave->s.otherEntityNum2];
 	player = &pent->client->ps;
 
 	//for(i = 0; i < HELD_MAX; i++)
@@ -905,7 +911,7 @@ void ClearHeldWeaveCast(gentity_t * ent, int castClear)
 	for(i = MIN_WEAPON_WEAVE; i < MAX_WEAPONS; i++)
 	{
 		// Where the weave is being held
-		if(player->ammo[i] == ent->s.number)
+		if(player->ammo[i] == heldWeave->s.number)
 		{
 			// Weave is no longer held
 			player->ammo[i] = 0;
@@ -926,13 +932,14 @@ void ClearHeldWeaveCast(gentity_t * ent, int castClear)
 		}
 	}
 
-	if(ent->target_ent)
+	if(heldWeave->target_ent)
 	{
-		G_FreeEntity(ent->target_ent);
+		G_FreeEntity(heldWeave->target_ent);
 	}
 
 	//clear the held weave
-	G_FreeEntity(ent);
+	G_FreeEntity(heldWeave);
+
 	DEBUGWEAVEING("ClearHeldWeave: end");
 }
 
