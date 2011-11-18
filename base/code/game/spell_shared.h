@@ -26,6 +26,7 @@ weaver_threadsMap_t *ThreadsTree(int threads[MAX_THREADS]);
 int             ThreadsToWeaveID(int group, int threads[MAX_THREADS]);
 
 void            WeaveProtectScales(int weavenum, float *airprotect, float *fireprotect, float *earthprotect, float *waterprotect);
+int             WeaveCastTime(int weaveID);
 
 qboolean        WeaveHoldable(int weaveID);
 int             WeaveHoldPower(int weaveID);

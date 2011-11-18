@@ -339,6 +339,100 @@ void WeaveProtectScales(int weavenum, float *airprotect, float *fireprotect, flo
 	}
 }
 
+int WeaveCastTime(int weaveID)
+{
+	switch (weaveID)
+	{
+			/*begin end on exec */
+		case WVW_A_AIRFIRE_SWORD:
+			return 1000;
+		case WVW_D_AIRFIRE_LIGHT:
+			return 400;
+		case WVW_D_AIRWATER_FOG:
+			return 400;
+		case WVW_D_SPIRIT_TRAVEL:
+			return 400;
+		case WVW_D_AIR_PROTECT:
+			return 400;
+		case WVW_D_FIRE_PROTECT:
+			return 400;
+			/*end end on exec */
+
+			/*begin holdable, no switch */
+		case WVW_D_SPIRIT_LINK:
+			return 500;
+		case WVW_D_AIRFIRE_WALL:
+			return 400;
+		case WVW_A_FIRE_BLOSSOMS:
+			return 400;
+		case WVW_D_EARTH_UNLOCK:
+			return 500;
+		case WVW_A_EARTHFIRE_IGNITE:
+			return 100;
+		case WVW_D_EARTHFIRE_EXPLOSIVE_S:
+		case WVW_D_EARTHFIRE_EXPLOSIVE_M:
+			return 400;
+		case WVW_D_WATER_CURE:
+			return 400;
+		case WVW_D_WATER_HEAL_S:
+		case WVW_D_WATER_HEAL_M:
+			return 400;
+		case WVW_A_SPIRIT_SLICE_S:
+		case WVW_A_SPIRIT_SLICE_M:
+		case WVW_A_SPIRIT_SLICE_L:
+			return 500;
+		case WVW_D_SPIRIT_STAMINA:
+			return 1000;
+		case WVW_D_AIRFIRE_INVIS:
+			return 1000;
+		case WVW_A_SPIRIT_STILL:
+			return 1000;
+		case WVW_A_SPIRIT_BALEFIRE:
+			return 1000;
+		case WVW_A_SPIRIT_DEATHGATE:
+			return 1000;
+			/*end holdable, no switch */
+
+			/*begin holdable, switch */
+		case WVW_D_AIR_GRAB:
+			return 1000;
+		case WVW_A_AIR_BLAST:
+			return 500;
+		case WVW_A_AIR_GRABPLAYER:
+			return 1500;
+		case WVW_A_AIR_BINDPLAYER:
+			return 1500;
+		case WVW_A_EARTH_QUAKE_S:
+		case WVW_A_EARTH_QUAKE_M:
+		case WVW_A_EARTH_QUAKE_L:
+			return 1500;
+		case WVW_A_FIRE_BALL:
+			return 800;
+		case WVW_A_FIRE_DARTS:
+			return 250;
+		case WVW_A_FIRE_MULTIDARTS:
+			return 200;
+		case WVW_A_AIRFIRE_LIGHTNING:
+			return 100;
+		case WVW_A_AIRWATER_DARTS_S:
+		case WVW_A_AIRWATER_DARTS_M:
+			return 750;
+		case WVW_A_EARTHWATER_SLOW:
+			return 750;
+		case WVW_A_EARTHWATER_POISON:
+			return 750;
+		case WVW_A_SPIRIT_SHIELD:
+			return 1000;
+			/*end holdable, switch */
+
+			/*anything else is an error. */
+		case WVW_NONE:
+		case -1:
+		default:
+			return 400;
+	}
+}
+
 #define WEAVEINFO(id,holdable,holdPowerCharge,holdMaxTime,castCharges,castDelay,primaryPower,effectType,tier,group,name,nameP) case (id): return (holdable);
 qboolean WeaveHoldable(int weaveID)
 {
