@@ -305,23 +305,12 @@ void ClientThreadEnd(gclient_t * client)
 void ClientWeaveEnd(gclient_t * client, gentity_t * ent)
 {
 	int             i;
+	int             powerUsing;
+	int             weaveID;
 
 	client->weaving = qfalse;
 	if(client->thread > 0)
 	{
-#if 0
-		DEBUGWEAVEING(va("POWER: %i WEAVE: %s %s_%s_%s_%s_%s_%s_%s_%s_%s",
-			ClientPowerAvailable(client),
-			WeaveGroupName(client->currentWeaveGroup),
-			WeavePowerName(client->currentWeaveThreads[0]),
-			WeavePowerName(client->currentWeaveThreads[1]),
-			WeavePowerName(client->currentWeaveThreads[2]),
-			WeavePowerName(client->currentWeaveThreads[3]),
-			WeavePowerName(client->currentWeaveThreads[4]),
-			WeavePowerName(client->currentWeaveThreads[5]),
-			WeavePowerName(client->currentWeaveThreads[6]),
-			WeavePowerName(client->currentWeaveThreads[7])));
-#else
 		if(DEBUGWEAVEING_TST(1))
 		{
 			Com_Printf("POWER: %i WEAVE: %s_%s_%s_%s_%s_%s_%s_%s_%s\n",
@@ -336,8 +325,24 @@ void ClientWeaveEnd(gclient_t * client, gentity_t * ent)
 					   WeavePowerNames[client->currentWeaveThreads[6]],
 					   WeavePowerNames[client->currentWeaveThreads[7]]);
 		}
-#endif
-		CreateWeave(ent, client->currentWeaveGroup, client->currentWeaveThreads);
+
+		//count up ammount of power being used
+		powerUsing = 0;
+		for(i = 0; i < MAX_THREADS; i++)
+		{
+			if(client->currentWeaveThreads[i] > 0)
+			{
+				powerUsing += POWER_PER_THREAD;
+			}
+			else
+			{
+				break;
+			}
+		}
+
+		weaveID = -1;
+		weaveID = ThreadsToWeaveID(client->currentWeaveGroup, client->currentWeaveThreads);
+		CreateWeaveID(ent, weaveID, powerUsing);
 	}
 	client->ps.stats[STAT_THREADX] = 0;
 	client->ps.stats[STAT_THREADY] = 0;

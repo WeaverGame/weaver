@@ -798,7 +798,6 @@ gentity_t      *fire_railsphere(gentity_t * self, vec3_t start, vec3_t aimdir);
 //WEAVER
 // g_spell_weave.c
 //
-void            CreateWeave(gentity_t * self, int group, int threads[MAX_THREADS]);
 void            CreateWeaveID(gentity_t * self, int weaveID, int powerUsing);
 qboolean        ExecuteWeave(gentity_t * weave);
 void            EndWeave(gentity_t * weave);

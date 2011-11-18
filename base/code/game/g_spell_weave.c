@@ -205,51 +205,6 @@ gentity_t      *HeldWeaveCreate(gentity_t * self, int weaveID, int holdTime, int
 
 /*
 =================
-CreateWeave
-
-This function invokes actions for a player's weaving.
-It takes the basic thread inputs, then creates appropriate entities for this action.
-=================
-*/
-void CreateWeave(gentity_t * self, int group, int threads[MAX_THREADS])
-{
-	int             weaveID;
-	int             powerUsing;
-	int             i;
-
-	if(!self)
-	{
-		DEBUGWEAVEING("CreateWeave: no self");
-		return;
-	}
-
-	DEBUGWEAVEING("CreateWeave: start");
-
-	powerUsing = 0;
-	weaveID = -1;
-
-	//count up ammount of power being used
-	for(i = 0; i < MAX_THREADS; i++)
-	{
-		if(threads[i] > 0)
-		{
-			powerUsing += POWER_PER_THREAD;
-		}
-		else
-		{
-			break;
-		}
-	}
-
-	weaveID = ThreadsToWeaveID(group, threads);
-	CreateWeaveID(self, weaveID, powerUsing);
-
-	DEBUGWEAVEING("CreateWeave: end");
-	return;
-}
-
-/*
-=================
 CreateWeaveID
 
 =================
