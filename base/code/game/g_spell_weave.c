@@ -106,6 +106,31 @@ qboolean HeldWeaveBelongsToPlayer(gentity_t * heldWeave, playerState_t * player)
 
 /*
 =================
+HeldWeaveExpire
+
+Expires a given weave
+ent is a ET_HELD_WEAVE
+=================
+*/
+void HeldWeaveExpire(gentity_t * heldWeave)
+{
+	if(!heldWeave)
+	{
+		DEBUGWEAVEING("HeldWeaveExpire: no ent");
+		return;
+	}
+
+	DEBUGWEAVEING("HeldWeaveExpire: start");
+	if(G_HeldWeave_GetState(heldWeave) == WST_HELD)
+	{
+		G_HeldWeave_SetState(heldWeave, WST_EXPIRED);
+		UseHeldWeave(heldWeave);
+	}
+	DEBUGWEAVEING("HeldWeaveExpire: end");
+}
+
+/*
+=================
 HeldWeaveCreate
 
 Creates a held weave entity using parameters.
@@ -123,7 +148,7 @@ gentity_t      *HeldWeaveCreate(gentity_t * self, int weaveID, int holdTime, int
 	weave->nextthink = level.time + holdTime;
 	if(runAtTime)
 	{
-		weave->think = ExpireHeldWeave;
+		weave->think = HeldWeaveExpire;
 	}
 	else
 	{
@@ -348,31 +373,6 @@ void CreateWeaveID(gentity_t * self, int weaveID, int powerUsing)
 
 	DEBUGWEAVEING("CreateWeaveID: end");
 	return;
-}
-
-/*
-=================
-ExpireHeldWeave
-
-Expires a given weave
-ent is a ET_HELD_WEAVE
-=================
-*/
-void ExpireHeldWeave(gentity_t * heldWeave)
-{
-	if(!heldWeave)
-	{
-		DEBUGWEAVEING("ExpireHeldWeave: no ent");
-		return;
-	}
-
-	DEBUGWEAVEING("ExpireHeldWeave: start");
-	if(G_HeldWeave_GetState(heldWeave) == WST_HELD)
-	{
-		G_HeldWeave_SetState(heldWeave, WST_EXPIRED);
-		UseHeldWeave(heldWeave);
-	}
-	DEBUGWEAVEING("ExpireHeldWeave: end");
 }
 
 /*

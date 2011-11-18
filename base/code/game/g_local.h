@@ -805,7 +805,6 @@ void            EndWeave(gentity_t * weave);
 qboolean        HeldWeaveBelongsToPlayer(gentity_t * held, playerState_t * player);
 void            UseHeldWeave(gentity_t * ent);
 void            HeldWeaveEndCurrent(gentity_t * player_ent);
-void            ExpireHeldWeave(gentity_t * heldWeave);
 void            ClearHeldWeave(gentity_t * ent);
 void            ClearHeldWeaveCast(gentity_t * ent, int castClear);
 void            G_RunWeaveEffect(gentity_t * ent);
