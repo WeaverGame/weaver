@@ -811,7 +811,6 @@ void            ClearHeldWeave(gentity_t * ent);
 void            ClearHeldWeaveCast(gentity_t * ent, int castClear);
 void            G_RunWeaveEffect(gentity_t * ent);
 void            G_ReleaseWeave(gentity_t * weave);
-void            ThreadsThink(void);
 int             WeaveTime(int weaveID);
 
 // g_spell_power.c
@@ -849,6 +848,7 @@ void            G_TossObjItems(gentity_t * self);
 
 // g_spell_misc.c
 //
+void            ThreadsThink(void);
 void            WeaveProtectCheck(gclient_t * checkClient);
 int             WeaveProtectDamage(gentity_t * targ, gclient_t *client, gentity_t * inflictor, gentity_t * attacker,
 										  const vec3_t dir, const vec3_t point, int damageBase, int dflags, int mod);
