@@ -775,19 +775,28 @@ void RunWeave_Slice(gentity_t * ent)
 	for(i = 0; i < num; i++)
 	{
 		hit = &g_entities[touch[i]];
-		// check if this entity is a weave
+
+		// Check if the hit entity is a weave.
 		if((hit->s.eType == ET_WEAVE_EFFECT || hit->s.eType == ET_WEAVE_MISSILE) && hit->r.ownerNum != ent->r.ownerNum)
 		{
-			Com_Printf("SLICE TRAP Hit weave | ent %d hit %d \n", ent->s.number, hit->s.number);
+			if(DEBUGWEAVEING_TST(1))
+			{
+				Com_Printf("SLICE TRAP Hit weave | ent %d hit %d \n", ent->s.number, hit->s.number);
+			}
 
 			// weave strength check
 			if(ent->damage >= WeaveTier(hit->s.weapon))
 			{
 				heldWeave = &g_entities[hit->s.otherEntityNum2];
-				if(hit->target_ent && hit->target_ent->s.number == ent->r.ownerNum)
+
+				if(DEBUGWEAVEING_TST(1))
 				{
-					Com_Printf("SLICE destroying weave (targeting self)\n");
+					if(hit->target_ent && hit->target_ent->s.number == ent->r.ownerNum)
+					{
+						Com_Printf("SLICE destroying weave (targeting self)\n");
+					}
 				}
+
 				if(heldWeave)
 				{
 					EndWeave(heldWeave);
@@ -795,14 +804,23 @@ void RunWeave_Slice(gentity_t * ent)
 				}
 				G_FreeEntity(hit);
 				freeMe = 1;
-				Com_Printf("SLICE destroying weave\n");
+				
+				if(DEBUGWEAVEING_TST(1))
+				{
+					Com_Printf("SLICE destroying weave\n");
+				}
 			}
 			else
 			{
-				Com_Printf("SLICE not powerfull enough\n");
+				if(DEBUGWEAVEING_TST(1))
+				{
+					Com_Printf("SLICE not powerfull enough\n");
+				}
 			}
 		}
 
+		// Check if the hit entity is a player with a held weave in process.
+		// If a slice hits a player it will end any of their weaves in process.
 		if(hit->s.eType == ET_PLAYER && hit->s.number != ent->r.ownerNum)
 		{
 			if(hit->s.number == ent->s.torsoAnim)
@@ -811,7 +829,10 @@ void RunWeave_Slice(gentity_t * ent)
 			}
 			ent->s.torsoAnim = hit->s.number;
 
-			Com_Printf("SLICE TRAP Hit player | ent %d hit %d \n", ent->s.number, hit->s.number);
+			if(DEBUGWEAVEING_TST(1))
+			{
+				Com_Printf("SLICE TRAP Hit player | ent %d hit %d \n", ent->s.number, hit->s.number);
+			}
 
 			for(j = MIN_WEAPON_WEAVE; j < MAX_WEAPONS; j++)
 			{
@@ -823,19 +844,30 @@ void RunWeave_Slice(gentity_t * ent)
 					{
 						if(ent->damage >= WeaveTier(heldWeave->s.weapon))
 						{
-							if(heldWeave->target_ent && heldWeave->target_ent->target_ent &&
-							   heldWeave->target_ent->target_ent->s.number == ent->r.ownerNum)
+							if(DEBUGWEAVEING_TST(1))
 							{
-								Com_Printf("SLICE destroying heldweave (targeting self)\n");
+								if(heldWeave->target_ent && heldWeave->target_ent->target_ent &&
+								   heldWeave->target_ent->target_ent->s.number == ent->r.ownerNum)
+								{
+									Com_Printf("SLICE destroying heldweave (targeting self)\n");
+								}
 							}
+
 							//End the held weave which is in process.
 							UseHeldWeave(heldWeave);
 							freeMe = 1;
-							Com_Printf("SLICE destroying heldweave\n");
+							
+							if(DEBUGWEAVEING_TST(1))
+							{
+								Com_Printf("SLICE destroying heldweave\n");
+							}
 						}
 						else
 						{
-							Com_Printf("SLICE not powerfull enough\n");
+							if(DEBUGWEAVEING_TST(1))
+							{
+								Com_Printf("SLICE not powerfull enough\n");
+							}
 						}
 					}
 				}
@@ -975,7 +1007,7 @@ qboolean FireWeave_Shield(gentity_t * self, vec3_t start, vec3_t dir, int heldWe
 	heldWeave->nextthink = 0;
 
 	// Terminate current spells
-	ClientWeaverEndSpells(target);
+	ClientWeaverCleanupSpells(target->client);
 	
 	RunWeave_Shield(bolt);
 

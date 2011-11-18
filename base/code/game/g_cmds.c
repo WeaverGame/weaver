@@ -1875,7 +1875,7 @@ Cmd_Release_f
 */
 void Cmd_Release_f(gentity_t * ent)
 {
-	ReleaseHeldWeave(ent);
+	HeldWeaveEndCurrent(ent);
 }
 
 /*

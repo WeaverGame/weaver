@@ -477,7 +477,33 @@ void UseHeldWeave(gentity_t * heldWeave)
 
 /*
 =================
-ReleaseWeaveCmd
+HeldWeaveEnd
+
+End a held weave, in any state.
+=================
+*/
+void HeldWeaveEnd(gentity_t * heldWeave)
+{
+	switch (G_HeldWeave_GetState(heldWeave))
+	{
+		case WST_HELD:
+		case WST_EXPIRED:
+			G_HeldWeave_SetState(heldWeave, WST_RELEASED);
+			break;
+		case WST_INPROCESS:
+			G_HeldWeave_SetState(heldWeave, WST_INPROCESSRELEASED);
+			break;
+		case WST_RELEASED:
+		case WST_INPROCESSRELEASED:
+		default:
+			break;
+	}
+	UseHeldWeave(heldWeave);
+}
+
+/*
+=================
+HeldWeaveEndCurrent
 
 This method gets the player's currently selected held weave and releases it.
 Held weave may be in any state.
@@ -485,9 +511,10 @@ Held weave may be in any state.
 player_ent is a player
 =================
 */
-void ReleaseHeldWeave(gentity_t * player_ent)
+void HeldWeaveEndCurrent(gentity_t * player_ent)
 {
 	playerState_t  *pstate;
+	int             heldWeaveId;
 	gentity_t      *heldWeave;
 
 	if(!player_ent || !player_ent->client)
@@ -497,27 +524,15 @@ void ReleaseHeldWeave(gentity_t * player_ent)
 
 	pstate = &player_ent->client->ps;
 
+	// If weapon is a weave
 	if(pstate->weapon && (pstate->weapon >= MIN_WEAPON_WEAVE))
 	{
-		// This is a weave
-		if(pstate->ammo[pstate->weapon])
+		heldWeaveId = pstate->ammo[pstate->weapon];
+		// And a heldweave is referenced
+		if(heldWeaveId)
 		{
-			heldWeave = &g_entities[pstate->ammo[pstate->weapon]];
-			switch (G_HeldWeave_GetState(heldWeave))
-			{
-				case WST_HELD:
-				case WST_EXPIRED:
-					G_HeldWeave_SetState(heldWeave, WST_RELEASED);
-					break;
-				case WST_INPROCESS:
-					G_HeldWeave_SetState(heldWeave, WST_INPROCESSRELEASED);
-					break;
-				case WST_RELEASED:
-				case WST_INPROCESSRELEASED:
-				default:
-					break;
-			}
-			UseHeldWeave(heldWeave);
+			heldWeave = &g_entities[heldWeaveId];
+			HeldWeaveEnd(heldWeave);
 		}
 	}
 }
@@ -527,6 +542,9 @@ void ReleaseHeldWeave(gentity_t * player_ent)
 G_ReleaseWeave
 
 Given a weave effect in progress, this method gets the held weave and releases it.
+
+The corresponding heldWeave must be WST_IN_PROCESS.
+You'd expect this since the heldWeave has this effect entity.
 
 weave_effect is a weave effect entity.
 =================
