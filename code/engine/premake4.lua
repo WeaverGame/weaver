@@ -388,6 +388,9 @@ project "Weaver"
 	configuration { "linux", "x64" }
 		targetdir 	"../../bin/linux-x86_64"
 	
+	configuration { "linux", "native" }
+		targetdir 	"../../bin/linux-native"
+	
 	configuration "linux"
 		targetname  "xreal"
 		files
@@ -614,6 +617,9 @@ project "XreaL-dedicated"
 		
 	configuration { "linux", "x64" }
 		targetdir 	"../../bin/linux-x86_64"
+	
+	configuration { "linux", "native" }
+		targetdir 	"../../bin/linux-native"
 	
 	configuration "linux"
 		targetname  "xreal-dedicated"

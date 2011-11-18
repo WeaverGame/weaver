@@ -137,6 +137,9 @@ project "XMap2"
 	configuration { "linux", "x64" }
 		targetdir 	"../../../bin/linux-x86_64"
 
+	configuration { "linux", "native" }
+		targetdir 	"../../../bin/linux-native"
+	
 	configuration "linux"
 		targetname  "xmap2"
 		links

@@ -44,6 +44,9 @@ project "base_ui"
 	configuration "x64"
 		targetname  "uix86_64"
 				
+	configuration "native"
+		targetname  "uix86_64"
+				
 	-- 
 	-- Project Configurations
 	-- 
@@ -63,6 +66,10 @@ project "base_ui"
 		targetprefix ""
 	
 	configuration { "linux", "x64" }
+		targetname  "uix86_64"
+		targetprefix ""
+	
+	configuration { "linux", "native" }
 		targetname  "uix86_64"
 		targetprefix ""
 	
