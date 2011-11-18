@@ -866,7 +866,6 @@ Keeps position, etc.
 */
 void ClientRevived(gentity_t * ent)
 {
-	int             i;
 	gclient_t      *client;
 
 	//TODO: most of this code is duplicated from g_client.c ClientSpawn. Abstract to one location.
@@ -880,36 +879,7 @@ void ClientRevived(gentity_t * ent)
 
 	client->pers.teamState.state = TEAM_ACTIVE;
 
-	//WEAVER
-	//clear held weaves
-	for(i = MIN_WEAPON_WEAVE; i < MAX_WEAPONS; i++)
-	{
-		if(client->ps.ammo[i] > 0)
-		{
-			ClearHeldWeave(&g_entities[client->ps.ammo[i]]);
-		}
-	}
-	if(client->threadEnt)
-	{
-		Com_Printf("Free ThreadsEnt player %d\n", client->ps.clientNum);
-		G_FreeEntity(client->threadEnt);
-	}
-
-	ClientPowerInitialize(client);
-
-	//Clear Links
-	client->linkEnt = NULL;
-	client->linkFollower = NULL;
-	client->linkHeld = NULL;
-	client->linkTarget = NULL;
-
-	//Clear shields
-	client->ps.stats[STAT_AIRPROTECT] = 0;
-	client->ps.stats[STAT_FIREPROTECT] = 0;
-	client->ps.stats[STAT_EARTHPROTECT] = 0;
-	client->ps.stats[STAT_WATERPROTECT] = 0;
-
-	WeaveProtectCheck(client);
+	ClientWeaverInitialize(client);
 
 	ent->s.groundEntityNum = ENTITYNUM_NONE;
 	//ent->client = &level.clients[index];
@@ -945,10 +915,6 @@ void ClientRevived(gentity_t * ent)
 	{
 		MoveClientToIntermission(ent);
 	}
-
-	//WEAVER
-	//create threads entity for this player
-	CreateThreads(ent);
 
 	// run a client frame to drop exactly to the floor,
 	// initialize animations and other things

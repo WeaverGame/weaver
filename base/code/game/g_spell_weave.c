@@ -25,29 +25,32 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "g_spell_effects.h"
 #include "g_spell_util.h"
 
-void CreateThreads(gentity_t * player)
+void CreateThreads(gclient_t * playerClient)
 {
 	gentity_t      *threadsEnt;
+	gentity_t      *playerEnt;
 
-	if(!player)
+	if(!playerClient)
 	{
-		DEBUGWEAVEING("CreateThreads: no player");
+		DEBUGWEAVEING("CreateThreads: no playerClient");
 		return;
 	}
 
 	DEBUGWEAVEING("CreateThreads: start");
 
+	playerEnt = &g_entities[playerClient->ps.clientNum];
+
 	threadsEnt = G_Spawn();
 
 	threadsEnt->classname = THREAD_CLASSNAME;
 	threadsEnt->nextthink = 0;
-	threadsEnt->parent = player;
-	threadsEnt->r.ownerNum = player->client->ps.clientNum;
+	threadsEnt->parent = playerEnt;
+	threadsEnt->r.ownerNum = playerClient->ps.clientNum;
 	threadsEnt->r.svFlags = SVF_BROADCAST;
 	threadsEnt->s.eType = ET_WEAVE_THREADS;
-	threadsEnt->s.otherEntityNum2 = player->s.number;
+	threadsEnt->s.otherEntityNum2 = playerClient->ps.clientNum;
 	//set owner
-	threadsEnt->s.torsoAnim = player->client->ps.clientNum;
+	threadsEnt->s.torsoAnim = playerClient->ps.clientNum;
 
 	if(DEBUGWEAVEING_TST(1))
 	{
@@ -67,7 +70,7 @@ void CreateThreads(gentity_t * player)
 	threadsEnt->clipmask = 0;
 	threadsEnt->target_ent = 0;
 
-	player->client->threadEnt = threadsEnt;
+	playerClient->threadEnt = threadsEnt;
 
 	trap_LinkEntity(threadsEnt);
 	DEBUGWEAVEING("CreateThreads: end");
@@ -496,7 +499,7 @@ Logic to see if a held weave can be used.
 Calls ExecuteWeave() to run the weave.
 Updates charges and power usage.
 
-ent is a ET_HELD_WEAVE
+heldWeave is a ET_HELD_WEAVE
 =================
 */
 void UseHeldWeave(gentity_t * heldWeave)
@@ -592,22 +595,23 @@ void UseHeldWeave(gentity_t * heldWeave)
 =================
 ReleaseWeaveCmd
 
-Given a weave effect in progress, 
-this method gets the held weave 
-and releases it (and subsequently this weave effect).
+This method gets the player's currently selected held weave and releases it.
+Held weave may be in any state.
+
+player_ent is a player
 =================
 */
-void ReleaseHeldWeave(gentity_t * ent)
+void ReleaseHeldWeave(gentity_t * player_ent)
 {
 	playerState_t  *pstate;
 	gentity_t      *heldWeave;
 
-	if(!ent || !ent->client)
+	if(!player_ent || !player_ent->client)
 	{
 		return;
 	}
 
-	pstate = &ent->client->ps;
+	pstate = &player_ent->client->ps;
 
 	if(pstate->weapon && (pstate->weapon >= MIN_WEAPON_WEAVE))
 	{
@@ -638,16 +642,16 @@ void ReleaseHeldWeave(gentity_t * ent)
 =================
 G_ReleaseWeave
 
-Given a weave effect in progress, 
-this method gets the held weave 
-and releases it (and subsequently this weave effect).
+Given a weave effect in progress, this method gets the held weave and releases it.
+
+weave_effect is a weave effect entity.
 =================
 */
-void G_ReleaseWeave(gentity_t * weave)
+void G_ReleaseWeave(gentity_t * weave_effect)
 {
 	gentity_t      *heldWeave;
 
-	if(!weave)
+	if(!weave_effect)
 	{
 		DEBUGWEAVEING("G_ReleaseWeave: no ent");
 		return;
@@ -655,11 +659,12 @@ void G_ReleaseWeave(gentity_t * weave)
 
 	DEBUGWEAVEING("G_ReleaseWeave: start");
 
-	heldWeave = &g_entities[weave->s.otherEntityNum2];
+	heldWeave = &g_entities[weave_effect->s.otherEntityNum2];
 
 	EndWeave(heldWeave);
 
 	ClearHeldWeave(heldWeave);
+
 	DEBUGWEAVEING("G_ReleaseWeave: end");
 }
 
@@ -667,18 +672,23 @@ void G_ReleaseWeave(gentity_t * weave)
 =================
 EndWeave
 
-Ends a weave in progress
+Ends a weave in process.
+This should only be called if the weave is in process.
+The spell specific EndWeave functions assume that their spell is inprocess.
 
+This should probably only be called from UseHeldWeave.
+
+heldWeave is a held weave, it must be WST_IN_PROCESS.
 =================
 */
-void EndWeave(gentity_t * weave)
+void EndWeave(gentity_t * heldWeave)
 {
 	vec3_t          start;
 	vec3_t          direction;
 	gentity_t      *player;
 	int             heldWeaveNum;
 
-	if(!weave)
+	if(!heldWeave)
 	{
 		DEBUGWEAVEING("EndWeave: no ent");
 		return;
@@ -687,8 +697,8 @@ void EndWeave(gentity_t * weave)
 	DEBUGWEAVEING("EndWeave: start");
 
 	//calc parameters
-	heldWeaveNum = weave->s.number;
-	player = weave->parent;
+	heldWeaveNum = heldWeave->s.number;
+	player = heldWeave->parent;
 	if(player)
 	{
 		VectorCopy(player->s.pos.trBase, start);
@@ -700,7 +710,7 @@ void EndWeave(gentity_t * weave)
 		DEBUGWEAVEING("EndWeave: no player");
 	}
 
-	switch (weave->s.weapon)
+	switch (heldWeave->s.weapon)
 	{
 			//Held special
 		case WVW_A_AIRFIRE_SWORD:
@@ -801,7 +811,11 @@ void EndWeave(gentity_t * weave)
 ExecuteWeave
 
 Actually executes a weave
+This should only be called if the weave is WST_HELD.
 
+This should probably only be called from UseHeldWeave.
+
+heldWeave is a held weave, it must be WST_HELD.
 =================
 */
 qboolean ExecuteWeave(gentity_t * heldWeave)
@@ -979,7 +993,7 @@ qboolean ExecuteWeave(gentity_t * heldWeave)
 
 /*
 =================
-ClearHeldWeave
+ClearHeldWeaveCast
 
 Removes weave from the player
 Frees the weave entity.
@@ -1021,7 +1035,7 @@ void ClearHeldWeaveCast(gentity_t * ent, int castClear)
 			player->stats[STAT_WEAPONS] &= ~(1 << i);
 			if(i == player->weapon)
 			{
-				if(castClear != 0)
+				if(castClear != WVW_NONE)
 				{
 					G_AddEvent(pent, EV_WEAVE_CASTCLEARED, castClear);
 				}
@@ -1044,12 +1058,29 @@ void ClearHeldWeaveCast(gentity_t * ent, int castClear)
 	DEBUGWEAVEING("ClearHeldWeave: end");
 }
 
+/*
+=================
+ClearHeldWeave
+
+Removes weave from the player
+Frees the weave entity.
+
+ent is a ET_HELD_WEAVE
+=================
+*/
 void ClearHeldWeave(gentity_t * ent)
 {
 	ClearHeldWeaveCast(ent, WVP_NONE);
 }
 
 
+/*
+=================
+G_RunWeaveEffect
+
+
+=================
+*/
 void G_RunWeaveEffect(gentity_t * ent)
 {
 	if(!ent)

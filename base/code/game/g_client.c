@@ -1393,8 +1393,6 @@ void ClientSpawn(gentity_t * ent)
 	}
 	eventSequence = client->ps.eventSequence;
 
-	ClientWeaverCleanup(client);
-
 	Com_Memset(client, 0, sizeof(*client));
 
 	client->pers = saved;
@@ -1481,10 +1479,6 @@ void ClientSpawn(gentity_t * ent)
 		//Default to a empty weave
 		client->ps.weapon = MAX_WEAPONS - 1;
 		client->ps.weaponstate = WEAPON_READY;
-
-		//WEAVER
-		//create threads entity for this player
-		CreateThreads(ent);
 
 		G_StatTimeStart(STATF_LIVETIME, ent, NULL, 0);
 	}
@@ -1620,12 +1614,12 @@ void ClientDisconnect(int clientNum)
 
 		// They don't get to take powerups with them!
 		// Especially important for stuff like CTF flags
+		G_TossObjItems(ent);
 
 		//WEAVER dont toss normal items
 		//TossClientItems(ent);
 
-		ClientWeaverDie(ent);
-		G_TossObjItems(ent);
+		ClientWeaverDestroy(ent->client);
 
 #if defined(MISSIONPACK)
 		TossClientPersistantPowerups(ent);

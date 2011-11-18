@@ -24,7 +24,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <q_shared.h>
 #include "g_local.h"
 
-void ClientWeaverCleanup(gclient_t * client)
+/*
+=======================
+Release all the spells, in any state, belonging to this client.
+=======================
+*/
+void ClientWeaverCleanupSpells(gclient_t * client)
 {
 	int             i;
 
@@ -36,18 +41,15 @@ void ClientWeaverCleanup(gclient_t * client)
 			ClearHeldWeave(&g_entities[client->ps.ammo[i]]);
 		}
 	}
-	// Cleanup client's threads
-	if(client->threadEnt)
-	{
-		if(DEBUGWEAVEING_TST(1))
-		{
-			Com_Printf("Free ThreadsEnt player %d", client->ps.clientNum);
-		}
-		G_FreeEntity(client->threadEnt);
-		client->threadEnt = NULL;
-	}
 }
 
+/*
+=======================
+Initialize this client's facility for weaving.
+
+Applied when a client is spawned or revived.
+=======================
+*/
 void ClientWeaverInitialize(gclient_t * client)
 {
 	// Give stamina and power
@@ -66,47 +68,40 @@ void ClientWeaverInitialize(gclient_t * client)
 	client->ps.stats[STAT_EARTHPROTECT] = 0;
 	client->ps.stats[STAT_WATERPROTECT] = 0;
 	WeaveProtectCheck(client);
+
+	// create threads entity
+	CreateThreads(client);
 }
 
-void ClientWeaverEndSpells(gentity_t * self)
+/*
+=======================
+Destroy this client's facility for weaving.
+
+Applied when a client is killed or disconnects.
+May be applied multiple times (i.e. dead/wounded player who then disconnects).
+=======================
+*/
+void ClientWeaverDestroy(gclient_t * client)
 {
-	int             j;
-	gentity_t      *heldWeave;
+	// Leave any links
+	ClientLinkLeave(client);
 
-	ClientLinkLeave(self->client);
+	// Release all spells
+	ClientWeaverCleanupSpells(client);
 
-	// Clear held weaves
-	for(j = MIN_WEAPON_WEAVE; j < MAX_WEAPONS; j++)
-	{
-		// Where the weave is being held
-		if(self->client->ps.ammo[j] > 0)
-		{
-			// Clear held weave
-			heldWeave = &g_entities[self->client->ps.ammo[j]];
-			EndWeave(heldWeave);
-			ClearHeldWeave(heldWeave);
-			break;
-		}
-	}
-}
-
-void ClientWeaverDie(gentity_t * self)
-{
-	// Free this players threads
-	if(self->client->threadEnt)
+	// Cleanup client's threads
+	if(client->threadEnt)
 	{
 		if(DEBUGWEAVEING_TST(1))
 		{
-			Com_Printf("Free ThreadsEnt player %d\n", self->client->ps.clientNum);
+			Com_Printf("Free ThreadsEnt player %d", client->ps.clientNum);
 		}
-		G_FreeEntity(self->client->threadEnt);
-		self->client->threadEnt = NULL;
+		G_FreeEntity(client->threadEnt);
+		client->threadEnt = NULL;
 	}
 
 	// Block weaving on this player to terminate any weaving thats going on.
-	self->client->ps.powerups[PW_SHIELDED] = level.time + WEAVE_SHIELD_PULSE_TIME;
-
-	ClientWeaverEndSpells(self);
+	client->ps.powerups[PW_SHIELDED] = level.time + WEAVE_SHIELD_PULSE_TIME;
 }
 
 #define CHECK_PROTECT_ELEMENT(STAT, PROTECT) \
@@ -163,7 +158,6 @@ int ClientWeaverProtectDamage(gentity_t * targ, gclient_t *client, gentity_t * i
 Weaver weaving events
 =======================
 */
-
 void ClientWeaveStart(gclient_t * client)
 {
 	int             j;

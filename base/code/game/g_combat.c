@@ -517,7 +517,7 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 
 	G_Printf("Wounded Player - G_Combat pm_type2=%d\n", self->client->ps.pm_type);
 
-	ClientWeaverDie(self);
+	ClientWeaverDestroy(self->client);
 
 	G_StatTimeAdd(STATF_LIVETIME, self, NULL, 0);
 

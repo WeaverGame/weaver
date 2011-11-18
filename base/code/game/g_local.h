@@ -800,7 +800,7 @@ gentity_t      *fire_railsphere(gentity_t * self, vec3_t start, vec3_t aimdir);
 //
 void            CreateWeave(gentity_t * self, int group, int threads[MAX_THREADS]);
 void            CreateWeaveID(gentity_t * self, int weaveID, int powerUsing);
-void            CreateThreads(gentity_t * player);
+void            CreateThreads(gclient_t * playerClient);
 qboolean        ExecuteWeave(gentity_t * weave);
 void            EndWeave(gentity_t * weave);
 void            AddHeldWeaveToPlayer(gentity_t * ent, playerState_t * player);
@@ -832,11 +832,11 @@ void            RunLinkEnt(gentity_t * bolt);
 
 // g_spell_client.c
 //
-void            ClientWeaverCleanup(gclient_t * client);
-void            ClientWeaverInitialize(gclient_t * client);
+void            ClientWeaverCleanupSpells(gclient_t * client);
 
-void            ClientWeaverEndSpells(gentity_t * self);
-void            ClientWeaverDie(gentity_t * self);
+void            ClientWeaverInitialize(gclient_t * client);
+void            ClientWeaverDestroy(gclient_t * client);
+
 int             ClientWeaverProtectDamage(gentity_t * targ, gclient_t *client, gentity_t * inflictor, gentity_t * attacker,
 										  const vec3_t dir, const vec3_t point, int damageBase, int dflags, int mod);
 
