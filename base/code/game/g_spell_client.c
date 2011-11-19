@@ -52,29 +52,32 @@ void ClientWeaverCleanupSpells(gclient_t * client)
 Create threadsEnt for this client.
 =======================
 */
-void ClientWeaverCreateThreads(gentity_t * ent)
+void ClientWeaverCreateThreads(gclient_t * client)
 {
 	gentity_t      *threadsEnt;
+	gentity_t      *clientEnt;
 
-	if(!ent)
+	if(!client)
 	{
-		DEBUGWEAVEING("ClientWeaverCreateThreads: no ent");
+		DEBUGWEAVEING("ClientWeaverCreateThreads: no client");
 		return;
 	}
 
 	DEBUGWEAVEING("ClientWeaverCreateThreads: start");
 
+	clientEnt = &g_entities[client->ps.clientNum];
+
 	threadsEnt = G_Spawn();
 
 	threadsEnt->classname = THREAD_CLASSNAME;
 	threadsEnt->nextthink = 0;
-	threadsEnt->parent = ent;
-	threadsEnt->r.ownerNum = ent->s.number;
+	threadsEnt->parent = clientEnt;
+	threadsEnt->r.ownerNum = client->ps.clientNum;
 	threadsEnt->r.svFlags = SVF_BROADCAST;
 	threadsEnt->s.eType = ET_WEAVE_THREADS;
-	threadsEnt->s.otherEntityNum2 = ent->s.number;
+	threadsEnt->s.otherEntityNum2 = client->ps.clientNum;
 	//set owner
-	threadsEnt->s.torsoAnim = ent->s.number;
+	threadsEnt->s.torsoAnim = client->ps.clientNum;
 
 	if(DEBUGWEAVEING_TST(1))
 	{
@@ -93,8 +96,9 @@ void ClientWeaverCreateThreads(gentity_t * ent)
 	threadsEnt->splashMethodOfDeath = 0;
 	threadsEnt->clipmask = 0;
 	threadsEnt->target_ent = 0;
+	threadsEnt->takedamage = qfalse;
 
-	ent->client->threadEnt = threadsEnt;
+	client->threadEnt = threadsEnt;
 
 	trap_LinkEntity(threadsEnt);
 
@@ -110,13 +114,9 @@ Initialize this client's facility for weaving.
 Applied when a client is spawned or revived.
 =======================
 */
-void ClientWeaverInitialize(gentity_t * ent)
+void ClientWeaverInitialize(gclient_t * client)
 {
-	gclient_t * client;
-
 	DEBUGWEAVEING("ClientWeaverInitialize: start");
-
-	client = ent->client;
 
 	// Give power
 	ClientPowerInitialize(client);
@@ -135,7 +135,7 @@ void ClientWeaverInitialize(gentity_t * ent)
 	WeaveProtectCheck(client);
 
 	// create threads entity
-	ClientWeaverCreateThreads(ent);
+	ClientWeaverCreateThreads(client);
 
 	DEBUGWEAVEING("ClientWeaverInitialize: end");
 }
