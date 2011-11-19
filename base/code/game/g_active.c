@@ -881,8 +881,6 @@ void ClientRevived(gentity_t * ent)
 
 	client->ps.stats[STAT_STAMINA] = 0;
 
-	ClientWeaverInitialize(ent);
-
 	ent->s.groundEntityNum = ENTITYNUM_NONE;
 	//ent->client = &level.clients[index];
 	ent->takedamage = qtrue;
@@ -901,6 +899,8 @@ void ClientRevived(gentity_t * ent)
 
 	client->ps.weapon = MAX_WEAPONS - 1;
 	client->ps.weaponstate = WEAPON_READY;
+
+	ClientWeaverInitialize(client);
 
 	// don't allow full run speed for a bit
 	client->ps.pm_flags |= PMF_TIME_KNOCKBACK;

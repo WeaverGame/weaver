@@ -1423,8 +1423,6 @@ void ClientSpawn(gentity_t * ent)
 
 	client->ps.stats[STAT_STAMINA] = MAX_STAMINA;
 
-	ClientWeaverInitialize(ent);
-
 	ent->s.groundEntityNum = ENTITYNUM_NONE;
 	ent->client = &level.clients[index];
 	ent->takedamage = qtrue;
@@ -1481,6 +1479,8 @@ void ClientSpawn(gentity_t * ent)
 		//Default to a empty weave
 		client->ps.weapon = MAX_WEAPONS - 1;
 		client->ps.weaponstate = WEAPON_READY;
+
+		ClientWeaverInitialize(client);
 
 		G_StatTimeStart(STATF_LIVETIME, ent, NULL, 0);
 	}

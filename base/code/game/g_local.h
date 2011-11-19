@@ -826,7 +826,7 @@ void            RunLinkEnt(gentity_t * bolt);
 // g_spell_client.c
 //
 void            ClientWeaverCleanupSpells(gclient_t * client);
-void            ClientWeaverInitialize(gentity_t * ent);
+void            ClientWeaverInitialize(gclient_t * client);
 void            ClientWeaverDestroy(gclient_t * client);
 
 void            ClientWeaveStart(gclient_t * client);

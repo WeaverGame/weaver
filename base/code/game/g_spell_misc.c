@@ -87,6 +87,8 @@ void ThreadsThink(void)
 			ent->s.frame += (pclient->currentWeaveGroup << 2);
 
 			trap_LinkEntity(ent);
+
+			ent = NULL;
 		}
 	}
 
