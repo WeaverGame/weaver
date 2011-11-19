@@ -140,14 +140,14 @@ void WeaveProtectCheck(gclient_t * checkClient)
 
 #define CHECK_PROTECT_ELEMENT(STAT, PROTECT) \
 		do { \
-		if(client->ps.stats[(STAT)] >= damage) \
+		if(client->ps.stats[(STAT)] >= (damage * (PROTECT))) \
 		{ \
-			client->ps.stats[(STAT)] -= damage; \
-			damage -= (damage * (PROTECT)); \
+			client->ps.stats[(STAT)] -= (damage * (PROTECT)); \
+			damage = (damage * (1.0f-(PROTECT))); \
 		} \
 		else if(client->ps.stats[(STAT)] > 0) \
 		{ \
-			damage -= (client->ps.stats[(STAT)] * (PROTECT)); \
+			damage = (damage * (1.0f-(PROTECT))) + ((damage * (PROTECT)) - client->ps.stats[(STAT)]); \
 			client->ps.stats[(STAT)] = 0; \
 		} \
 		} while(0);

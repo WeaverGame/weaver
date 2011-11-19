@@ -233,7 +233,7 @@ int ThreadsToWeaveID(int group, int threads[MAX_THREADS])
 =================
 WeaveProtectScales
 
-Sets scale of protection for a weave's damage
+Protect factors represent how much of the damage can be absorbed by the shield.
 =================
 */
 void WeaveProtectScales(int weavenum, float *airprotect, float *fireprotect, float *earthprotect, float *waterprotect)
