@@ -49,7 +49,11 @@ void G_WeaveEffectRelease(gentity_t * weave_effect)
 
 	DEBUGWEAVEING("G_WeaveEffectRelease: start");
 
+	assert(weave_effect->s.eType == ET_WEAVE_EFFECT || weave_effect->s.eType == ET_WEAVE_MISSILE);
+
 	heldWeave = &g_entities[weave_effect->s.otherEntityNum2];
+
+	assert(heldWeave->s.eType == ET_WEAVE_HELD);
 
 	HeldWeaveEnd(heldWeave);
 
@@ -71,6 +75,9 @@ void G_RunWeaveEffect(gentity_t * weave_effect)
 		return;
 	}
 	DEBUGWEAVEING_LVL("G_RunWeaveEffect: start", 2);
+	
+	assert(weave_effect->s.eType == ET_WEAVE_EFFECT || weave_effect->s.eType == ET_WEAVE_MISSILE);
+
 	switch (weave_effect->s.weapon)
 	{
 			//Held special
@@ -1728,7 +1735,7 @@ void RunWeave_EarthQuake_Impact(gentity_t * ent, trace_t * trace)
 			G_KnockClient(other, direction, ent->knockback);
 		}
 
-		if(ent->damage)
+		if(ent->damage > 0)
 		{
 			hitEntity = qtrue;
 			if(LogAccuracyHit(other, &g_entities[ent->r.ownerNum]))
@@ -1759,10 +1766,16 @@ void RunWeave_EarthQuake_Impact(gentity_t * ent, trace_t * trace)
 
 	if(hitEntity)
 	{
-		// Hit a player or some entity, damaged that entity
-		// The entity can't have an earthquake on it.
-		// Skip to projectile cleanup.
-		goto end_earthquake_impact;
+		HeldWeaveEnd(heldWeave);
+		return;
+	}
+
+	// At this point the damage done on the impact may have killed the owner of this spell.
+	// If that player died, this effect and it's heldWeave would already be cleaned up.
+	// Check if ent is still a weave effect.
+	if(ent->s.eType != ET_WEAVE_EFFECT && ent->s.eType != ET_WEAVE_MISSILE)
+	{
+		return;
 	}
 
 	//Spawn the effect
@@ -1794,7 +1807,8 @@ void RunWeave_EarthQuake_Impact(gentity_t * ent, trace_t * trace)
 			break;
 		default:
 			G_FreeEntity(bolt);
-			G_WeaveEffectRelease(ent);
+			G_FreeEntity(ent);
+			HeldWeaveEnd(heldWeave);
 			return;
 	}
 	bolt->think = G_WeaveEffectRelease;
@@ -1834,7 +1848,6 @@ void RunWeave_EarthQuake_Impact(gentity_t * ent, trace_t * trace)
 
 	trap_LinkEntity(bolt);
 
-end_earthquake_impact:
 	G_FreeEntity(ent);
 }
 
