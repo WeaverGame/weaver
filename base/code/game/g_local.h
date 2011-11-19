@@ -799,7 +799,6 @@ gentity_t      *fire_railsphere(gentity_t * self, vec3_t start, vec3_t aimdir);
 // g_spell_weave.c
 //
 void            CreateWeaveID(gentity_t * self, int weaveID, int powerUsing);
-qboolean        ExecuteWeave(gentity_t * weave);
 void            EndWeave(gentity_t * weave);
 qboolean        HeldWeaveBelongsToPlayer(gentity_t * held, playerState_t * player);
 void            UseHeldWeave(gentity_t * ent);

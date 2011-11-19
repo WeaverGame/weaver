@@ -431,10 +431,9 @@ void CG_WeaveEffect_Link(centity_t * cent)
 {
 	entityState_t  *s1;
 	const weaver_weaveCGInfo *weave;
-	vec3_t          dir;
 
-	vec3_t         *start;
-	vec3_t         *end;
+	vec3_t          start;
+	vec3_t          end;
 
 	centity_t      *lead;
 	centity_t      *follow;
@@ -451,28 +450,28 @@ void CG_WeaveEffect_Link(centity_t * cent)
 
 	if(lead->currentState.number == cg.clientNum)
 	{
-		start = cg.predictedPlayerEntity.lerpOrigin;
+		VectorCopy(cg.predictedPlayerEntity.lerpOrigin, start);
 	}
 	else if(trap_R_inPVS(cg.refdef.vieworg, lead->lerpOrigin))
 	{
-		start = lead->lerpOrigin;
+		VectorCopy(lead->lerpOrigin, start);
 	}
 	else
 	{
-		start = cent->lerpOrigin;
+		VectorCopy(cent->lerpOrigin, start);
 	}
 
 	if(follow->currentState.number == cg.clientNum)
 	{
-		end = cg.predictedPlayerEntity.lerpOrigin;
+		VectorCopy(cg.predictedPlayerEntity.lerpOrigin, end);
 	}
 	else if(trap_R_inPVS(cg.refdef.vieworg, follow->lerpOrigin))
 	{
-		end = follow->lerpOrigin;
+		VectorCopy(follow->lerpOrigin, end);
 	}
 	else
 	{
-		end = cent->lerpOrigin;
+		VectorCopy(cent->lerpOrigin, end);
 	}
 
 	CG_DrawLineSegment(start, end, 800.0f, 400.0f, 1.0f, weave->instanceShader[0]);
@@ -487,11 +486,10 @@ void CG_WeaveEffect_Heal(centity_t * cent)
 {
 	entityState_t  *s1;
 	const weaver_weaveCGInfo *weave;
-	vec3_t          dir;
 	float           size = 0.0f;
 
-	vec3_t         *start;
-	vec3_t         *end;
+	vec3_t          start;
+	vec3_t          end;
 
 	centity_t      *lead;
 	centity_t      *follow;
@@ -508,28 +506,28 @@ void CG_WeaveEffect_Heal(centity_t * cent)
 
 	if(lead->currentState.number == cg.clientNum)
 	{
-		start = cg.predictedPlayerEntity.lerpOrigin;
+		VectorCopy(cg.predictedPlayerEntity.lerpOrigin, start);
 	}
 	else if(trap_R_inPVS(cg.refdef.vieworg, lead->lerpOrigin))
 	{
-		start = lead->lerpOrigin;
+		VectorCopy(lead->lerpOrigin, start);
 	}
 	else
 	{
-		start = cent->lerpOrigin;
+		VectorCopy(cent->lerpOrigin, start);
 	}
 
 	if(follow->currentState.number == cg.clientNum)
 	{
-		end = cg.predictedPlayerEntity.lerpOrigin;
+		VectorCopy(cg.predictedPlayerEntity.lerpOrigin, end);
 	}
 	else if(trap_R_inPVS(cg.refdef.vieworg, follow->lerpOrigin))
 	{
-		end = follow->lerpOrigin;
+		VectorCopy(follow->lerpOrigin, end);
 	}
 	else
 	{
-		end = cent->lerpOrigin;
+		VectorCopy(cent->lerpOrigin, end);
 	}
 
 	if(s1->weapon == WVW_D_WATER_HEAL_S)

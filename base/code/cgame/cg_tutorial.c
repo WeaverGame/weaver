@@ -145,7 +145,6 @@ static entityState_t *CG_TutAttackShieldInRange( playerState_t *ps )
 	vec3_t          view, point;
 	trace_t         trace;
 	centity_t      *ent;
-	int             health;
 
 	AngleVectors( cg.refdefViewAngles, view, NULL, NULL );
 	VectorMA( cg.refdef.vieworg, 64, view, point );

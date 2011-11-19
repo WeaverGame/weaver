@@ -276,7 +276,6 @@ void CG_DrawWeaverChat(void)
 {
 	int             i;
 	vec4_t          hcolor;
-	vec4_t          tcolor;
 	int             chatHeight;
 	int             mode;
 	float           fade;

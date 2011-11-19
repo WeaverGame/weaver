@@ -2596,8 +2596,7 @@ void CG_ParticleRailRick(vec3_t org, vec3_t dir, vec3_t clientColor)
 
 void CG_ParticleHealStream(const vec3_t start, const vec3_t end, float size, qhandle_t shader)
 {
-	float           d;
-	int             j, i;
+	int             i;
 	vec3_t          dir;
 	vec_t           length;
 	cparticle_t    *p;

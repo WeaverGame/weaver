@@ -2139,6 +2139,7 @@ void            CG_ParticleSparks(vec3_t org, vec3_t vel, int duration, float x,
 void            CG_ParticleSparks2(vec3_t org, vec3_t dir, int count);
 void            CG_ParticleRick(vec3_t org, vec3_t dir);
 void            CG_ParticleRailRick(vec3_t org, vec3_t dir, vec3_t clientColor);
+void            CG_ParticleHealStream(const vec3_t start, const vec3_t end, float size, qhandle_t shader);
 void            CG_ParticleDust(centity_t * cent, vec3_t origin, vec3_t dir);
 void            CG_ParticleMisc(qhandle_t pshader, vec3_t origin, int size, int duration, float alpha);
 void            CG_ParticleTeleportEffect(const vec3_t origin);
@@ -2325,6 +2326,8 @@ int             trap_R_AnimFrameRate(qhandle_t hAnim);
 
 void            trap_R_RemapShader(const char *oldShader, const char *newShader, const char *timeOffset);
 
+qboolean        trap_R_inPVS(const vec3_t p1, const vec3_t p2);
+
 // The glconfig_t will not change during the life of a cgame.
 // If it needs to change, the entire cgame will be restarted, because
 // all the qhandle_t are then invalid.
@@ -2393,3 +2396,8 @@ qboolean        trap_getCameraInfo(int time, vec3_t * origin, vec3_t * angles);
 qboolean        trap_GetEntityToken(char *buffer, int bufferSize);
 
 int             trap_RealTime(qtime_t * qtime);
+
+void            trap_Key_KeynumToStringBuf(int keynum, char *buf, int buflen);
+void            trap_Key_GetBindingBuf(int keynum, char *buf, int buflen);
+void            trap_Key_SetBinding(int keynum, const char *binding);
+

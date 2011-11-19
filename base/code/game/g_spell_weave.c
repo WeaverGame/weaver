@@ -25,6 +25,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "g_spell_effects.h"
 #include "g_spell_util.h"
 
+qboolean        ExecuteWeave(gentity_t * weave);
+
 /*
 =================
 HeldWeaveAddToPlayer
