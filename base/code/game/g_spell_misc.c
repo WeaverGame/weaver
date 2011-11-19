@@ -138,20 +138,6 @@ void WeaveProtectCheck(gclient_t * checkClient)
 	DEBUGWEAVEING("WeaveProtectCheck: end");
 }
 
-#define CHECK_PROTECT_ELEMENT(STAT, PROTECT) \
-		do { \
-		if(client->ps.stats[(STAT)] >= (damage * (PROTECT))) \
-		{ \
-			client->ps.stats[(STAT)] -= (damage * (PROTECT)); \
-			damage = (damage * (1.0f-(PROTECT))); \
-		} \
-		else if(client->ps.stats[(STAT)] > 0) \
-		{ \
-			damage = (damage * (1.0f-(PROTECT))) + ((damage * (PROTECT)) - client->ps.stats[(STAT)]); \
-			client->ps.stats[(STAT)] = 0; \
-		} \
-		} while(0);
-
 int WeaveProtectDamage(gentity_t * targ, gclient_t *client, gentity_t * inflictor, gentity_t * attacker,
 				  const vec3_t dir, const vec3_t point, int damageBase, int dflags, int mod)
 {
@@ -175,11 +161,55 @@ int WeaveProtectDamage(gentity_t * targ, gclient_t *client, gentity_t * inflicto
 		//Note, air shield is prioritized? checks first? is this good?
 		WeaveProtectScales(inflictor->s.weapon, &airprotect, &fireprotect, &earthprotect, &waterprotect);
 
+		if(g_debugDamage.integer)
+		{
+			G_Printf("Protect scales for weaveId=%d: air=%f fire=%f earth=%f water=%f\n", inflictor->s.weapon, airprotect, fireprotect, earthprotect, waterprotect);
+		}
+
 		// Apply protection for each element.
-		CHECK_PROTECT_ELEMENT(STAT_AIRPROTECT, airprotect);
-		CHECK_PROTECT_ELEMENT(STAT_FIREPROTECT, fireprotect);
-		CHECK_PROTECT_ELEMENT(STAT_EARTHPROTECT, earthprotect);
-		CHECK_PROTECT_ELEMENT(STAT_WATERPROTECT, waterprotect);
+		if(client->ps.stats[STAT_AIRPROTECT] >= (damage * airprotect))
+		{
+			client->ps.stats[STAT_AIRPROTECT] -= (damage * airprotect);
+			damage = (damage * (1.0f-airprotect));
+		}
+		else if(client->ps.stats[STAT_AIRPROTECT] > 0)
+		{
+			damage = (damage * (1.0f-airprotect)) + ((damage * airprotect) - client->ps.stats[STAT_AIRPROTECT]);
+			client->ps.stats[STAT_AIRPROTECT] = 0;
+		}
+
+		if(client->ps.stats[STAT_FIREPROTECT] >= (damage * fireprotect))
+		{
+			client->ps.stats[STAT_FIREPROTECT] -= (damage * fireprotect);
+			damage = (damage * (1.0f-fireprotect));
+		}
+		else if(client->ps.stats[STAT_FIREPROTECT] > 0)
+		{
+			damage = (damage * (1.0f-fireprotect)) + ((damage * fireprotect) - client->ps.stats[STAT_FIREPROTECT]);
+			client->ps.stats[STAT_FIREPROTECT] = 0;
+		}
+		
+		if(client->ps.stats[STAT_EARTHPROTECT] >= (damage * earthprotect))
+		{
+			client->ps.stats[STAT_EARTHPROTECT] -= (damage * earthprotect);
+			damage = (damage * (1.0f-earthprotect));
+		}
+		else if(client->ps.stats[STAT_EARTHPROTECT] > 0)
+		{
+			damage = (damage * (1.0f-earthprotect)) + ((damage * earthprotect) - client->ps.stats[STAT_EARTHPROTECT]);
+			client->ps.stats[STAT_EARTHPROTECT] = 0;
+		}
+
+		if(client->ps.stats[STAT_WATERPROTECT] >= (damage * waterprotect))
+		{
+			client->ps.stats[STAT_WATERPROTECT] -= (damage * waterprotect);
+			damage = (damage * (1.0f-waterprotect));
+		}
+		else if(client->ps.stats[STAT_WATERPROTECT] > 0)
+		{
+			damage = (damage * (1.0f-waterprotect)) + ((damage * waterprotect) - client->ps.stats[STAT_WATERPROTECT]);
+			client->ps.stats[STAT_WATERPROTECT] = 0;
+		}
 
 		WeaveProtectCheck(client);
 	}
