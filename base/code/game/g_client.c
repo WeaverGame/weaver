@@ -1423,7 +1423,7 @@ void ClientSpawn(gentity_t * ent)
 
 	client->ps.stats[STAT_STAMINA] = MAX_STAMINA;
 
-	ClientWeaverInitialize(client);
+	ClientWeaverInitialize(ent);
 
 	ent->s.groundEntityNum = ENTITYNUM_NONE;
 	ent->client = &level.clients[index];

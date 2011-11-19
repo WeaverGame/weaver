@@ -52,37 +52,34 @@ void ClientWeaverCleanupSpells(gclient_t * client)
 Create threadsEnt for this client.
 =======================
 */
-void ClientWeaverCreateThreads(gclient_t * client)
+void ClientWeaverCreateThreads(gentity_t * ent)
 {
 	gentity_t      *threadsEnt;
-	gentity_t      *clientEnt;
 
-	if(!client)
+	if(!ent)
 	{
-		DEBUGWEAVEING("ClientWeaverCreateThreads: no client");
+		DEBUGWEAVEING("ClientWeaverCreateThreads: no ent");
 		return;
 	}
 
 	DEBUGWEAVEING("ClientWeaverCreateThreads: start");
 
-	clientEnt = &g_entities[client->ps.clientNum];
-
 	threadsEnt = G_Spawn();
 
 	threadsEnt->classname = THREAD_CLASSNAME;
 	threadsEnt->nextthink = 0;
-	threadsEnt->parent = clientEnt;
-	threadsEnt->r.ownerNum = client->ps.clientNum;
+	threadsEnt->parent = ent;
+	threadsEnt->r.ownerNum = ent->s.number;
 	threadsEnt->r.svFlags = SVF_BROADCAST;
 	threadsEnt->s.eType = ET_WEAVE_THREADS;
-	threadsEnt->s.otherEntityNum2 = client->ps.clientNum;
+	threadsEnt->s.otherEntityNum2 = ent->s.number;
 	//set owner
-	threadsEnt->s.torsoAnim = client->ps.clientNum;
+	threadsEnt->s.torsoAnim = ent->s.number;
 
 	if(DEBUGWEAVEING_TST(1))
 	{
-		Com_Printf("Making Player ThreadsEnt for %d, svflags=%d threadsEnt=%d\n", threadsEnt->s.torsoAnim, threadsEnt->r.svFlags,
-				   threadsEnt->s.number);
+		Com_Printf("Making Player ThreadsEnt for %d, svflags=%d threadsEnt=%d\n",
+				threadsEnt->s.torsoAnim, threadsEnt->r.svFlags, threadsEnt->s.number);
 	}
 
 	//Weave group & status: threadsEnt->s.frame;
@@ -97,7 +94,7 @@ void ClientWeaverCreateThreads(gclient_t * client)
 	threadsEnt->clipmask = 0;
 	threadsEnt->target_ent = 0;
 
-	client->threadEnt = threadsEnt;
+	ent->client->threadEnt = threadsEnt;
 
 	trap_LinkEntity(threadsEnt);
 
@@ -113,9 +110,13 @@ Initialize this client's facility for weaving.
 Applied when a client is spawned or revived.
 =======================
 */
-void ClientWeaverInitialize(gclient_t * client)
+void ClientWeaverInitialize(gentity_t * ent)
 {
+	gclient_t * client;
+
 	DEBUGWEAVEING("ClientWeaverInitialize: start");
+
+	client = ent->client;
 
 	// Give power
 	ClientPowerInitialize(client);
@@ -134,7 +135,7 @@ void ClientWeaverInitialize(gclient_t * client)
 	WeaveProtectCheck(client);
 
 	// create threads entity
-	ClientWeaverCreateThreads(client);
+	ClientWeaverCreateThreads(ent);
 
 	DEBUGWEAVEING("ClientWeaverInitialize: end");
 }
@@ -162,7 +163,7 @@ void ClientWeaverDestroy(gclient_t * client)
 	{
 		if(DEBUGWEAVEING_TST(1))
 		{
-			Com_Printf("Free ThreadsEnt player %d", client->ps.clientNum);
+			Com_Printf("Free ThreadsEnt player %d\n", client->ps.clientNum);
 		}
 		G_FreeEntity(client->threadEnt);
 		client->threadEnt = NULL;
