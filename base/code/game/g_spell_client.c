@@ -40,7 +40,7 @@ void ClientWeaverCleanupSpells(gclient_t * client)
 	{
 		if(client->ps.ammo[i] > 0)
 		{
-			ClearHeldWeave(&g_entities[client->ps.ammo[i]]);
+			HeldWeaveEnd(&g_entities[client->ps.ammo[i]]);
 		}
 	}
 

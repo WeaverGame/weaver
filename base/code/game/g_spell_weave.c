@@ -25,7 +25,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "g_spell_effects.h"
 #include "g_spell_util.h"
 
-qboolean        ExecuteWeave(gentity_t * weave);
+qboolean        HeldWeaveEffectExecute(gentity_t * heldWeave);
+void            HeldWeaveEffectEnd(gentity_t * heldWeave);
 
 /*
 =================
@@ -368,7 +369,7 @@ void UseHeldWeave(gentity_t * heldWeave)
 	if(G_HeldWeave_GetState(heldWeave) == WST_INPROCESS || G_HeldWeave_GetState(heldWeave) == WST_INPROCESSRELEASED)
 	{
 		//weave is being held, this use should end it
-		EndWeave(heldWeave);
+		HeldWeaveEffectEnd(heldWeave);
 		//use a shot
 		G_HeldWeave_SetCharges(heldWeave, G_HeldWeave_GetCharges(heldWeave)-1);
 	}
@@ -381,7 +382,7 @@ void UseHeldWeave(gentity_t * heldWeave)
 	else if(G_HeldWeave_GetCharges(heldWeave) > 0)
 	{
 		//execute the weave
-		if(!ExecuteWeave(heldWeave))
+		if(!HeldWeaveEffectExecute(heldWeave))
 		{
 			if(DEBUGWEAVEING_TST(1))
 			{
@@ -441,6 +442,11 @@ End a held weave, in any state.
 */
 void HeldWeaveEnd(gentity_t * heldWeave)
 {
+	if(heldWeave == NULL)
+	{
+		return;
+	}
+
 	switch (G_HeldWeave_GetState(heldWeave))
 	{
 		case WST_HELD:
@@ -520,7 +526,7 @@ void G_ReleaseWeave(gentity_t * weave_effect)
 
 	heldWeave = &g_entities[weave_effect->s.otherEntityNum2];
 
-	EndWeave(heldWeave);
+	HeldWeaveEffectEnd(heldWeave);
 
 	ClearHeldWeave(heldWeave);
 
@@ -529,7 +535,7 @@ void G_ReleaseWeave(gentity_t * weave_effect)
 
 /*
 =================
-EndWeave
+HeldWeaveEffectEnd
 
 Ends a weave in process.
 This should only be called if the weave is in process.
@@ -540,7 +546,7 @@ This should probably only be called from UseHeldWeave.
 heldWeave is a held weave, it must be WST_IN_PROCESS.
 =================
 */
-void EndWeave(gentity_t * heldWeave)
+void HeldWeaveEffectEnd(gentity_t * heldWeave)
 {
 	vec3_t          start;
 	vec3_t          direction;
@@ -667,7 +673,7 @@ void EndWeave(gentity_t * heldWeave)
 
 /*
 =================
-ExecuteWeave
+HeldWeaveEffectExecute
 
 Actually executes a weave
 This should only be called if the weave is WST_HELD.
@@ -677,7 +683,7 @@ This should probably only be called from UseHeldWeave.
 heldWeave is a held weave, it must be WST_HELD.
 =================
 */
-qboolean ExecuteWeave(gentity_t * heldWeave)
+qboolean HeldWeaveEffectExecute(gentity_t * heldWeave)
 {
 	vec3_t          start;
 	vec3_t          direction;
