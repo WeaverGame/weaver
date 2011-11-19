@@ -57,7 +57,7 @@ void HeldWeaveAddToPlayer(gentity_t * heldWeave, playerState_t * player)
 
 	DEBUGWEAVEING("HeldWeaveAddToPlayer: start");
 
-	assert(heldWeave->s.eType == ET_WEAVE_HELD);
+	assert(heldWeave->s.eType == ET_WEAVE_HELD && "HeldWeaveAddToPlayer: heldWeave not a ET_WEAVE_HELD");
 
 	for(i = MIN_WEAPON_WEAVE; i < MAX_WEAPONS; i++)
 	{
@@ -130,7 +130,7 @@ void HeldWeaveExpire(gentity_t * heldWeave)
 
 	DEBUGWEAVEING("HeldWeaveExpire: start");
 
-	assert(heldWeave->s.eType == ET_WEAVE_HELD);
+	assert(heldWeave->s.eType == ET_WEAVE_HELD && "HeldWeaveExpire: heldWeave not a ET_WEAVE_HELD");
 
 	if(G_HeldWeave_GetState(heldWeave) == WST_HELD)
 	{
@@ -360,7 +360,7 @@ void HeldWeaveUse(gentity_t * heldWeave)
 
 	DEBUGWEAVEING("HeldWeaveUse: start");
 
-	assert(heldWeave->s.eType == ET_WEAVE_HELD);
+	assert(heldWeave->s.eType == ET_WEAVE_HELD && "HeldWeaveUse: heldWeave not a ET_WEAVE_HELD");
 
 	heldWeave->parent->client->ps.weaponTime = WeaveCastTime(heldWeave->s.weapon);
 
@@ -454,7 +454,7 @@ void HeldWeaveEnd(gentity_t * heldWeave)
 		return;
 	}
 
-	assert(heldWeave->s.eType == ET_WEAVE_HELD);
+	assert(heldWeave->s.eType == ET_WEAVE_HELD && "HeldWeaveEnd: heldWeave not a ET_WEAVE_HELD");
 
 	switch (G_HeldWeave_GetState(heldWeave))
 	{
@@ -501,8 +501,9 @@ void HeldWeaveEffectEnd(gentity_t * heldWeave)
 
 	DEBUGWEAVEING("EndWeave: start");
 
-	assert(heldWeave->s.eType == ET_WEAVE_HELD);
-	assert(G_HeldWeave_GetState(heldWeave) == WST_INPROCESS || G_HeldWeave_GetState(heldWeave) == WST_INPROCESSRELEASED);
+	assert(heldWeave->s.eType == ET_WEAVE_HELD && "HeldWeaveEffectEnd: heldWeave not a ET_WEAVE_HELD");
+	assert((G_HeldWeave_GetState(heldWeave) == WST_INPROCESS || G_HeldWeave_GetState(heldWeave) == WST_INPROCESSRELEASED)
+		&& "HeldWeaveEffectEnd: heldWeave not WST_INPROCESS or WST_INPROCESSRELEASED");
 
 	//calc parameters
 	heldWeaveNum = heldWeave->s.number;
@@ -643,8 +644,9 @@ qboolean HeldWeaveEffectExecute(gentity_t * heldWeave)
 
 	DEBUGWEAVEING("ExecuteWeave: start");
 
-	assert(heldWeave->s.eType == ET_WEAVE_HELD);
-	assert(G_HeldWeave_GetState(heldWeave) == WST_HELD || G_HeldWeave_GetState(heldWeave) == WST_EXPIRED);
+	assert(heldWeave->s.eType == ET_WEAVE_HELD && "HeldWeaveEffectExecute: heldWeave not a ET_WEAVE_HELD");
+	assert((G_HeldWeave_GetState(heldWeave) == WST_HELD || G_HeldWeave_GetState(heldWeave) == WST_EXPIRED)
+		 && "HeldWeaveEffectExecute: heldWeave not WST_HELD or WST_EXPIRED");
 
 	//calc parameters
 	heldWeaveNum = heldWeave->s.number;
@@ -831,7 +833,7 @@ void HeldWeaveClearCast(gentity_t * heldWeave, int castClear)
 
 	DEBUGWEAVEING("HeldWeaveClearCast: start");
 
-	assert(heldWeave->s.eType == ET_WEAVE_HELD);
+	assert(heldWeave->s.eType == ET_WEAVE_HELD && "HeldWeaveClearCast: heldWeave not a ET_WEAVE_HELD");
 
 	//get player who is holding weave
 	pent = &g_entities[heldWeave->s.otherEntityNum2];

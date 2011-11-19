@@ -49,11 +49,12 @@ void G_WeaveEffectRelease(gentity_t * weave_effect)
 
 	DEBUGWEAVEING("G_WeaveEffectRelease: start");
 
-	assert(weave_effect->s.eType == ET_WEAVE_EFFECT || weave_effect->s.eType == ET_WEAVE_MISSILE);
+	assert((weave_effect->s.eType == ET_WEAVE_EFFECT || weave_effect->s.eType == ET_WEAVE_MISSILE)
+		&& "G_WeaveEffectRelease: weave_effect not a ET_WEAVE_EFFECT or ET_WEAVE_MISSILE");
 
 	heldWeave = &g_entities[weave_effect->s.otherEntityNum2];
 
-	assert(heldWeave->s.eType == ET_WEAVE_HELD);
+	assert(heldWeave->s.eType == ET_WEAVE_HELD && "G_WeaveEffectRelease: heldWeave not a ET_WEAVE_HELD");
 
 	HeldWeaveEnd(heldWeave);
 
@@ -76,7 +77,8 @@ void G_RunWeaveEffect(gentity_t * weave_effect)
 	}
 	DEBUGWEAVEING_LVL("G_RunWeaveEffect: start", 2);
 	
-	assert(weave_effect->s.eType == ET_WEAVE_EFFECT || weave_effect->s.eType == ET_WEAVE_MISSILE);
+	assert((weave_effect->s.eType == ET_WEAVE_EFFECT || weave_effect->s.eType == ET_WEAVE_MISSILE)
+		&& "G_RunWeaveEffect: weave_effect not a ET_WEAVE_EFFECT or ET_WEAVE_MISSILE");
 
 	switch (weave_effect->s.weapon)
 	{
