@@ -395,7 +395,7 @@ void ClientUnlink(gclient_t * followClient, qboolean temporary)
 		//b <- a <- c
 		//b <- c    a
 		DEBUGWEAVEING("ClientUnlink: nontemp, held cleared\n");
-		ClearHeldWeave(followClient->linkHeld);
+		HeldWeaveClear(followClient->linkHeld);
 	}
 	DEBUGWEAVEING("ClientUnlink: end");
 }

@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 qboolean        HeldWeaveEffectExecute(gentity_t * heldWeave);
 void            HeldWeaveEffectEnd(gentity_t * heldWeave);
+void            HeldWeaveClearCast(gentity_t * heldWeave, int castClear);
 
 /*
 =================
@@ -155,7 +156,7 @@ gentity_t      *HeldWeaveCreate(gentity_t * self, int weaveID, int holdTime, int
 	}
 	else
 	{
-		weave->think = ClearHeldWeave;
+		weave->think = HeldWeaveClear;
 	}
 	weave->r.svFlags = SVF_BROADCAST;
 	//weave->r.svFlags = SVF_USE_CURRENT_ORIGIN;
@@ -428,7 +429,7 @@ void UseHeldWeave(gentity_t * heldWeave)
 	   G_HeldWeave_GetState(heldWeave) == WST_RELEASED || G_HeldWeave_GetState(heldWeave) == WST_INPROCESSRELEASED)
 	{
 		//then the weave should be removed
-		ClearHeldWeaveCast(heldWeave, cast);
+		HeldWeaveClearCast(heldWeave, cast);
 	}
 	DEBUGWEAVEING("UseHeldWeave: end");
 }
@@ -462,42 +463,6 @@ void HeldWeaveEnd(gentity_t * heldWeave)
 			break;
 	}
 	UseHeldWeave(heldWeave);
-}
-
-/*
-=================
-HeldWeaveEndCurrent
-
-This method gets the player's currently selected held weave and releases it.
-Held weave may be in any state.
-
-player_ent is a player
-=================
-*/
-void HeldWeaveEndCurrent(gentity_t * player_ent)
-{
-	playerState_t  *pstate;
-	int             heldWeaveId;
-	gentity_t      *heldWeave;
-
-	if(!player_ent || !player_ent->client)
-	{
-		return;
-	}
-
-	pstate = &player_ent->client->ps;
-
-	// If weapon is a weave
-	if(pstate->weapon && (pstate->weapon >= MIN_WEAPON_WEAVE))
-	{
-		heldWeaveId = pstate->ammo[pstate->weapon];
-		// And a heldweave is referenced
-		if(heldWeaveId)
-		{
-			heldWeave = &g_entities[heldWeaveId];
-			HeldWeaveEnd(heldWeave);
-		}
-	}
 }
 
 /*
@@ -825,10 +790,11 @@ qboolean HeldWeaveEffectExecute(gentity_t * heldWeave)
 
 /*
 =================
-ClearHeldWeaveCast
+HeldWeaveClearCast
 
-Removes weave from the player
-Frees the weave entity.
+Removes heldWeave from the player.
+Frees the weave_effect entity.
+Frees the heldWeave.
 
 heldWeave is a ET_HELD_WEAVE
 castClear if non zero (ie, non WVW_NONE), this weave is being cleared because it was just cast.
@@ -836,7 +802,7 @@ castClear if non zero (ie, non WVW_NONE), this weave is being cleared because it
 	castClear is the weave ID. Use WVW_NONE if weave was not cast.
 =================
 */
-void ClearHeldWeaveCast(gentity_t * heldWeave, int castClear)
+void HeldWeaveClearCast(gentity_t * heldWeave, int castClear)
 {
 	int             i;
 	playerState_t  *player;
@@ -844,11 +810,11 @@ void ClearHeldWeaveCast(gentity_t * heldWeave, int castClear)
 
 	if(!heldWeave)
 	{
-		DEBUGWEAVEING("ClearHeldWeave: no heldWeave");
+		DEBUGWEAVEING("HeldWeaveClearCast: no heldWeave");
 		return;
 	}
 
-	DEBUGWEAVEING("ClearHeldWeave: start");
+	DEBUGWEAVEING("HeldWeaveClearCast: start");
 
 	//get player who is holding weave
 	pent = &g_entities[heldWeave->s.otherEntityNum2];
@@ -888,21 +854,21 @@ void ClearHeldWeaveCast(gentity_t * heldWeave, int castClear)
 	//clear the held weave
 	G_FreeEntity(heldWeave);
 
-	DEBUGWEAVEING("ClearHeldWeave: end");
+	DEBUGWEAVEING("HeldWeaveClearCast: end");
 }
 
 /*
 =================
-ClearHeldWeave
+HeldWeaveClear
 
 Removes weave from the player
 Frees the weave entity.
 
-ent is a ET_HELD_WEAVE
+heldWeave is a ET_HELD_WEAVE
 =================
 */
-void ClearHeldWeave(gentity_t * ent)
+void HeldWeaveClear(gentity_t * heldWeave)
 {
-	ClearHeldWeaveCast(ent, WVP_NONE);
+	HeldWeaveClearCast(heldWeave, WVP_NONE);
 }
 

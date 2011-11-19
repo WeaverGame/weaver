@@ -802,9 +802,7 @@ void            CreateWeaveID(gentity_t * self, int weaveID, int powerUsing);
 void            HeldWeaveEnd(gentity_t * heldWeave);
 qboolean        HeldWeaveBelongsToPlayer(gentity_t * held, playerState_t * player);
 void            UseHeldWeave(gentity_t * ent);
-void            HeldWeaveEndCurrent(gentity_t * player_ent);
-void            ClearHeldWeave(gentity_t * ent);
-void            ClearHeldWeaveCast(gentity_t * ent, int castClear);
+void            HeldWeaveClear(gentity_t * ent);
 
 // g_spell_effects.c
 void            G_RunWeaveEffect(gentity_t * ent);

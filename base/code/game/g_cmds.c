@@ -1875,7 +1875,30 @@ Cmd_Release_f
 */
 void Cmd_Release_f(gentity_t * ent)
 {
-	HeldWeaveEndCurrent(ent);
+	playerState_t  *pstate;
+	int             heldWeaveId;
+	gentity_t      *heldWeave;
+
+	if(!ent || !ent->client)
+	{
+		return;
+	}
+
+	pstate = &ent->client->ps;
+
+	// If currently selected weapon is a weave
+	if(pstate->weapon && (pstate->weapon >= MIN_WEAPON_WEAVE))
+	{
+		heldWeaveId = pstate->ammo[pstate->weapon];
+		// And a heldweave is referenced
+		if(heldWeaveId)
+		{
+			// Get heldweave of currently selected
+			heldWeave = &g_entities[heldWeaveId];
+			// End it
+			HeldWeaveEnd(heldWeave);
+		}
+	}
 }
 
 /*
