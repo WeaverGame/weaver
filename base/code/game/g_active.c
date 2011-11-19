@@ -654,7 +654,7 @@ void ClientEvents(gentity_t * ent, int oldEventSequence)
 				break;
 
 			case EV_WEAVE_CAST:
-				UseHeldWeave(&g_entities[ent->client->ps.ammo[ent->client->ps.weapon]]);
+				HeldWeaveUse(&g_entities[ent->client->ps.ammo[ent->client->ps.weapon]]);
 				break;
 
 			case EV_WEAVE_CAST_EFFECT:

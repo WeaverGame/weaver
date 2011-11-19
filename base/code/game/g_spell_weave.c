@@ -112,8 +112,9 @@ qboolean HeldWeaveBelongsToPlayer(gentity_t * heldWeave, playerState_t * player)
 =================
 HeldWeaveExpire
 
-Expires a given weave
-ent is a ET_HELD_WEAVE
+Expires a given heldWeave, causing it to fire immediately.
+
+heldWeave is a ET_HELD_WEAVE
 =================
 */
 void HeldWeaveExpire(gentity_t * heldWeave)
@@ -128,7 +129,7 @@ void HeldWeaveExpire(gentity_t * heldWeave)
 	if(G_HeldWeave_GetState(heldWeave) == WST_HELD)
 	{
 		G_HeldWeave_SetState(heldWeave, WST_EXPIRED);
-		UseHeldWeave(heldWeave);
+		HeldWeaveUse(heldWeave);
 	}
 	DEBUGWEAVEING("HeldWeaveExpire: end");
 }
@@ -230,28 +231,22 @@ void CreateWeaveID(gentity_t * self, int weaveID, int powerUsing)
 			/*begin end on exec */
 		case WVW_A_AIRFIRE_SWORD:
 			//give item
-			//add held weave
 			heldWeave = HeldWeaveCreate(self, weaveID, TIME_TWO_MIN, powerUsing, 1, qtrue);
 			break;
 		case WVW_D_AIRFIRE_LIGHT:
 		case WVW_D_AIRWATER_FOG:
 			//spawn ent (lasting 2 mins max)
-			//add held weave
 			heldWeave = HeldWeaveCreate(self, weaveID, TIME_TWO_MIN, powerUsing, 1, qtrue);
-			//weave should ref the new entity thats created.
 			break;
 		case WVW_D_SPIRIT_TRAVEL:
 			//spawn ent (lasting 20 sec max)
-			//add held weave
 			heldWeave = HeldWeaveCreate(self, weaveID, TIME_TWENTY_SEC, powerUsing, 1, qtrue);
-			//weave should ref the new entity thats created.
 			break;
 		case WVW_D_AIR_PROTECT:
 		case WVW_D_FIRE_PROTECT:
 		case WVW_D_EARTH_PROTECT:
 		case WVW_D_WATER_PROTECT:
 			//add powerup to self
-			//add held weave
 			heldWeave = HeldWeaveCreate(self, weaveID, TIME_TWO_MIN, powerUsing, 1, qtrue);
 			break;
 			/*end end on exec */
@@ -307,7 +302,7 @@ void CreateWeaveID(gentity_t * self, int weaveID, int powerUsing)
 			//add held weave
 			heldWeave = HeldWeaveCreate(self, weaveID, TIME_TWO_MIN, powerUsing, 1, qfalse);
 			break;
-			//this one is special because it has a different hold time limit
+			// separate because it has a different hold time limit
 		case WVW_A_AIRWATER_RIP:
 			// add held weave
 			heldWeave = HeldWeaveCreate(self, weaveID, TIME_THREE_SEC, powerUsing, 1, qfalse);
@@ -336,7 +331,7 @@ void CreateWeaveID(gentity_t * self, int weaveID, int powerUsing)
 
 /*
 =================
-UseHeldWeave
+HeldWeaveUse
 
 Logic to see if a held weave can be used.
 Calls ExecuteWeave() to run the weave.
@@ -345,7 +340,7 @@ Updates charges and power usage.
 heldWeave is a ET_HELD_WEAVE
 =================
 */
-void UseHeldWeave(gentity_t * heldWeave)
+void HeldWeaveUse(gentity_t * heldWeave)
 {
 	float           newPower;
 	int             maxCharges;
@@ -353,13 +348,13 @@ void UseHeldWeave(gentity_t * heldWeave)
 
 	if(!heldWeave)
 	{
-		DEBUGWEAVEING("UseHeldWeave: no ent");
+		DEBUGWEAVEING("HeldWeaveUse: no ent");
 		return;
 	}
 
 	heldWeave->parent->client->ps.weaponTime = WeaveCastTime(heldWeave->s.weapon);
 
-	DEBUGWEAVEING("UseHeldWeave: start");
+	DEBUGWEAVEING("HeldWeaveUse: start");
 	if(DEBUGWEAVEING_TST(1))
 	{
 		Com_Printf("Using held weave %i charges %i of %i\n", heldWeave->s.number, G_HeldWeave_GetCharges(heldWeave),
@@ -397,7 +392,7 @@ void UseHeldWeave(gentity_t * heldWeave)
 		//held weave now consumes less power    
 		if(DEBUGWEAVEING_TST(1))
 		{
-			Com_Printf("UseHeldWeave: previous power consumed = %d\n", G_HeldWeave_GetPower(heldWeave));
+			Com_Printf("HeldWeaveUse: previous power consumed = %d\n", G_HeldWeave_GetPower(heldWeave));
 		}
 		maxCharges = (WeaveCharges(heldWeave->s.weapon) >> 1) + 1;
 		newPower = G_HeldWeave_GetPower(heldWeave);
@@ -410,7 +405,7 @@ void UseHeldWeave(gentity_t * heldWeave)
 			G_HeldWeave_SetCharges(heldWeave, G_HeldWeave_GetCharges(heldWeave)-1);
 			if(DEBUGWEAVEING_TST(1))
 			{
-				Com_Printf("UseHeldWeave: shot expended %d remain\n", G_HeldWeave_GetCharges(heldWeave));
+				Com_Printf("HeldWeaveUse: shot expended %d remain\n", G_HeldWeave_GetCharges(heldWeave));
 			}
 		}
 
@@ -420,7 +415,7 @@ void UseHeldWeave(gentity_t * heldWeave)
 
 		if(DEBUGWEAVEING_TST(1))
 		{
-			Com_Printf("UseHeldWeave: new power consumed = %d\n", G_HeldWeave_GetPower(heldWeave));
+			Com_Printf("HeldWeaveUse: new power consumed = %d\n", G_HeldWeave_GetPower(heldWeave));
 		}
 	}
 
@@ -431,14 +426,16 @@ void UseHeldWeave(gentity_t * heldWeave)
 		//then the weave should be removed
 		HeldWeaveClearCast(heldWeave, cast);
 	}
-	DEBUGWEAVEING("UseHeldWeave: end");
+	DEBUGWEAVEING("HeldWeaveUse: end");
 }
 
 /*
 =================
 HeldWeaveEnd
 
-End a held weave, in any state.
+End a held weave, and all its effects in any state.
+
+heldWeave is a ET_HELD_WEAVE
 =================
 */
 void HeldWeaveEnd(gentity_t * heldWeave)
@@ -462,7 +459,7 @@ void HeldWeaveEnd(gentity_t * heldWeave)
 		default:
 			break;
 	}
-	UseHeldWeave(heldWeave);
+	HeldWeaveUse(heldWeave);
 }
 
 /*
@@ -475,7 +472,7 @@ The spell specific EndWeave functions assume that their spell is inprocess.
 
 This should probably only be called from UseHeldWeave.
 
-heldWeave is a held weave, it must be WST_IN_PROCESS.
+heldWeave is a ET_HELD_WEAVE, it must be WST_IN_PROCESS.
 =================
 */
 void HeldWeaveEffectEnd(gentity_t * heldWeave)
@@ -607,12 +604,11 @@ void HeldWeaveEffectEnd(gentity_t * heldWeave)
 =================
 HeldWeaveEffectExecute
 
-Actually executes a weave
-This should only be called if the weave is WST_HELD.
+Actually executes a weave, producing a weaveEffect for the held weave.
 
 This should probably only be called from UseHeldWeave.
 
-heldWeave is a held weave, it must be WST_HELD.
+heldWeave is a ET_HELD_WEAVE, it must be WST_HELD.
 =================
 */
 qboolean HeldWeaveEffectExecute(gentity_t * heldWeave)
@@ -792,14 +788,16 @@ qboolean HeldWeaveEffectExecute(gentity_t * heldWeave)
 =================
 HeldWeaveClearCast
 
-Removes heldWeave from the player.
+Removes heldWeave from the player, optionally due to casting it.
+
+If heldWeave is removed due to it being cast, castClear should be non zero (ie, not WVW_NONE).
+A CAST + CLEAR event will be sent instead of a CLEAR event (which would overwrite a separate CAST).
+
 Frees the weave_effect entity.
 Frees the heldWeave.
 
 heldWeave is a ET_HELD_WEAVE
-castClear if non zero (ie, non WVW_NONE), this weave is being cleared because it was just cast.
-	a CAST + CLEAR event can be sent instead of a CLEAR event which would overwrite the CAST.
-	castClear is the weave ID. Use WVW_NONE if weave was not cast.
+castClear is a weaveId or WVW_NONE.
 =================
 */
 void HeldWeaveClearCast(gentity_t * heldWeave, int castClear)
@@ -820,8 +818,6 @@ void HeldWeaveClearCast(gentity_t * heldWeave, int castClear)
 	pent = &g_entities[heldWeave->s.otherEntityNum2];
 	player = &pent->client->ps;
 
-	//for(i = 0; i < HELD_MAX; i++)
-	//[MAX_WEAPONS - i - 1]
 	for(i = MIN_WEAPON_WEAVE; i < MAX_WEAPONS; i++)
 	{
 		// Where the weave is being held
