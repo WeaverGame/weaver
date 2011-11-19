@@ -309,19 +309,7 @@ void body_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, int
 // these are just for logging, the client prints its own messages
 char           *modNames[] = {
 	"MOD_UNKNOWN",
-	"MOD_SHOTGUN",
 	"MOD_GAUNTLET",
-	"MOD_MACHINEGUN",
-	"MOD_GRENADE",
-	"MOD_GRENADE_SPLASH",
-	"MOD_ROCKET",
-	"MOD_ROCKET_SPLASH",
-	"MOD_PLASMA",
-	"MOD_PLASMA_SPLASH",
-	"MOD_RAILGUN",
-	"MOD_LIGHTNING",
-	"MOD_BFG",
-	"MOD_BFG_SPLASH",
 	"MOD_WATER",
 	"MOD_SLIME",
 	"MOD_LAVA",
@@ -331,16 +319,9 @@ char           *modNames[] = {
 	"MOD_SUICIDE",
 	"MOD_TARGET_LASER",
 	"MOD_TRIGGER_HURT",
-	"MOD_NAIL",
-#ifdef MISSIONPACK
-	"MOD_CHAINGUN",
-	"MOD_PROXIMITY_MINE",
-#endif
-	"MOD_KAMIKAZE",
-#ifdef MISSIONPACK
-	"MOD_JUICED",
-#endif
-	"MOD_GRAPPLE",
+	"MOD_BURN",
+	
+	//Spells
 	"MOD_A_AIRFIRE_SWORD",
 	"MOD_A_AIR_BLAST",
 	"MOD_A_AIR_GRABPLAYER",
@@ -359,6 +340,8 @@ char           *modNames[] = {
 	"MOD_A_EARTHWATER_SLOW",
 	"MOD_A_EARTHWATER_POISON",
 	"MOD_A_EARTHFIRE_IGNITE",
+	"MOD_A_WATER_ICESHARDS_S",
+	"MOD_A_WATER_ICESHARDS_M",
 	"MOD_D_SPIRIT_TRAVEL",
 	"MOD_A_SPIRIT_BALEFIRE",
 	"MOD_A_SPIRIT_DEATHGATE",
