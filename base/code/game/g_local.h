@@ -805,8 +805,10 @@ void            UseHeldWeave(gentity_t * ent);
 void            HeldWeaveEndCurrent(gentity_t * player_ent);
 void            ClearHeldWeave(gentity_t * ent);
 void            ClearHeldWeaveCast(gentity_t * ent, int castClear);
+
+// g_spell_effects.c
 void            G_RunWeaveEffect(gentity_t * ent);
-void            G_ReleaseWeave(gentity_t * weave);
+void            G_WeaveEffectRelease(gentity_t * weave);
 
 // g_spell_power.c
 qboolean        ClientPowerShielded(gclient_t * holdingClient);

@@ -25,6 +25,154 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "g_spell_effects.h"
 #include "g_spell_util.h"
 
+/*
+=================
+G_WeaveEffectRelease
+
+Given a weave effect in progress, this method gets the held weave and releases it.
+
+The corresponding heldWeave must be WST_IN_PROCESS.
+You'd expect this since the heldWeave has this effect entity.
+
+weave_effect is a weave effect entity.
+=================
+*/
+void G_WeaveEffectRelease(gentity_t * weave_effect)
+{
+	gentity_t      *heldWeave;
+
+	if(!weave_effect)
+	{
+		DEBUGWEAVEING("G_WeaveEffectRelease: no ent");
+		return;
+	}
+
+	DEBUGWEAVEING("G_WeaveEffectRelease: start");
+
+	heldWeave = &g_entities[weave_effect->s.otherEntityNum2];
+
+	HeldWeaveEnd(heldWeave);
+
+	DEBUGWEAVEING("G_WeaveEffectRelease: end");
+}
+
+/*
+=================
+G_RunWeaveEffect
+
+
+=================
+*/
+void G_RunWeaveEffect(gentity_t * weave_effect)
+{
+	if(!weave_effect)
+	{
+		DEBUGWEAVEING("G_RunWeaveEffect: no weave_effect");
+		return;
+	}
+	DEBUGWEAVEING_LVL("G_RunWeaveEffect: start", 2);
+	switch (weave_effect->s.weapon)
+	{
+			//Held special
+		case WVW_A_AIRFIRE_LIGHTNING:	//target like arty
+			RunWeave_Lightning(weave_effect);
+			break;
+			//Misc
+		case WVW_A_AIRFIRE_SWORD:
+			break;
+			//No entities
+		case WVW_D_AIR_PROTECT:
+		case WVW_D_FIRE_PROTECT:
+		case WVW_D_EARTH_PROTECT:
+		case WVW_D_WATER_PROTECT:
+			RunWeave_MoveToTarget(weave_effect);
+			break;
+		case WVW_D_AIRFIRE_LIGHT:
+			RunWeave_MoveToTarget(weave_effect);
+			break;
+		case WVW_D_AIRWATER_FOG:
+		case WVW_D_SPIRIT_TRAVEL:
+		case WVW_D_SPIRIT_LINK:
+			//Spawn Ent
+		case WVW_D_AIRFIRE_WALL:
+		case WVW_D_EARTHFIRE_EXPLOSIVE_S:
+		case WVW_D_EARTHFIRE_EXPLOSIVE_M:
+			//Target
+		case WVW_A_FIRE_BLOSSOMS:
+		case WVW_A_SPIRIT_DEATHGATE:
+		case WVW_D_EARTH_UNLOCK:
+		case WVW_A_EARTHFIRE_IGNITE:
+			break;
+		case WVW_D_WATER_HEAL_S:
+		case WVW_D_WATER_HEAL_M:
+			RunWeave_Heal(weave_effect);
+			break;
+		case WVW_D_SPIRIT_STAMINA:
+			RunWeave_Stamina(weave_effect);
+			break;
+		case WVW_D_WATER_CURE:
+		case WVW_D_AIRFIRE_INVIS:
+		case WVW_A_SPIRIT_STILL:
+		case WVW_D_AIR_GRAB:
+			break;
+		case WVW_A_AIR_GRABPLAYER:
+			RunWeave_GrabPlayer(weave_effect);
+			break;
+		case WVW_A_AIR_BINDPLAYER:
+			break;
+		case WVW_A_SPIRIT_SHIELD:
+			RunWeave_Shield(weave_effect);
+			break;
+			//Missiles
+		case WVW_A_SPIRIT_SLICE_S:
+		case WVW_A_SPIRIT_SLICE_M:
+		case WVW_A_SPIRIT_SLICE_L:
+			RunWeave_Slice(weave_effect);
+			break;
+		case WVW_A_SPIRIT_BALEFIRE:
+			break;
+		case WVW_A_AIR_BLAST:
+			RunWeave_Missile(weave_effect);
+			break;
+		case WVW_A_EARTH_QUAKE_S:
+		case WVW_A_EARTH_QUAKE_M:
+		case WVW_A_EARTH_QUAKE_L:
+			if(weave_effect->s.eType == ET_WEAVE_EFFECT)
+			{
+				RunWeave_EarthQuake(weave_effect);
+			}
+			else
+			{
+				RunWeave_Missile(weave_effect);
+			}
+			break;
+		case WVW_A_FIRE_BALL:
+			RunWeave_Missile(weave_effect);
+			break;
+		case WVW_A_FIRE_DARTS:
+		case WVW_A_FIRE_MULTIDARTS:
+			RunWeave_Missile(weave_effect);
+			break;
+		case WVW_A_WATER_ICESHARDS_S:
+		case WVW_A_WATER_ICESHARDS_M:
+			RunWeave_Missile(weave_effect);
+			break;
+		case WVW_A_AIRWATER_DARTS_S:
+		case WVW_A_AIRWATER_DARTS_M:
+			break;
+		case WVW_A_EARTHWATER_SLOW:
+		case WVW_A_EARTHWATER_POISON:
+			RunWeave_Missile(weave_effect);
+			break;
+			//Fail
+		case WVW_NONE:
+		case -1:
+		default:
+			break;
+	}
+	DEBUGWEAVEING_LVL("G_RunWeaveEffect: end", 2);
+}
+
 qboolean G_IsTeamGame(void)
 {
 	if(g_gametype.integer >= GT_TEAM)
@@ -581,7 +729,7 @@ qboolean FireWeave_Protect(gentity_t * self, vec3_t start, vec3_t dir, int heldW
 	bolt = G_Spawn();
 	bolt->classname = EFFECT_CLASSNAME;
 	bolt->nextthink = level.time + protectTime;
-	bolt->think = G_ReleaseWeave;
+	bolt->think = G_WeaveEffectRelease;
 	bolt->s.eType = ET_WEAVE_EFFECT;
 	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
 	bolt->s.weapon = weaveID;
@@ -973,7 +1121,7 @@ qboolean FireWeave_Shield(gentity_t * self, vec3_t start, vec3_t dir, int heldWe
 	bolt = G_Spawn();
 	bolt->classname = EFFECT_CLASSNAME;
 	bolt->nextthink = level.time + WEAVE_SHIELD_TIME;
-	bolt->think = G_ReleaseWeave;
+	bolt->think = G_WeaveEffectRelease;
 	bolt->s.eType = ET_WEAVE_EFFECT;
 	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
 	bolt->s.weapon = WVW_A_SPIRIT_SHIELD;
@@ -1020,7 +1168,7 @@ void RunWeave_Shield(gentity_t * ent)
 	if(!trap_InPVS(ent->target_ent->s.pos.trBase, ent->parent->s.pos.trBase))
 	{
 		// Follower and leader cannot see each other
-		G_ReleaseWeave(ent);
+		G_WeaveEffectRelease(ent);
 		return;
 	}
 
@@ -1148,7 +1296,7 @@ qboolean FireWeave_GrabPlayer(gentity_t * self, vec3_t start, vec3_t dir, int he
 	bolt = G_Spawn();
 	bolt->classname = EFFECT_CLASSNAME;
 	bolt->nextthink = level.time + WEAVE_GRABPLAYER_TIME;
-	bolt->think = G_ReleaseWeave;
+	bolt->think = G_WeaveEffectRelease;
 	bolt->s.eType = ET_WEAVE_EFFECT;
 	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
 	bolt->s.weapon = WVW_A_AIR_GRABPLAYER;
@@ -1293,7 +1441,7 @@ qboolean FireWeave_Heal(gentity_t * self, vec3_t start, vec3_t dir, int heldWeav
 	bolt = G_Spawn();
 	bolt->classname = EFFECT_CLASSNAME;
 	bolt->nextthink = level.time + WEAVE_HEAL_TIME;
-	bolt->think = G_ReleaseWeave;
+	bolt->think = G_WeaveEffectRelease;
 	bolt->s.eType = ET_WEAVE_EFFECT;
 	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
 	bolt->s.weapon = weaveID;
@@ -1457,7 +1605,7 @@ qboolean FireWeave_EarthQuake(gentity_t * self, vec3_t start, vec3_t dir, int he
 	bolt = G_Spawn();
 	bolt->classname = EFFECT_CLASSNAME;
 	bolt->nextthink = level.time + TIME_PROJECTILE_EXPIRE;
-	bolt->think = G_ReleaseWeave;
+	bolt->think = G_WeaveEffectRelease;
 	bolt->s.eType = ET_WEAVE_MISSILE;
 	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
 	bolt->s.weapon = weaveID;
@@ -1646,10 +1794,10 @@ void RunWeave_EarthQuake_Impact(gentity_t * ent, trace_t * trace)
 			break;
 		default:
 			G_FreeEntity(bolt);
-			G_ReleaseWeave(ent);
+			G_WeaveEffectRelease(ent);
 			return;
 	}
-	bolt->think = G_ReleaseWeave;
+	bolt->think = G_WeaveEffectRelease;
 	bolt->s.eType = ET_WEAVE_EFFECT;
 	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
 	bolt->s.weapon = ent->s.weapon;
@@ -1988,7 +2136,7 @@ qboolean FireWeave_LightSource(gentity_t * self, vec3_t start, vec3_t dir, int h
 	bolt = G_Spawn();
 	bolt->classname = EFFECT_CLASSNAME;
 	bolt->nextthink = level.time + WEAVE_LIGHTSOURCE_TIME;
-	bolt->think = G_ReleaseWeave;
+	bolt->think = G_WeaveEffectRelease;
 	bolt->s.eType = ET_WEAVE_EFFECT;
 	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
 	bolt->s.weapon = WVW_D_AIRFIRE_LIGHT;
@@ -2409,7 +2557,7 @@ qboolean FireWeave_Stamina(gentity_t * self, vec3_t start, vec3_t dir, int heldW
 	bolt = G_Spawn();
 	bolt->classname = EFFECT_CLASSNAME;
 	bolt->nextthink = level.time + WEAVE_STAMINA_TIME;
-	bolt->think = G_ReleaseWeave;
+	bolt->think = G_WeaveEffectRelease;
 	bolt->s.eType = ET_WEAVE_EFFECT;
 	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
 	bolt->s.weapon = WVW_D_SPIRIT_STAMINA;
@@ -2525,7 +2673,7 @@ qboolean FireWeave_Lightning(gentity_t * self, vec3_t start, vec3_t dir, int hel
 	bolt = G_Spawn();
 	bolt->classname = EFFECT_CLASSNAME;
 	bolt->nextthink = level.time + WEAVE_LIGHTNING_TIME;
-	bolt->think = G_ReleaseWeave;
+	bolt->think = G_WeaveEffectRelease;
 	bolt->s.eType = ET_WEAVE_EFFECT;
 	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
 	bolt->s.weapon = WVW_A_AIRFIRE_LIGHTNING;
@@ -2656,7 +2804,7 @@ qboolean FireWeave_ExplosiveBase(gentity_t * self, vec3_t start, vec3_t dir, int
 	bolt = G_Spawn();
 	bolt->classname = EFFECT_CLASSNAME;
 	bolt->nextthink = 0;
-	bolt->think = G_ReleaseWeave;
+	bolt->think = G_WeaveEffectRelease;
 	bolt->s.eType = ET_WEAVE_EFFECT;
 	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
 	bolt->s.weapon = weaveID;
@@ -2732,7 +2880,7 @@ qboolean FireWeave_Fog(gentity_t * self, vec3_t start, vec3_t dir, int heldWeave
 	bolt = G_Spawn();
 	bolt->classname = EFFECT_CLASSNAME;
 	bolt->nextthink = 0;
-	bolt->think = G_ReleaseWeave;
+	bolt->think = G_WeaveEffectRelease;
 	bolt->s.eType = ET_WEAVE_EFFECT;
 	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
 	bolt->s.weapon = WVW_D_AIRWATER_FOG;
