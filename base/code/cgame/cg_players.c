@@ -2283,7 +2283,6 @@ void CG_AddPlayerObjItem(centity_t * cent, playerState_t * ps, refEntity_t * par
 	int             boneIndex;
 	centity_t *     objcent;
 	int             rf;
-	refEntity_t     ent; // sprite marker
 
 	objcent = CG_ObjItem(&cent->pe, cent->currentState.number);
 	if(objcent == NULL)
@@ -2400,7 +2399,7 @@ Float sprites over the player's head
 */
 void CG_PlayerSprites(centity_t * cent)
 {
-	int             team;
+	//int             team;
 	centity_t      *obj;
 
 	if(cent->currentState.eFlags & EF_CONNECTION)
