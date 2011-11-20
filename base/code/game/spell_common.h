@@ -286,7 +286,7 @@ typedef enum
 	WTIER_6 = 6
 } weaver_tiers;
 
-#define WEAVEINFO(id,holdable,holdPowerCharge,holdMaxTime,castCharges,castDelay,primaryPower,effectType,tier,group,name,nameP) id,
+#define WEAVEINFO(id,holdable,holdPowerCharge,holdMaxTime,castCharges,castDelay,shotDelay,primaryPower,effectType,tier,group,name,nameP) id,
 typedef enum
 {
 	WVW_NONE,
@@ -305,8 +305,8 @@ typedef struct weaver_weaveInfo_s
 	weaver_effectType effectType;		// effect type
 	weaver_tiers    tier;				// tier
 	weaver_group    group;				// aggressive or defensive
-	char           *name;				// internal name, used for loading resources. [a-z]+
-	char           *nameP;				// presentable name, used for showing players. [a-zA-Z ]*
+	const char     *name;				// internal name, used for loading resources. [a-z]+
+	const char     *nameP;				// presentable name, used for showing players. [a-zA-Z ]*
 } weaver_weaveInfo_t;
 
 typedef struct weaver_threadsMap_s weaver_threadsMap_t;

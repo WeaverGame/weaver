@@ -34,8 +34,8 @@ weaver_tiers    WeaveTier(int weaveID);
 int             WeaveCharges(int weaveID);
 weaver_powers   WeavePrimaryPower(int weaveID);
 weaver_group    WeaveADGroup(int weaveID);
-char           *WeaveName(int weaveID);
-char           *WeaveNameP(int weaveID);
+const char     *WeaveName(int weaveID);
+const char     *WeaveNameP(int weaveID);
 int             WeaveEffectType(int weaveID);
 int             WeaveCastDelay(int weaveID);
 
