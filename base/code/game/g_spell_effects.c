@@ -945,13 +945,16 @@ void RunWeave_Slice(gentity_t * ent)
 					}
 				}
 
-				if(heldWeave != NULL)
+				if((heldWeave != NULL) && (G_HeldWeave_GetState(heldWeave) == WST_INPROCESS))
 				{
-					HeldWeaveEnd(heldWeave);
+					// End current effect instance.
+					HeldWeaveUse(heldWeave);
 				}
-
-				// Free the hit effect, incase ending heldWeave does not do so.
-				G_FreeEntity(hit);
+				else
+				{
+					// Free the hit effect, incase ending heldWeave does not do so.
+					G_FreeEntity(hit);
+				}
 
 				// Slice has been used, free it
 				freeMe = 1;
