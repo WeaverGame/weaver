@@ -32,6 +32,90 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //==========================================================================
 
 /*
+=======================
+CG_AddToNotify
+Based on CG_AddToChat
+=======================
+*/
+static void CG_AddToNotify(notify_mode_t mode, const char *str)
+{
+	int             len;
+	char           *p, *ls;
+	int             lastcolor;
+	int             notifyHeight;
+
+	if(cg_notifyHeight.integer < NOTIFY_HEIGHT)
+	{
+		notifyHeight = cg_notifyHeight.integer;
+	}
+	else
+	{
+		notifyHeight = NOTIFY_HEIGHT;
+	}
+
+	if(notifyHeight <= 0 || cg_notifyTime.integer <= 0)
+	{
+		// notify disabled, dump into normal chat
+		cgs.notifyPos = cgs.notifyLastPos = 0;
+		return;
+	}
+
+	len = 0;
+
+	p = cgs.notifyMsgs[cgs.notifyPos % notifyHeight];
+	*p = 0;
+
+	lastcolor = '7';
+
+	ls = NULL;
+	while(*str)
+	{
+		if(len > NOTIFY_WIDTH - 1)
+		{
+			if(ls)
+			{
+				str -= (p - ls);
+				str++;
+				p -= (p - ls);
+			}
+			*p = 0;
+
+			cgs.notifyMsgTimes[cgs.notifyPos % notifyHeight] = cg.time;
+
+			cgs.notifyPos++;
+			p = cgs.notifyMsgs[cgs.notifyPos % notifyHeight];
+			*p = 0;
+			*p++ = Q_COLOR_ESCAPE;
+			*p++ = lastcolor;
+			len = 0;
+			ls = NULL;
+		}
+
+		if(Q_IsColorString(str))
+		{
+			*p++ = *str++;
+			lastcolor = *str;
+			*p++ = *str++;
+			continue;
+		}
+		if(*str == ' ')
+		{
+			ls = p;
+		}
+		*p++ = *str++;
+		len++;
+	}
+	*p = 0;
+
+	cgs.notifyMsgTimes[cgs.notifyPos % notifyHeight] = cg.time;
+	cgs.notifyModes[cgs.notifyPos % notifyHeight] = mode;
+	cgs.notifyPos++;
+
+	if(cgs.notifyPos - cgs.notifyLastPos > notifyHeight)
+		cgs.notifyLastPos = cgs.notifyPos - notifyHeight;
+}
+
+/*
 ===================
 CG_PlaceString
 
@@ -198,6 +282,7 @@ static void CG_Obituary(entityState_t * ent)
 
 	if(message)
 	{
+		CG_AddToNotify(NOTIFY_MODE_OBITUARY, va("%s %s.", targetName, message));
 		CG_Printf("%s %s.\n", targetName, message);
 		return;
 	}
@@ -264,12 +349,14 @@ static void CG_Obituary(entityState_t * ent)
 
 		if(message)
 		{
+			CG_AddToNotify(NOTIFY_MODE_OBITUARY, va("%s %s %s%s", targetName, message, attackerName, message2));
 			CG_Printf("%s %s %s%s\n", targetName, message, attackerName, message2);
 			return;
 		}
 	}
 
 	// we don't know what it was
+	CG_AddToNotify(NOTIFY_MODE_OBITUARY, va("%s died.", targetName));
 	CG_Printf("%s died.\n", targetName);
 }
 

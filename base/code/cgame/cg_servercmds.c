@@ -442,32 +442,32 @@ CG_AddToTeamChat
 
 =======================
 */
-static void CG_AddToTeamChat(chat_mode_t mode, const char *str)
+static void CG_AddToChat(chat_mode_t mode, const char *str)
 {
 	int             len;
 	char           *p, *ls;
 	int             lastcolor;
 	int             chatHeight;
 
-	if(cg_teamChatHeight.integer < TEAMCHAT_HEIGHT)
+	if(cg_chatHeight.integer < CHAT_HEIGHT)
 	{
-		chatHeight = cg_teamChatHeight.integer;
+		chatHeight = cg_chatHeight.integer;
 	}
 	else
 	{
-		chatHeight = TEAMCHAT_HEIGHT;
+		chatHeight = CHAT_HEIGHT;
 	}
 
-	if(chatHeight <= 0 || cg_teamChatTime.integer <= 0)
+	if(chatHeight <= 0 || cg_chatTime.integer <= 0)
 	{
 		// team chat disabled, dump into normal chat
-		cgs.teamChatPos = cgs.teamLastChatPos = 0;
+		cgs.chatPos = cgs.chatLastPos = 0;
 		return;
 	}
 
 	len = 0;
 
-	p = cgs.teamChatMsgs[cgs.teamChatPos % chatHeight];
+	p = cgs.chatMsgs[cgs.chatPos % chatHeight];
 	*p = 0;
 
 	lastcolor = '7';
@@ -475,7 +475,7 @@ static void CG_AddToTeamChat(chat_mode_t mode, const char *str)
 	ls = NULL;
 	while(*str)
 	{
-		if(len > TEAMCHAT_WIDTH - 1)
+		if(len > CHAT_WIDTH - 1)
 		{
 			if(ls)
 			{
@@ -485,10 +485,10 @@ static void CG_AddToTeamChat(chat_mode_t mode, const char *str)
 			}
 			*p = 0;
 
-			cgs.teamChatMsgTimes[cgs.teamChatPos % chatHeight] = cg.time;
+			cgs.chatMsgTimes[cgs.chatPos % chatHeight] = cg.time;
 
-			cgs.teamChatPos++;
-			p = cgs.teamChatMsgs[cgs.teamChatPos % chatHeight];
+			cgs.chatPos++;
+			p = cgs.chatMsgs[cgs.chatPos % chatHeight];
 			*p = 0;
 			*p++ = Q_COLOR_ESCAPE;
 			*p++ = lastcolor;
@@ -512,12 +512,12 @@ static void CG_AddToTeamChat(chat_mode_t mode, const char *str)
 	}
 	*p = 0;
 
-	cgs.teamChatMsgTimes[cgs.teamChatPos % chatHeight] = cg.time;
-	cgs.teamChatModes[cgs.teamChatPos % chatHeight] = mode;
-	cgs.teamChatPos++;
+	cgs.chatMsgTimes[cgs.chatPos % chatHeight] = cg.time;
+	cgs.chatModes[cgs.chatPos % chatHeight] = mode;
+	cgs.chatPos++;
 
-	if(cgs.teamChatPos - cgs.teamLastChatPos > chatHeight)
-		cgs.teamLastChatPos = cgs.teamChatPos - chatHeight;
+	if(cgs.chatPos - cgs.chatLastPos > chatHeight)
+		cgs.chatLastPos = cgs.chatPos - chatHeight;
 }
 
 /*
@@ -993,7 +993,7 @@ void CG_PlayVoiceChat(bufferedVoiceChat_t * vchat)
 	}
 	if(!vchat->voiceOnly && !cg_noVoiceText.integer)
 	{
-		CG_AddToTeamChat(vchat->message);
+		CG_AddToChat(vchat->message);
 		CG_Printf("%s\n", vchat->message);
 	}
 	voiceChatBuffer[cg.voiceChatBufferOut].snd = 0;
@@ -1237,7 +1237,7 @@ static void CG_ServerCommand(void)
 			trap_S_StartLocalSound(cgs.media.talkSound, CHAN_LOCAL_SOUND);
 			Q_strncpyz(text, CG_Argv(1), MAX_SAY_TEXT);
 			CG_RemoveChatEscapeChar(text);
-			CG_AddToTeamChat(CHAT_MODE_ALL, text);
+			CG_AddToChat(CHAT_MODE_ALL, text);
 			CG_Printf("%s\n", text);
 		}
 		return;
@@ -1248,7 +1248,7 @@ static void CG_ServerCommand(void)
 		trap_S_StartLocalSound(cgs.media.talkSound, CHAN_LOCAL_SOUND);
 		Q_strncpyz(text, CG_Argv(1), MAX_SAY_TEXT);
 		CG_RemoveChatEscapeChar(text);
-		CG_AddToTeamChat(CHAT_MODE_TEAM, text);
+		CG_AddToChat(CHAT_MODE_TEAM, text);
 		CG_Printf("%s\n", text);
 		return;
 	}

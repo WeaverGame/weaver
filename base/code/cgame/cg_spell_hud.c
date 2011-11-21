@@ -126,6 +126,10 @@ typedef struct hudSizes_s {
 	float           protect_w;
 	float           protect_h;
 
+	float           notify_x;
+	float           notify_y;
+	float           notify_text_h;
+
 	float           chat_x;
 	float           chat_offset_y;
 	float           chat_text_h;
@@ -192,6 +196,10 @@ void CG_HudSizesInit(void)
 	s.protect_w = 6.0f;
 	s.protect_h = 214.0f;
 
+	s.notify_x = 10.0f;
+	s.notify_y = 180.0f;
+	s.notify_text_h = CG_Text_Height("!", 0.5f, 0, &cgs.media.freeSansBoldFont);
+
 	s.chat_x = 10.0f;
 	s.chat_offset_y = 260.0f;
 	s.chat_text_h = CG_Text_Height("!", 0.5f, 0, &cgs.media.freeSansBoldFont);
@@ -250,6 +258,10 @@ void CG_HudSizesScale(float f)
 	s.protect_w *= f;
 	s.protect_h *= f;
 
+	s.notify_x *= f;
+	s.notify_y *= f;
+	s.notify_text_h *= f;
+
 	s.chat_x *= f;
 	s.chat_offset_y *= f;
 	s.chat_text_h *= f;
@@ -280,32 +292,32 @@ void CG_DrawWeaverChat(void)
 	int             mode;
 	float           fade;
 
-	if(cg_teamChatHeight.integer < TEAMCHAT_HEIGHT)
-		chatHeight = cg_teamChatHeight.integer;
+	if(cg_chatHeight.integer < TEAMCHAT_HEIGHT)
+		chatHeight = cg_chatHeight.integer;
 	else
 		chatHeight = TEAMCHAT_HEIGHT;
 	if(chatHeight <= 0)
 		return;					// disabled
 
-	if(cgs.teamLastChatPos != cgs.teamChatPos)
+	if(cgs.chatLastPos != cgs.chatPos)
 	{
-		if(cg.time - cgs.teamChatMsgTimes[cgs.teamLastChatPos % chatHeight] > cg_teamChatTime.integer)
+		if(cg.time - cgs.chatMsgTimes[cgs.chatLastPos % chatHeight] > cg_chatTime.integer)
 		{
-			cgs.teamLastChatPos++;
+			cgs.chatLastPos++;
 		}
 
 		trap_R_SetColor(NULL);
 
 		Vector4Copy(colorFull, hcolor);
 
-		for(i = cgs.teamChatPos - 1; i >= cgs.teamLastChatPos; i--)
+		for(i = cgs.chatPos - 1; i >= cgs.chatLastPos; i--)
 		{
 			/*
 			CG_DrawStringExt(CHATLOC_X + TINYCHAR_WIDTH,
 							 CHATLOC_Y - (cgs.teamChatPos - i) * TINYCHAR_HEIGHT,
 							 cgs.teamChatMsgs[i % chatHeight], hcolor, qfalse, qfalse, TINYCHAR_WIDTH, TINYCHAR_HEIGHT, 0);
 			*/
-			mode = cgs.teamChatModes[i % chatHeight];
+			mode = cgs.chatModes[i % chatHeight];
 			if (mode == CHAT_MODE_ALL)
 			{
 				// Global Chat
@@ -325,7 +337,7 @@ void CG_DrawWeaverChat(void)
 			}
 
 			// Only fade for the last 1/3 of the time.
-			fade = 3.0f - (3.0f * ((cg.time - cgs.teamChatMsgTimes[i % chatHeight]) / (float)cg_teamChatTime.integer));
+			fade = 3.0f - (3.0f * ((cg.time - cgs.chatMsgTimes[i % chatHeight]) / (float)cg_chatTime.integer));
 			// Clamp
 			if (fade > 1.0f)
 			{
@@ -337,7 +349,63 @@ void CG_DrawWeaverChat(void)
 			}
 			hcolor[3] = fade;
 
-			CG_Text_PaintAligned(s.chat_x, cgs.screenYSize - s.chat_offset_y - ((cgs.teamChatPos - i - 1) * s.chat_text_h), cgs.teamChatMsgs[i % chatHeight],
+			CG_Text_PaintAligned(s.chat_x, cgs.screenYSize - s.chat_offset_y - ((cgs.chatPos - i - 1) * s.chat_text_h), cgs.chatMsgs[i % chatHeight],
+				s.f * 0.4f, UI_LEFT, hcolor, &cgs.media.freeSansBoldFont);
+		}
+	}
+}
+
+
+/*
+=================
+CG_DrawWeaverNotify
+Based on CG_DrawWeaverChat.
+=================
+*/
+void CG_DrawWeaverNotify(void)
+{
+	int             i;
+	vec4_t          hcolor;
+	int             notifyHeight;
+	int             mode;
+	float           fade;
+
+	if(cg_notifyHeight.integer < NOTIFY_HEIGHT)
+		notifyHeight = cg_notifyHeight.integer;
+	else
+		notifyHeight = NOTIFY_HEIGHT;
+	if(notifyHeight <= 0)
+		return;					// disabled
+
+	if(cgs.notifyLastPos != cgs.notifyPos)
+	{
+		if(cg.time - cgs.notifyMsgTimes[cgs.notifyLastPos % notifyHeight] > cg_notifyTime.integer)
+		{
+			cgs.notifyLastPos++;
+		}
+
+		trap_R_SetColor(NULL);
+
+		Vector4Copy(colorFull, hcolor);
+
+		for(i = cgs.notifyPos - 1; i >= cgs.notifyLastPos; i--)
+		{
+			mode = cgs.notifyModes[i % notifyHeight];
+
+			// Only fade for the last 1/3 of the time.
+			fade = 3.0f - (3.0f * ((cg.time - cgs.notifyMsgTimes[i % notifyHeight]) / (float)cg_notifyTime.integer));
+			// Clamp
+			if (fade > 1.0f)
+			{
+				fade = 1.0f;
+			}
+			else if (fade <= 0.0f)
+			{
+				continue;
+			}
+			hcolor[3] = fade;
+
+			CG_Text_PaintAligned(s.notify_x, s.notify_y + ((cgs.notifyPos - i - 1) * s.notify_text_h), cgs.notifyMsgs[i % notifyHeight],
 				s.f * 0.4f, UI_LEFT, hcolor, &cgs.media.freeSansBoldFont);
 		}
 	}

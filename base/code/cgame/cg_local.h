@@ -77,6 +77,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define	TEXT_ICON_SPACE		4
 
+#define	NOTIFY_WIDTH		80
+#define NOTIFY_HEIGHT		10
+
+#define	CHAT_WIDTH			80
+#define CHAT_HEIGHT			10
+
 #define	TEAMCHAT_WIDTH		80
 #define TEAMCHAT_HEIGHT		10
 
@@ -1409,6 +1415,14 @@ typedef enum {
 	CHAT_MODE_NUM
 } chat_mode_t;
 
+typedef enum {
+	NOTIFY_MODE_CONNET,
+	NOTIFY_MODE_JOINTEAM,
+	NOTIFY_MODE_OBITUARY,
+	NOTIFY_MODE_DISCONNECT,
+	NOTIFY_MODE_NUM
+} notify_mode_t;
+
 // The client game static (cgs) structure hold everything
 // loaded or calculated from the gamestate.  It will NOT
 // be cleared when a tournement restart is done, allowing
@@ -1478,12 +1492,27 @@ typedef struct
 
 	clientInfo_t    clientinfo[MAX_CLIENTS];
 
+	// notify width is *3 because of embedded color codes
+	char            notifyMsgs[NOTIFY_HEIGHT][NOTIFY_WIDTH * 3 + 1];
+	int             notifyMsgTimes[NOTIFY_HEIGHT];
+	int             notifyPos;
+	int             notifyLastPos;
+	notify_mode_t     notifyModes[NOTIFY_HEIGHT];
+
+	// chat width is *3 because of embedded color codes
+	char            chatMsgs[CHAT_HEIGHT][CHAT_WIDTH * 3 + 1];
+	int             chatMsgTimes[CHAT_HEIGHT];
+	int             chatPos;
+	int             chatLastPos;
+	chat_mode_t     chatModes[CHAT_HEIGHT];
+
+#if 0
 	// teamchat width is *3 because of embedded color codes
 	char            teamChatMsgs[TEAMCHAT_HEIGHT][TEAMCHAT_WIDTH * 3 + 1];
 	int             teamChatMsgTimes[TEAMCHAT_HEIGHT];
 	int             teamChatPos;
 	int             teamLastChatPos;
-	chat_mode_t     teamChatModes[TEAMCHAT_HEIGHT];
+#endif
 
 	int             cursorX;
 	int             cursorY;
@@ -1601,6 +1630,10 @@ extern vmCvar_t cg_stereoSeparation;
 extern vmCvar_t cg_lagometer;
 extern vmCvar_t cg_drawAttacker;
 extern vmCvar_t cg_synchronousClients;
+extern vmCvar_t cg_notifyTime;
+extern vmCvar_t cg_notifyHeight;
+extern vmCvar_t cg_chatTime;
+extern vmCvar_t cg_chatHeight;
 extern vmCvar_t cg_teamChatTime;
 extern vmCvar_t cg_teamChatHeight;
 extern vmCvar_t cg_stats;
@@ -1899,6 +1932,7 @@ void            CG_HudSizesInit(void);
 void            CG_HudSizesScale(float f);
 void            CG_DrawWeaverHUD(void);
 void            CG_DrawWeaverChat(void);
+void            CG_DrawWeaverNotify(void);
 
 // cg_tutorial.c
 const char     *CG_TutorialText( void );

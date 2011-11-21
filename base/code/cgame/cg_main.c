@@ -173,6 +173,10 @@ vmCvar_t        cg_stereoSeparation;
 vmCvar_t        cg_lagometer;
 vmCvar_t        cg_drawAttacker;
 vmCvar_t        cg_synchronousClients;
+vmCvar_t        cg_notifyTime;
+vmCvar_t        cg_notifyHeight;
+vmCvar_t        cg_chatTime;
+vmCvar_t        cg_chatHeight;
 vmCvar_t        cg_teamChatTime;
 vmCvar_t        cg_teamChatHeight;
 vmCvar_t        cg_stats;
@@ -347,6 +351,10 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_thirdPersonRange, "cg_thirdPersonRange", "40", CVAR_CHEAT},
 	{&cg_thirdPersonAngle, "cg_thirdPersonAngle", "0", CVAR_CHEAT},
 	{&cg_thirdPerson, "cg_thirdPerson", "0", 0},
+	{&cg_notifyTime, "cg_notifyTime", "10000", CVAR_ARCHIVE},
+	{&cg_notifyHeight, "cg_notifyHeight", "10", CVAR_ARCHIVE},
+	{&cg_chatTime, "cg_chatTime", "10000", CVAR_ARCHIVE},
+	{&cg_chatHeight, "cg_chatHeight", "10", CVAR_ARCHIVE},
 	{&cg_teamChatTime, "cg_teamChatTime", "10000", CVAR_ARCHIVE},
 	{&cg_teamChatHeight, "cg_teamChatHeight", "10", CVAR_ARCHIVE},
 	{&cg_forceModel, "cg_forceModel", "0", CVAR_ARCHIVE},

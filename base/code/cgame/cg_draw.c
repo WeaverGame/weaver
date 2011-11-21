@@ -670,6 +670,7 @@ static void CG_DrawTimers(void)
 CG_DrawTeamInfo
 =================
 */
+#if 0
 static void CG_DrawTeamInfo(void)
 {
 	int             w, h;
@@ -744,6 +745,7 @@ static void CG_DrawTeamInfo(void)
 		}
 	}
 }
+#endif
 
 /*
 ===============================================================================
@@ -1949,6 +1951,7 @@ static void CG_Draw2D(void)
 
 	if(cg.snap->ps.pm_type == PM_INTERMISSION)
 	{
+		CG_DrawWeaverNotify();
 		CG_DrawWeaverChat();
 		CG_DrawIntermission();
 		return;
@@ -1997,6 +2000,7 @@ static void CG_Draw2D(void)
 	//cg.scoreBoardShowing = CG_DrawScoreboard();
 	if(noScoreboard)
 	{
+		CG_DrawWeaverNotify();
 		CG_DrawWeaverChat();
 
 		CG_DrawLagometer();
