@@ -867,11 +867,13 @@ static void CG_DrawWeaverPowerups(void)
 		{
 			continue;
 		}
+		/*
 		if(t < 999000)
 		{
 			timeRemaining = va("%d", t / 1000 + 1);
 			CG_Text_PaintAligned(x + HUD_STATUS_WIDTH, y + 11, timeRemaining, 0.125f, UI_LEFT, colorWhite, &cgs.media.freeSansBoldFont);
 		}
+		*/
 		CG_DrawPic(x, y, HUD_STATUS_WIDTH, HUD_STATUS_HEIGHT, cgs.media.weaverStatus[i]);
 
 		y -= HUD_STATUS_HEIGHT;
