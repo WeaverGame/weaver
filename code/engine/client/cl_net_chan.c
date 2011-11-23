@@ -39,7 +39,8 @@ CL_Netchan_Encode
 static void CL_Netchan_Encode(msg_t * msg)
 {
 	int             serverId, messageAcknowledge, reliableAcknowledge;
-	int             i, index, srdc, sbit, soob;
+	int             i, index, srdc, sbit;
+	qboolean        soob;
 	byte            key, *string;
 
 	if(msg->cursize <= CL_ENCODE_START)
@@ -53,7 +54,7 @@ static void CL_Netchan_Encode(msg_t * msg)
 
 	msg->bit = 0;
 	msg->readcount = 0;
-	msg->oob = 0;
+	msg->oob = qfalse;
 
 	serverId = MSG_ReadLong(msg);
 	messageAcknowledge = MSG_ReadLong(msg);
@@ -66,7 +67,7 @@ static void CL_Netchan_Encode(msg_t * msg)
 	string = (byte *) clc.serverCommands[reliableAcknowledge & (MAX_RELIABLE_COMMANDS - 1)];
 	index = 0;
 	//
-	key = clc.challenge ^ serverId ^ messageAcknowledge;
+	key = (clc.challenge ^ serverId ^ messageAcknowledge) & 0xFF;
 	for(i = CL_ENCODE_START; i < msg->cursize; i++)
 	{
 		// modify the key with the last received now acknowledged server command
