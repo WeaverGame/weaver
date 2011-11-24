@@ -1835,7 +1835,7 @@ void            CG_Text_Paint(float x, float y, float scale, const vec4_t color,
 							  int style, const fontInfo_t * font);
 void            CG_Text_PaintAligned(int x, int y, const char *s, float scale, int style, const vec4_t color,
 									 const fontInfo_t * font);
-void            CG_Text_PaintAlignedBlock(int x, int y, const char *s, float scale, int style, const vec4_t color,
+void            CG_Text_PaintAlignedBlock(int x, int y, char *s, float scale, int style, const vec4_t color,
 									 const fontInfo_t * font);
 
 void            CG_AddLagometerFrameInfo(void);
@@ -1849,6 +1849,7 @@ void            CG_OwnerDraw(float x, float y, float w, float h, float text_x, f
 							 int align, float special, float scale, vec4_t color, qhandle_t shader, int textStyle);
 void            CG_SelectPrevPlayer(void);
 void            CG_SelectNextPlayer(void);
+void            CG_ScanForCrosshairEntity(void);
 float           CG_GetValue(int ownerDraw);
 qboolean        CG_OwnerDrawVisible(int flags);
 void            CG_RunMenuScript(char **args);
@@ -1933,9 +1934,10 @@ void            CG_HudSizesScale(float f);
 void            CG_DrawWeaverHUD(void);
 void            CG_DrawWeaverChat(void);
 void            CG_DrawWeaverNotify(void);
+void            CG_DrawWeaverCrosshairNames(void);
 
 // cg_tutorial.c
-const char     *CG_TutorialText( void );
+char           *CG_TutorialText( void );
 
 //
 // cg_events.c

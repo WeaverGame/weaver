@@ -412,6 +412,105 @@ void CG_DrawWeaverNotify(void)
 }
 
 /*
+=====================
+ColorHealPercent
+Set colorHealth based on amount of HP: high => green, low => red.
+=====================
+*/
+void ColorHealPercent(vec4_t colorHealth, int healthPC)
+{
+	if(healthPC < 0)
+	{
+		colorHealth[0] = 0.0f;
+		colorHealth[1] = 0.0f;
+		colorHealth[2] = 0.0f;
+	}
+	else
+	{
+		colorHealth[0] = (100 - healthPC) / 100.0f;
+		colorHealth[1] = healthPC / 100.0f;
+		colorHealth[2] = 0.0f;
+	}
+}
+
+void CG_DrawTargetPlayerName(float x, float y, int clientNum, int lastTime)
+{
+	float          *color;
+	char           *name;
+	int             healthPC;
+	vec4_t          colorHealth;
+	float           w;
+
+	name = cgs.clientinfo[clientNum].name;
+	healthPC = cgs.clientinfo[clientNum].health;
+
+	// Cap to 100 for bar
+	if(healthPC > 100)
+	{
+		healthPC = 100;
+	}
+
+	// draw the name of the player being looked at
+	color = CG_FadeColor(lastTime, 1000);
+	if(!color)
+	{
+		trap_R_SetColor(NULL);
+		return;
+	}
+
+	// Calculate HP bar color
+	ColorHealPercent(colorHealth, healthPC);
+	colorHealth[3] = color[3];
+
+	color[3] *= 0.85f;
+	w = CG_Text_Width(name, 0.25f, 0, &cgs.media.freeSansBoldFont);
+	CG_Text_Paint(x - (w / 2), y, 0.25f, color, name, 0, 0, 0, &cgs.media.freeSansBoldFont);
+
+	// HP Bar is horizontal, w and h are swapped.
+	CG_DrawFillRect(x - (s.health_h/2), y - (s.health_w * 2), s.health_w * (healthPC/100.0f), s.health_h, colorHealth, DRFD_RIGHT);
+	trap_R_SetColor(NULL);
+}
+
+/*
+=====================
+CG_DrawWeaverCrosshairNames
+=====================
+*/
+void CG_DrawWeaverCrosshairNames(void)
+{
+	float           x, y;
+
+	if(!cg_drawCrosshair.integer)
+	{
+		return;
+	}
+	if(!cg_drawCrosshairNames.integer)
+	{
+		return;
+	}
+	if(cg.renderingThirdPerson)
+	{
+		return;
+	}
+
+	// scan the known entities to see if the crosshair is sighted on one
+	CG_ScanForCrosshairEntity();
+
+	x = cgs.screenXSize / 2;
+	if(cg_drawStatus.integer == 3)
+	{
+		//think this is a better place
+		y = (2 * cgs.screenYSize) / 3;
+	}
+	else
+	{
+		y = cgs.screenYSize / 3;
+	}
+
+	CG_DrawTargetPlayerName(x, y, cg.crosshairClientNum, cg.crosshairClientTime);
+}
+
+/*
 ================
 CG_DrawStatusBarWeaver
 ================
@@ -432,25 +531,15 @@ static void CG_DrawWeaverStatusBar(void)
 	//float power_avil_w = s.power * cg.snap->ps.stats[STAT_POWER];
 	float power_full_mid_w = power_full_w - (s.power_offset_left_w + s.power_offset_right_w);
 
-	colorHealth[3] = 1.0f;
-
-	// Calculate HP bar color
+	// Cap to 100 for bar, currentHealth may be higher when displayed as digits
 	if(currentHealthPC > 100)
 	{
 		currentHealthPC = 100;
 	}
-	if(currentHealthPC < 0)
-	{
-		colorHealth[0] = 0.0f;
-		colorHealth[1] = 0.0f;
-		colorHealth[2] = 0.0f;
-	}
-	else
-	{
-		colorHealth[0] = (100 - currentHealthPC) / 100.0f;
-		colorHealth[1] = currentHealthPC / 100.0f;
-		colorHealth[2] = 0.0f;
-	}
+
+	// Calculate HP bar color
+	ColorHealPercent(colorHealth, currentHealthPC);
+	colorHealth[3] = 1.0f;
 
 	// Don't let HP fraction go negative for wounded players
 	if(hpFraction < 0.0f)
@@ -746,6 +835,48 @@ static void CG_DrawWeaverDisc(void)
 	CG_DrawWeaverTutorial(x, y, (0.25 * cgs.screenMinSize));
 }
 
+int HeldSpecial_healing;
+
+/*
+=================
+CG_DrawWeaverHeldSpecialInit
+
+Prepare for drawing special information for a set of heldWeaves.
+This allows us to have a state while drawing info for the held weave,
+and do something smarter if the same type of weave shows up multiple times.
+=================
+*/
+void CG_DrawWeaverHeldSpecialInit(void)
+{
+	// If we have multiple healing spells, we need to keep track of where we can display them.
+	HeldSpecial_healing = 0;
+}
+
+/*
+=================
+CG_DrawWeaverHeldSpecial
+
+If one of our heldWeaves requires some extra info to be shown on the hud, do it from here.
+=================
+*/
+void CG_DrawWeaverHeldSpecial(centity_t * heldWeave, weaver_weaveCGInfo *weaveInfo, float x)
+{
+	switch (heldWeave->currentState.weapon)
+	{
+		case WVW_D_WATER_HEAL_S:
+		case WVW_D_WATER_HEAL_M:
+			// Show who we're healing
+			if (HeldSpecial_healing == 0) {
+				CG_Text_PaintAligned(cgs.screenXSize / 4.0f, 5.0f, "Healing...", 0.2f, UI_LEFT, colorWhite, &cgs.media.freeSansBoldFont);
+			}
+			CG_DrawTargetPlayerName(cgs.screenXSize / 4.0f, (25.0f * HeldSpecial_healing) + 30.0f, heldWeave->currentState.otherEntityNum, cg.time);
+			HeldSpecial_healing++;
+			break;
+		default:
+			return;
+	}
+}
+
 /*
 =================
 CG_DrawWeaverHeld
@@ -777,6 +908,9 @@ static void CG_DrawWeaverHeld(void)
 
 	// Draw bar used (including current casting)
 	CG_DrawFillRect(x, y, power_used_w, s.power_spell_h, colorEmpty, DRFD_LEFT);
+
+	// Prepare for a new round of drawing special hud info.
+	CG_DrawWeaverHeldSpecialInit();
 
 	// Draw each held weave
 	for(i = MIN_WEAPON_WEAVE; i < MAX_WEAPONS; i++)
@@ -817,6 +951,9 @@ static void CG_DrawWeaverHeld(void)
 			}
 			trap_R_DrawStretchPic(x - s.spellicon_frame_offset_x, y_icon - s.spellicon_frame_offset_x, s.spellicon_frame_w, s.spellicon_frame_w, 0, 0, 1, 1, frameShader);
 
+			// Draw any extra info for this heldWeave.
+			CG_DrawWeaverHeldSpecial(cent, weaveInfo, x);
+
 			// Move left
 			x -= power_spell_w;
 
@@ -836,7 +973,7 @@ Statuses such as shielded, poisoned, protection
 static void CG_DrawWeaverPowerups(void)
 {
 	playerState_t  *ps;
-	char           *timeRemaining;
+	//char           *timeRemaining;
 	int             i;
 	int             t;
 	int             x, y;

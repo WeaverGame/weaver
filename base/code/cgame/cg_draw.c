@@ -226,7 +226,7 @@ void CG_Text_PaintAligned(int x, int y, const char *s, float scale, int style, c
 	}
 }
 
-void CG_Text_PaintAlignedBlock(int x, int y, const char *s, float scale, int style, const vec4_t color, const fontInfo_t * font)
+void CG_Text_PaintAlignedBlock(int x, int y, char *s, float scale, int style, const vec4_t color, const fontInfo_t * font)
 {
 	char           *lines[32];
 	unsigned int    lineNum = 0;
@@ -1314,7 +1314,7 @@ static void CG_DrawCrosshair(void)
 CG_ScanForCrosshairEntity
 =================
 */
-static void CG_ScanForCrosshairEntity(void)
+void CG_ScanForCrosshairEntity(void)
 {
 	trace_t         trace;
 	vec3_t          start, end;
@@ -1967,7 +1967,7 @@ static void CG_Draw2D(void)
 		{
 			CG_DrawSpectator();
 			CG_DrawCrosshairNew();
-			CG_DrawCrosshairNames();
+			CG_DrawWeaverCrosshairNames();
 		}
 	}
 	else
@@ -1978,7 +1978,7 @@ static void CG_Draw2D(void)
 			CG_DrawWeaverHUD();
 
 			CG_DrawCrosshairNew();
-			CG_DrawCrosshairNames();
+			CG_DrawWeaverCrosshairNames();
 		}
 		else if(cg.snap->ps.pm_type == PM_WOUNDED)
 		{
