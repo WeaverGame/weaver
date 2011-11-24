@@ -800,7 +800,7 @@ static void CG_DrawWeaverDisc(void)
 	//float           moveScale;
 	qhandle_t       weaverDisc;
 	int             da;
-	char           *thread;
+	//char           *thread;
 
 	//Com_Printf("cg.predictedPlayerState.eFlags: %i \n", cg.predictedPlayerState.eFlags);
 	if(!(cg.predictedPlayerState.eFlags & EF_WEAVEA) && !(cg.predictedPlayerState.eFlags & EF_WEAVED))
@@ -819,8 +819,8 @@ static void CG_DrawWeaverDisc(void)
 		//TODO: reimplement move scale
 		//moveScale = (float)cg_weaverDiscMoveScale.value * 1.0;
 
-		thread = va("%i x, %i y", cg.predictedPlayerState.stats[STAT_THREADX], cg.predictedPlayerState.stats[STAT_THREADY]);
-		CG_Text_PaintAligned(8, 17, thread, 0.25f, UI_LEFT, colorWhite, &cgs.media.freeSansBoldFont);
+		//thread = va("%i x, %i y", cg.predictedPlayerState.stats[STAT_THREADX], cg.predictedPlayerState.stats[STAT_THREADY]);
+		//CG_Text_PaintAligned(8, 17, thread, 0.25f, UI_LEFT, colorWhite, &cgs.media.freeSansBoldFont);
 
 		//x += cg.predictedPlayerState.stats[STAT_THREADX] * moveScale;
 		//y -= cg.predictedPlayerState.stats[STAT_THREADY] * moveScale;
