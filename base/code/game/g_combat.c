@@ -487,7 +487,7 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 	// check for a player that almost brought in cubes
 	CheckAlmostScored(self, attacker);
 
-	G_Printf("Wounded Player - G_Combat pm_type1=%d\n", self->client->ps.pm_type);
+	//G_Printf("Wounded Player - G_Combat pm_type1=%d\n", self->client->ps.pm_type);
 
 	if(self->client->ps.stats[STAT_HEALTH] > g_woundedHealth.integer)
 	{
@@ -498,7 +498,7 @@ void player_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, i
 		self->client->ps.pm_type = PM_DEAD;
 	}
 
-	G_Printf("Wounded Player - G_Combat pm_type2=%d\n", self->client->ps.pm_type);
+	//G_Printf("Wounded Player - G_Combat pm_type2=%d\n", self->client->ps.pm_type);
 
 	ClientWeaverDestroy(self->client);
 
