@@ -130,6 +130,9 @@ typedef struct hudSizes_s {
 	float           notify_y;
 	float           notify_text_h;
 
+	float           cross_health_w;
+	float           cross_health_h;
+
 	float           chat_x;
 	float           chat_offset_y;
 	float           chat_text_h;
@@ -200,6 +203,9 @@ void CG_HudSizesInit(void)
 	s.notify_y = 180.0f;
 	s.notify_text_h = CG_Text_Height("!", 0.5f, 0, &cgs.media.freeSansBoldFont);
 
+	s.cross_health_w = 150;
+	s.cross_health_h = 10;
+
 	s.chat_x = 10.0f;
 	s.chat_offset_y = 260.0f;
 	s.chat_text_h = CG_Text_Height("!", 0.5f, 0, &cgs.media.freeSansBoldFont);
@@ -261,6 +267,9 @@ void CG_HudSizesScale(float f)
 	s.notify_x *= f;
 	s.notify_y *= f;
 	s.notify_text_h *= f;
+
+	s.cross_health_w *= f;
+	s.cross_health_h *= f;
 
 	s.chat_x *= f;
 	s.chat_offset_y *= f;
@@ -477,7 +486,7 @@ void CG_DrawTargetPlayerName(float x, float y, int clientNum, int lastTime)
 
 	// Background
 	
-	trap_R_DrawStretchPic(x - (s.health_h/2) - 3, y - (s.health_w * 2) - 3, s.health_h + 6, s.health_w + 6, 0, 0, 1, 1, cgs.media.whiteShader);
+	trap_R_DrawStretchPic(x - (s.cross_health_h/2) - 3, y - s.cross_health_h - 3, s.cross_health_w + 6, s.cross_health_h + 8, 0, 0, 1, 1, cgs.media.weaverBarExt);
 
 	// Cap to 100 for bar
 	if(healthPC > 100)
@@ -490,7 +499,7 @@ void CG_DrawTargetPlayerName(float x, float y, int clientNum, int lastTime)
 	colorHealth[3] = color[3];
 
 	// HP Bar is horizontal, w and h are swapped.
-	CG_DrawFillRect(x - (s.health_h/2), y - (s.health_w * 2), s.health_h * (healthPC/100.0f), s.health_w, colorHealth, DRFD_RIGHT);
+	CG_DrawFillRect(x - (s.cross_health_h/2), y - s.cross_health_h, s.cross_health_w * (healthPC/100.0f), s.cross_health_h, colorHealth, DRFD_RIGHT);
 	trap_R_SetColor(NULL);
 }
 
