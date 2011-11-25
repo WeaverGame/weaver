@@ -278,6 +278,18 @@ void CG_HudSizesScale(float f)
 	CG_HudSizesRecalc();
 }
 
+void WeaverSetTeamColor(void)
+{
+	if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE)
+	{
+		trap_R_SetColor(colorTeamBlue);
+	}
+	else if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED)
+	{
+		trap_R_SetColor(colorTeamRed);
+	}
+}
+
 /*
 =================
 CG_DrawWeaverChat
@@ -444,13 +456,13 @@ void CG_DrawTargetPlayerName(float x, float y, int clientNum, int lastTime)
 	name = cgs.clientinfo[clientNum].name;
 	healthPC = cgs.clientinfo[clientNum].health;
 
-	// Cap to 100 for bar
-	if(healthPC > 100)
+	// Only show names for players on the same team
+	if (cgs.clientinfo[clientNum].team != cg.snap->ps.persistant[PERS_TEAM])
 	{
-		healthPC = 100;
+		return;
 	}
 
-	// draw the name of the player being looked at
+	// Check time for fade out
 	color = CG_FadeColor(lastTime, 1000);
 	if(!color)
 	{
@@ -458,16 +470,27 @@ void CG_DrawTargetPlayerName(float x, float y, int clientNum, int lastTime)
 		return;
 	}
 
+	// Draw name
+	color[3] *= 0.65f;
+	w = CG_Text_Width(name, 0.25f, 0, &cgs.media.freeSansBoldFont);
+	CG_Text_Paint(x - (w / 2), y, 0.25f, color, name, 0, 0, 0, &cgs.media.freeSansBoldFont);
+
+	// Background
+	
+	trap_R_DrawStretchPic(x - (s.health_h/2) - 3, y - (s.health_w * 2) - 3, s.health_h + 6, s.health_w + 6, 0, 0, 1, 1, cgs.media.whiteShader);
+
+	// Cap to 100 for bar
+	if(healthPC > 100)
+	{
+		healthPC = 100;
+	}
+
 	// Calculate HP bar color
 	ColorHealPercent(colorHealth, healthPC);
 	colorHealth[3] = color[3];
 
-	color[3] *= 0.85f;
-	w = CG_Text_Width(name, 0.25f, 0, &cgs.media.freeSansBoldFont);
-	CG_Text_Paint(x - (w / 2), y, 0.25f, color, name, 0, 0, 0, &cgs.media.freeSansBoldFont);
-
 	// HP Bar is horizontal, w and h are swapped.
-	CG_DrawFillRect(x - (s.health_h/2), y - (s.health_w * 2), s.health_w * (healthPC/100.0f), s.health_h, colorHealth, DRFD_RIGHT);
+	CG_DrawFillRect(x - (s.health_h/2), y - (s.health_w * 2), s.health_h * (healthPC/100.0f), s.health_w, colorHealth, DRFD_RIGHT);
 	trap_R_SetColor(NULL);
 }
 
@@ -616,14 +639,7 @@ static void CG_DrawWeaverStatusBar(void)
 
 
 	// Hud Decoration
-	if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE)
-	{
-		trap_R_SetColor(colorTeamBlue);
-	}
-	else if(cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED)
-	{
-		trap_R_SetColor(colorTeamRed);
-	}
+	WeaverSetTeamColor();
 
 	trap_R_DrawStretchPic(cgs.screenXSize-s.s256, cgs.screenYSize-s.s512, s.s256, s.s512, 0, 0, 1, 1, cgs.media.weaverCorner);
 	trap_R_DrawStretchPic(cgs.screenXSize-(s.s256+s.s128), cgs.screenYSize-s.s32, s.s128, s.s32, 0, 0, 1, 1, cgs.media.weaverBarExt0);
