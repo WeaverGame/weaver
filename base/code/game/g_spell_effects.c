@@ -581,6 +581,20 @@ void RunWeave_AirBlast_Impact(gentity_t * ent, trace_t * trace)
 				WeaveProtectCheck(hit->client);
 			}
 		}
+		else if (hit->client->ps.pm_type == PM_WOUNDED)
+		{
+			// Wounded players are more resistant to the knockback
+			knockBackScale = 0.40f;
+		}
+		
+		// Scale back knockback if on the same team
+		if (hit->client->sess.sessionTeam == ent->parent->client->sess.sessionTeam)
+		{
+			if (G_IsTeamGame())
+			{
+				knockBackScale = knockBackScale * 0.40f;
+			}
+		}
 	}
 
 	RunWeave_Impact_Scaled(ent, trace, knockBackScale);
