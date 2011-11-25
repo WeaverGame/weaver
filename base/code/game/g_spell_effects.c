@@ -1210,9 +1210,10 @@ qboolean FireWeave_Shield(gentity_t * self, vec3_t start, vec3_t dir, int heldWe
 	bolt->r.ownerNum = self->s.number;
 //unlagged - projectile nudge
 	// we'll need this for nudging projectiles later
-	bolt->s.otherEntityNum = target->s.number;
+	bolt->s.otherEntityNum = self->s.number;
 //unlagged - projectile nudge
 	bolt->s.otherEntityNum2 = heldWeaveNum;
+	bolt->s.generic1 = target->s.number;
 	bolt->parent = self;
 	bolt->damage = 0;
 	bolt->splashDamage = 0;
@@ -1385,9 +1386,10 @@ qboolean FireWeave_GrabPlayer(gentity_t * self, vec3_t start, vec3_t dir, int he
 	bolt->r.ownerNum = self->s.number;
 //unlagged - projectile nudge
 	// we'll need this for nudging projectiles later
-	bolt->s.otherEntityNum = target->s.number;
+	bolt->s.otherEntityNum = self->s.number;
 //unlagged - projectile nudge
 	bolt->s.otherEntityNum2 = heldWeaveNum;
+	bolt->s.generic1 = target->s.number;
 	bolt->parent = self;
 	bolt->damage = target->client->ps.pm_type;	//Remember previous pm_type
 	bolt->splashDamage = 0;
@@ -1530,9 +1532,10 @@ qboolean FireWeave_Heal(gentity_t * self, vec3_t start, vec3_t dir, int heldWeav
 	bolt->r.ownerNum = self->s.number;
 //unlagged - projectile nudge
 	// we'll need this for nudging projectiles later
-	bolt->s.otherEntityNum = target->s.number;
+	bolt->s.otherEntityNum = self->s.number;
 //unlagged - projectile nudge
 	bolt->s.otherEntityNum2 = heldWeaveNum;
+	bolt->s.generic1 = target->s.number;
 	bolt->parent = self;
 	bolt->damage = healRate;
 	bolt->splashDamage = healRate;
@@ -2575,6 +2578,7 @@ qboolean FireWeave_Rip(gentity_t * self, vec3_t start, vec3_t dir, int heldWeave
 		tent = G_TempEntity(start, EV_WEAVE_SHOT);
 		G_SetOrigin(tent, traceEnt->r.currentOrigin);
 		tent->s.otherEntityNum = self->s.number;
+		tent->s.generic1 = traceEnt->s.number;
 		tent->s.weapon = WVW_A_AIRWATER_RIP;
 		//weave = tent;
 	}
@@ -2652,9 +2656,10 @@ qboolean FireWeave_Stamina(gentity_t * self, vec3_t start, vec3_t dir, int heldW
 	bolt->r.ownerNum = self->s.number;
 //unlagged - projectile nudge
 	// we'll need this for nudging projectiles later
-	bolt->s.otherEntityNum = target->s.number;
+	bolt->s.otherEntityNum = self->s.number;
 //unlagged - projectile nudge
 	bolt->s.otherEntityNum2 = heldWeaveNum;
+	bolt->s.generic1 = target->s.number;
 	bolt->parent = self;
 	bolt->damage = 0;
 	bolt->splashDamage = 0;
