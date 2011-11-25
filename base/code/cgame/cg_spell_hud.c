@@ -883,9 +883,9 @@ void CG_DrawWeaverHeldSpecial(centity_t * heldWeave, weaver_weaveCGInfo *weaveIn
 		case WVW_D_WATER_HEAL_M:
 			// Show who we're healing
 			if (HeldSpecial_healing == 0) {
-				CG_Text_PaintAligned(cgs.screenXSize / 4.0f, 5.0f, "Healing...", 0.2f, UI_LEFT, colorWhite, &cgs.media.freeSansBoldFont);
+				CG_Text_PaintAligned(cgs.screenXSize / 4.0f, 15.0f, "Healing...", 0.25f, UI_LEFT, colorWhite, &cgs.media.freeSansBoldFont);
 			}
-			CG_DrawTargetPlayerName(cgs.screenXSize / 4.0f, (25.0f * HeldSpecial_healing) + 30.0f, heldWeave->currentState.otherEntityNum, cg.time);
+			CG_DrawTargetPlayerName(cgs.screenXSize / 4.0f, (25.0f * HeldSpecial_healing) + 35.0f, heldWeave->currentState.generic1, cg.time);
 			HeldSpecial_healing++;
 			break;
 		default:
