@@ -26,9 +26,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 void            RunWeave_Missile(gentity_t * ent);
 void            RunWeave_Explode(gentity_t * ent);
 void            RunWeave_MoveToTarget(gentity_t * ent);
+void            RunWeave_Impact_Scaled(gentity_t * ent, trace_t * trace, float scale);
+void            RunWeave_Impact(gentity_t * ent, trace_t * trace);
 
 //AirBlast
 qboolean        FireWeave_AirBlast(gentity_t * self, vec3_t start, vec3_t dir, int heldWeaveNum);
+void            RunWeave_AirBlast_Impact(gentity_t * ent, trace_t * trace);
 
 //Fireball
 qboolean        FireWeave_Fireball(gentity_t * self, vec3_t start, vec3_t dir, int heldWeaveNum);

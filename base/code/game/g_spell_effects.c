@@ -243,7 +243,7 @@ Based off
 G_MissileImpact
 ================
 */
-void RunWeave_Impact(gentity_t * ent, trace_t * trace)
+void RunWeave_Impact_Scaled(gentity_t * ent, trace_t * trace, float scale)
 {
 	gentity_t      *other;
 	qboolean        hitClient = qfalse;
@@ -259,7 +259,7 @@ void RunWeave_Impact(gentity_t * ent, trace_t * trace)
 		if(ent->knockback)
 		{
 			VectorCopy(ent->s.pos.trDelta, direction);
-			G_KnockClient(other, direction, ent->knockback);
+			G_KnockClient(other, direction, (ent->knockback * scale));
 		}
 
 		if(ent->damage)
@@ -313,6 +313,19 @@ void RunWeave_Impact(gentity_t * ent, trace_t * trace)
 	}
 
 	trap_LinkEntity(ent);
+}
+
+/*
+================
+RunWeave
+Impact
+
+Wraps RunWeave_Impact_Scaled() with default scale.
+================
+*/
+void RunWeave_Impact(gentity_t * ent, trace_t * trace)
+{
+	RunWeave_Impact_Scaled(ent, trace, 1.0f);
 }
 
 void RunWeave_Explode(gentity_t * ent)
@@ -516,6 +529,7 @@ qboolean FireWeave_AirBlast(gentity_t * self, vec3_t start, vec3_t dir, int held
 	bolt->clipmask = MASK_SHOT;
 	bolt->target_ent = NULL;
 	bolt->knockback = WEAVE_AIRBLAST_KNOCK;
+	bolt->impact = RunWeave_AirBlast_Impact;
 
 	bolt->s.pos.trType = TR_LINEAR;
 	VectorScale(dir, WEAVE_AIRBLAST_SPEED, bolt->s.pos.trDelta);
@@ -528,6 +542,48 @@ qboolean FireWeave_AirBlast(gentity_t * self, vec3_t start, vec3_t dir, int held
 
 	//weave = bolt;
 	return qtrue;
+}
+
+/*
+=================
+RunWeave
+AirBlast Impact
+=================
+*/
+void RunWeave_AirBlast_Impact(gentity_t * ent, trace_t * trace)
+{
+	float           knockBackScale = 1.0f;
+	gentity_t      *hit;
+	int             protection;
+
+	hit = &g_entities[trace->entityNum];
+
+	// Examine what we hit.
+	if (hit->client)
+	{
+		if (hit->client->protectHeldAir)
+		{
+			protection = hit->client->ps.stats[STAT_AIRPROTECT];
+			if (protection > 0)
+			{
+				// Target client is somewhat protected from the knockback by an air protect.
+				knockBackScale = 0.25f;
+				protection -= 20;
+				if (protection >= 0)
+				{
+					hit->client->ps.stats[STAT_AIRPROTECT] = protection;
+				}
+				else
+				{
+					hit->client->ps.stats[STAT_AIRPROTECT] = 0;
+				}
+				// Check if their protection is expended.
+				WeaveProtectCheck(hit->client);
+			}
+		}
+	}
+
+	RunWeave_Impact_Scaled(ent, trace, knockBackScale);
 }
 
 //End AirBlast
