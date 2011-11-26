@@ -117,7 +117,7 @@ static void SV_Netchan_Decode(client_t * client, msg_t * msg)
 	string = (byte *) client->reliableCommands[reliableAcknowledge & (MAX_RELIABLE_COMMANDS - 1)];
 	index = 0;
 	//
-	key = client->challenge ^ serverId ^ messageAcknowledge;
+	key = (client->challenge ^ serverId ^ messageAcknowledge) & 0xFF;
 	for(i = msg->readcount + SV_DECODE_START; i < msg->cursize; i++)
 	{
 		// modify the key with the last sent and acknowledged server command
