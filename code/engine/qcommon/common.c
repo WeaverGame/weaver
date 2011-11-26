@@ -99,6 +99,8 @@ cvar_t         *com_minimized;
 cvar_t         *com_maxfpsMinimized;
 cvar_t         *com_abnormalExit;
 cvar_t         *com_standalone;
+cvar_t         *com_basegame;
+cvar_t         *com_homepath;
 
 // com_speeds times
 int             time_game;
@@ -3766,6 +3768,13 @@ void Com_Init(char *commandLine)
 
 	// done early so bind command exists
 	CL_InitKeyCommands();
+
+	com_basegame = Cvar_Get( "com_basegame", BASEGAME, CVAR_INIT );
+	com_homepath = Cvar_Get( "com_homepath", "", CVAR_INIT );
+
+	if ( !com_basegame->string[0] ) {
+		Cvar_ForceReset( "com_basegame" );
+	}
 
 	FS_InitFilesystem();
 

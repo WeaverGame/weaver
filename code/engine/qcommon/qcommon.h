@@ -910,6 +910,9 @@ extern cvar_t  *com_maxfpsUnfocused;
 extern cvar_t  *com_minimized;
 extern cvar_t  *com_maxfpsMinimized;
 extern cvar_t  *com_altivec;
+extern cvar_t  *com_standalone;
+extern cvar_t  *com_basegame;
+extern cvar_t  *com_homepath;
 
 // both client and server must agree to pause
 extern cvar_t  *cl_paused;
@@ -927,6 +930,7 @@ extern int      com_frameTime;
 extern int      com_frameMsec;
 
 extern qboolean com_errorEntered;
+extern qboolean com_fullyInitialized;
 
 extern fileHandle_t com_journalFile;
 extern fileHandle_t com_journalDataFile;
