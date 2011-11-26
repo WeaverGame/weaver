@@ -1065,7 +1065,7 @@ typedef struct
 
 	qhandle_t       fire;
 	qhandle_t       fireLight;
-	qhandle_t       flames[2];
+	qhandle_t       flames[3];
 
 	// gib explosions
 	qhandle_t       gibAbdomen;
