@@ -17,6 +17,7 @@ Tony J. White - libcURL http-download redirection support, Win Alt-Tab support
 ensiform - console clock enhancements
 Nicolas “Berserk” Flekenstein - ASElib color support
 Neil “haste” Toronto - Unlagged game and cgame code
+Andrew "DerSaidin" Browne - cgame/game enhancements and fixes, misc other stuff
 
 
 MODELLING
@@ -74,6 +75,7 @@ Yan "Method" Ostretsov - yan_test
 Stefan "ReFlex" Lautner - REDM08, UGLY R.G.A
 Pat "raynorpat" Raynor - Longest, Soul
 Tom "phantazm11" Perryman - phantq4dm4
+Stijn "Ingar" Buys - ingardm1
 Evan "Odin" Goers - oddm01
 
 
