@@ -2478,7 +2478,7 @@ static void RB_RenderInteractionsShadowMapped()
 							R_BindFBO(tr.sunShadowMapFBO[splitFrustumIndex]);
 							if(!r_evsmPostProcess->integer)
 							{
-							R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.sunShadowMapFBOImage[splitFrustumIndex]->texnum, 0);
+								R_AttachFBOTexture2D(GL_TEXTURE_2D, tr.sunShadowMapFBOImage[splitFrustumIndex]->texnum, 0);
 							}
 							else
 							{
@@ -9792,7 +9792,7 @@ static void RB_RenderDebugUtils()
 				GL_LoadProjectionMatrix(ortho);
 				GL_LoadModelViewMatrix(matrixIdentity);
 			
-		GL_Cull(CT_TWO_SIDED);
+				GL_Cull(CT_TWO_SIDED);
 				GL_State(GLS_DEPTHTEST_DISABLE);
 
 				gl_genericShader->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
@@ -9871,17 +9871,17 @@ static void RB_RenderDebugUtils()
 					}
 					
 
-		// set uniforms
+					// set uniforms
 					gl_genericShader->SetUniform_ColorModulate(CGEN_VERTEX, AGEN_VERTEX);
 					gl_genericShader->SetUniform_Color(colorBlack);
 
 					GL_State(GLS_POLYMODE_LINE | GLS_DEPTHTEST_DISABLE);
 					GL_Cull(CT_TWO_SIDED);
 
-		// bind u_ColorMap
-		GL_SelectTexture(0);
-		GL_Bind(tr.whiteImage);
-		gl_genericShader->SetUniform_ColorTextureMatrix(matrixIdentity);
+					// bind u_ColorMap
+					GL_SelectTexture(0);
+					GL_Bind(tr.whiteImage);
+					gl_genericShader->SetUniform_ColorTextureMatrix(matrixIdentity);
 
 					gl_genericShader->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
 
@@ -9908,7 +9908,7 @@ static void RB_RenderDebugUtils()
 
 					// draw outer surfaces
 					for(j = 0; j < 4; j++)
-		{
+					{
 						Vector4Set(quadVerts[0], nearCorners[j][0], nearCorners[j][1], nearCorners[j][2], 1);
 						Vector4Set(quadVerts[1], farCorners[j][0], farCorners[j][1], farCorners[j][2], 1);
 						Vector4Set(quadVerts[2], farCorners[(j + 1) % 4][0], farCorners[(j + 1) % 4][1], farCorners[(j + 1) % 4][2], 1);
@@ -9934,10 +9934,10 @@ static void RB_RenderDebugUtils()
 					Tess_DrawElements();
 
 					gl_genericShader->SetUniform_ColorModulate(CGEN_CUSTOM_RGB, AGEN_CUSTOM);
-		}
+				}
 			} // i == 1
-		else
-		{
+			else
+			{
 				GL_State(GLS_POLYMODE_LINE | GLS_DEPTHTEST_DISABLE);
 				GL_Cull(CT_TWO_SIDED);
 
@@ -9948,20 +9948,20 @@ static void RB_RenderDebugUtils()
 				GL_LoadModelViewMatrix(backEnd.viewParms.world.modelViewMatrix);
 
 				gl_genericShader->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
-		}
+			}
 
 			// draw BSP nodes
 			sentinel = &tr.traversalStack;
-		for(l = sentinel->next; l != sentinel; l = l->next)
-		{
-			node = (bspNode_t *) l->data;
-
-			if(!r_dynamicBspOcclusionCulling->integer)
+			for(l = sentinel->next; l != sentinel; l = l->next)
 			{
-				if(node->contents != -1)
+				node = (bspNode_t *) l->data;
+
+				if(!r_dynamicBspOcclusionCulling->integer)
 				{
-					if(r_showBspNodes->integer == 3)
-						continue;
+					if(node->contents != -1)
+					{
+						if(r_showBspNodes->integer == 3)
+							continue;
 
 						if(node->numMarkSurfaces <= 0)
 							continue;
@@ -9969,86 +9969,86 @@ static void RB_RenderDebugUtils()
 						//if(node->shrinkedAABB)
 						//	gl_genericShader->SetUniform_Color(colorBlue);
 						//else 
-					if(node->visCounts[tr.visIndex] == tr.visCounts[tr.visIndex])
-						gl_genericShader->SetUniform_Color(colorGreen);
+						if(node->visCounts[tr.visIndex] == tr.visCounts[tr.visIndex])
+							gl_genericShader->SetUniform_Color(colorGreen);
+						else
+							gl_genericShader->SetUniform_Color(colorRed);
+					}
 					else
-						gl_genericShader->SetUniform_Color(colorRed);
+					{
+						if(r_showBspNodes->integer == 2)
+							continue;
+
+						if(node->visCounts[tr.visIndex] == tr.visCounts[tr.visIndex])
+							gl_genericShader->SetUniform_Color(colorYellow);
+						else
+							gl_genericShader->SetUniform_Color(colorBlue);
+					}
 				}
 				else
 				{
-					if(r_showBspNodes->integer == 2)
+					if(node->lastVisited[backEnd.viewParms.viewCount] != backEnd.viewParms.frameCount)
 						continue;
 
-					if(node->visCounts[tr.visIndex] == tr.visCounts[tr.visIndex])
-						gl_genericShader->SetUniform_Color(colorYellow);
-					else
-						gl_genericShader->SetUniform_Color(colorBlue);
-				}
-			}
-			else
-			{
-				if(node->lastVisited[backEnd.viewParms.viewCount] != backEnd.viewParms.frameCount)
-					continue;
+					if(r_showBspNodes->integer == 5 && node->lastQueried[backEnd.viewParms.viewCount] != backEnd.viewParms.frameCount)
+						continue;
 
-				if(r_showBspNodes->integer == 5 && node->lastQueried[backEnd.viewParms.viewCount] != backEnd.viewParms.frameCount)
-					continue;
+					if(node->contents != -1)
+					{
+						if(r_showBspNodes->integer == 3)
+							continue;
+
+						//if(node->occlusionQuerySamples[backEnd.viewParms.viewCount] > 0)
+						if(node->visible[backEnd.viewParms.viewCount])
+							gl_genericShader->SetUniform_Color(colorGreen);
+						else
+							gl_genericShader->SetUniform_Color(colorRed);
+					}
+					else
+					{
+						if(r_showBspNodes->integer == 2)
+							continue;
+
+						//if(node->occlusionQuerySamples[backEnd.viewParms.viewCount] > 0)
+						if(node->visible[backEnd.viewParms.viewCount])
+							gl_genericShader->SetUniform_Color(colorYellow);
+						else
+							gl_genericShader->SetUniform_Color(colorBlue);
+					}
+
+					if(r_showBspNodes->integer == 4)
+					{
+						gl_genericShader->SetUniform_Color(g_color_table[ColorIndex(node->occlusionQueryNumbers[backEnd.viewParms.viewCount])]);
+					}
+
+					GL_CheckErrors();
+				}
 
 				if(node->contents != -1)
 				{
-					if(r_showBspNodes->integer == 3)
-						continue;
-
-					//if(node->occlusionQuerySamples[backEnd.viewParms.viewCount] > 0)
-					if(node->visible[backEnd.viewParms.viewCount])
-						gl_genericShader->SetUniform_Color(colorGreen);
-					else
-						gl_genericShader->SetUniform_Color(colorRed);
+					glEnable(GL_POLYGON_OFFSET_FILL);
+					GL_PolygonOffset(r_offsetFactor->value, r_offsetUnits->value);
 				}
-				else
+
+				R_BindVBO(node->volumeVBO);
+				R_BindIBO(node->volumeIBO);
+
+				GL_VertexAttribsState(ATTR_POSITION);
+
+				tess.multiDrawPrimitives = 0;
+				tess.numVertexes = node->volumeVerts;
+				tess.numIndexes = node->volumeIndexes;
+
+				Tess_DrawElements();
+
+				tess.numIndexes = 0;
+				tess.numVertexes = 0;
+
+				if(node->contents != -1)
 				{
-					if(r_showBspNodes->integer == 2)
-						continue;
-
-					//if(node->occlusionQuerySamples[backEnd.viewParms.viewCount] > 0)
-					if(node->visible[backEnd.viewParms.viewCount])
-						gl_genericShader->SetUniform_Color(colorYellow);
-					else
-						gl_genericShader->SetUniform_Color(colorBlue);
+					glDisable(GL_POLYGON_OFFSET_FILL);
 				}
-
-				if(r_showBspNodes->integer == 4)
-				{
-					gl_genericShader->SetUniform_Color(g_color_table[ColorIndex(node->occlusionQueryNumbers[backEnd.viewParms.viewCount])]);
-				}
-
-				GL_CheckErrors();
 			}
-
-			if(node->contents != -1)
-			{
-				glEnable(GL_POLYGON_OFFSET_FILL);
-				GL_PolygonOffset(r_offsetFactor->value, r_offsetUnits->value);
-			}
-
-			R_BindVBO(node->volumeVBO);
-			R_BindIBO(node->volumeIBO);
-
-			GL_VertexAttribsState(ATTR_POSITION);
-
-			tess.multiDrawPrimitives = 0;
-			tess.numVertexes = node->volumeVerts;
-			tess.numIndexes = node->volumeIndexes;
-
-			Tess_DrawElements();
-
-			tess.numIndexes = 0;
-			tess.numVertexes = 0;
-
-			if(node->contents != -1)
-			{
-				glDisable(GL_POLYGON_OFFSET_FILL);
-			}
-		}
 
 			if(i == 1)
 			{

@@ -476,34 +476,34 @@ std::string	GLShader::BuildGPUShaderText(	const char *mainShaderName,
 				Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef VSM_EPSILON\n#define VSM_EPSILON 0.000001\n#endif\n");
 			}
 			else
-				{
+			{
 				Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef VSM_EPSILON\n#define VSM_EPSILON 0.0001\n#endif\n");
-				}
+			}
 
-				if(r_lightBleedReduction->value)
-				{
-					Q_strcat(bufferExtra, sizeof(bufferExtra),
-							 va("#ifndef r_LightBleedReduction\n#define r_LightBleedReduction %f\n#endif\n",
-								r_lightBleedReduction->value));
-				}
+			if(r_lightBleedReduction->value)
+			{
+				Q_strcat(bufferExtra, sizeof(bufferExtra),
+						 va("#ifndef r_LightBleedReduction\n#define r_LightBleedReduction %f\n#endif\n",
+							r_lightBleedReduction->value));
+			}
 
-				if(r_overDarkeningFactor->value)
-				{
-					Q_strcat(bufferExtra, sizeof(bufferExtra),
-							 va("#ifndef r_OverDarkeningFactor\n#define r_OverDarkeningFactor %f\n#endif\n",
-								r_overDarkeningFactor->value));
-				}
+			if(r_overDarkeningFactor->value)
+			{
+				Q_strcat(bufferExtra, sizeof(bufferExtra),
+						 va("#ifndef r_OverDarkeningFactor\n#define r_OverDarkeningFactor %f\n#endif\n",
+							r_overDarkeningFactor->value));
+			}
 
-				if(r_shadowMapDepthScale->value)
-				{
-					Q_strcat(bufferExtra, sizeof(bufferExtra),
-							 va("#ifndef r_ShadowMapDepthScale\n#define r_ShadowMapDepthScale %f\n#endif\n",
-								r_shadowMapDepthScale->value));
-				}
+			if(r_shadowMapDepthScale->value)
+			{
+				Q_strcat(bufferExtra, sizeof(bufferExtra),
+						 va("#ifndef r_ShadowMapDepthScale\n#define r_ShadowMapDepthScale %f\n#endif\n",
+							r_shadowMapDepthScale->value));
+			}
 
-				if(r_debugShadowMaps->integer)
-				{
-					Q_strcat(bufferExtra, sizeof(bufferExtra),
+			if(r_debugShadowMaps->integer)
+			{
+				Q_strcat(bufferExtra, sizeof(bufferExtra),
 						 va("#ifndef r_DebugShadowMaps\n#define r_DebugShadowMaps %i\n#endif\n", r_debugShadowMaps->integer));
 			}
 

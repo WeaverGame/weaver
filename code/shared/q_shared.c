@@ -2015,7 +2015,7 @@ void Info_RemoveKey(char *s, const char *key)
 		if(!*s)
 		{
 			return;
-	}
+		}
 	}
 
 }
@@ -2081,7 +2081,7 @@ void Info_RemoveKey_Big(char *s, const char *key)
 		if(!*s)
 		{
 			return;
-	}
+		}
 	}
 
 }

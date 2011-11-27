@@ -1161,7 +1161,7 @@ long FS_FOpenFileReadDir(const char *filename, searchpath_t *search, fileHandle_
 
 				do {
 					// case and separator insensitive comparisons
-					if(!FS_FilenameCompare( pakFile->name, filename))
+					if(!FS_FilenameCompare(pakFile->name, filename))
 					{
 						// found it!
 						if(pakFile->len)
@@ -1178,7 +1178,7 @@ long FS_FOpenFileReadDir(const char *filename, searchpath_t *search, fileHandle_
 					}
 
 					pakFile = pakFile->next;
-				} while (pakFile != NULL);
+				} while(pakFile != NULL);
 			}
 		}
 		else if(search->dir)
@@ -1318,7 +1318,7 @@ long FS_FOpenFileReadDir(const char *filename, searchpath_t *search, fileHandle_
 				}
 
 				pakFile = pakFile->next;
-			} while (pakFile != NULL);
+			} while(pakFile != NULL);
 		}
 	}
 	else if(search->dir)
