@@ -130,6 +130,8 @@ static void vfsInitPakFile(const char *filename)
 		return;
 	unzGoToFirstFile(uf);
 
+	Sys_Printf("VFS Init: %s (pk3)\n", filename);
+
 	for(i = 0; i < gi.number_entry; i++)
 	{
 		char            filename_inzip[NAME_MAX];
@@ -197,6 +199,19 @@ void vfsInitDirectory(const char *path)
 
 				{
 					char           *ext = strrchr(dirlist, '.');
+
+					if(ext && !Q_stricmp(ext, ".pk3dir"))
+					{
+						if(g_numDirs == VFS_MAXDIRS)
+							continue;
+						//snprintf(g_strDirs[g_numDirs], PATH_MAX, "%s/%s", path, name);
+						sprintf(g_strDirs[g_numDirs], "%s/%s", path, name);
+						Sys_Printf("VFS Init: %s (pk3dir)\n", path);
+						g_strDirs[g_numDirs][PATH_MAX] = '\0';
+						vfsFixDOSName (g_strDirs[g_numDirs]);
+						vfsAddSlash (g_strDirs[g_numDirs]);
+						++g_numDirs;
+					}
 
 					if((ext == NULL) || (Q_stricmp(ext, ".pk3") != 0))
 						continue;
