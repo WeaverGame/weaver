@@ -2950,12 +2950,20 @@ then loads the zip headers
 void FS_AddGameDirectory(const char *path, const char *dir)
 {
 	searchpath_t   *sp;
-	int             i;
 	searchpath_t   *search;
 	pack_t         *pak;
 	char            curpath[MAX_OSPATH + 1], *pakfile;
 	int             numfiles;
 	char          **pakfiles;
+	int             pakfilesi;
+	char          **pakfilestmp;
+	int             numdirs;
+	char          **pakdirs;
+	int             pakdirsi;
+	char          **pakdirstmp;
+
+	int             pakwhich;
+	int             len;
 
 	// Unique
 	for(sp = fs_searchpaths; sp; sp = sp->next)
@@ -2972,28 +2980,93 @@ void FS_AddGameDirectory(const char *path, const char *dir)
 	Q_strncpyz(curpath, FS_BuildOSPath(path, dir, ""), sizeof(curpath));
 	curpath[strlen(curpath) - 1] = '\0';	// strip the trailing slash
 
+	// Get .pk3 files
 	pakfiles = Sys_ListFiles(curpath, ".pk3", NULL, &numfiles, qfalse);
 
-	qsort(pakfiles, numfiles, sizeof(char *), paksort);
+	// Get top level directories (we'll filter them later since the Sys_ListFiles filtering is terrible)
+	pakdirs = Sys_ListFiles(curpath, "/", NULL, &numdirs, qfalse);
 
-	for(i = 0; i < numfiles; i++)
+	qsort(pakfiles, numfiles, sizeof(char *), paksort);
+	qsort(pakdirs, numdirs, sizeof(char *), paksort);
+
+	pakfilesi = 0;
+	pakdirsi = 0;
+
+	// Log may not be initialized at this point, but it will still show in the console.
+	Com_Printf("FS_AddGameDirectory(\"%s\", \"%s\") found %d .pk3 and %d .pk3dir\n", path, dir, numfiles, numdirs);
+
+	for(; (pakfilesi + pakdirsi) < (numfiles + numdirs); )
 	{
-		pakfile = FS_BuildOSPath(path, dir, pakfiles[i]);
-		if((pak = FS_LoadZipFile(pakfile, pakfiles[i])) == 0)
+		// Check if a pakfile or pakdir comes next
+		if(pakfilesi >= numfiles)
 		{
-			continue;
+			// We've used all the pakfiles, it must be a pakdir.
+			pakwhich = 0;
+		}
+		else if(pakdirsi >= numdirs)
+		{
+			// We've used all the pakdirs, it must be a pakfile.
+			pakwhich = 1;
+		}
+		else
+		{
+			// Could be either, compare to see which name comes first
+			// Need tmp variables for appropriate indirection for paksort()
+			pakfilestmp = &pakfiles[pakfilesi];
+			pakdirstmp = &pakdirs[pakdirsi];
+			pakwhich = (paksort(pakfilestmp, pakdirstmp) < 0);
 		}
 
-		Q_strncpyz(pak->pakPathname, curpath, sizeof(pak->pakPathname));
-		// store the game name for downloading
-		Q_strncpyz(pak->pakGamename, dir, sizeof(pak->pakGamename));
+		if(pakwhich)
+		{
+			// The next .pk3 file is before the next .pk3dir
+			pakfile = FS_BuildOSPath(path, dir, pakfiles[pakfilesi]);
+			Com_Printf("    pk3: %s\n", pakfile);
+			if((pak = FS_LoadZipFile(pakfile, pakfiles[pakfilesi])) == 0)
+			{
+				continue;
+			}
 
-		fs_packFiles += pak->numfiles;
+			Q_strncpyz(pak->pakPathname, curpath, sizeof(pak->pakPathname));
+			// store the game name for downloading
+			Q_strncpyz(pak->pakGamename, dir, sizeof(pak->pakGamename));
 
-		search = Z_Malloc(sizeof(searchpath_t));
-		search->pack = pak;
-		search->next = fs_searchpaths;
-		fs_searchpaths = search;
+			fs_packFiles += pak->numfiles;
+
+			search = Z_Malloc(sizeof(searchpath_t));
+			search->pack = pak;
+			search->next = fs_searchpaths;
+			fs_searchpaths = search;
+
+			pakfilesi++;
+		}
+		else
+		{
+			// The next .pk3dir is before the next .pk3 file
+			// But wait, this could be any directory, we're filtering to only ending with ".pk3dir" here.
+			len = strlen(pakdirs[pakdirsi]);
+			if(!FS_IsExt(pakdirs[pakdirsi], ".pk3dir", len)) {
+				// This isn't a .pk3dir! Next!
+				pakdirsi++;
+				continue;
+			}
+
+			pakfile = FS_BuildOSPath(path, dir, pakdirs[pakdirsi]);
+			Com_Printf(" pk3dir: %s\n", pakfile);
+
+			// add the directory to the search path
+			search = Z_Malloc(sizeof(searchpath_t));
+			search->dir = Z_Malloc(sizeof(*search->dir));
+
+			Q_strncpyz(search->dir->path, curpath, sizeof(search->dir->path));	// c:\xreal\base
+			Q_strncpyz(search->dir->fullpath, pakfile, sizeof(search->dir->fullpath));	// c:\xreal\base\mypak.pk3dir
+			Q_strncpyz(search->dir->gamedir, pakdirs[pakdirsi], sizeof(search->dir->gamedir)); // mypak.pk3dir
+
+			search->next = fs_searchpaths;
+			fs_searchpaths = search;
+
+			pakdirsi++;
+		}
 	}
 
 	// done
