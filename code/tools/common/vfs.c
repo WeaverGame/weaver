@@ -206,7 +206,7 @@ void vfsInitDirectory(const char *path)
 							continue;
 						//snprintf(g_strDirs[g_numDirs], PATH_MAX, "%s/%s", path, name);
 						sprintf(g_strDirs[g_numDirs], "%s/%s", path, name);
-						Sys_Printf("VFS Init: %s (pk3dir)\n", path);
+						Sys_Printf("VFS Init: %s (pk3dir)\n", g_strDirs[g_numDirs]);
 						g_strDirs[g_numDirs][PATH_MAX] = '\0';
 						vfsFixDOSName (g_strDirs[g_numDirs]);
 						vfsAddSlash (g_strDirs[g_numDirs]);
