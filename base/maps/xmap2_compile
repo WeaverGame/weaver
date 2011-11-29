@@ -145,13 +145,13 @@ map_help() {
 check_compiler() {
 	case `uname -m` in
 		x86_64)
-			COMPILER='../../xmap2.x86_64'
+			COMPILER='../../bin/linux-x86_64/xmap2.x86_64'
 			;;
 		i386|i486|i586|i686)
-			COMPILER='../../xmap2.i386'
+			COMPILER='../../bin/linux-x86/xmap2.i386'
 			;;
 		powerpc|powerpc64)
-			COMPILER='../../xmap2.ppc'
+			COMPILER='../../bin/mac-wtf/xmap2.ppc' # FIXME
 			;;
 		*)
 			echo "You are not running a supported platform for compiling XreaL maps. If you would like to compile XreaL maps on your platform, please visit http://www.xreal-project.net for contact information."
