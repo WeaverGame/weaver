@@ -834,8 +834,10 @@ static void R_LoadLightmaps(lump_t * l, const char *bspName)
 					//ri.Printf(PRINT_ALL, "...converted '%s/%s' to HALF format\n", mapName, lightmapFiles[i]);
 
 					image = R_AllocImage(va("%s/%s", mapName, lightmapFiles[i]), qtrue);
-					if(!image)
+					if(!image) {
+						Com_Dealloc(hdrImage);
 						break;
+					}
 
 					//Q_strncpyz(image->name, );
 					image->type = GL_TEXTURE_2D;
@@ -5160,8 +5162,8 @@ static void R_LoadNodesAndLeafs(lump_t * nodeLump, lump_t * leafLump)
 	dleaf_t        *inLeaf;
 	bspNode_t      *out;
 	int             numNodes, numLeafs;
-	srfVert_t      *verts;
-	srfTriangle_t  *triangles;
+	srfVert_t      *verts = NULL;
+	srfTriangle_t  *triangles = NULL;
 	IBO_t          *volumeIBO;
 	vec3_t			mins, maxs;
 //	vec3_t			offset = {0.01, 0.01, 0.01};
@@ -5354,8 +5356,14 @@ static void R_LoadNodesAndLeafs(lump_t * nodeLump, lump_t * leafLump)
 		out->volumeIndexes = tess.numIndexes;
 	}
 
-	ri.Hunk_FreeTempMemory(triangles);
-	ri.Hunk_FreeTempMemory(verts);
+	if(triangles)
+	{
+		ri.Hunk_FreeTempMemory(triangles);
+	}
+	if(verts)
+	{
+		ri.Hunk_FreeTempMemory(verts);
+	}
 
 	tess.multiDrawPrimitives = 0;
 	tess.numIndexes = 0;
@@ -5486,7 +5494,7 @@ static void R_LoadFogs(lump_t * l, lump_t * brushesLump, lump_t * sidesLump)
 	int             planeNum;
 	shader_t       *shader;
 	float           d;
-	int             firstSide;
+	int             firstSide = 0;
 
 	ri.Printf(PRINT_ALL, "...loading fogs\n");
 

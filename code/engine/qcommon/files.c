@@ -369,7 +369,7 @@ static fileHandle_t FS_HandleForFile(void)
 
 static FILE    *FS_FileForHandle(fileHandle_t f)
 {
-	if(f < 0 || f > MAX_FILE_HANDLES)
+	if(f < 0 || f >= MAX_FILE_HANDLES)
 	{
 		Com_Error(ERR_DROP, "FS_FileForHandle: out of range");
 	}
@@ -600,12 +600,14 @@ static void FS_CopyFile(char *fromOSPath, char *toOSPath)
 
 	if(FS_CreatePath(toOSPath))
 	{
+		free(buf);
 		return;
 	}
 
 	f = fopen(toOSPath, "wb");
 	if(!f)
 	{
+		free(buf);
 		return;
 	}
 	if(fwrite(buf, 1, len, f) != len)

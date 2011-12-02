@@ -204,6 +204,7 @@ qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const char *modN
 	{
 		ri.Printf(PRINT_WARNING, "R_LoadPSK: '%s' has wrong chunk indent ('%s' should be '%s')\n", modName, chunkHeader.ident, "VTXW0000");
 		FreeMemStream(stream);
+		Com_Dealloc(points);
 		return qfalse;
 	}
 
@@ -211,6 +212,7 @@ qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const char *modN
 	{
 		ri.Printf(PRINT_WARNING, "R_LoadPSK: '%s' has wrong chunk dataSize ('%i' should be '%i')\n", modName, chunkHeader.dataSize, sizeof(axVertex_t));
 		FreeMemStream(stream);
+		Com_Dealloc(points);
 		return qfalse;
 	}
 
@@ -225,6 +227,8 @@ qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const char *modN
 		{
 			ri.Printf(PRINT_WARNING, "R_LoadPSK: '%s' has vertex with point index out of range (%i while max %i)\n", modName, vertex->pointIndex, numPoints);
 			FreeMemStream(stream);
+			Com_Dealloc(points);
+			Com_Dealloc(vertexes);
 			return qfalse;
 		}
 
@@ -259,6 +263,8 @@ qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const char *modN
 	{
 		ri.Printf(PRINT_WARNING, "R_LoadPSK: '%s' has wrong chunk indent ('%s' should be '%s')\n", modName, chunkHeader.ident, "FACE0000");
 		FreeMemStream(stream);
+		Com_Dealloc(points);
+		Com_Dealloc(vertexes);
 		return qfalse;
 	}
 
@@ -266,6 +272,8 @@ qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const char *modN
 	{
 		ri.Printf(PRINT_WARNING, "R_LoadPSK: '%s' has wrong chunk dataSize ('%i' should be '%i')\n", modName, chunkHeader.dataSize, sizeof(axTriangle_t));
 		FreeMemStream(stream);
+		Com_Dealloc(points);
+		Com_Dealloc(vertexes);
 		return qfalse;
 	}
 
@@ -283,6 +291,9 @@ qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const char *modN
 			{
 				ri.Printf(PRINT_WARNING, "R_LoadPSK: '%s' has triangle with vertex index out of range (%i while max %i)\n", modName, triangle->indexes[j], numVertexes);
 				FreeMemStream(stream);
+				Com_Dealloc(points);
+				Com_Dealloc(vertexes);
+				Com_Dealloc(triangles);
 				return qfalse;
 			}
 		}
@@ -298,6 +309,9 @@ qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const char *modN
 	{
 		ri.Printf(PRINT_WARNING, "R_LoadPSK: '%s' has wrong chunk indent ('%s' should be '%s')\n", modName, chunkHeader.ident, "MATT0000");
 		FreeMemStream(stream);
+		Com_Dealloc(points);
+		Com_Dealloc(vertexes);
+		Com_Dealloc(triangles);
 		return qfalse;
 	}
 
@@ -305,6 +319,9 @@ qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const char *modN
 	{
 		ri.Printf(PRINT_WARNING, "R_LoadPSK: '%s' has wrong chunk dataSize ('%i' should be '%i')\n", modName, chunkHeader.dataSize, sizeof(axMaterial_t));
 		FreeMemStream(stream);
+		Com_Dealloc(points);
+		Com_Dealloc(vertexes);
+		Com_Dealloc(triangles);
 		return qfalse;
 	}
 
@@ -332,6 +349,10 @@ qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const char *modN
 		{
 			ri.Printf(PRINT_WARNING, "R_LoadPSK: '%s' has vertex with material index out of range (%i while max %i)\n", modName, vertex->materialIndex, numMaterials);
 			FreeMemStream(stream);
+			Com_Dealloc(points);
+			Com_Dealloc(vertexes);
+			Com_Dealloc(triangles);
+			Com_Dealloc(materials);
 			return qfalse;
 		}
 	}
@@ -342,6 +363,10 @@ qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const char *modN
 		{
 			ri.Printf(PRINT_WARNING, "R_LoadPSK: '%s' has triangle with material index out of range (%i while max %i)\n", modName, triangle->materialIndex, numMaterials);
 			FreeMemStream(stream);
+			Com_Dealloc(points);
+			Com_Dealloc(vertexes);
+			Com_Dealloc(triangles);
+			Com_Dealloc(materials);
 			return qfalse;
 		}
 	}
@@ -352,6 +377,10 @@ qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const char *modN
 	{
 		ri.Printf(PRINT_WARNING, "R_LoadPSK: '%s' has wrong chunk indent ('%s' should be '%s')\n", modName, chunkHeader.ident, "REFSKELT");
 		FreeMemStream(stream);
+		Com_Dealloc(points);
+		Com_Dealloc(vertexes);
+		Com_Dealloc(triangles);
+		Com_Dealloc(materials);
 		return qfalse;
 	}
 
@@ -359,6 +388,10 @@ qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const char *modN
 	{
 		ri.Printf(PRINT_WARNING, "R_LoadPSK: '%s' has wrong chunk dataSize ('%i' should be '%i')\n", modName, chunkHeader.dataSize, sizeof(axReferenceBone_t));
 		FreeMemStream(stream);
+		Com_Dealloc(points);
+		Com_Dealloc(vertexes);
+		Com_Dealloc(triangles);
+		Com_Dealloc(materials);
 		return qfalse;
 	}
 
@@ -410,6 +443,11 @@ qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const char *modN
 	{
 		ri.Printf(PRINT_WARNING, "R_LoadPSK: '%s' has wrong chunk indent ('%s' should be '%s')\n", modName, chunkHeader.ident, "RAWWEIGHTS");
 		FreeMemStream(stream);
+		Com_Dealloc(points);
+		Com_Dealloc(vertexes);
+		Com_Dealloc(triangles);
+		Com_Dealloc(materials);
+		Com_Dealloc(refBones);
 		return qfalse;
 	}
 
@@ -417,6 +455,11 @@ qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const char *modN
 	{
 		ri.Printf(PRINT_WARNING, "R_LoadPSK: '%s' has wrong chunk dataSize ('%i' should be '%i')\n", modName, chunkHeader.dataSize, sizeof(axBoneWeight_t));
 		FreeMemStream(stream);
+		Com_Dealloc(points);
+		Com_Dealloc(vertexes);
+		Com_Dealloc(triangles);
+		Com_Dealloc(materials);
+		Com_Dealloc(refBones);
 		return qfalse;
 	}
 
@@ -463,11 +506,23 @@ qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const char *modN
 	if(md5->numBones < 1)
 	{
 		ri.Printf(PRINT_WARNING, "R_LoadPSK: '%s' has no bones\n", modName);
+		Com_Dealloc(points);
+		Com_Dealloc(vertexes);
+		Com_Dealloc(triangles);
+		Com_Dealloc(materials);
+		Com_Dealloc(refBones);
+		Com_Dealloc(axWeights);
 		return qfalse;
 	}
 	if(md5->numBones > MAX_BONES)
 	{
 		ri.Printf(PRINT_WARNING, "R_LoadPSK: '%s' has more than %i bones (%i)\n", modName, MAX_BONES, md5->numBones);
+		Com_Dealloc(points);
+		Com_Dealloc(vertexes);
+		Com_Dealloc(triangles);
+		Com_Dealloc(materials);
+		Com_Dealloc(refBones);
+		Com_Dealloc(axWeights);
 		return qfalse;
 	}
 	//ri.Printf(PRINT_ALL, "R_LoadPSK: '%s' has %i bones\n", modName, md5->numBones);
@@ -936,6 +991,8 @@ qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const char *modN
 	Com_Dealloc(vertexes);
 	Com_Dealloc(triangles);
 	Com_Dealloc(materials);
+	Com_Dealloc(refBones);
+	Com_Dealloc(axWeights);
 
 	ri.Printf(PRINT_ALL, "%i VBO surfaces created for PSK model '%s'\n", md5->numVBOSurfaces, modName);
 

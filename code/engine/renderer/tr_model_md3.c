@@ -288,9 +288,9 @@ qboolean R_LoadMD3(model_t * mod, int lod, void *buffer, int bufferSize, const c
 		GLuint          ofsNormals;
 
 		GLuint			sizeXYZ;
-		GLuint			sizeTangents;
-		GLuint			sizeBinormals;
-		GLuint			sizeNormals;
+		GLuint			sizeTangents = 0;
+		GLuint			sizeBinormals = 0;
+		GLuint			sizeNormals = 0;
 
 		int				vertexesNum;
 		int				f;

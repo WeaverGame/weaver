@@ -1149,7 +1149,7 @@ let the sound system know where an entity currently is
 */
 void S_Base_UpdateEntityPosition(int entityNum, const vec3_t origin)
 {
-	if(entityNum < 0 || entityNum > MAX_GENTITIES)
+	if(entityNum < 0 || entityNum >= MAX_GENTITIES)
 	{
 		Com_Error(ERR_DROP, "S_UpdateEntityPosition: bad entitynum %i", entityNum);
 	}

@@ -4600,11 +4600,14 @@ qboolean CL_UpdateVisiblePings_f(int source)
 								break;
 							}
 						}
-						memcpy(&cl_pinglist[j].adr, &server[i].adr, sizeof(netadr_t));
-						cl_pinglist[j].start = Sys_Milliseconds();
-						cl_pinglist[j].time = 0;
-						NET_OutOfBandPrint(NS_CLIENT, cl_pinglist[j].adr, "getinfo xxx");
-						slots++;
+						if(j < MAX_PINGREQUESTS)
+						{
+							memcpy(&cl_pinglist[j].adr, &server[i].adr, sizeof(netadr_t));
+							cl_pinglist[j].start = Sys_Milliseconds();
+							cl_pinglist[j].time = 0;
+							NET_OutOfBandPrint(NS_CLIENT, cl_pinglist[j].adr, "getinfo xxx");
+							slots++;
+						}
 					}
 				}
 				// if the server has a ping higher than cl_maxPing or

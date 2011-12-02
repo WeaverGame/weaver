@@ -1631,7 +1631,7 @@ void CL_LoadConsoleHistory(void)
 
 			numChars = atoi(token);
 			text_p++;
-			if(numChars > (strlen(consoleSaveBuffer) - (text_p - consoleSaveBuffer)))
+			if((numChars > (strlen(consoleSaveBuffer) - (text_p - consoleSaveBuffer))) || (numChars >= MAX_EDIT_LINE))
 			{
 				Com_DPrintf(S_COLOR_YELLOW "WARNING: probable corrupt history\n");
 				break;

@@ -1531,7 +1531,7 @@ static void IssueMultiOcclusionQueries(link_t * multiQueue, link_t * individualQ
 		{
 			node = (bspNode_t *) l->data;
 
-			GLimp_LogComment(va("%i, ", node - tr.world->nodes));
+			GLimp_LogComment(va("%i, ", (int)(node - tr.world->nodes)));
 		}
 		GLimp_LogComment("])");
 	}
@@ -1671,7 +1671,7 @@ static void GetOcclusionQueryResult(bspNode_t *node)
 
 	if(r_logFile->integer)
 	{
-		GLimp_LogComment(va("GetOcclusionQueryResult(%i): available = %i, samples = %i\n", node - tr.world->nodes, available, ocSamples));
+		GLimp_LogComment(va("GetOcclusionQueryResult(%i): available = %i, samples = %i\n", (int)(node - tr.world->nodes), available, ocSamples));
 	}
 
 	GL_CheckErrors();
@@ -1801,8 +1801,8 @@ static void TraverseNode(link_t * distanceQueue, bspNode_t * node)
 
 		if(r_logFile->integer)
 		{
-			GLimp_LogComment(va("distance-queue <-- node %i\n", node->children[0] - tr.world->nodes));
-			GLimp_LogComment(va("distance-queue <-- node %i\n", node->children[1] - tr.world->nodes));
+			GLimp_LogComment(va("distance-queue <-- node %i\n", (int)(node->children[0] - tr.world->nodes)));
+			GLimp_LogComment(va("distance-queue <-- node %i\n", (int)(node->children[1] - tr.world->nodes)));
 		}
 	}
 }
@@ -2015,7 +2015,7 @@ static void R_CoherentHierachicalCulling()
 					{
 						if(r_logFile->integer)
 						{
-							GLimp_LogComment(va("MULTI query node %i visible\n", node - tr.world->nodes));
+							GLimp_LogComment(va("MULTI query node %i visible\n", (int)(node - tr.world->nodes)));
 						}
 
 						multiQueryNode = node;
@@ -2038,7 +2038,7 @@ static void R_CoherentHierachicalCulling()
 					{
 						if(r_logFile->integer)
 						{
-							GLimp_LogComment(va("single query node %i visible\n", node - tr.world->nodes));
+							GLimp_LogComment(va("single query node %i visible\n", (int)(node - tr.world->nodes)));
 						}
 
 						if(r_dynamicBspOcclusionCulling->integer == 1)
@@ -2104,7 +2104,7 @@ static void R_CoherentHierachicalCulling()
 
 			if(r_logFile->integer)
 			{
-				GLimp_LogComment(va("distance-queue --> node %i\n", node - tr.world->nodes));
+				GLimp_LogComment(va("distance-queue --> node %i\n", (int)(node - tr.world->nodes)));
 			}
 
 			if(	node->visCounts[tr.visIndex] == tr.visCounts[tr.visIndex] && // node was marked as potentially visible
@@ -2188,7 +2188,7 @@ static void R_CoherentHierachicalCulling()
 					{
 						if(r_logFile->integer)
 						{
-							GLimp_LogComment(va("i-queue <-- node %i\n", node - tr.world->nodes));
+							GLimp_LogComment(va("i-queue <-- node %i\n", (int)(node - tr.world->nodes)));
 						}
 
 						EnQueue(&invisibleQueue, node);
@@ -2203,7 +2203,7 @@ static void R_CoherentHierachicalCulling()
 						{
 							if(r_logFile->integer)
 							{
-								GLimp_LogComment(va("v-queue <-- node %i\n", node - tr.world->nodes));
+								GLimp_LogComment(va("v-queue <-- node %i\n", (int)(node - tr.world->nodes)));
 							}
 
 							EnQueue(&visibleQueue, node);

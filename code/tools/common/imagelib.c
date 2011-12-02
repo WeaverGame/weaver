@@ -487,7 +487,8 @@ void LoadPCX(const char *filename, byte ** pic, byte ** palette, int *width, int
 	pcx_t          *pcx;
 	int             x, y, lsize;
 	int             len;
-	int             dataByte, runLength;
+	int             dataByte;
+	int             runLength = 0;
 	byte           *out, *pix;
 
 
