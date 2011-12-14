@@ -2596,6 +2596,8 @@ void CG_ParticleRailRick(vec3_t org, vec3_t dir, vec3_t clientColor)
 
 void CG_ParticleHealStream(const vec3_t start, const vec3_t end, float size, qhandle_t shader)
 {
+	static const vec3_t maxs = {4.0f, 4.0f, 4.0f};
+	const vec_t     segment = 100.0f;
 	int             i;
 	vec3_t          dir;
 	vec_t           length;
@@ -2606,42 +2608,40 @@ void CG_ParticleHealStream(const vec3_t start, const vec3_t end, float size, qha
 	VectorNormalize(dir);
 
 	// SPARKS
-	for(i = 0; i < 2; i++)
+	for(i = 0; (i < length / segment) || (i == 0); i++)
 	{
 		p = CG_AllocParticle();
 		if(!p)
 			return;
 
-		VectorClear(p->accel);
-		VectorClear(p->vel);
-
 		p->flags = PF_AIRONLY;
+		p->endTime = cg.time + 700 + random() * 500;
 
-		p->time = cg.time;
+		VectorMA(start, (segment * random()) + (i * segment), dir, p->org);
+		VectorRandomUniform(p->vel, maxs);
+		VectorMA(p->vel, random() * 20.0f, dir, p->vel);
+		//VectorMA(dir, -2.0f, p->vel, p->accel);
+		//VectorMA(p->accel, 150.0f, dir, p->accel);
+		VectorClear(p->accel);
 
-		p->endTime = cg.time + 700 + (random() * 500);
+		p->color[3] = 1.0;
+		p->colorVel[3] = 0;
+
 		p->type = P_SMOKE;
 		p->pshader = shader;
-		p->width = 5 + (random() * size);
+
+		p->width = 5.0f + (random() * size);
 		p->height = p->width;
-		p->endHeight = p->width * 0.2;
-		p->endWidth = p->height * 0.2;
 
-		p->color[0] = 1.0f;
-		p->color[1] = 1.0f;
-		p->color[2] = 1.0f;
-		p->color[3] = 0.5f;
+		p->endWidth = p->width * 0.2f;
+		p->endHeight = p->endWidth;
 
-		p->colorVel[0] = 0;
-		p->colorVel[1] = 0;
-		p->colorVel[2] = 0;
-		p->colorVel[3] = -1.0 / (0.3 + random() * 0.2);
-
-		VectorMA(start, length * random(), dir, p->org);
-		VectorCopy(dir, p->vel);
-		VectorCopy(dir, p->accel);
+		p->startfade = cg.time;
+		p->rotate = qtrue;
+		p->roll = 1;
 
 		p->bounceFactor = 0.6f;
+		VectorCopy(p->org, p->oldOrg);
 	}
 }
 
@@ -2654,15 +2654,16 @@ void CG_TestParticles_f(void)
 {
 	vec3_t          start, end;
 
-	VectorMA(cg.refdef.vieworg, 100, cg.refdef.viewaxis[0], start);
-	VectorMA(start, 20, cg.refdef.viewaxis[1], end);
+	VectorMA(cg.refdef.vieworg, 200, cg.refdef.viewaxis[0], start);
+	VectorMA(start, 250, cg.refdef.viewaxis[1], end);
 
-//  CG_ParticleTeleportEffect(origin);
+//  CG_ParticleTeleportEffect(start);
 //  CG_ParticleBloodCloud(cg.testModelEntity.origin, cg.refdef.viewaxis[0]);
 //  CG_BloodPool(cgs.media.bloodSpurtShader, cg.testModelEntity.origin);
 //  CG_ParticleRocketFire(start, end);
 //  CG_ParticleSparks2(start, cg.refdef.viewaxis[1], 50);
 //  CG_ParticleRick(start, cg.refdef.viewaxis[1]);
 //  CG_ParticleBlood(start, cg.refdef.viewaxis[1], 3);
-	CG_ParticleGibEffect(start);
+//	CG_ParticleGibEffect(start);
+	CG_ParticleHealStream(start, end, 15.0f, cg_weaves[WVW_D_WATER_HEAL_S].instanceShader[0]);
 }
