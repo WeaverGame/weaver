@@ -166,7 +166,8 @@ void	main()
 	//vec3 lightColorNoNdotL = clamp(lightColor.rgb / NdotLnobump, 0.0, 1.0);
 	
 	//float NdotLnobump = dot(normalize(var_Normal.xyz), L);
-	vec3 lightColorNoNdotL = lightColor.rgb / NdotLnobump;
+	// clamping this is a hack to prevent huge numbers from very small values of NdotLnoBump
+	vec3 lightColorNoNdotL = clamp(lightColor.rgb / NdotLnobump, 0.0, 1.0);
 	
 	// compute final color
 	vec4 color = diffuse;
