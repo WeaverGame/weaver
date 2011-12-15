@@ -698,9 +698,7 @@ void CG_WeaveEffect(centity_t * cent)
 		case WVW_A_SPIRIT_DEATHGATE:
 		case WVW_D_EARTH_UNLOCK:
 		case WVW_A_EARTHFIRE_IGNITE:
-		case WVW_D_WATER_HEAL_S:
 		case WVW_D_WATER_CURE:
-		case WVW_D_WATER_HEAL_M:
 		case WVW_D_SPIRIT_STAMINA:
 		case WVW_D_AIRFIRE_INVIS:
 		case WVW_A_SPIRIT_STILL:
@@ -708,6 +706,10 @@ void CG_WeaveEffect(centity_t * cent)
 		case WVW_A_AIR_GRABPLAYER:
 		case WVW_A_AIR_BINDPLAYER:
 		case WVW_A_SPIRIT_SHIELD:
+			break;
+		case WVW_D_WATER_HEAL_S:
+		case WVW_D_WATER_HEAL_M:
+			CG_WeaveEffect_Heal(cent);
 			break;
 		case WVW_A_AIRWATER_RIP:
 			CG_ParticleBlood(cent->lerpOrigin, cent->lerpAngles, 75);

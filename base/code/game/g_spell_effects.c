@@ -1640,6 +1640,7 @@ void RunWeave_Heal(gentity_t * ent)
 
 	// New link origin = average of old origin and players' origins
 	VectorAdd(ent->target_ent->s.pos.trBase, ent->parent->s.pos.trBase, ent->s.pos.trBase);
+	VectorScale(ent->s.pos.trBase, 0.5f, ent->s.pos.trBase);
 
 	//should probably copy trajectory too
 	G_RunThink(ent);
