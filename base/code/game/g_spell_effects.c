@@ -1608,9 +1608,9 @@ void RunWeave_Heal(gentity_t * ent)
 	if(!trap_InPVS(ent->target_ent->s.pos.trBase, ent->parent->s.pos.trBase))
 	{
 		// Follower and leader cannot see each other
-		// Break the link
-		ClientLinkLeave(ent->parent->client);
-		DEBUGWEAVEING("RunLinkEnt: end, out of PVS");
+		// End this effect.
+		ent->nextthink = level.time;
+		DEBUGWEAVEING("RunWeave_Heal: end, out of PVS");
 		return;
 	}
 
