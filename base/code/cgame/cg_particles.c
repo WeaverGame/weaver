@@ -2597,8 +2597,9 @@ void CG_ParticleRailRick(vec3_t org, vec3_t dir, vec3_t clientColor)
 void CG_ParticleHealStream(const vec3_t start, const vec3_t end, float size, qhandle_t shader)
 {
 	static const vec3_t maxs = {4.0f, 4.0f, 4.0f};
-	const vec_t     segment = 100.0f;
+	const vec_t     segment = 200.0f;
 	int             i;
+	int             imax;
 	vec3_t          dir;
 	vec_t           length;
 	cparticle_t    *p;
@@ -2606,22 +2607,24 @@ void CG_ParticleHealStream(const vec3_t start, const vec3_t end, float size, qha
 	VectorSubtract(end, start, dir);
 	length = VectorLength(dir);
 	VectorNormalize(dir);
+	imax = (length / segment) - 1;
 
 	// SPARKS
-	for(i = 0; (i < length / segment) || (i == 0); i++)
+	for(i = 0; (i < imax) || (i == 0); i++)
 	{
+		if (random() < 0.65f) continue;
 		p = CG_AllocParticle();
 		if(!p)
 			return;
 
 		p->flags = PF_AIRONLY;
-		p->endTime = cg.time + 700 + random() * 500;
+		p->endTime = cg.time + 300 + random() * 300;
 
 		VectorMA(start, (segment * random()) + (i * segment), dir, p->org);
-		VectorRandomUniform(p->vel, maxs);
-		VectorMA(p->vel, random() * 20.0f, dir, p->vel);
+		VectorClear(p->vel);
+		VectorMA(p->vel, random() * 250.0f, dir, p->vel);
 		//VectorMA(dir, -2.0f, p->vel, p->accel);
-		//VectorMA(p->accel, 150.0f, dir, p->accel);
+		//VectorMA(p->vel, 150.0f, dir, p->accel);
 		VectorClear(p->accel);
 
 		p->color[3] = 1.0;

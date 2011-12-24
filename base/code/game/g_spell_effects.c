@@ -1556,6 +1556,7 @@ qboolean FireWeave_Heal(gentity_t * self, vec3_t start, vec3_t dir, int heldWeav
 	//Com_Printf("SHIELD FIRE: shild spawned, EffectEnt = %d\n", bolt->s.number, bolt->s.otherEntityNum);
 
 	RunWeave_Heal(bolt);
+	trap_LinkEntity(bolt);
 
 	//weave = bolt;
 	return qtrue;
@@ -1641,6 +1642,7 @@ void RunWeave_Heal(gentity_t * ent)
 	// New link origin = average of old origin and players' origins
 	VectorAdd(ent->target_ent->s.pos.trBase, ent->parent->s.pos.trBase, ent->s.pos.trBase);
 	VectorScale(ent->s.pos.trBase, 0.5f, ent->s.pos.trBase);
+	VectorCopy(ent->s.pos.trBase, ent->r.currentOrigin);
 
 	//should probably copy trajectory too
 	G_RunThink(ent);
