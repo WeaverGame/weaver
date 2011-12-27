@@ -354,11 +354,44 @@ void ClientWeaveEnd(gclient_t * client, gentity_t * ent)
 	}
 }
 
+void ClientWeaverReleaseCostly(gclient_t * client) {
+	int             i;
+	gentity_t      *heldWeave;
+
+	DEBUGWEAVEING("ClientWeaverReleaseCostly: start");
+
+	// Simple: Remove the first one we find
+	for(i = MIN_WEAPON_WEAVE; i < MAX_WEAPONS; i++)
+	{
+		if(client->ps.ammo[i] > 0)
+		{
+			heldWeave = &g_entities[client->ps.ammo[i]];
+			if(DEBUGWEAVEING_TST(1))
+			{
+				Com_Printf("ClientWeaverReleaseCostly: remove heldweave ent=%d weapon=%d\n", client->ps.ammo[i], heldWeave->s.weapon);
+			}
+			HeldWeaveEnd(heldWeave);
+			break;
+		}
+	}
+
+	DEBUGWEAVEING("ClientWeaverReleaseCostly: end");
+}
+
 void ClientWeaveUpdateStats(gentity_t * ent, gclient_t * client)
 {
 	// weaving stats
 	client->ps.stats[STAT_POWER] = ClientPowerAvailable(client);
 	client->ps.stats[STAT_MAX_POWER] = ClientPowerMax(client);
+
+	// Check if the player no longer has enough power for all their held spells
+	// If so, release spells until they have enough power to sustain them all
+	while(client->ps.stats[STAT_POWER] < 0)
+	{
+		ClientWeaverReleaseCostly(client);
+		client->ps.stats[STAT_POWER] = ClientPowerAvailable(client);
+	}
+
 	if(client->ps.eFlags & EF_WEAVEA || client->ps.eFlags & EF_WEAVED)
 	{
 		if(!client->weaving)
