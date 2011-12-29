@@ -62,7 +62,7 @@ static void SV_Netchan_Encode(client_t * client, msg_t * msg)
 	string = (byte *) client->lastClientCommandString;
 	index = 0;
 	// xor the client challenge with the netchan sequence number
-	key = client->challenge ^ client->netchan.outgoingSequence;
+	key = (client->challenge ^ client->netchan.outgoingSequence) & 0xFF;
 	for(i = SV_ENCODE_START; i < msg->cursize; i++)
 	{
 		// modify the key with the last received and with this message acknowledged client command
