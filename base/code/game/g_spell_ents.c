@@ -211,7 +211,10 @@ void Think_SetupShieldInfoTargets(gentity_t * ent)
 		G_Printf("func_shield_info at %s with an unfound target (MAPPER: GO FIX THIS ENTITY)\n", vtos(ent->s.origin));
 		return;
 	}
-	G_Printf("func_shield_info at %s targeting %s\n", vtos(ent->s.origin), ent->target);
+	if(g_debugEntities.integer >= 1)
+	{
+		G_Printf("func_shield_info at %s targeting %s\n", vtos(ent->s.origin), ent->target);
+	}
 
 	ent->s.otherEntityNum2 = ent->target_ent->s.number;
 	ent->s.frame = ent->target_ent->count;
