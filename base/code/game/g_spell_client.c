@@ -380,16 +380,26 @@ void ClientWeaverReleaseCostly(gclient_t * client) {
 
 void ClientWeaveUpdateStats(gentity_t * ent, gclient_t * client)
 {
+	int i;
 	// weaving stats
 	client->ps.stats[STAT_POWER] = ClientPowerAvailable(client);
 	client->ps.stats[STAT_MAX_POWER] = ClientPowerMax(client);
 
 	// Check if the player no longer has enough power for all their held spells
 	// If so, release spells until they have enough power to sustain them all
-	while(client->ps.stats[STAT_POWER] < 0)
+	i = 0;
+	while(ClientPowerInUse(client) > client->ps.stats[STAT_MAX_POWER])
 	{
+		if((ClientPowerInUse(client) - (client->threading ? POWER_PER_THREAD : 0)) <= client->ps.stats[STAT_MAX_POWER])
+		{
+			break;
+		}
 		ClientWeaverReleaseCostly(client);
-		client->ps.stats[STAT_POWER] = ClientPowerAvailable(client);
+		if(i > HELD_MAX + 1)
+		{
+			Com_Printf("ClientWeaveUpdateStats: client %d is using more power then they have (%d > %d)\n", client->ps.clientNum, ClientPowerInUse(client), client->ps.stats[STAT_MAX_POWER]);
+			break;
+		}
 	}
 
 	if(client->ps.eFlags & EF_WEAVEA || client->ps.eFlags & EF_WEAVED)
