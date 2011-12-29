@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // g_spell_client.c -- misc weaver functions for dealing with clients and magic
 #include <q_shared.h>
 #include "g_local.h"
+#include "g_spell_util.h"
 
 /*
 =======================
@@ -370,6 +371,10 @@ void ClientWeaverReleaseCostly(gclient_t * client) {
 			{
 				Com_Printf("ClientWeaverReleaseCostly: remove heldweave ent=%d weapon=%d\n", client->ps.ammo[i], heldWeave->s.weapon);
 			}
+			// Unconsume (negative) the power used by this heldWeave
+			ClientPowerHeldConsume(client, -G_HeldWeave_GetPower(heldWeave));
+
+			// Release the heldWeave
 			HeldWeaveEnd(heldWeave);
 			break;
 		}
@@ -400,6 +405,7 @@ void ClientWeaveUpdateStats(gentity_t * ent, gclient_t * client)
 			Com_Printf("ClientWeaveUpdateStats: client %d is using more power then they have (%d > %d)\n", client->ps.clientNum, ClientPowerInUse(client), client->ps.stats[STAT_MAX_POWER]);
 			break;
 		}
+		i++;
 	}
 
 	if(client->ps.eFlags & EF_WEAVEA || client->ps.eFlags & EF_WEAVED)
