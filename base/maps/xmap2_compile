@@ -30,7 +30,7 @@ THREADS=`grep processor /proc/cpuinfo | awk '{a++} END {print a}'`
 
 # map_ convention used to prevent possible binary name collision
 map_bsp() {
-	if ! $COMPILE -v -meta -leaktest $BSPOPTS $MAP; then exit 1; fi
+	if ! $COMPILE -meta -v -leaktest $BSPOPTS $MAP; then exit 1; fi
 }
 
 map_debugportals() {
@@ -169,7 +169,8 @@ check_map() {
 		exit 1
 	fi
 
-	MAP="$MAP_PATH/$MAP_STRIPPED.map"
+	MAP="$MAP_PATH$MAP_STRIPPED.map"
+	echo "$MAP_STRIPPED.map found at $MAP"
 }
 
 check_compiler() {
