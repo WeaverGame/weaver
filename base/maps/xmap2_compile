@@ -21,11 +21,11 @@ FS_GAME='base'
 # game should be 'xreal'
 GAME='xreal'
 
-MAP_STRIPPED=`basename $MAP .map`
+COMMAND=$1
+MAPNAME=$2
 
 # DO NOT EDIT THIS LINE OR THE FOLLOWING LINES. DOING SO MAY RESULT IN
 # UNEXPECTED SCRIPT BEHAVIOR.
-MAP="$MAP_STRIPPED.map"
 THREADS=`grep processor /proc/cpuinfo | awk '{a++} END {print a}'`
 
 # map_ convention used to prevent possible binary name collision
@@ -143,10 +143,44 @@ map_help() {
 	echo "help and additions from DavidSev, and Robert 'Tr3B' Beckebans."
 }
 
+check_map() {
+	# Locate .map and things
+	MAP_STRIPPED=$MAPNAME
+	MAP_PATH=""
+
+	if [ -e $MAP_STRIPPED.map ]; then
+		MAP_PATH="./"
+		MAP_SUBREPO=""
+	else
+		for subrepo in `echo ../*.pk3dir`
+		do
+			TMP_PATH="$subrepo/maps/"
+			echo "Searching subrepo $TMP_PATH"
+			if [ -e "$TMP_PATH$MAP_STRIPPED.map" ]; then
+				MAP_PATH="$TMP_PATH"
+				MAP_SUBREPO="$subrepo"
+				break 1;
+			fi
+		done
+	fi
+
+	if [ "x$MAP_PATH" == "x" ]; then
+		echo "Could not find a .map file for $MAP_STRIPPED"
+		exit 1
+	fi
+
+	MAP="$MAP_PATH/$MAP_STRIPPED.map"
+}
+
 check_compiler() {
 	case `uname -m` in
 		x86_64)
 			COMPILER='../../bin/linux-x86_64/xmap2.x86_64'
+			if [ ! -e $COMPILER ]; then
+				if [ -e "../../bin/linux-native" ]; then
+					COMPILER='../../bin/linux-native/xmap2'
+				fi
+			fi
 			;;
 		i386|i486|i586|i686)
 			COMPILER='../../bin/linux-x86/xmap2.i386'
@@ -168,46 +202,54 @@ check_compiler() {
 	COMPILE="$COMPILER -fs_basepath $FS_BASEPATH -fs_game $FS_GAME -game $GAME"
 }
 
-case $1 in
+case $COMMAND in
 	-bsp)
+		check_map;
 		check_compiler;
 		map_readbspopts;
 		map_bsp $BSPOPTS;
 		;;
 		
 	-debugportals)
+		check_map;
 		check_compiler;
 		map_debugportals;
 		;;
 	
 	-debugsurfaces)
+		check_map;
 		check_compiler;
 		map_debugsurfaces;
 		;;
 
 	-fastvis)
+		check_map;
 		check_compiler;
 		map_readvisopts;
 		map_fastvis $VISOPTS;
 		;;
 		
 	-vis)
+		check_map;
 		check_compiler;
 		map_readvisopts;
 		map_vis $VISOPTS;
 		;;
 
 	-light)
+		check_map;
 		check_compiler;
 		map_readlightopts;
 		map_light $LIGHTOPTS;
 		;;
 		
 	-pk3)
+		check_map;
 		map_package $PACKAGEOTPS;
 		;;
 
 	-all)
+		check_map;
 		check_compiler;
 		map_readbspopts;
 		map_bsp $BSPOPTS;
