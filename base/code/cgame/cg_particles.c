@@ -2607,7 +2607,7 @@ void CG_ParticleHealStream(const vec3_t start, const vec3_t end, float size, qha
 	VectorSubtract(end, start, dir);
 	length = VectorLength(dir);
 	VectorNormalize(dir);
-	imax = (length / segment) - 1;
+	imax = (length / segment);
 
 	// SPARKS
 	for(i = 0; (i < imax) || (i == 0); i++)
