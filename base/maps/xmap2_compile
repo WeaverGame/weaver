@@ -21,9 +21,11 @@ FS_GAME='base'
 # game should be 'xreal'
 GAME='xreal'
 
+MAP_STRIPPED=`basename $MAP .map`
+
 # DO NOT EDIT THIS LINE OR THE FOLLOWING LINES. DOING SO MAY RESULT IN
 # UNEXPECTED SCRIPT BEHAVIOR.
-MAP="`basename $2 .map`.map"
+MAP="$MAP_STRIPPED.map"
 THREADS=`grep processor /proc/cpuinfo | awk '{a++} END {print a}'`
 
 # map_ convention used to prevent possible binary name collision
@@ -32,23 +34,23 @@ map_bsp() {
 }
 
 map_debugportals() {
-	if ! $COMPILE -v -debugportals -meta -leaktest $MAP; then exit 1; fi
+	if ! $COMPILE -meta -v -debugportals -leaktest $MAP; then exit 1; fi
 }
 
 map_debugsurfaces() {
-	if ! $COMPILE -v -debugsurfaces -meta -leaktest $MAP; then exit 1; fi
+	if ! $COMPILE -meta -v -debugsurfaces -leaktest $MAP; then exit 1; fi
 }
 
 map_fastvis() {
-	if ! $COMPILE -vis -threads $THREADS -fast $VISOPTS $MAP; then exit 1; fi
+	if ! $COMPILE -vis -v -threads $THREADS -saveprt -fast $VISOPTS $MAP; then exit 1; fi
 }
 
 map_vis() {
-	if ! $COMPILE -vis -threads $THREADS $VISOPTS $MAP; then exit 1; fi
+	if ! $COMPILE -vis -v -threads $THREADS -saveprt $VISOPTS $MAP; then exit 1; fi
 }
 
 map_light() {
-	if ! $COMPILE -light -threads $THREADS -v $LIGHTOPTS $MAP; then exit 1; fi
+	if ! $COMPILE -light -v -threads $THREADS $LIGHTOPTS $MAP; then exit 1; fi
 }
 
 map_scale() {
@@ -58,7 +60,6 @@ map_scale() {
 map_package() {
 	cd ..
 	DATE=`date +%Y%m%d`
-	MAP_STRIPPED=`basename $MAP .map`
 	PK3NAME=map-$MAP_STRIPPED-$DATE.pk3
 	zip $PK3NAME maps/$MAP_STRIPPED.bsp
 	zip $PK3NAME maps/$MAP_STRIPPED.map
