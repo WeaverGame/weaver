@@ -355,6 +355,9 @@ void ClientWeaveEnd(gclient_t * client)
 	{
 		client->currentWeaveThreads[i] = 0;
 	}
+
+	// Power is no longer being consumed temporarily, it is consumed as the heldWeave
+	ClientPowerRelease(client);
 }
 
 void ClientWeaverReleaseCostly(gclient_t * client) {
