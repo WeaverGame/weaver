@@ -234,6 +234,26 @@ void RunWeave_MoveToTarget(gentity_t * ent)
 	trap_LinkEntity(ent);
 }
 
+qboolean RunWeave_TargetClientAccessible(gentity_t * target_ent, gentity_t * parent)
+{
+	if(!trap_InPVS(target_ent->s.pos.trBase, parent->s.pos.trBase))
+	{
+		// Cannot see target client
+		DEBUGWEAVEING("RunWeave_TargetClientAccessible: end, out of PVS");
+		return qfalse;
+	}
+
+	if(target_ent->client->pers.connected != CON_CONNECTED)
+	{
+		// Target has disconnected
+		DEBUGWEAVEING("RunWeave_TargetClientAccessible: end, target disconnected");
+		return qfalse;
+	}
+
+	// Target client is still valid
+	return qtrue;
+}
+
 /*
 ================
 RunWeave
@@ -1248,10 +1268,10 @@ Shield
 */
 void RunWeave_Shield(gentity_t * ent)
 {
-	if(!trap_InPVS(ent->target_ent->s.pos.trBase, ent->parent->s.pos.trBase))
+	if(!RunWeave_TargetClientAccessible(ent->target_ent, ent->parent))
 	{
-		// Follower and leader cannot see each other
 		G_WeaveEffectRelease(ent);
+		DEBUGWEAVEING("RunWeave_Shield: end");
 		return;
 	}
 
@@ -1426,6 +1446,13 @@ void RunWeave_GrabPlayer(gentity_t * ent)
 {
 	vec3_t          offsetDir;
 	vec3_t          playerOrigin;
+
+	if(!RunWeave_TargetClientAccessible(ent->target_ent, ent->parent))
+	{
+		G_WeaveEffectRelease(ent);
+		DEBUGWEAVEING("RunWeave_GrabPlayer: end");
+		return;
+	}
 
 	RunWeave_MoveToTarget(ent);
 
@@ -1606,12 +1633,10 @@ Heal
 */
 void RunWeave_Heal(gentity_t * ent)
 {
-	if(!trap_InPVS(ent->target_ent->s.pos.trBase, ent->parent->s.pos.trBase))
+	if(!RunWeave_TargetClientAccessible(ent->target_ent, ent->parent))
 	{
-		// Follower and leader cannot see each other
-		// End this effect.
-		ent->nextthink = level.time;
-		DEBUGWEAVEING("RunWeave_Heal: end, out of PVS");
+		G_WeaveEffectRelease(ent);
+		DEBUGWEAVEING("RunWeave_Heal: end");
 		return;
 	}
 
@@ -1910,19 +1935,11 @@ void RunWeave_EarthQuake_Impact(gentity_t * ent, trace_t * trace)
 
 	//reference this from held
 	heldWeave->target_ent = bolt;
-	//Already done:
-	//held weave is now in progress
-	//heldWeave->s.frame = WST_INPROCESS;
-	//prevent held weave expiring
-	//heldWeave->nextthink = 0;
+	//held weave is already in progress, no need to change state
 
 	//Send Normal
 	VectorCopy(trace->plane.normal, bolt->s.angles);
 
-	//Com_Printf("SPAWN QUAKE EFFECT @ %f,%f,%f \n", trace->endpos[0], trace->endpos[1], trace->endpos[2]);
-
-	//SnapVector(bolt->s.pos.trDelta);  // save net bandwidth
-	//VectorCopy(ent->r.currentOrigin, bolt->r.currentOrigin);
 	VectorCopy(trace->endpos, bolt->r.currentOrigin);
 	VectorCopy(trace->endpos, bolt->s.pos.trBase);
 	VectorCopy(trace->endpos, bolt->s.origin);
@@ -2694,6 +2711,13 @@ Stamina
 */
 void RunWeave_Stamina(gentity_t * ent)
 {
+	if(!RunWeave_TargetClientAccessible(ent->target_ent, ent->parent))
+	{
+		G_WeaveEffectRelease(ent);
+		DEBUGWEAVEING("RunWeave_Heal: end");
+		return;
+	}
+
 	//apply stamina until next run
 	ent->target_ent->client->ps.powerups[PW_HASTE] = level.time + WEAVE_STAMINA_PULSE_TIME;
 
