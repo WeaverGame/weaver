@@ -1648,6 +1648,7 @@ static qboolean SV_ClientCommand(client_t * cl, msg_t * msg)
 	int             seq;
 	const char     *s;
 	qboolean        clientOk = qtrue;
+	qboolean        floodprotect = qtrue;
 
 	seq = MSG_ReadLong(msg);
 	s = MSG_ReadString(msg);
@@ -1668,6 +1669,12 @@ static qboolean SV_ClientCommand(client_t * cl, msg_t * msg)
 		return qfalse;
 	}
 
+	// Allow kill and release more often.
+	if(Q_stricmpn(s, "kill", 4) == 0 || Q_stricmpn(s, "release", 4))
+	{
+		floodprotect = qfalse;
+	}
+
 	// malicious users may try using too many string commands
 	// to lag other players.  If we decide that we want to stall
 	// the command, we will stop processing the rest of the packet,
@@ -1675,7 +1682,7 @@ static qboolean SV_ClientCommand(client_t * cl, msg_t * msg)
 	// but not other people
 	// We don't do this when the client hasn't been active yet since its
 	// normal to spam a lot of commands when downloading
-	if(!com_cl_running->integer && cl->state >= CS_ACTIVE && sv_floodProtect->integer && svs.time < cl->nextReliableTime)
+	if(!com_cl_running->integer && cl->state >= CS_ACTIVE && sv_floodProtect->integer && svs.time < cl->nextReliableTime && floodprotect)
 	{
 		// ignore any other text messages from this client but let them keep playing
 		// TTimo - moved the ignored verbose to the actual processing in SV_ExecuteClientCommand, only printing if the core doesn't intercept
