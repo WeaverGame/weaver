@@ -835,6 +835,9 @@ void HeldWeaveClearCast(gentity_t * heldWeave, int castClear)
 
 	assert(heldWeave->s.eType == ET_WEAVE_HELD && "HeldWeaveClearCast: heldWeave not a ET_WEAVE_HELD");
 
+	// Weave being cleared no longer uses power
+	G_HeldWeave_SetPower(heldWeave, 0);
+
 	//get player who is holding weave
 	pent = &g_entities[heldWeave->s.otherEntityNum2];
 	player = &pent->client->ps;
