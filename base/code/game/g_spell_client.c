@@ -304,11 +304,12 @@ void ClientThreadEnd(gclient_t * client)
 	client->thread++;
 }
 
-void ClientWeaveEnd(gclient_t * client, gentity_t * ent)
+void ClientWeaveEnd(gclient_t * client)
 {
 	int             i;
 	int             powerUsing;
 	int             weaveID;
+	gentity_t      *ent;
 
 	client->weaving = qfalse;
 	if(client->thread > 0)
@@ -344,6 +345,7 @@ void ClientWeaveEnd(gclient_t * client, gentity_t * ent)
 
 		weaveID = -1;
 		weaveID = ThreadsToWeaveID(client->currentWeaveGroup, client->currentWeaveThreads);
+		ent = &g_entities[client->ps.clientNum];
 		CreateWeaveID(ent, weaveID, powerUsing);
 	}
 	client->ps.stats[STAT_THREADX] = 0;
@@ -383,29 +385,31 @@ void ClientWeaverReleaseCostly(gclient_t * client) {
 	DEBUGWEAVEING("ClientWeaverReleaseCostly: end");
 }
 
-void ClientWeaveUpdateStats(gentity_t * ent, gclient_t * client)
+void ClientWeaveUpdateStats(gclient_t * client)
 {
-	int i;
-	// weaving stats
-	client->ps.stats[STAT_POWER] = ClientPowerAvailable(client);
-	client->ps.stats[STAT_MAX_POWER] = ClientPowerMax(client);
+	int             maxPower;
+	gclient_t      *linkI;
 
-	// Check if the player no longer has enough power for all their held spells
-	// If so, release spells until they have enough power to sustain them all
-	i = 0;
-	while(ClientPowerInUse(client) > client->ps.stats[STAT_MAX_POWER])
+	if(DEBUGWEAVEING_TST(2))
 	{
-		if((ClientPowerInUse(client) - (client->threading ? POWER_PER_THREAD : 0)) <= client->ps.stats[STAT_MAX_POWER])
+		Com_Printf("ClientWeaveUpdateStats: start, client %d\n", client->ps.clientNum, ClientPowerInUse(client), client->ps.stats[STAT_MAX_POWER]);
+	}
+
+	// weaving stats
+	maxPower = ClientPowerMax(client);
+	client->ps.stats[STAT_POWER] = ClientPowerAvailable(client);
+	client->ps.stats[STAT_MAX_POWER] = maxPower;
+
+	if(client->linkTarget == NULL && client->linkFollower != NULL)
+	{
+		// This client is the head of a link chain.
+		// Set STAT_MAX_POWER for the rest of the chain, so all see the max for the whole link chain
+		linkI = client;
+		while(linkI)
 		{
-			break;
+			linkI->ps.stats[STAT_MAX_POWER] = maxPower;
+			linkI = linkI->linkFollower;
 		}
-		ClientWeaverReleaseCostly(client);
-		if(i > HELD_MAX + 1)
-		{
-			Com_Printf("ClientWeaveUpdateStats: client %d is using more power then they have (%d > %d)\n", client->ps.clientNum, ClientPowerInUse(client), client->ps.stats[STAT_MAX_POWER]);
-			break;
-		}
-		i++;
 	}
 
 	if(client->ps.eFlags & EF_WEAVEA || client->ps.eFlags & EF_WEAVED)
@@ -439,7 +443,7 @@ void ClientWeaveUpdateStats(gentity_t * ent, gclient_t * client)
 		if(client->weaving)
 		{
 			//end a weave
-			ClientWeaveEnd(client, ent);
+			ClientWeaveEnd(client);
 		}
 		else
 		{
@@ -449,33 +453,72 @@ void ClientWeaveUpdateStats(gentity_t * ent, gclient_t * client)
 			ClientPowerRelease(client);
 		}
 	}
+
+	if(DEBUGWEAVEING_TST(2))
+	{
+		Com_Printf("ClientWeaveUpdateStats: end\n");
+	}
 }
 
-void ClientPoisonUpdateStats(gentity_t *ent)
+void ClientWeaveCheckOverpower(gclient_t * client)
 {
-	if(ent->client->ps.powerups[PW_SLOWPOISONED])
-	{
-		ent->client->slowTicks--;
+	int             i;
 
-		if(ent->client->slowTicks <= 0)
+	// Check if the player no longer has enough power for all their held spells
+	// If so, release spells until they have enough power to sustain them all
+	i = 0;
+	while(ClientPowerInUse(client) > client->ps.stats[STAT_MAX_POWER])
+	{
+		if(DEBUGWEAVEING_TST(1))
 		{
-			G_Damage(ent, ent->client->slowAttacker, ent->client->slowAttacker, NULL, NULL, WEAVE_SLOWPOISON_DPS, 0, MOD_A_EARTHWATER_SLOW);
-			ent->client->slowTicks = WEAVE_SLOWPOISON_TICKS;
+			Com_Printf("ClientWeaveCheckPower: client %d is using too much power, %d > %d\n", client->ps.clientNum, ClientPowerInUse(client), client->ps.stats[STAT_MAX_POWER]);
+		}
+		if((ClientPowerInUse(client) - (client->threading ? POWER_PER_THREAD : 0)) <= client->ps.stats[STAT_MAX_POWER])
+		{
+			// The player was threading, if we ignore that usage they are under.
+			break;
+		}
+		ClientWeaverReleaseCostly(client);
+		if(i > HELD_MAX)
+		{
+			if(DEBUGWEAVEING_TST(1))
+			{
+				Com_Printf("ClientWeaveCheckPower: client %d is still using too much power ???\n", client->ps.clientNum);
+			}
+			break;
+		}
+		i++;
+	}
+}
+
+void ClientPoisonUpdateStats(gclient_t * client)
+{
+	gentity_t      *ent;
+
+	ent = &g_entities[client->ps.clientNum];
+	if(client->ps.powerups[PW_SLOWPOISONED])
+	{
+		client->slowTicks--;
+
+		if(client->slowTicks <= 0)
+		{
+			G_Damage(ent, client->slowAttacker, client->slowAttacker, NULL, NULL, WEAVE_SLOWPOISON_DPS, 0, MOD_A_EARTHWATER_SLOW);
+			client->slowTicks = WEAVE_SLOWPOISON_TICKS;
 		}
 	}
-	if(ent->client->ps.powerups[PW_POISONED])
+	if(client->ps.powerups[PW_POISONED])
 	{
-		ent->client->poisonTicks--;
+		client->poisonTicks--;
 
-		if(ent->client->poisonTicks <= 0)
+		if(client->poisonTicks <= 0)
 		{
-			G_Damage(ent, ent->client->poisonAttacker, ent->client->poisonAttacker, NULL, NULL, ent->client->poisonDamage, 0, MOD_A_EARTHWATER_POISON);
-			ent->client->poisonTicks = WEAVE_POISON_TICKS;
+			G_Damage(ent, client->poisonAttacker, client->poisonAttacker, NULL, NULL, client->poisonDamage, 0, MOD_A_EARTHWATER_POISON);
+			client->poisonTicks = WEAVE_POISON_TICKS;
 			// Damage increases
-			ent->client->poisonDamage += WEAVE_POISON_DMGINCREMENT;
-			if(ent->client->poisonDamage > WEAVE_POISON_MAXDMG)
+			client->poisonDamage += WEAVE_POISON_DMGINCREMENT;
+			if(client->poisonDamage > WEAVE_POISON_MAXDMG)
 			{
-				ent->client->poisonDamage = WEAVE_POISON_MAXDMG;
+				client->poisonDamage = WEAVE_POISON_MAXDMG;
 			}
 		}
 	}

@@ -832,9 +832,10 @@ void            ClientWeaverDestroy(gclient_t * client);
 void            ClientWeaveStart(gclient_t * client);
 void            ClientThreadStart(gclient_t * client);
 void            ClientThreadEnd(gclient_t * client);
-void            ClientWeaveEnd(gclient_t * client, gentity_t * ent);
-void            ClientWeaveUpdateStats(gentity_t * ent, gclient_t * client);
-void            ClientPoisonUpdateStats(gentity_t *ent);
+void            ClientWeaveEnd(gclient_t * client);
+void            ClientWeaveUpdateStats(gclient_t * client);
+void            ClientWeaveCheckOverpower(gclient_t * client);
+void            ClientPoisonUpdateStats(gclient_t * client);
 
 // g_spell_ents.c
 //

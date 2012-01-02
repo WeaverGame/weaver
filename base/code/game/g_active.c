@@ -1253,7 +1253,7 @@ void ClientThink_real(gentity_t * ent)
 	}
 	*/
 
-	ClientWeaveUpdateStats(ent, client);
+	ClientWeaveUpdateStats(client);
 
 	// set up for pmove
 	oldEventSequence = client->ps.eventSequence;
@@ -1633,7 +1633,8 @@ void ClientEndFrame(gentity_t * ent)
 		return;
 	}
 
-	ClientPoisonUpdateStats(ent);
+	ClientWeaveCheckOverpower(ent->client);
+	ClientPoisonUpdateStats(ent->client);
 
 	pers = &ent->client->pers;
 
