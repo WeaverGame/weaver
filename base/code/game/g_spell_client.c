@@ -399,20 +399,27 @@ void ClientWeaveUpdateStats(gclient_t * client)
 	}
 
 	// weaving stats
-	maxPower = ClientPowerMax(client);
 	client->ps.stats[STAT_POWER] = ClientPowerAvailable(client);
-	client->ps.stats[STAT_MAX_POWER] = maxPower;
 
-	if(client->linkTarget == NULL && client->linkFollower != NULL)
+	if(client->linkTarget == NULL)
 	{
-		// This client is the head of a link chain.
-		// Set STAT_MAX_POWER for the rest of the chain, so all see the max for the whole link chain
-		linkI = client;
-		while(linkI)
+		// This client is the head of a link chain, not not linked
+		maxPower = ClientPowerMax(client);
+		client->ps.stats[STAT_MAX_POWER] = maxPower;
+		if(client->linkFollower != NULL)
 		{
-			linkI->ps.stats[STAT_MAX_POWER] = maxPower;
-			linkI = linkI->linkFollower;
+			// Set STAT_MAX_POWER for the rest of the chain, so all see the max
+			linkI = client->linkFollower;
+			while(linkI)
+			{
+				linkI->ps.stats[STAT_MAX_POWER] = maxPower;
+				linkI = linkI->linkFollower;
+			}
 		}
+	}
+	else
+	{
+		// Set STAT_MAX_POWER when we do the leader
 	}
 
 	if(client->ps.eFlags & EF_WEAVEA || client->ps.eFlags & EF_WEAVED)
