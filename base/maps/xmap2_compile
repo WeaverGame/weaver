@@ -13,6 +13,25 @@
 #                                                                              #
 ################################################################################
 
+# Options
+COMMAND=$1
+MAPNAME=$2
+
+# Portability Config
+case `uname -s` in
+	SunOS)
+		# On Solaris, make sure we use GNU utils, and get number of cores differently
+		CMD_GREP=ggrep
+		CMD_SED=gsed
+		THREADS=`psrinfo | wc -l`
+		;;
+	*)
+		# Normal tools on Linux
+		CMD_GREP=grep
+		CMD_SED=sed
+		THREADS=`$CMD_GREP processor /proc/cpuinfo | awk '{a++} END {print a}'`
+		;;
+esac
 
 # fs_basepath is generally '../..' since xmap2_compile is in the base/maps/ dir.
 FS_BASEPATH='../..'
@@ -20,13 +39,6 @@ FS_BASEPATH='../..'
 FS_GAME='base'
 # game should be 'xreal'
 GAME='xreal'
-
-COMMAND=$1
-MAPNAME=$2
-
-# DO NOT EDIT THIS LINE OR THE FOLLOWING LINES. DOING SO MAY RESULT IN
-# UNEXPECTED SCRIPT BEHAVIOR.
-THREADS=`grep processor /proc/cpuinfo | awk '{a++} END {print a}'`
 
 # map_ convention used to prevent possible binary name collision
 map_bsp() {
@@ -59,23 +71,39 @@ map_scale() {
 
 map_package() {
 	cd ..
+	TOP_BASE=`pwd`
+
 	DATE=`date +%Y%m%d`
 	PK3NAME=map-$MAP_STRIPPED-$DATE.pk3
-	zip $PK3NAME maps/$MAP_STRIPPED.bsp
-	zip $PK3NAME maps/$MAP_STRIPPED.map
-	zip $PK3NAME maps/$MAP_STRIPPED/*.hdr
-	zip $PK3NAME maps/$MAP_STRIPPED/*.png
-	zip $PK3NAME levelshot/$MAP_STRIPPED.png
-	zip $PK3NAME scripts/$MAP_STRIPPED.arena
+
+	if [ "x$MAP_SUBREPO" == "x" ]; then
+		# Map is not in a subrepo (ie, base/maps/THEMAP.map)
+		# only want the files specificly for this map, not our whole base dir
+		zip $PK3NAME maps/$MAP_STRIPPED.bsp
+		zip $PK3NAME maps/$MAP_STRIPPED.map
+		zip $PK3NAME maps/$MAP_STRIPPED/*.hdr
+		zip $PK3NAME maps/$MAP_STRIPPED/*.png
+		zip $PK3NAME levelshot/$MAP_STRIPPED.png
+		zip $PK3NAME scripts/$MAP_STRIPPED.arena
+	else
+		# Map is in a subrepo (ie, base/map-THEMAP.pk3dir/maps/THEMAP.map), we want the whole pk3dir in the pk3
+		# cd to the base of the pk3dir so paths in the pk3 aren't under all this
+		cd ./maps/$MAP_PATH../
+		# add contents, exclude a few filetypes and the VCS data
+		zip $TOP_BASE/$PK3NAME -r . -x \*.prt -x \*.srf -x \*.bat -x \*\.hg\/\* -x \*\.git\/\* -x \*\.svn\/\*
+	fi
+
+	# cd back to whence it came
+	cd $TOP_BASE/maps/
 }
 
 map_readbspopts() {
 	if [ -r $MAP ]; then
 		#grab the bspopts from the map
-		BSPOPTS=`grep -A 256 "^// entity 0$" $MAP | \
-		grep xmap_bspopts | \
+		BSPOPTS=`$CMD_GREP -A 256 "^// entity 0$" $MAP | \
+		$CMD_GREP xmap_bspopts | \
 		head -n1 | \
-		sed -r 's/^"xmap_bspopts" "(.*)"$/\1/'`
+		$CMD_SED -r 's/^"xmap_bspopts" "(.*)"$/\1/'`
 		if [[ $BSPOPTS != "" ]]; then
 			echo "BSPOPTS: $BSPOPTS"
 		fi
@@ -88,10 +116,10 @@ map_readbspopts() {
 map_readvisopts() {
 	if [ -r $MAP ]; then
 		#grab the visopts from the map
-		VISOPTS=`grep -A 256 "^// entity 0$" $MAP | \
-		grep xmap_visopts | \
+		VISOPTS=`$CMD_GREP -A 256 "^// entity 0$" $MAP | \
+		$CMD_GREP xmap_visopts | \
 		head -n1 | \
-		sed -r 's/^"xmap_visopts" "(.*)"$/\1/'`
+		$CMD_SED -r 's/^"xmap_visopts" "(.*)"$/\1/'`
 		if [[ $VISOPTS != "" ]]; then
 			echo "VISOPTS: $VISOPTS"
 		fi
@@ -104,10 +132,10 @@ map_readvisopts() {
 map_readlightopts() {
 	if [ -r $MAP ]; then
 		#grab the lightopts from the map
-		LIGHTOPTS=`grep -A 256 "^// entity 0$" $MAP | \
-		grep xmap_lightopts | \
+		LIGHTOPTS=`$CMD_GREP -A 256 "^// entity 0$" $MAP | \
+		$CMD_GREP xmap_lightopts | \
 		head -n1 | \
-		sed -r 's/^"xmap_lightopts" "(.*)"$/\1/'`
+		$CMD_SED -r 's/^"xmap_lightopts" "(.*)"$/\1/'`
 		if [[ $LIGHTOPTS != "" ]]; then
 			echo "LIGHTOPTS: $LIGHTOPTS"
 		else
@@ -178,10 +206,14 @@ check_compiler() {
 		x86_64)
 			COMPILER='../../bin/linux-x86_64/xmap2.x86_64'
 			if [ ! -e $COMPILER ]; then
+				# didn't find xmap2 binary, it might be compiled as "native" arch
 				if [ -e "../../bin/linux-native" ]; then
 					COMPILER='../../bin/linux-native/xmap2'
 				fi
 			fi
+			;;
+		i86pc)
+			COMPILER='../../bin/solaris-x86/xmap2'
 			;;
 		i386|i486|i586|i686)
 			COMPILER='../../bin/linux-x86/xmap2.i386'
@@ -259,6 +291,19 @@ case $COMMAND in
 		map_readlightopts;
 		map_light $LIGHTOPTS;
 		;;
+
+	-allpk3)
+		check_map;
+		check_compiler;
+		map_readbspopts;
+		map_bsp $BSPOPTS;
+		map_readvisopts;
+		map_vis $VISOPTS;
+		map_readlightopts;
+		map_light $LIGHTOPTS;
+		map_package $PACKAGEOTPS;
+		;;
+
 	-h)
 		map_help;
 		;;
