@@ -74,11 +74,11 @@ extern          "C"
 #endif
 
 #ifndef _ZLIB_H
-#include "../zlib/zlib.h"
+#include "../../libs/zlib/zlib.h"
 #endif
 
 #ifndef _ZLIBIOAPI_H
-#include "../zlib/ioapi.h"
+#include "../../libs/zlib/ioapi.h"
 #endif
 
 #if defined(STRICTUNZIP) || defined(STRICTZIPUNZIP)

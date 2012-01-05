@@ -3,6 +3,7 @@
 #                                                                              #
 #  XMAP2 map compilation script.                                               #
 #  By Evan 'Odin' Goers                                                        #
+#     Andrew 'DerSaidin' Browne                                                #
 #                                                                              #
 # To use this script, add your compilation options for each stage(bsp, vis,    #
 # light) to your map's worldspawn entity. You can do this by adding a key      #
@@ -157,7 +158,8 @@ map_defaultcommand() {
 map_help() {
 	echo "Usage: $0 [OPTION] [FILE]"
 	echo "Compile a map into a BSP file and perform other functions."
-	echo "Example $0 -all arena1.map"
+	echo "Note, the map name is case sensitive (assuming your filesystem is)."
+	echo "Example $0 -all arena1.map"     # (the '.map' is not required)
 	echo "Compile options(only one may be used):"
 	echo "  -bsp            Compile the map into a basic BSP."
 	echo "  -vis            Calculate VIS for an existing BSP."
@@ -165,15 +167,16 @@ map_help() {
 	echo "  -light          Calculate light for an existing BSP."
 	echo "  -pk3            Attempt to automatically package a map project."
 	echo "  -all            Short for -bsp -vis -light."
+	echo "  -allpk3         Short for -bsp -vis -light, and package to pk3."
 	echo "  -h              This help message."
 	echo ""
 	echo "This compilation script was written by Evan 'Odin' Goers, with"
-	echo "help and additions from DavidSev, and Robert 'Tr3B' Beckebans."
+	echo "help and additions from DavidSev, Robert 'Tr3B' Beckebans, and Andrew 'DerSaidin' Browne."
 }
 
 check_map() {
 	# Locate .map and things
-	MAP_STRIPPED=$MAPNAME
+	MAP_STRIPPED=`basename $MAPNAME .map`
 	MAP_PATH=""
 
 	if [ -e $MAP_STRIPPED.map ]; then

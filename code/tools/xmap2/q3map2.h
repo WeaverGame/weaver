@@ -46,7 +46,7 @@ dependencies
 ------------------------------------------------------------------------------- */
 
 /* platform-specific */
-#if defined( __linux__ ) || defined( __APPLE__ )
+#if defined( __linux__ ) || defined( __APPLE__ ) || defined(__sun)
 #define Q_UNIX
 #endif
 
@@ -65,18 +65,18 @@ dependencies
 /* general */
 //#include "version.h"          /* ttimo: might want to guard that if built outside of the GtkRadiant tree */
 
-#include "cmdlib.h"
-#include "mathlib.h"
+#include "../common/cmdlib.h"
+#include "../common/mathlib.h"
 //#include "ddslib.h"
 
-#include "picomodel.h"
+#include "../../libs/picomodel/picomodel.h"
 
-#include "scriplib.h"
-#include "polylib.h"
-#include "imagelib.h"
-#include "threads.h"
-#include "inout.h"
-#include "vfs.h"
+#include "../common/scriplib.h"
+#include "../common/polylib.h"
+#include "../common/imagelib.h"
+#include "../common/threads.h"
+#include "../common/inout.h"
+#include "../common/vfs.h"
 #include "png.h"
 //#include "md4.h"
 #include <stdlib.h>
