@@ -117,6 +117,7 @@ extern "C" {
 #pragma warning(disable : 4220)	// varargs matches remaining parameters
 #pragma warning(disable : 4996)	// deprecated functions
 //#pragma intrinsic( memset, memcpy )
+#pragma runtime_checks( "c", off )	// disable runtime checks for smaller type assignment (/RTCc)
 #endif
 
 //Ignore __attribute__ on non-gcc platforms
