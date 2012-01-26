@@ -968,7 +968,14 @@ void GetEntityShadowFlags(const entity_t * ent, const entity_t * ent2, int *cast
 		if(value[0] == '\0')
 			value = ValueForKey(ent2, "_cs");
 		if(value[0] != '\0')
+		{
 			*castShadows = atoi(value);
+		}
+		else
+		{
+			/* Cast shadows by default */
+			*castShadows = 1;
+		}
 	}
 
 	/* receive */
@@ -982,6 +989,13 @@ void GetEntityShadowFlags(const entity_t * ent, const entity_t * ent2, int *cast
 		if(value[0] == '\0')
 			value = ValueForKey(ent2, "_rs");
 		if(value[0] != '\0')
+		{
 			*recvShadows = atoi(value);
+		}
+		else
+		{
+			/* Receive shadows by default */
+			*recvShadows = 1;
+		}
 	}
 }
