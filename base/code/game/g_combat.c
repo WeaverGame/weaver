@@ -1191,7 +1191,7 @@ qboolean G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker,
 		G_Printf("%i: client:%i health:%i damage:%i armor:%i\n", level.time, targ->s.number, targ->health, take, asave);
 	}
 
-	damage = WeaveProtectDamage(targ, client, inflictor, attacker, dir, point, damage, dflags, mod);
+	take = WeaveProtectDamage(targ, client, inflictor, attacker, dir, point, take, dflags, mod);
 
 	if(damage <= 0)
 	{

@@ -140,6 +140,27 @@ void WeaveProtectCheck(gclient_t * checkClient)
 	DEBUGWEAVEING("WeaveProtectCheck: end");
 }
 
+inline int dmgScale(int stat, float protect, gclient_t *client, int damage) {
+	float protectc = (1.0f - protect);
+	if(client->ps.stats[stat] >= ((int)((float)damage * protect)))
+	{
+		// Client will have protect remaining after absorbing part of this damage
+		client->ps.stats[stat] -= (int)((float)damage * protect);
+		damage = (int)((float)damage * protectc);
+	}
+	else if(client->ps.stats[stat] > 0)
+	{
+		// This is going to use the rest of the protect
+		damage = (int)((float)damage * protectc) + ((int)((float)damage * protect) - client->ps.stats[stat]);
+		client->ps.stats[stat] = 0;
+	}
+	else
+	{
+		// Client was not protected for this element
+	}
+	return damage;
+}
+
 int WeaveProtectDamage(gentity_t * targ, gclient_t *client, gentity_t * inflictor, gentity_t * attacker,
 				  const vec3_t dir, const vec3_t point, int damageBase, int dflags, int mod)
 {
@@ -169,49 +190,11 @@ int WeaveProtectDamage(gentity_t * targ, gclient_t *client, gentity_t * inflicto
 		}
 
 		// Apply protection for each element.
-		if(client->ps.stats[STAT_AIRPROTECT] >= (damage * airprotect))
-		{
-			client->ps.stats[STAT_AIRPROTECT] -= (damage * airprotect);
-			damage = (damage * (1.0f-airprotect));
-		}
-		else if(client->ps.stats[STAT_AIRPROTECT] > 0)
-		{
-			damage = (damage * (1.0f-airprotect)) + ((damage * airprotect) - client->ps.stats[STAT_AIRPROTECT]);
-			client->ps.stats[STAT_AIRPROTECT] = 0;
-		}
 
-		if(client->ps.stats[STAT_FIREPROTECT] >= (damage * fireprotect))
-		{
-			client->ps.stats[STAT_FIREPROTECT] -= (damage * fireprotect);
-			damage = (damage * (1.0f-fireprotect));
-		}
-		else if(client->ps.stats[STAT_FIREPROTECT] > 0)
-		{
-			damage = (damage * (1.0f-fireprotect)) + ((damage * fireprotect) - client->ps.stats[STAT_FIREPROTECT]);
-			client->ps.stats[STAT_FIREPROTECT] = 0;
-		}
-		
-		if(client->ps.stats[STAT_EARTHPROTECT] >= (damage * earthprotect))
-		{
-			client->ps.stats[STAT_EARTHPROTECT] -= (damage * earthprotect);
-			damage = (damage * (1.0f-earthprotect));
-		}
-		else if(client->ps.stats[STAT_EARTHPROTECT] > 0)
-		{
-			damage = (damage * (1.0f-earthprotect)) + ((damage * earthprotect) - client->ps.stats[STAT_EARTHPROTECT]);
-			client->ps.stats[STAT_EARTHPROTECT] = 0;
-		}
-
-		if(client->ps.stats[STAT_WATERPROTECT] >= (damage * waterprotect))
-		{
-			client->ps.stats[STAT_WATERPROTECT] -= (damage * waterprotect);
-			damage = (damage * (1.0f-waterprotect));
-		}
-		else if(client->ps.stats[STAT_WATERPROTECT] > 0)
-		{
-			damage = (damage * (1.0f-waterprotect)) + ((damage * waterprotect) - client->ps.stats[STAT_WATERPROTECT]);
-			client->ps.stats[STAT_WATERPROTECT] = 0;
-		}
+		damage = dmgScale(STAT_AIRPROTECT, airprotect, client, damage);
+		damage = dmgScale(STAT_FIREPROTECT, fireprotect, client, damage);
+		damage = dmgScale(STAT_EARTHPROTECT, earthprotect, client, damage);
+		damage = dmgScale(STAT_WATERPROTECT, waterprotect, client, damage);
 
 		WeaveProtectCheck(client);
 	}
