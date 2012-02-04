@@ -1446,7 +1446,8 @@ void GraphicsOptions_MenuInit(void)
 
 
 
-	y = 180 - 7 * (BIGCHAR_HEIGHT + 2);
+	//y = 180 - 7 * (BIGCHAR_HEIGHT + 2);
+	y = 150;
 /*
 otty: do we need this ?
 	s_graphicsoptions.list.generic.type = MTYPE_SPINCONTROL;

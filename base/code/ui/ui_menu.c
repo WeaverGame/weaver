@@ -42,15 +42,15 @@ MAIN MENU
 #define ID_MODS					16
 #define ID_EXIT					17
 
-#define MAIN_MENU_VERTICAL_SPACING		42
+#define MAIN_MENU_VERTICAL_SPACING		48
 
 #define MENU_BG_PAD_LEFT 20
-#define MENU_BG_W 180
+#define MENU_BG_W 220
 #define MENU_BG_H (uis.screenYSize * 0.9f)
 #define MENU_CENTER (MENU_BG_PAD_LEFT + (MENU_BG_W/2))
-#define MENU_ITEM_Y 180
+#define MENU_ITEM_Y 200
 #define MENU_ITEM_W 100
-#define MENU_DECO_W 26
+#define MENU_DECO_W 28
 #define MENU_LOGO_W 120
 
 typedef struct

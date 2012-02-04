@@ -1390,6 +1390,7 @@ UI_Init
 */
 void UI_Init(void)
 {
+	float tmp;
 	UI_RegisterCvars();
 
 	UI_InitGameinfo();
@@ -1409,13 +1410,13 @@ void UI_Init(void)
 	{
 		uis.screenFontScale = 1.0f;
 	}
-	if(uis.glconfig.vidWidth * 480 > uis.glconfig.vidHeight * 640)
+	if((uis.glconfig.vidWidth * 480.0f) > (uis.glconfig.vidHeight * 640.0f))
 	{
 		// wide screen
 		uis.screenXBias = 0.5f * (uis.glconfig.vidWidth - (uis.glconfig.vidHeight * (640.0f / 480.0f)));
 		uis.screenYBias = 0;
 	}
-	else if(uis.glconfig.vidWidth * 480 < uis.glconfig.vidHeight * 640)
+	else if((uis.glconfig.vidWidth * 480.0f) < (uis.glconfig.vidHeight * 640.0f))
 	{
 		// narrow screen
 		uis.screenXBias = 0;
@@ -1426,6 +1427,14 @@ void UI_Init(void)
 	{
 		// no wide screen
 		uis.screenXBias = uis.screenYBias = 0;
+	}
+
+	if(uis.screenXSize < 1024.0f)
+	{
+		tmp = (1024.0f - uis.screenXSize) / 500.0f;
+		if (tmp > 1.0f) {
+			uis.screenScale *= tmp;
+		}
 	}
 
 	// initialize the menu system
