@@ -1911,6 +1911,9 @@ typedef struct
 // Note that the ordering indicates the order of preference used
 // when there are multiple images of different formats available
 static imageExtToLoaderMap_t imageLoaders[] = {
+#ifdef USE_WEBP
+	{"webp", LoadWEBP},
+#endif
 	{"png", LoadPNG},
 	{"tga", LoadTGA},
 	{"jpg", LoadJPG},

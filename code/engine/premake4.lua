@@ -223,6 +223,47 @@ project "Weaver"
 	--
 	-- Options Configurations
 	--
+	configuration "with-webp"
+		defines
+		{
+			"USE_WEBP"
+		}
+		files
+		{
+			"renderer/tr_image_webp.c"
+		}
+		includedirs
+		{
+			"../libs/webp/include"
+		}
+	configuration { "with-webp", "vs*", "x32" }
+		libdirs
+		{
+			"../libs/webp/libs/win32"
+		}
+		links
+		{
+			"libwebp_a",
+		}
+	configuration { "with-webp", "vs*", "x64" }
+		libdirs
+		{
+			"../libs/webp/libs/win64"
+		}
+		links
+		{
+			"libwebp_a",
+		}
+	configuration { "with-webp", "gmake" }
+		buildoptions
+		{
+			
+			"`pkg-config --cflags libwebp`",
+		}
+		linkoptions
+		{
+			"`pkg-config --libs libwebp`",
+		}
 	--configuration "with-freetype"
 	--	links        { "freetype" }
 	--	buildoptions { "`pkg-config --cflags freetype2`" }

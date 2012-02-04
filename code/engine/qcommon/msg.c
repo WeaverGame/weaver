@@ -916,11 +916,11 @@ void MSG_ReadDeltaUsercmdKey(msg_t * msg, int key, usercmd_t * from, usercmd_t *
 		to->angles[0] = MSG_ReadDeltaKey(msg, key, from->angles[0], 16);
 		to->angles[1] = MSG_ReadDeltaKey(msg, key, from->angles[1], 16);
 		to->angles[2] = MSG_ReadDeltaKey(msg, key, from->angles[2], 16);
-		to->forwardmove = MSG_ReadDeltaKey(msg, key, from->forwardmove, 8) & 0xFF;
-		to->rightmove = MSG_ReadDeltaKey(msg, key, from->rightmove, 8) & 0xFF;
-		to->upmove = MSG_ReadDeltaKey(msg, key, from->upmove, 8) & 0xFF;
+		to->forwardmove = MSG_ReadDeltaKey(msg, key, from->forwardmove, 8);
+		to->rightmove = MSG_ReadDeltaKey(msg, key, from->rightmove, 8);
+		to->upmove = MSG_ReadDeltaKey(msg, key, from->upmove, 8);
 		to->buttons = MSG_ReadDeltaKey(msg, key, from->buttons, 16);
-		to->weapon = MSG_ReadDeltaKey(msg, key, from->weapon, 8) & 0xFF;
+		to->weapon = MSG_ReadDeltaKey(msg, key, from->weapon, 8);
 	}
 	else
 	{
