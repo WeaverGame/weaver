@@ -140,18 +140,23 @@ void WeaveProtectCheck(gclient_t * checkClient)
 	DEBUGWEAVEING("WeaveProtectCheck: end");
 }
 
-inline int dmgScale(int stat, float protect, gclient_t *client, int damage) {
+static ID_INLINE int dmgScale(int stat, float protect, gclient_t *client, int damage)
+{
 	float protectc = (1.0f - protect);
-	if(client->ps.stats[stat] >= ((int)((float)damage * protect)))
+	float fdamage = (float)damage;
+	float fdamageprotect = fdamage * protect;
+	float fdamageprotectc = fdamage * protectc;
+
+	if(client->ps.stats[stat] >= ((int)fdamageprotect))
 	{
 		// Client will have protect remaining after absorbing part of this damage
-		client->ps.stats[stat] -= (int)((float)damage * protect);
-		damage = (int)((float)damage * protectc);
+		client->ps.stats[stat] -= (int)(fdamageprotect);
+		damage = (int)(fdamageprotectc);
 	}
 	else if(client->ps.stats[stat] > 0)
 	{
 		// This is going to use the rest of the protect
-		damage = (int)((float)damage * protectc) + ((int)((float)damage * protect) - client->ps.stats[stat]);
+		damage = (int)(fdamageprotectc) + ((int)fdamageprotect - client->ps.stats[stat]);
 		client->ps.stats[stat] = 0;
 	}
 	else
