@@ -39,6 +39,13 @@ solution "Weaver"
 	
 --
 -- Options
+
+newoption
+{
+	trigger = "with-webp",
+	description = "Compile with webp image format support"
+}
+
 --
 --newoption
 --{
