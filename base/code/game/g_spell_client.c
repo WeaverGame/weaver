@@ -366,6 +366,12 @@ void ClientWeaverReleaseCostly(gclient_t * client) {
 
 	DEBUGWEAVEING("ClientWeaverReleaseCostly: start");
 
+	if(client->linkTarget != NULL)
+	{
+		DEBUGWEAVEING("ClientWeaverReleaseCostly: link follower, skip");
+		return;
+	}
+
 	// Simple: Remove the first one we find
 	for(i = MIN_WEAPON_WEAVE; i < MAX_WEAPONS; i++)
 	{
