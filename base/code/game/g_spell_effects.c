@@ -323,7 +323,7 @@ void RunWeave_Impact_Scaled(gentity_t * ent, trace_t * trace, float scale)
 	// splash damage (doesn't apply to person directly hit)
 	if(ent->splashDamage)
 	{
-		if(G_RadiusDamage(trace->endpos, ent->parent, ent->splashDamage, ent->splashRadius, other, ent->splashMethodOfDeath))
+		if(G_RadiusDamageInflict(trace->endpos, ent, ent->parent, ent->splashDamage, ent->splashRadius, other, ent->splashMethodOfDeath))
 		{
 			if(!hitClient)
 			{
@@ -1861,7 +1861,7 @@ void RunWeave_EarthQuake_Impact(gentity_t * ent, trace_t * trace)
 	// splash damage (doesn't apply to person directly hit)
 	if(ent->splashDamage)
 	{
-		if(G_RadiusDamage(trace->endpos, ent->parent, ent->splashDamage, ent->splashRadius, other, ent->splashMethodOfDeath))
+		if(G_RadiusDamageInflict(trace->endpos, ent, ent->parent, ent->splashDamage, ent->splashRadius, other, ent->splashMethodOfDeath))
 		{
 			if(!hitClient)
 			{
@@ -2112,7 +2112,7 @@ void RunWeave_IceShard_Impact(gentity_t * ent, trace_t * trace)
 	// splash damage (doesn't apply to person directly hit)
 	if(ent->splashDamage)
 	{
-		if(G_RadiusDamage(trace->endpos, ent->parent, ent->splashDamage, ent->splashRadius, other, ent->splashMethodOfDeath))
+		if(G_RadiusDamageInflict(trace->endpos, ent, ent->parent, ent->splashDamage, ent->splashRadius, other, ent->splashMethodOfDeath))
 		{
 			if(!hitClient)
 			{
@@ -2858,7 +2858,7 @@ void RunWeave_Lightning(gentity_t * ent)
 		tent->s.weapon = ent->s.weapon;
 
 		//Damage should be proportional to client side effect (strike intensity as event param)
-		G_RadiusDamage(ent->r.currentOrigin, ent->parent, ent->splashDamage, ent->splashRadius, ent, ent->splashMethodOfDeath);
+		G_RadiusDamageInflict(ent->r.currentOrigin, ent, ent->parent, ent->splashDamage, ent->splashRadius, ent, ent->splashMethodOfDeath);
 	}
 }
 
@@ -2881,7 +2881,7 @@ gentity_t      *EndWeave_Explosive(gentity_t * self, vec3_t start, vec3_t dir, i
 	ent = heldWeave->target_ent;
 	if(G_HeldWeave_GetState(heldWeave) == WST_INPROCESS)
 	{
-		G_RadiusDamage(ent->r.currentOrigin, ent->parent, ent->splashDamage, ent->splashRadius, ent, ent->splashMethodOfDeath);
+		G_RadiusDamageInflict(ent->r.currentOrigin, ent, ent->parent, ent->splashDamage, ent->splashRadius, ent, ent->splashMethodOfDeath);
 		G_AddEvent(ent, EV_WEAVEMISSILE_MISS, ent->s.generic1);
 
 		ent->freeAfterEvent = qtrue;

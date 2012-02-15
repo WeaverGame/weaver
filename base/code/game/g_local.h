@@ -19,7 +19,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Weaver source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-===========================================================================
+===========================================================================h
 */
 
 #ifndef __G_LOCAL_H
@@ -760,6 +760,7 @@ const char     *BuildShaderStateConfig();
 qboolean        CanDamage(gentity_t * targ, vec3_t origin);
 qboolean        G_Damage(gentity_t * targ, gentity_t * inflictor, gentity_t * attacker, const vec3_t dir, const vec3_t point, int damage,
 						 int dflags, int mod);
+qboolean        G_RadiusDamageInflict(vec3_t origin, gentity_t * inflictor, gentity_t * attacker, float damage, float radius, gentity_t * ignore, int mod);
 qboolean        G_RadiusDamage(vec3_t origin, gentity_t * attacker, float damage, float radius, gentity_t * ignore, int mod);
 int             G_InvulnerabilityEffect(gentity_t * targ, vec3_t dir, vec3_t point, vec3_t impactpoint, vec3_t bouncedir);
 void            body_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, int damage, int meansOfDeath);
