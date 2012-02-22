@@ -35,6 +35,7 @@
 #include <glib/gatomic.h>
 #include <glib/gbacktrace.h>
 #include <glib/gbase64.h>
+#include <glib/gbitlock.h>
 #include <glib/gbookmarkfile.h>
 #include <glib/gcache.h>
 #include <glib/gchecksum.h>
@@ -42,11 +43,13 @@
 #include <glib/gconvert.h>
 #include <glib/gdataset.h>
 #include <glib/gdate.h>
+#include <glib/gdatetime.h>
 #include <glib/gdir.h>
 #include <glib/gerror.h>
 #include <glib/gfileutils.h>
 #include <glib/ghash.h>
 #include <glib/ghook.h>
+#include <glib/ghostutils.h>
 #include <glib/giochannel.h>
 #include <glib/gkeyfile.h>
 #include <glib/glist.h>
@@ -79,11 +82,14 @@
 #include <glib/gthread.h>
 #include <glib/gthreadpool.h>
 #include <glib/gtimer.h>
+#include <glib/gtimezone.h>
 #include <glib/gtree.h>
 #include <glib/gtypes.h>
 #include <glib/gunicode.h>
 #include <glib/gurifuncs.h>
 #include <glib/gutils.h>
+#include <glib/gvarianttype.h>
+#include <glib/gvariant.h>
 #ifdef G_PLATFORM_WIN32
 #include <glib/gwin32.h>
 #endif
