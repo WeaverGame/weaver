@@ -75,11 +75,6 @@ struct _GMountOperationClass
 
   void (* aborted)      (GMountOperation       *op);
 
-  void (* show_processes) (GMountOperation      *op,
-                           const gchar          *message,
-                           GArray               *processes,
-                           const gchar          *choices[]);
-
   /*< private >*/
   /* Padding for future expansion */
   void (*_g_reserved1) (void);
@@ -92,6 +87,7 @@ struct _GMountOperationClass
   void (*_g_reserved8) (void);
   void (*_g_reserved9) (void);
   void (*_g_reserved10) (void);
+  void (*_g_reserved11) (void);
 };
 
 GType             g_mount_operation_get_type      (void) G_GNUC_CONST;

@@ -25,8 +25,6 @@
 #ifndef __G_ERROR_H__
 #define __G_ERROR_H__
 
-#include <stdarg.h>
-
 #include <glib/gquark.h>
 
 G_BEGIN_DECLS
@@ -48,10 +46,6 @@ GError*  g_error_new           (GQuark         domain,
 GError*  g_error_new_literal   (GQuark         domain,
                                 gint           code,
                                 const gchar   *message);
-GError*  g_error_new_valist    (GQuark         domain,
-                                gint           code,
-                                const gchar   *format,
-                                va_list        args);
 
 void     g_error_free          (GError        *error);
 GError*  g_error_copy          (const GError  *error);

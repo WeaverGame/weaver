@@ -85,13 +85,12 @@ typedef gpointer (* GReallocFunc) (gpointer data,
 GType          g_memory_output_stream_get_type      (void) G_GNUC_CONST;
 
 GOutputStream *g_memory_output_stream_new           (gpointer             data,
-                                                     gsize                size,
-                                                     GReallocFunc         realloc_function,
-                                                     GDestroyNotify       destroy_function);
+                                                     gsize                len,
+                                                     GReallocFunc         realloc_fn,
+                                                     GDestroyNotify       destroy);
 gpointer       g_memory_output_stream_get_data      (GMemoryOutputStream *ostream);
 gsize          g_memory_output_stream_get_size      (GMemoryOutputStream *ostream);
 gsize          g_memory_output_stream_get_data_size (GMemoryOutputStream *ostream);
-gpointer       g_memory_output_stream_steal_data    (GMemoryOutputStream *ostream);
 
 G_END_DECLS
 
