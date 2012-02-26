@@ -59,7 +59,7 @@ void func_shield_ActivateUse(gentity_t * ent, gentity_t * other, qboolean firstA
 	{
 		ent->shield_ent->activate(ent->shield_ent, other, firstActivate);
 	}
-	if(ent->count <= 0)
+	if(ent->slow && ent->count <= 0)
 	{
 		ent->die(ent, NULL, other, 0, 0);
 	}
@@ -67,6 +67,10 @@ void func_shield_ActivateUse(gentity_t * ent, gentity_t * other, qboolean firstA
 
 void func_shield_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, int damage, int mod)
 {
+	if(!self->slow) return;
+	// Shield is now dead, prevent this die function from being run multiple times.
+	self->slow = qfalse;
+
 	//Free any Shield infos
 	if(self->shield_ent && self->shield_ent->die)
 	{
@@ -171,6 +175,9 @@ void SP_func_shield(gentity_t * ent)
 	ent->activate = func_shield_ActivateUse;
 
 	ent->takedamage = qfalse;
+
+	// Alive
+	ent->slow = qtrue;
 
 	ent->die = func_shield_die;
 

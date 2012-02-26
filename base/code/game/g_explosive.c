@@ -36,6 +36,10 @@ EXPLOSIVE
 
 void func_explosive_die(gentity_t * self, gentity_t * inflictor, gentity_t * attacker, int damage, int mod)
 {
+	if(!self->slow) return;
+	// Explosive is now dead, prevent this die function from being run multiple times.
+	self->slow = qfalse;
+
 	//Explosion event
 	G_AddEvent(self, EV_EXPLODE, self->materialType);
 	self->freeAfterEvent = qtrue;
@@ -55,9 +59,6 @@ void func_explosive_die(gentity_t * self, gentity_t * inflictor, gentity_t * att
 		}
 	}
 #endif
-
-	//If it takes more damage during the event, it would die again.
-	self->takedamage = qfalse;
 }
 
 
@@ -129,6 +130,9 @@ void SP_func_explosive(gentity_t * ent)
 	{
 		ent->materialType = ENTMAT_NONE;
 	}
+
+	// Alive
+	ent->slow = qtrue;
 
 	ent->die = func_explosive_die;
 
