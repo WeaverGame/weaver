@@ -53,6 +53,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // macros to register predefined constants
 #define lua_registerglobal(L, n, v) (lua_pushstring(L, v), lua_setglobal(L, n))
+#define lua_registerglobalinteger(L, n) (lua_pushinteger(L, n), lua_setglobal(L, #n))
 #define lua_regconstinteger(L, n) (lua_pushstring(L, #n), lua_pushinteger(L, n), lua_settable(L, -3))
 #define lua_regconststring(L, n) (lua_pushstring(L, #n), lua_pushstring(L, n), lua_settable(L, -3))
 

@@ -417,14 +417,15 @@ qboolean G_LuaStartVM(lua_vm_t * vm)
 	lua_regconstinteger(vm->L, FS_APPEND_SYNC);
 	lua_regconstinteger(vm->L, SAY_ALL);
 	lua_regconstinteger(vm->L, SAY_TEAM);
-	lua_regconstinteger(vm->L, TEAM_FREE);
-	lua_regconstinteger(vm->L, TEAM_RED);
-	lua_regconstinteger(vm->L, TEAM_BLUE);
 	//xreal
 	//lua_regconstinteger(vm->L, SAY_BUDDY);
 	//lua_regconstinteger(vm->L, SAY_TEAMNL);
 	lua_regconststring(vm->L, HOSTARCH);
 	lua_setglobal(vm->L, "et");
+
+	lua_registerglobalinteger(vm->L, TEAM_FREE);
+	lua_registerglobalinteger(vm->L, TEAM_RED);
+	lua_registerglobalinteger(vm->L, TEAM_BLUE);
 
 	// register functions
 	luaopen_et(vm->L);
