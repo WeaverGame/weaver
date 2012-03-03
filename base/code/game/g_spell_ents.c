@@ -88,18 +88,6 @@ void func_shield_die(gentity_t * self, gentity_t * inflictor, gentity_t * attack
 	self->s.solid = 0;
 	self->s.otherEntityNum2 = 0;
 
-	if(attacker && attacker->client)
-	{
-		if(attacker->client->ps.persistant[PERS_TEAM] == TEAM_RED)
-		{
-			G_ObjectiveAnnounce(OBJEV_SHIELD_RED_KILL, self, attacker);
-		}
-		else
-		{
-			G_ObjectiveAnnounce(OBJEV_SHIELD_BLUE_KILL, self, attacker);
-		}
-	}
-
 #ifdef G_LUA
 	// Lua API callbacks
 	if(self->luaTrigger)
@@ -341,29 +329,28 @@ void Obj_Item_ReadyPickup(gentity_t * ent)
 
 void Return_Obj_Item(gentity_t * ent, gentity_t * other)
 {
+	team_t          pteam = TEAM_FREE;
 	G_SetOrigin(ent, ent->pos1);
 
 	if(other == NULL)
 	{
-		G_PrintfClient(NULL, S_COLOR_WHITE "An ancient magic returned %s!\n", ent->message);
-		G_ObjectiveAnnounce(OBJEV_ITEM_TIME_RETURNED, ent, NULL);
+		G_ObjectiveAnnounce(TEAM_FREE, va("An ancient magic returned %s!", ent->message));
 	}
 	else if (other->s.number == ENTITYNUM_WORLD)
 	{
-		G_PrintfClient(NULL, S_COLOR_WHITE "An ancient magic returned %s because it fell out of play!\n", ent->message);
-		G_ObjectiveAnnounce(OBJEV_ITEM_DROP_RETURNED, ent, other);
+		G_ObjectiveAnnounce(TEAM_FREE, va("An ancient magic returned %s because it fell out of play!", ent->message));
 	}
 	else
 	{
-		G_PrintfClient(NULL, "%s" S_COLOR_WHITE " returned %s!\n", other->client->pers.netname, ent->message);
 		if(other->client->ps.persistant[PERS_TEAM] == TEAM_RED)
 		{
-			G_ObjectiveAnnounce(OBJEV_ITEM_RED_RETURNED, ent, other);
+			pteam = TEAM_RED;
 		}
 		else
 		{
-			G_ObjectiveAnnounce(OBJEV_ITEM_BLUE_RETURNED, ent, other);
+			pteam = TEAM_BLUE;
 		}
+		G_ObjectiveAnnounce(pteam, va("%s" S_COLOR_WHITE " returned %s!", other->client->pers.netname, ent->message));
 	}
 
 	// No need to auto return
@@ -392,6 +379,7 @@ gentity_t      *Drop_Obj_Item(gentity_t * ent, gentity_t * dropped, float angle)
 {
 	vec3_t          velocity;
 	vec3_t          angles;
+	team_t          pteam = TEAM_FREE;
 
 	if(ent && ent->client)
 	{
@@ -415,21 +403,22 @@ gentity_t      *Drop_Obj_Item(gentity_t * ent, gentity_t * dropped, float angle)
 	dropped->s.pos.trTime = level.time;
 	VectorCopy(velocity, dropped->s.pos.trDelta);
 	dropped->s.eFlags |= EF_BOUNCE_HALF;
+	
+	// This is good for other team
+	if(ent->client->ps.persistant[PERS_TEAM] == TEAM_RED)
+	{
+		pteam = TEAM_BLUE;
+	}
+	else
+	{
+		pteam = TEAM_RED;
+	}
 
-	G_PrintfClient(NULL, "%s" S_COLOR_WHITE " dropped %s!\n", ent->client->pers.netname, dropped->message);
+	G_ObjectiveAnnounce(pteam, va("%s" S_COLOR_WHITE " dropped %s!\n", ent->client->pers.netname, dropped->message));
 
 	// Return on next think.
 	dropped->think = Return_Obj_Item_Think;
 	dropped->nextthink = level.time + (dropped->wait * 1000.0f);
-
-	if(ent->client->ps.persistant[PERS_TEAM] == TEAM_RED)
-	{
-		G_ObjectiveAnnounce(OBJEV_ITEM_RED_DROPPED, dropped, ent);
-	}
-	else
-	{
-		G_ObjectiveAnnounce(OBJEV_ITEM_BLUE_DROPPED, dropped, ent);
-	}
 
 	// Players can pick it up now.
 	Obj_Item_ReadyPickup(dropped);
@@ -465,6 +454,7 @@ Based on Touch_Item
 void Touch_Obj_Item(gentity_t * ent, gentity_t * other, trace_t * trace)
 {
 	qboolean        predict;
+	team_t          pteam;
 
 	if(ent->s.otherEntityNum != ENTITYNUM_WORLD)	// Someone else already carrying this.
 		return;
@@ -500,12 +490,24 @@ void Touch_Obj_Item(gentity_t * ent, gentity_t * other, trace_t * trace)
 			return;
 		}
 	}
+	else
+	{
+		return;
+	}
 
 	// Player is able to pick this up.
 
 	predict = other->client->pers.predictItemPickup;
 
-	G_PrintfClient(NULL, "%s" S_COLOR_WHITE " picked up %s!\n", other->client->pers.netname, ent->message);
+	if(other->client->ps.persistant[PERS_TEAM] == TEAM_RED)
+	{
+		pteam = TEAM_RED;
+	}
+	else
+	{
+		pteam = TEAM_BLUE;
+	}
+	G_ObjectiveAnnounce(pteam, va("%s" S_COLOR_WHITE " picked up %s!\n", other->client->pers.netname, ent->message));
 
 	ent->s.otherEntityNum = other->s.number;
 	other->client->objItem = ent;
@@ -520,15 +522,6 @@ void Touch_Obj_Item(gentity_t * ent, gentity_t * other, trace_t * trace)
 	else
 	{
 		G_AddEvent(other, EV_OBJ_ITEM_PICKUP, ent->s.modelindex);
-	}
-
-	if(other->client->ps.persistant[PERS_TEAM] == TEAM_RED)
-	{
-		G_ObjectiveAnnounce(OBJEV_ITEM_RED_STOLEN, ent, other);
-	}
-	else
-	{
-		G_ObjectiveAnnounce(OBJEV_ITEM_BLUE_STOLEN, ent, other);
 	}
 
 	// fire item targets
@@ -700,7 +693,7 @@ void multi_capturepoint_trigger(gentity_t * ent, gentity_t * activator)
 		{
 			return;
 		}
-		G_ObjectiveAnnounce(OBJEV_ITEM_RED_CAPTURED, ent, activator);
+		G_ObjectiveAnnounce(TEAM_RED, va("%s" S_COLOR_WHITE " captured %s!\n", activator->client->pers.netname, ent->message));
 	}
 	else if(activator->client->ps.persistant[PERS_TEAM] == TEAM_BLUE)
 	{
@@ -708,7 +701,7 @@ void multi_capturepoint_trigger(gentity_t * ent, gentity_t * activator)
 		{
 			return;
 		}
-		G_ObjectiveAnnounce(OBJEV_ITEM_BLUE_CAPTURED, ent, activator);
+		G_ObjectiveAnnounce(TEAM_BLUE, va("%s" S_COLOR_WHITE " captured %s!\n", activator->client->pers.netname, ent->message));
 	}
 
 	G_UseTargets(ent, ent->activator);
