@@ -197,6 +197,8 @@ ClientPowerConsume
 
 Consumes power temporarily (powerThreading, not powerUsed) from this client.
 Shared equally amoung all clients in circle.
+
+amount may be negative.
 =================
 */
 void ClientPowerConsume(gclient_t * holdingClient, int amount)
@@ -220,8 +222,17 @@ void ClientPowerConsume(gclient_t * holdingClient, int amount)
 	linkI = holdingClient;
 	do
 	{
-		powerAvailable = linkI->powerMax - (linkI->powerUsed + linkI->powerThreading);
-		if(powerAvailable)
+		if(amount > 0)
+		{
+			// Consuming positive amount, powerAvailable is the power not used
+			powerAvailable = linkI->powerMax - (linkI->powerUsed + linkI->powerThreading);
+		}
+		else
+		{
+			// Consuming negative amount, powerAvailable is the power already used
+			powerAvailable = linkI->powerUsed + linkI->powerThreading;
+		}
+		if(powerAvailable > 0)
 		{
 			linkCount++;
 		}
@@ -241,43 +252,89 @@ void ClientPowerConsume(gclient_t * holdingClient, int amount)
 	linkI = holdingClient;
 	do
 	{
-		powerAvailable = linkI->powerMax - (linkI->powerUsed + linkI->powerThreading);
-		if(powerAvailable > 0)
+		if(amount > 0)
 		{
-			if (powerAvailable >= amountTarget)
+			// Consuming positive amount, powerAvailable is the power not used
+			powerAvailable = linkI->powerMax - (linkI->powerUsed + linkI->powerThreading);
+			if(powerAvailable > 0)
 			{
-				// This player can meet their quota
-				linkI->powerThreading += amountTarget;
-				if (amountShort > 0)
+				if(powerAvailable >= amountTarget)
 				{
-					powerAvailable -= amountTarget;
-					if (powerAvailable >= amountShort)
+					// This player can meet their quota
+					linkI->powerThreading += amountTarget;
+					if(amountShort > 0)
 					{
-						// This player can meet their quota + pick up all the slack
-						linkI->powerThreading += amountShort;
-						amountShort = 0;
+						powerAvailable -= amountTarget;
+						if(powerAvailable >= amountShort)
+						{
+							// This player can meet their quota + pick up all the slack
+							linkI->powerThreading += amountShort;
+							amountShort = 0;
+						}
+						else if(powerAvailable > 0)
+						{
+							// This player can meet their quota + picked up part of the slack
+							linkI->powerThreading += powerAvailable;
+							amountShort -= powerAvailable;
+						}
 					}
-					else if (powerAvailable > 0)
-					{
-						// This player can meet their quota + picked up part of the slack
-						linkI->powerThreading += powerAvailable;
-						amountShort -= powerAvailable;
-					}
+				}
+				else
+				{
+					// This player cannot meet their quota
+					// Note how far short of target they are and use what we can.
+					amountShort += (amountTarget - powerAvailable);
+					linkI->powerThreading += powerAvailable;
 				}
 			}
 			else
 			{
-				// This player cannot meed their quota
-				// Note how far short of target they are and use what we can.
-				amountShort += (amountTarget - powerAvailable);
-				linkI->powerThreading += powerAvailable;
+				// If the client never had power available, it wasnt included in linkCount.
+				// It was not expected to participate, so the target amount for this client is 0.
+				// There is no additional amountShort.
 			}
 		}
 		else
 		{
-			// If the client never had power available, it wasnt included in linkCount.
-			// It was not expected to participate, so the target amount for this client is 0.
-			// There is no additional amountShort.
+			// Consuming negative amount, powerAvailable is the power already used
+			powerAvailable = linkI->powerUsed + linkI->powerThreading;
+			if(powerAvailable > 0)
+			{
+				if(powerAvailable + amountTarget >= 0)
+				{
+					// This player can meet their quota
+					linkI->powerThreading += amountTarget;
+					if(amountShort < 0)
+					{
+						powerAvailable += amountTarget;
+						if(powerAvailable + amountShort >= 0)
+						{
+							// This player can meet their quota + pick up all the slack
+							linkI->powerThreading += amountShort;
+							amountShort = 0;
+						}
+						else if(powerAvailable > 0)
+						{
+							// This player can meet their quota + picked up part of the slack
+							linkI->powerThreading -= powerAvailable;
+							amountShort += powerAvailable;
+						}
+					}
+				}
+				else
+				{
+					// This player cannot meet their quota
+					// Note how far short of target they are and use what we can.
+					amountShort += (powerAvailable + amountTarget);
+					linkI->powerThreading -= powerAvailable;
+				}
+			}
+			else
+			{
+				// If the client never had power available, it wasnt included in linkCount.
+				// It was not expected to participate, so the target amount for this client is 0.
+				// There is no additional amountShort.
+			}
 		}
 		if(!linkI->linkFollower)
 		{
