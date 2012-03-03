@@ -202,15 +202,29 @@ Shared equally amoung all clients in circle.
 void ClientPowerConsume(gclient_t * holdingClient, int amount)
 {
 	int             linkCount;
+	int             amountShort;
+	int             amountTarget;
+	int             powerAvailable;
 	gclient_t      *linkI;
 
 	DEBUGWEAVEING("ClientPowerConsume: start");
+	
+	if(amount == 0)
+	{
+		DEBUGWEAVEING("ClientPowerConsume: end: zero amount");
+		return;
+	}
+
 	//Count clients in link chain
 	linkCount = 0;
 	linkI = holdingClient;
 	do
 	{
-		linkCount++;
+		powerAvailable = linkI->powerMax - (linkI->powerUsed + linkI->powerThreading);
+		if(powerAvailable)
+		{
+			linkCount++;
+		}
 		if(!linkI->linkFollower)
 		{
 			break;
@@ -218,19 +232,66 @@ void ClientPowerConsume(gclient_t * holdingClient, int amount)
 		linkI = linkI->linkFollower;
 	} while(linkI);
 
-	amount = amount / linkCount;
+	//Target amount is the ideally shared amount per person
+	amountTarget = amount / linkCount;
+	//Amount short of amountTarget/person, initially the remainder
+	amountShort = amount % linkCount;
 
 	//Use power for each player in chain
 	linkI = holdingClient;
 	do
 	{
-		linkI->powerThreading += amount;
+		powerAvailable = linkI->powerMax - (linkI->powerUsed + linkI->powerThreading);
+		if(powerAvailable > 0)
+		{
+			if (powerAvailable >= amountTarget)
+			{
+				// This player can meet their quota
+				linkI->powerThreading += amountTarget;
+				if (amountShort > 0)
+				{
+					powerAvailable -= amountTarget;
+					if (powerAvailable >= amountShort)
+					{
+						// This player can meet their quota + pick up all the slack
+						linkI->powerThreading += amountShort;
+						amountShort = 0;
+					}
+					else if (powerAvailable > 0)
+					{
+						// This player can meet their quota + picked up part of the slack
+						linkI->powerThreading += powerAvailable;
+						amountShort -= powerAvailable;
+					}
+				}
+			}
+			else
+			{
+				// This player cannot meed their quota
+				// Note how far short of target they are and use what we can.
+				amountShort += (amountTarget - powerAvailable);
+				linkI->powerThreading += powerAvailable;
+			}
+		}
+		else
+		{
+			// If the client never had power available, it wasnt included in linkCount.
+			// It was not expected to participate, so the target amount for this client is 0.
+			// There is no additional amountShort.
+		}
 		if(!linkI->linkFollower)
 		{
 			break;
 		}
 		linkI = linkI->linkFollower;
 	} while(linkI);
+
+	if(amountShort != 0)
+	{
+		// This should recurse like once or twice at most.
+		ClientPowerConsume(holdingClient, amountShort);
+	}
+
 	DEBUGWEAVEING("ClientPowerConsume: end");
 }
 
