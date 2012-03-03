@@ -1420,6 +1420,9 @@ typedef enum {
 	NOTIFY_MODE_JOINTEAM,
 	NOTIFY_MODE_OBITUARY,
 	NOTIFY_MODE_DISCONNECT,
+	NOTIFY_MODE_OBJ_RED, // Red Success
+	NOTIFY_MODE_OBJ_BLUE, // Blue Success
+	NOTIFY_MODE_OBJ_OTHER,
 	NOTIFY_MODE_NUM
 } notify_mode_t;
 
@@ -1942,6 +1945,7 @@ char           *CG_TutorialText( void );
 //
 // cg_events.c
 //
+void            CG_AddToNotify(notify_mode_t mode, const char *str);
 void            CG_CheckEvents(centity_t * cent);
 const char     *CG_PlaceString(int rank);
 void            CG_EntityEvent(centity_t * cent, vec3_t position);

@@ -23,18 +23,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // g_spell_objective.c -- objectives
 #include "g_local.h"
 
-void G_ObjectiveAnnounce(objective_events objevp, gentity_t * ent, gentity_t * other)
+void G_ObjectiveAnnounce(team_t team, const char * msg)
 {
-	gentity_t      *te;
-	te = G_TempEntity(ent->s.pos.trBase, EV_GLOBAL_OBJ);
-	te->s.eventParm = objevp;
-	te->r.svFlags |= SVF_BROADCAST;
-	if(ent != NULL)
-	{
-		te->s.otherEntityNum = ent->s.number;
-	}
-	if(other != NULL)
-	{
-		te->s.otherEntityNum2 = other->s.number;
-	}
+	// objinfo <success_team> <obj_ent_num> <other_ent_num> "<msg>"
+	// Also see cg_servercmds.c
+	G_Printf("objinfo %d \"%s\"\n", team, msg);
+	trap_SendServerCommand(-1, va("objinfo %d \"%s\n\"", team, msg));
 }

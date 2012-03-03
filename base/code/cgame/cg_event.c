@@ -37,7 +37,7 @@ CG_AddToNotify
 Based on CG_AddToChat
 =======================
 */
-static void CG_AddToNotify(notify_mode_t mode, const char *str)
+void CG_AddToNotify(notify_mode_t mode, const char *str)
 {
 	int             len;
 	char           *p, *ls;

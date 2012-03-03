@@ -102,6 +102,23 @@ static int game_Broadcast(lua_State * L)
 	return 0;
 }
 
+// game.ObjectiveAnnounce(sucess_team, message)
+static int game_ObjectiveAnnounce(lua_State * L)
+{
+	int             team;
+	const char     *msg;
+
+	team = luaL_checkint(L, 1);
+	msg = luaL_checkstring(L, 2);
+
+	DEBUG_LUA("game_ObjectiveAnnounce: start: team=%d msg=%s", team, msg);
+
+	G_ObjectiveAnnounce(team, msg);
+
+	DEBUG_LUA("game_ObjectiveAnnounce: return: sent");
+	return 0;
+}
+
 // game.SpawnGroup(team, group, status)
 static int game_SpawnGroup(lua_State * L)
 {
@@ -267,6 +284,7 @@ static int game_Leveltime(lua_State * L)
 static const luaL_reg gamelib[] = {
 	{"Print", game_Print},
 	{"Broadcast", game_Broadcast},
+	{"ObjectiveAnnounce", game_ObjectiveAnnounce},
 	{"EndRound", game_EndRound},
 	{"Leveltime", game_Leveltime},
 	{"SetDefender", game_SetDefender},

@@ -853,7 +853,7 @@ int             PowerEncode(int threads[MAX_THREADS], int offset, int count);
 
 // g_spell_objective.c
 //
-void            G_ObjectiveAnnounce(objective_events objevp, gentity_t * ent, gentity_t * other);
+void            G_ObjectiveAnnounce(team_t team, const char * msg);
 
 /* g_statistics.c */
 void            G_StatInitPlayer(gentity_t * ent);

@@ -520,6 +520,30 @@ static void CG_AddToChat(chat_mode_t mode, const char *str)
 		cgs.chatLastPos = cgs.chatPos - chatHeight;
 }
 
+static void CG_ParseObjectiveInfo(void)
+{
+	char            msg[NOTIFY_WIDTH * 3 + 1] = {0};
+	notify_mode_t   mode = NOTIFY_MODE_OBJ_OTHER;
+	int team;
+	// objinfo <success_team> "<msg>"
+	// Also see g_spell_objective.c
+	if(trap_Argc() < 3)
+	{
+		trap_Print(S_COLOR_RED "invalid objective info command\n");
+		return;
+	}
+
+	team = atoi(CG_Argv(1));
+	Q_strncpyz(msg, CG_Argv(2), NOTIFY_WIDTH * 3);
+
+	if(team == TEAM_RED)
+		mode = NOTIFY_MODE_OBJ_RED;
+	else if(team == TEAM_BLUE)
+		mode = NOTIFY_MODE_OBJ_BLUE;
+
+	CG_AddToNotify(mode, msg);
+}
+
 /*
 ===============
 CG_MapRestart
@@ -1279,6 +1303,12 @@ static void CG_ServerCommand(void)
 	if(!strcmp(cmd, "tinfo"))
 	{
 		CG_ParseTeamInfo();
+		return;
+	}
+
+	if(!strcmp(cmd, "objinfo"))
+	{
+		CG_ParseObjectiveInfo();
 		return;
 	}
 
