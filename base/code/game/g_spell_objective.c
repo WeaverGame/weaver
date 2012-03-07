@@ -28,5 +28,5 @@ void G_ObjectiveAnnounce(team_t team, const char * msg)
 	// objinfo <success_team> <obj_ent_num> <other_ent_num> "<msg>"
 	// Also see cg_servercmds.c
 	G_Printf("objinfo %d \"%s\"\n", team, msg);
-	trap_SendServerCommand(-1, va("objinfo %d \"%s\n\"", team, msg));
+	trap_SendServerCommand(-1, va("objinfo %d \"%s\"", team, msg));
 }
