@@ -734,6 +734,9 @@ void multi_capturepoint_trigger(gentity_t * ent, gentity_t * activator)
 		}
 	}
 #endif
+
+	// Client is no logner carrying the objective
+	activator->client->objItem = NULL;
 }
 /*
 ================
