@@ -673,6 +673,9 @@ the trigger was just activated
 */
 void multi_capturepoint_trigger(gentity_t * ent, gentity_t * activator)
 {
+	team_t          capTeam = TEAM_FREE;
+	static const char objDefaultName[] = "the objective";
+	const char     *objName;
 	ent->activator = activator;
 
 	if(!activator->client)
@@ -693,7 +696,7 @@ void multi_capturepoint_trigger(gentity_t * ent, gentity_t * activator)
 		{
 			return;
 		}
-		G_ObjectiveAnnounce(TEAM_RED, va("%s" S_COLOR_WHITE " captured %s!\n", activator->client->pers.netname, ent->message));
+		capTeam = TEAM_RED;
 	}
 	else if(activator->client->ps.persistant[PERS_TEAM] == TEAM_BLUE)
 	{
@@ -701,22 +704,33 @@ void multi_capturepoint_trigger(gentity_t * ent, gentity_t * activator)
 		{
 			return;
 		}
-		G_ObjectiveAnnounce(TEAM_BLUE, va("%s" S_COLOR_WHITE " captured %s!\n", activator->client->pers.netname, ent->message));
+		capTeam = TEAM_BLUE;
 	}
+
+	if(activator->client->objItem->message != NULL)
+	{
+		objName = activator->client->objItem->message;
+	}
+	else
+	{
+		objName = objDefaultName;
+	}
+
+	G_ObjectiveAnnounce(capTeam, va("%s" S_COLOR_WHITE " captured %s!", activator->client->pers.netname, objName));
 
 	G_UseTargets(ent, ent->activator);
 
 #ifdef G_LUA
 	// Lua API callbacks
-	if(ent->luaTrigger)
+	if(ent->luaUse)
 	{
 		if(activator)
 		{
-			G_LuaHook_EntityTrigger(ent->luaTrigger, ent->s.number, activator->s.number);
+			G_LuaHook_EntityUse(ent->luaUse, ent->s.number, activator->client->objItem->s.number, activator->s.number);
 		}
 		else
 		{
-			G_LuaHook_EntityTrigger(ent->luaTrigger, ent->s.number, ENTITYNUM_WORLD);
+			G_LuaHook_EntityUse(ent->luaUse, ent->s.number, ENTITYNUM_WORLD, ENTITYNUM_WORLD);
 		}
 	}
 #endif
