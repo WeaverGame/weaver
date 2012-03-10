@@ -44,6 +44,9 @@ void CG_AddToNotify(notify_mode_t mode, const char *str)
 	int             lastcolor;
 	int             notifyHeight;
 
+	// Print to console
+	CG_Printf("%s\n", str);
+
 	if(cg_notifyHeight.integer < NOTIFY_HEIGHT)
 	{
 		notifyHeight = cg_notifyHeight.integer;
