@@ -313,13 +313,6 @@ void RunWeave_Impact_Scaled(gentity_t * ent, trace_t * trace, float scale)
 
 	ent->freeAfterEvent = qtrue;
 
-	// change over to a normal entity right at the point of impact
-	ent->s.eType = ET_GENERAL;
-
-	SnapVectorTowards(trace->endpos, ent->s.pos.trBase);	// save net bandwidth
-
-	G_SetOrigin(ent, trace->endpos);
-
 	// splash damage (doesn't apply to person directly hit)
 	if(ent->splashDamage)
 	{
@@ -331,6 +324,13 @@ void RunWeave_Impact_Scaled(gentity_t * ent, trace_t * trace, float scale)
 			}
 		}
 	}
+
+	// change over to a normal entity right at the point of impact
+	ent->s.eType = ET_GENERAL;
+
+	SnapVectorTowards(trace->endpos, ent->s.pos.trBase);	// save net bandwidth
+
+	G_SetOrigin(ent, trace->endpos);
 
 	trap_LinkEntity(ent);
 }
