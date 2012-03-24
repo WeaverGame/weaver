@@ -1,4 +1,4 @@
-SET xmap2=%~dp0\..\..\bin\win32\xmap2.exe
+SET xmap2=%~dp0\..\..\bin\win64\xmap2.exe
 SET basepath=%~dp0\..\..
 
 SET starttime=%time%
