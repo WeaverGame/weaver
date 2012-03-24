@@ -525,6 +525,7 @@ static void CG_ParseObjectiveInfo(void)
 	char            msg[NOTIFY_WIDTH * 3 + 1] = {0};
 	notify_mode_t   mode = NOTIFY_MODE_OBJ_OTHER;
 	int team;
+	unsigned int msec;
 	// objinfo <success_team> "<msg>"
 	// Also see g_spell_objective.c
 	if(trap_Argc() < 3)
@@ -542,6 +543,9 @@ static void CG_ParseObjectiveInfo(void)
 		mode = NOTIFY_MODE_OBJ_BLUE;
 
 	CG_AddToNotify(mode, msg);
+	// Print in console
+	msec = cg.time - cgs.levelStartTime;
+	CG_Printf("[%0d] %s\n", msec/1000, msg);
 }
 
 /*
