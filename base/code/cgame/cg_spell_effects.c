@@ -421,6 +421,36 @@ void WeaveEffect_Protect(centity_t * cent)
 	pe->protectWeaveOn[slot] = qtrue;
 }
 
+/*
+===============
+WeaveEffect_PlayerInstance
+===============
+*/
+void WeaveEffect_PlayerInstance(centity_t * cent)
+{
+	playerEntity_t *pe;
+	int             i;
+
+	if(cg.predictedPlayerState.clientNum == cent->currentState.generic1)
+	{
+		// weaveEffect applies to this client.
+		pe = &cg.predictedPlayerEntity.pe;
+	}
+	else
+	{
+		// weaveEffect applies to another player.
+		pe = &cg_entities[cent->currentState.generic1].pe;
+	}
+
+	for(i = 0; i < MAX_PLAYER_WEAVE_EFFECTS; i++) {
+		if (pe->weaveEffectEnt[i] != 0)
+		{
+			// slot already in use
+			continue;
+		}
+		pe->weaveEffectEnt[i] = cent->currentState.number;
+	}
+}
 
 /*
 ===============
@@ -705,7 +735,9 @@ void CG_WeaveEffect(centity_t * cent)
 		case WVW_D_AIR_GRAB:
 		case WVW_A_AIR_GRABPLAYER:
 		case WVW_A_AIR_BINDPLAYER:
+			break;
 		case WVW_A_SPIRIT_SHIELD:
+			WeaveEffect_PlayerInstance(cent);
 			break;
 		case WVW_D_WATER_HEAL_S:
 		case WVW_D_WATER_HEAL_M:
@@ -748,6 +780,61 @@ void CG_WeaveEffect(centity_t * cent)
 		case WVW_A_WATER_ICESHARDS_S:
 		case WVW_A_WATER_ICESHARDS_M:
 			WeaveEffect_Missile(cent);
+			break;
+			//Fail
+		case WVW_NONE:
+		case -1:
+		default:
+			break;
+	}
+}
+
+/*
+===============
+PlayerWeaveEffect_Shield
+===============
+*/
+void PlayerWeaveEffect_Shield(centity_t * cent, centity_t * player, playerState_t * ps, refEntity_t * body)
+{
+	static const vec3_t offset = {0.0f, 0.0f, 40.0f};
+	refEntity_t     ent;
+	int             rf;
+	weaver_weaveCGInfo *weaveInfo;
+
+	if(player->currentState.number == cg.snap->ps.clientNum && !cg.renderingThirdPerson)
+	{
+		rf = RF_THIRD_PERSON;	// only show in mirrors
+	}
+	else
+	{
+		rf = 0;
+	}
+
+	memset(&ent, 0, sizeof(ent));
+	VectorCopy(body->origin, ent.origin);
+	VectorAdd(ent.origin, offset, ent.origin);
+	AxisCopy(body->axis, ent.axis);
+	
+	weaveInfo = &cg_weaves[cent->currentState.weapon];
+	ent.customShader = weaveInfo->instanceShader[0];
+	ent.reType = RT_SPRITE;
+	ent.radius = 6;
+	ent.renderfx = rf;
+
+	trap_R_AddRefEntityToScene(&ent);
+}
+
+/*
+===============
+CG_WeaveEffect_OnPlayer
+===============
+*/
+void CG_WeaveEffect_OnPlayer(centity_t * cent, centity_t * player, playerState_t * ps, refEntity_t * body)
+{
+	switch (cent->currentState.weapon)
+	{
+		case WVW_A_SPIRIT_SHIELD:
+			PlayerWeaveEffect_Shield(cent, player, ps, body);
 			break;
 			//Fail
 		case WVW_NONE:

@@ -178,6 +178,8 @@ float           debug_anim_blend;
 // because corpses after respawn are outside the normal
 // client numbering range
 
+#define   MAX_PLAYER_WEAVE_EFFECTS 1
+
 //TA: smoothing of view and model for WW transitions
 #define   MAXSMOOTHS          32
 
@@ -229,6 +231,7 @@ typedef struct
 	// weaves on player
 	qboolean        protectWeaveOn[4];
 	int             protectWeaveEnt[4];
+	int             weaveEffectEnt[MAX_PLAYER_WEAVE_EFFECTS];
 } playerEntity_t;
 
 //=================================================
@@ -1901,6 +1904,7 @@ void            CG_LoadDeferredPlayers(void);
 // cg_spell_effects.c
 //
 void            CG_WeaveEffect(centity_t * cent);
+void            CG_WeaveEffect_OnPlayer(centity_t * cent, centity_t * player, playerState_t * ps, refEntity_t * body);
 void            CG_WeaveCast(centity_t * cent);
 void            CG_WeaveMissile_Trail(centity_t * ent);
 void            CG_WeaveEffect_Link(centity_t * cent);
@@ -1919,6 +1923,7 @@ qboolean        CG_PlayerIsThreading(playerState_t * ps);
 void            CG_AddPlayerThreads(centity_t * player, playerState_t * ps, refEntity_t * parent);
 void            CG_AddPlayerHeldWeave(centity_t * player, playerState_t * ps, refEntity_t * parent);
 void            CG_AddPlayerProtects(centity_t * player, playerState_t * ps, refEntity_t * body);
+void            CG_AddPlayerWeaveEffects(centity_t * player, playerState_t * ps, refEntity_t * body);
 void            CG_HeldWeave(centity_t * cent);
 void            CG_WeaveSelect_f(void);
 void            CG_WeaveNext_f(void);

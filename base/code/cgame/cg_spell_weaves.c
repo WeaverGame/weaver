@@ -176,21 +176,26 @@ CG_AddPlayerProtects
 Adds protect weave entities to a player model
 =================
 */
-
 void CG_AddPlayerProtects(centity_t * player, playerState_t * ps, refEntity_t * body)
 {
 	int             i;
-	int             entinit = 0;
-	refEntity_t     ent;
 	playerEntity_t *pe;
 	centity_t      *protectWeave;
 	const weaver_weaveCGInfo *weave;
+	/*
+	int             entinit = 0;
+	refEntity_t     ent;
+	int             rf;
 
-	if(cg.clientNum == player->currentState.clientNum && !cg.renderingThirdPerson)
+	if(player->currentState.number == cg.snap->ps.clientNum && !cg.renderingThirdPerson)
 	{
-		//Threads belong to this player, first person
-		return;
+		rf = RF_THIRD_PERSON;	// only show in mirrors
 	}
+	else
+	{
+		rf = 0;
+	}
+	*/
 
 	pe = &player->pe;
 
@@ -211,16 +216,6 @@ void CG_AddPlayerProtects(centity_t * player, playerState_t * ps, refEntity_t * 
 			continue;
 		}
 
-		if(entinit == 0)
-		{
-			memset(&ent, 0, sizeof(ent));
-
-			VectorCopy(body->origin, ent.origin);
-			//VectorAdd(ent.origin, protectOffset, ent.origin);
-			AxisCopy(body->axis, ent.axis);
-			entinit = 1;
-		}
-
 		weave = &cg_weaves[protectWeave->currentState.weapon];
 
 		// Model overlay
@@ -229,11 +224,62 @@ void CG_AddPlayerProtects(centity_t * player, playerState_t * ps, refEntity_t * 
 
 		/*
 		// Extra torso shield model
+		if(entinit == 0)
+		{
+			memset(&ent, 0, sizeof(ent));
+
+			VectorCopy(body->origin, ent.origin);
+			//VectorAdd(ent.origin, protectOffset, ent.origin);
+			AxisCopy(body->axis, ent.axis);
+			entinit = 1;
+			ent.renderfx = rf;
+		}
 		ent.customShader = weave->instanceShader[0];
 		ent.hModel = weave->instanceModel[0];
 		RotateAroundAxis(ent.axis, cg.time / 2, 2);
 		trap_R_AddRefEntityToScene(&ent);
 		*/
+	}
+}
+
+/*
+=================
+CG_AddPlayerWeaveEffects
+
+Adds weave effect entities to a player model
+=================
+*/
+void CG_AddPlayerWeaveEffects(centity_t * player, playerState_t * ps, refEntity_t * body)
+{
+	int             i;
+	playerEntity_t *pe;
+	centity_t      *weaveEffect;
+
+	if(cg.clientNum == player->currentState.clientNum && !cg.renderingThirdPerson)
+	{
+		//Threads belong to this player, first person
+		return;
+	}
+
+	pe = &player->pe;
+
+	for(i = 0; i < MAX_PLAYER_WEAVE_EFFECTS; i++)
+	{
+		if(!pe->weaveEffectEnt[i])
+		{
+			continue;
+		}
+
+		weaveEffect = &cg_entities[pe->weaveEffectEnt[i]];
+
+		if((weaveEffect == NULL) || (weaveEffect->currentValid < 1))
+		{
+			// this ent number is no longer a weave effect
+			pe->weaveEffectEnt[i] = 0;
+			continue;
+		}
+
+		CG_WeaveEffect_OnPlayer(weaveEffect, player, ps, body);
 	}
 }
 
@@ -1075,6 +1121,7 @@ void CG_RegisterWeave(int weaveNum)
 			//weaveInfo->instanceLightColor;
 			//weaveInfo->instanceRenderfx;
 			//weaveInfo->instanceSound;
+			weaveInfo->instanceShader[0] = trap_R_RegisterShader("weave_effects/shield/blocked");
 			break;
 		case WVW_D_SPIRIT_LINK:
 

@@ -3190,6 +3190,9 @@ void CG_Player(centity_t * cent)
 	// add player protect spells
 	CG_AddPlayerProtects(cent, NULL, &body);
 
+	// add weave effects attached to player
+	CG_AddPlayerWeaveEffects(cent, NULL, &body);
+
 	// add the sword
 	CG_AddPlayerSword(&body, NULL, cent, ci->team);
 
