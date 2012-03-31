@@ -486,7 +486,7 @@ void CG_DrawTargetPlayerName(float x, float y, int clientNum, int lastTime)
 
 	// Background
 	
-	trap_R_DrawStretchPic(x - (s.cross_health_h/2) - 3, y - s.cross_health_h - 3, s.cross_health_w + 6, s.cross_health_h + 8, 0, 0, 1, 1, cgs.media.weaverBarExt);
+	trap_R_DrawStretchPic(x - (s.cross_health_w/2) - 3, y - s.cross_health_h - 3, s.cross_health_w + 6, s.cross_health_h + 8, 0, 0, 1, 1, cgs.media.weaverBarExt);
 
 	// Cap to 100 for bar
 	if(healthPC > 100)
@@ -498,8 +498,8 @@ void CG_DrawTargetPlayerName(float x, float y, int clientNum, int lastTime)
 	ColorHealPercent(colorHealth, healthPC);
 	colorHealth[3] = color[3];
 
-	// HP Bar is horizontal, w and h are swapped.
-	CG_DrawFillRect(x - (s.cross_health_h/2), y - s.cross_health_h, s.cross_health_w * (healthPC/100.0f), s.cross_health_h, colorHealth, DRFD_RIGHT);
+	// HP Bar is horizontal
+	CG_DrawFillRect(x - (s.cross_health_w/2), y - s.cross_health_h, s.cross_health_w * (healthPC/100.0f), s.cross_health_h, colorHealth, DRFD_RIGHT);
 	trap_R_SetColor(NULL);
 }
 
@@ -864,14 +864,14 @@ int HeldSpecial_healing;
 
 /*
 =================
-CG_DrawWeaverHeldSpecialInit
+CG_DrawWeaverSpellSpecialInit
 
-Prepare for drawing special information for a set of heldWeaves.
-This allows us to have a state while drawing info for the held weave,
+Prepare for drawing special information for some heldWeaves/weaveEffects.
+This allows us to have a state while drawing info for the heldWeave/weaveEffect,
 and do something smarter if the same type of weave shows up multiple times.
 =================
 */
-void CG_DrawWeaverHeldSpecialInit(void)
+void CG_DrawWeaverSpellSpecialInit(void)
 {
 	// If we have multiple healing spells, we need to keep track of where we can display them.
 	HeldSpecial_healing = 0;
@@ -879,23 +879,54 @@ void CG_DrawWeaverHeldSpecialInit(void)
 
 /*
 =================
-CG_DrawWeaverHeldSpecial
+CG_DrawWeaverEffectSpecial
 
-If one of our heldWeaves requires some extra info to be shown on the hud, do it from here.
+If one of our weaveEffects requires some extra info to be shown on the hud, do it from here.
 =================
 */
-void CG_DrawWeaverHeldSpecial(centity_t * heldWeave, weaver_weaveCGInfo *weaveInfo, float x)
+void CG_DrawWeaverEffectSpecial(centity_t * weave)
 {
+	switch (weave->currentState.weapon)
+	{
+		case WVW_D_WATER_HEAL_S:
+		case WVW_D_WATER_HEAL_M:
+			// This is an effect we own
+			if (weave->currentState.otherEntityNum == cg.clientNum)
+			{
+				// Show who we're healing
+				if (HeldSpecial_healing == 0) {
+					CG_Text_PaintAligned(cgs.screenXSize / 4.0f, 15.0f, "Healing...", 0.25f, UI_LEFT, colorWhite, &cgs.media.freeSansBoldFont);
+				}
+				CG_DrawTargetPlayerName(cgs.screenXSize / 4.0f, (25.0f * HeldSpecial_healing) + 35.0f, weave->currentState.generic1, cg.time);
+				HeldSpecial_healing++;
+			}
+			break;
+		default:
+			return;
+	}
+}
+
+/*
+=================
+CG_DrawWeaverHeldSpecial
+
+If one of our heldWeave requires some extra info to be shown on the hud, do it from here.
+
+x is the x location of the center of the held weave icon
+=================
+*/
+void CG_DrawWeaverHeldSpecial(centity_t * heldWeave, float x)
+{
+	centity_t      *cent;
 	switch (heldWeave->currentState.weapon)
 	{
 		case WVW_D_WATER_HEAL_S:
 		case WVW_D_WATER_HEAL_M:
-			// Show who we're healing
-			if (HeldSpecial_healing == 0) {
-				CG_Text_PaintAligned(cgs.screenXSize / 4.0f, 15.0f, "Healing...", 0.25f, UI_LEFT, colorWhite, &cgs.media.freeSansBoldFont);
-			}
-			CG_DrawTargetPlayerName(cgs.screenXSize / 4.0f, (25.0f * HeldSpecial_healing) + 35.0f, heldWeave->currentState.generic1, cg.time);
-			HeldSpecial_healing++;
+			if (CG_HeldWeave_GetState(heldWeave) != WST_INPROCESS) break;
+			cent = &cg_entities[heldWeave->currentState.groundEntityNum];
+			if (cent->currentState.eType != ET_WEAVE_EFFECT) break;
+			if (cent->currentState.otherEntityNum2 != cent->currentState.number) break;
+			CG_DrawWeaverEffectSpecial(cent);
 			break;
 		default:
 			return;
@@ -935,7 +966,7 @@ static void CG_DrawWeaverHeld(void)
 	CG_DrawFillRect(x, y, power_used_w, s.power_spell_h, colorEmpty, DRFD_LEFT);
 
 	// Prepare for a new round of drawing special hud info.
-	CG_DrawWeaverHeldSpecialInit();
+	CG_DrawWeaverSpellSpecialInit();
 
 	// Draw each held weave
 	for(i = MIN_WEAPON_WEAVE; i < MAX_WEAPONS; i++)
@@ -977,7 +1008,7 @@ static void CG_DrawWeaverHeld(void)
 			trap_R_DrawStretchPic(x - s.spellicon_frame_offset_x, y_icon - s.spellicon_frame_offset_x, s.spellicon_frame_w, s.spellicon_frame_w, 0, 0, 1, 1, frameShader);
 
 			// Draw any extra info for this heldWeave.
-			CG_DrawWeaverHeldSpecial(cent, weaveInfo, x);
+			CG_DrawWeaverHeldSpecial(cent, x);
 
 			// Move left
 			x -= power_spell_w;

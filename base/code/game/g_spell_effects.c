@@ -1579,6 +1579,8 @@ qboolean FireWeave_Heal(gentity_t * self, vec3_t start, vec3_t dir, int heldWeav
 	G_HeldWeave_SetState(heldWeave, WST_INPROCESS);
 	//prevent held weave expiring
 	heldWeave->nextthink = 0;
+	//heldWeave reference to effect
+	heldWeave->s.groundEntityNum = bolt->s.number;
 
 	//Com_Printf("SHIELD FIRE: shild spawned, EffectEnt = %d\n", bolt->s.number, bolt->s.otherEntityNum);
 

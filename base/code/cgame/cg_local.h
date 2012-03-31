@@ -1931,7 +1931,7 @@ void            CG_UpdateWeaveSense(int clientnum, vec3_t origin, int power);
 void            CG_DrawWeaveSense(void);
 
 // cg_spell_hud.c
-void            CG_HudeSizeRecalc(void);
+void            CG_HudSizeRecalc(void);
 void            CG_HudSizesInit(void);
 void            CG_HudSizesScale(float f);
 void            CG_DrawWeaverHUD(void);
