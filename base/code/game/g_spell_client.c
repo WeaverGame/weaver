@@ -360,7 +360,7 @@ void ClientWeaveEnd(gclient_t * client)
 	ClientPowerRelease(client);
 }
 
-void ClientWeaverReleaseCostly(gclient_t * client) {
+qboolean ClientWeaverReleaseCostly(gclient_t * client) {
 	int             i;
 	gentity_t      *heldWeave;
 
@@ -369,7 +369,7 @@ void ClientWeaverReleaseCostly(gclient_t * client) {
 	if(client->linkTarget != NULL)
 	{
 		DEBUGWEAVEING("ClientWeaverReleaseCostly: link follower, skip");
-		return;
+		return qtrue;
 	}
 
 	// Simple: Remove the first one we find
@@ -391,7 +391,14 @@ void ClientWeaverReleaseCostly(gclient_t * client) {
 		}
 	}
 
+	if(i >= MAX_WEAPONS)
+	{
+		DEBUGWEAVEING("ClientWeaverReleaseCostly: no weaves, skip");
+		return qtrue;
+	}
+
 	DEBUGWEAVEING("ClientWeaverReleaseCostly: end");
+	return qfalse;
 }
 
 void ClientWeaveUpdateStats(gclient_t * client)
@@ -466,19 +473,26 @@ void ClientWeaveCheckOverpower(gclient_t * client)
 	{
 		if(DEBUGWEAVEING_TST(1))
 		{
-			Com_Printf("ClientWeaveCheckPower: client %d is using too much power, %d > %d\n", client->ps.clientNum, ClientPowerInUse(client), client->ps.stats[STAT_MAX_POWER]);
+			Com_Printf("ClientWeaveCheckOverpower: client %d is using too much power, %d > %d\n", client->ps.clientNum, ClientPowerInUse(client), client->ps.stats[STAT_MAX_POWER]);
 		}
 		if((ClientPowerInUse(client) - (client->threading ? POWER_PER_THREAD : 0)) <= client->ps.stats[STAT_MAX_POWER])
 		{
 			// The player was threading, if we ignore that usage they are under.
 			break;
 		}
-		ClientWeaverReleaseCostly(client);
+		if(ClientWeaverReleaseCostly(client))
+		{
+			if(DEBUGWEAVEING_TST(1))
+			{
+				Com_Printf("ClientWeaveCheckOverpower: releasing isnot available\n");
+			}
+			break;
+		}
 		if(i > HELD_MAX)
 		{
 			if(DEBUGWEAVEING_TST(1))
 			{
-				Com_Printf("ClientWeaveCheckPower: client %d is still using too much power ???\n", client->ps.clientNum);
+				Com_Printf("ClientWeaveCheckOverpower: client %d is still using too much power ???\n", client->ps.clientNum);
 			}
 			break;
 		}
