@@ -3136,24 +3136,25 @@ void PmoveSingle(pmove_t * pmove)
 	{
 		// Player is not alive enough for weaving, no weaving
 	}
-	else if(pm->ps->eFlags & EF_THREAD && (pm->ps->eFlags & EF_WEAVEA || pm->ps->eFlags & EF_WEAVED))
+	else if((pm->ps->eFlags & EF_WEAVEA || pm->ps->eFlags & EF_WEAVED))
 	{
 		// Delta angles are sending adjustments to client
 		// pm->cmd->angles are SHORT angles from client
 		// pm->ps->viewangles are ANGLE angles held by server
 		// pm->ps->delta_angles are SHORT delta from cmd->angles (adjustments sent to client)
-
-		pm->ps->stats[STAT_THREADX] = AngleNormalize180(pm->ps->viewangles[YAW] - SHORT2ANGLE(pm->cmd.angles[YAW]) - SHORT2ANGLE(pm->ps->delta_angles[YAW]));
-		pm->ps->stats[STAT_THREADY] = AngleNormalize180(pm->ps->viewangles[PITCH] - SHORT2ANGLE(pm->cmd.angles[PITCH]) - SHORT2ANGLE(pm->ps->delta_angles[PITCH]));
-	}
-	else
-	{
-		//correct view displacement from weaving
-		if(pm->ps->eFlags & EF_WEAVEA || pm->ps->eFlags & EF_WEAVED)
+		if (pm->ps->eFlags & EF_THREAD)
+		{
+			pm->ps->stats[STAT_THREADX] = AngleNormalize180(pm->ps->viewangles[YAW] - SHORT2ANGLE(pm->cmd.angles[YAW]) - SHORT2ANGLE(pm->ps->delta_angles[YAW]));
+			pm->ps->stats[STAT_THREADY] = AngleNormalize180(pm->ps->viewangles[PITCH] - SHORT2ANGLE(pm->cmd.angles[PITCH]) - SHORT2ANGLE(pm->ps->delta_angles[PITCH]));
+		}
+		else
 		{
 			pm->ps->delta_angles[YAW] = ANGLE2SHORT(pm->ps->viewangles[YAW]) - pm->cmd.angles[YAW];
 			pm->ps->delta_angles[PITCH] = ANGLE2SHORT(pm->ps->viewangles[PITCH]) - pm->cmd.angles[PITCH];
 		}
+	}
+	else
+	{
 		PM_UpdateViewAngles(pm->ps, &pm->cmd);
 	}
 
