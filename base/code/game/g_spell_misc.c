@@ -147,17 +147,19 @@ static ID_INLINE int dmgScale(int stat, float protect, gclient_t *client, int da
 	float fdamageprotect = fdamage * protect;
 	float fdamageprotectc = fdamage * protectc;
 
-	if(client->ps.stats[stat] >= ((int)fdamageprotect))
-	{
-		// Client will have protect remaining after absorbing part of this damage
-		client->ps.stats[stat] -= (int)(fdamageprotect);
-		damage = (int)(fdamageprotectc);
-	}
-	else if(client->ps.stats[stat] > 0)
-	{
-		// This is going to use the rest of the protect
-		damage = (int)(fdamageprotectc) + ((int)fdamageprotect - client->ps.stats[stat]);
-		client->ps.stats[stat] = 0;
+	if(client->ps.stats[stat] > 0) {
+		if(client->ps.stats[stat] >= ((int)fdamageprotect))
+		{
+			// Client will have protect remaining after absorbing part of this damage
+			client->ps.stats[stat] -= (int)(fdamageprotect);
+			damage = (int)(fdamageprotectc);
+		}
+		else
+		{
+			// This is going to use the rest of the protect
+			damage = (int)(fdamageprotectc) + ((int)fdamageprotect - client->ps.stats[stat]);
+			client->ps.stats[stat] = 0;
+		}
 	}
 	else
 	{
