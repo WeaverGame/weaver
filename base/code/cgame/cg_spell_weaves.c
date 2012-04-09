@@ -973,6 +973,7 @@ void CG_RegisterWeave(int weaveNum)
 			MAKERGB(weaveInfo->instanceLightColor, 0.6f, 0.3f, 0.1f);
 			//weaveInfo->instanceRenderfx;
 			//weaveInfo->instanceSound;
+			weaveInfo->instanceShader[0] = trap_R_RegisterShader("models/weaves/fireball/trail");
 			break;
 		case WVW_A_EARTH_QUAKE_M:
 
@@ -1007,6 +1008,7 @@ void CG_RegisterWeave(int weaveNum)
 			MAKERGB(weaveInfo->instanceLightColor, 0.6f, 0.3f, 0.1f);
 			//weaveInfo->instanceRenderfx;
 			//weaveInfo->instanceSound;
+			weaveInfo->instanceShader[0] = trap_R_RegisterShader("models/weaves/fireball/trail");
 			break;
 		case WVW_A_EARTH_QUAKE_L:
 
@@ -1041,6 +1043,7 @@ void CG_RegisterWeave(int weaveNum)
 			MAKERGB(weaveInfo->instanceLightColor, 0.6f, 0.3f, 0.1f);
 			//weaveInfo->instanceRenderfx;
 			//weaveInfo->instanceSound;
+			weaveInfo->instanceShader[0] = trap_R_RegisterShader("models/weaves/fireball/trail");
 			break;
 		case WVW_A_SPIRIT_SLICE_S:
 

@@ -2046,7 +2046,7 @@ void            CG_RailExplode(vec3_t org);
 
 void            CG_ObeliskExplode(vec3_t org, int entityNum);
 void            CG_ObeliskPain(vec3_t org);
-
+void            CG_ExplosiveModel(vec3_t origin, vec3_t mins, vec3_t maxs, qhandle_t model, vec3_t matrix[3]);
 void            CG_ExplosiveRubble(vec3_t origin, vec3_t mins, vec3_t maxs, qhandle_t model);
 
 void            CG_LightningBoltBeam(vec3_t start, vec3_t end);

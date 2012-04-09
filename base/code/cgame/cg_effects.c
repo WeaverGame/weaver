@@ -781,12 +781,13 @@ CG_ExplosiveRubble
 Rubble chunks
 ==================
 */
-void CG_ExplosiveRubble(vec3_t origin, vec3_t mins, vec3_t maxs, qhandle_t model)
+void CG_ExplosiveModel(vec3_t origin, vec3_t mins, vec3_t maxs, qhandle_t model, vec3_t matrix[3])
 {
 	localEntity_t  *le;
 	refEntity_t    *re;
 	const vec3_t    avelmax = {100.0f, 100.0f, 100.0f};
 	const vec3_t    velmax = {200.0f, 200.0f, 100.0f};
+	vec3_t          tmp;
 
 	//Spawn debris ents
 	le = CG_AllocLocalEntity();
@@ -820,6 +821,13 @@ void CG_ExplosiveRubble(vec3_t origin, vec3_t mins, vec3_t maxs, qhandle_t model
 	VectorCopy(origin, le->pos.trBase);
 	VectorCopy(origin, re->origin);
 	le->pos.trTime = cg.time;
+	if(matrix != NULL)
+	{
+		VectorCopy(mins, tmp);
+		VectorRotate(tmp, matrix, mins);
+		VectorCopy(maxs, tmp);
+		VectorRotate(tmp, matrix, maxs);
+	}
 	//Randomly offset base within model bounds
 	VectorRandom(le->pos.trBase, mins, maxs);
 
@@ -828,11 +836,27 @@ void CG_ExplosiveRubble(vec3_t origin, vec3_t mins, vec3_t maxs, qhandle_t model
 	le->pos.trAcceleration = -cg_gravityZ.value;
 	VectorClear(le->pos.trDelta);
 	VectorRandomUniform(le->pos.trDelta, velmax);
+	if(matrix != NULL)
+	{
+		VectorCopy(le->pos.trDelta, tmp);
+		VectorRotate(tmp, matrix, le->pos.trDelta);
+	}
 
 	//Initialize bouncing
 	le->bounceFactor = 0.4f;
 	le->leBounceSoundType = LEBS_NONE;
 	le->leMarkType = LEMT_NONE;
+}
+
+/*
+==================
+CG_ExplosiveRubble
+Rubble chunks
+==================
+*/
+void CG_ExplosiveRubble(vec3_t origin, vec3_t mins, vec3_t maxs, qhandle_t model)
+{
+	CG_ExplosiveModel(origin, mins, maxs, model, NULL);
 }
 
 /*

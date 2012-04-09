@@ -312,12 +312,16 @@ Instance + multiple models + vibrations + light
 */
 void WeaveEffect_Earthquake(centity_t * cent)
 {
+	vec3_t          mins = { -125.0f, -125.0f, 1.0f };
+	vec3_t          maxs = { 125.0f, 125.0f, 7.0f };
 	refEntity_t     ent;
 	entityState_t  *s1;
 	const weaver_weaveCGInfo *weave;
 	vec3_t          normalaxis[3];
 	int             k;
 	refLight_t      light;
+	localEntity_t  *smoke;
+	vec3_t          tmp;
 
 	s1 = &cent->currentState;
 	if(s1->weapon > WVW_NUM_WEAVES)
@@ -375,6 +379,27 @@ void WeaveEffect_Earthquake(centity_t * cent)
 
 		// add to refresh list
 		trap_R_AddRefEntityToScene(&ent);
+	}
+
+	VectorCopy(mins, tmp);
+	VectorRotate(tmp, normalaxis, mins);
+	VectorCopy(maxs, tmp);
+	VectorRotate(tmp, normalaxis, maxs);
+
+	k = rand();
+	if((k % 127) <= 3)
+	{
+		CG_ExplosiveModel(cent->lerpOrigin, mins, maxs, cgs.media.debrisModels[ENTMAT_STONE][1][0], normalaxis);
+	}
+
+	k = rand();
+	if((k % 127) <= 5)
+	{
+		VectorCopy(cent->lerpOrigin, tmp);
+		VectorRandom(tmp, mins, maxs);
+		smoke = CG_SmokePuff(tmp, s1->angles, 30.0f, 1, 1, 1, 0.1, 300, cg.time, 0, 0, weave->instanceShader[0]);
+		smoke->leType = LE_SCALE_FADE;
+		VectorScale(smoke->pos.trDelta, 50.0f, smoke->pos.trDelta);
 	}
 }
 
