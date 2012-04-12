@@ -113,23 +113,19 @@ vmCvar_t        cg_drawSnapshot;
 vmCvar_t        cg_draw3dIcons;
 vmCvar_t        cg_drawIcons;
 vmCvar_t        cg_drawAmmoWarning;
-vmCvar_t        cg_drawCrosshair;
-vmCvar_t        cg_drawCrosshairNames;
 vmCvar_t        cg_drawRewards;
-vmCvar_t        cg_crosshairSize;
-vmCvar_t        cg_crosshairX;
-vmCvar_t        cg_crosshairY;
-vmCvar_t        cg_crosshairHealth;
 
 vmCvar_t        cg_hudRed;
 vmCvar_t        cg_hudGreen;
 vmCvar_t        cg_hudBlue;
 vmCvar_t        cg_hudAlpha;
 
-
-vmCvar_t        cg_crosshairDot;
-vmCvar_t        cg_crosshairCircle;
-vmCvar_t        cg_crosshairCross;
+vmCvar_t        cg_drawCrosshair;
+vmCvar_t        cg_drawCrosshairNames;
+vmCvar_t        cg_crosshairSize;
+vmCvar_t        cg_crosshairX;
+vmCvar_t        cg_crosshairY;
+vmCvar_t        cg_crosshairHealth;
 vmCvar_t        cg_crosshairPulse;
 
 vmCvar_t        cg_draw2D;
@@ -303,20 +299,12 @@ static cvarTable_t cvarTable[] = {	// bk001129
 	{&cg_hudAlpha, "cg_hudAlpha", "1.0", CVAR_ARCHIVE},
 
 	// generic crosshair stuff
-	{&cg_drawCrosshair, "cg_drawCrosshair", "4", CVAR_ARCHIVE},
-
+	{&cg_drawCrosshair, "cg_drawCrosshair", "1", CVAR_ARCHIVE},
 	{&cg_drawCrosshairNames, "cg_crosshairNames", "1", CVAR_ARCHIVE},
-	// old crosshair stuff
-
-
 	{&cg_crosshairSize, "cg_crosshairSize", "24", CVAR_ARCHIVE},
 	{&cg_crosshairHealth, "cg_crosshairHealth", "1", CVAR_ARCHIVE},
 	{&cg_crosshairX, "cg_crosshairX", "0", CVAR_ARCHIVE},
 	{&cg_crosshairY, "cg_crosshairY", "0", CVAR_ARCHIVE},
-	// new combination crosshair stuff, enable with cg_drawStatus 3
-	{&cg_crosshairDot, "cg_crosshairDot", "0", CVAR_ARCHIVE},
-	{&cg_crosshairCircle, "cg_crosshairCircle", "0", CVAR_ARCHIVE},
-	{&cg_crosshairCross, "cg_crosshairCross", "3", CVAR_ARCHIVE},
 	{&cg_crosshairPulse, "cg_crosshairPulse", "1", CVAR_ARCHIVE},	// pulse crosshair when picking up items
 
 	{&cg_brassTime, "cg_brassTime", "2500", CVAR_ARCHIVE},
@@ -1070,9 +1058,7 @@ static void CG_RegisterGraphics(void)
 
 	for(i = 0; i < NUM_CROSSHAIRS; i++)
 	{
-		cgs.media.crosshairDot[i] = trap_R_RegisterShader(va("hud/crosshairs/dot%i", i + 1));
-		cgs.media.crosshairCircle[i] = trap_R_RegisterShader(va("hud/crosshairs/circle%i", i + 1));
-		cgs.media.crosshairCross[i] = trap_R_RegisterShader(va("hud/crosshairs/cross%i", i + 1));
+		cgs.media.crosshairShader[i] = trap_R_RegisterShader(va("gfx/hud/crosshairs/xh%i", i + 1));
 	}
 
 	CG_LoadingString("Icons", qfalse);

@@ -47,9 +47,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define PLAYERSETTINGS_VERTICAL_SPACING 160
 #define PLAYERSETTINGS_HORIZONTAL_SPACING 114
 
-#define ID_CROSSHAIR_DOT			141
-#define ID_CROSSHAIR_CIRCLE			142
-#define ID_CROSSHAIR_CROSS			143
+#define ID_CROSSHAIR_NUM			143
 #define ID_CROSSHAIR_SIZE			144
 
 #define ID_CROSSHAIR_TARGET			145
@@ -62,11 +60,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define ID_CROSSHAIR_ALPHA			151
 
 
-#define	NUM_CROSSHAIRS			10
+#define	NUM_CROSSHAIRS			2
 
 
-int             numDot = 0;
-int             numCircle = 0;
 int             numCross = 0;
 
 
@@ -99,9 +95,7 @@ typedef struct
 	int             current_fx;
 	char            playerModel[MAX_QPATH];
 
-	menuslider_s    crosshairDot;
-	menuslider_s    crosshairCircle;
-	menuslider_s    crosshairCross;
+	menuslider_s    crosshairNum;
 	menuslider_s    crosshairSize;
 
 
@@ -115,9 +109,7 @@ typedef struct
 	menuradiobutton_s crosshairHealth;
 	menuradiobutton_s crosshairPulse;
 
-	qhandle_t       crosshairDotShader[NUM_CROSSHAIRS];
-	qhandle_t       crosshairCircleShader[NUM_CROSSHAIRS];
-	qhandle_t       crosshairCrossShader[NUM_CROSSHAIRS];
+	qhandle_t       crosshairShader[NUM_CROSSHAIRS];
 
 
 } playersettings_t;
@@ -283,10 +275,7 @@ static void PlayerSettings_SaveChanges(void)
 	// handicap
 //  trap_Cvar_SetValue("handicap", 100 - s_playersettings.handicap.curvalue * 5);
 
-
-	trap_Cvar_SetValue("cg_crosshairDot", s_playersettings.crosshairDot.curvalue);
-	trap_Cvar_SetValue("cg_crosshairCross", s_playersettings.crosshairCross.curvalue);
-	trap_Cvar_SetValue("cg_crosshairCircle", s_playersettings.crosshairCircle.curvalue);
+	trap_Cvar_SetValue("cg_drawCrosshair", s_playersettings.crosshairNum.curvalue);
 	trap_Cvar_SetValue("cg_crosshairSize", s_playersettings.crosshairSize.curvalue);
 
 
@@ -352,10 +341,7 @@ static void PlayerSettings_SetMenuItems(void)
 	s_playersettings.color2.curvalue = gamecodetoui[c];
 */
 
-
-	s_playersettings.crosshairDot.curvalue = (int)trap_Cvar_VariableValue("cg_crosshairDot");
-	s_playersettings.crosshairCross.curvalue = (int)trap_Cvar_VariableValue("cg_crosshairCross");
-	s_playersettings.crosshairCircle.curvalue = (int)trap_Cvar_VariableValue("cg_crosshairCircle");
+	s_playersettings.crosshairNum.curvalue = (int)trap_Cvar_VariableValue("cg_drawCrosshair");
 	s_playersettings.crosshairSize.curvalue = (int)trap_Cvar_VariableValue("cg_crosshairSize");
 
 	s_playersettings.crosshairTarget.curvalue = trap_Cvar_VariableValue("cg_crosshairNames") != 0;
@@ -398,11 +384,7 @@ static void PlayerSettings_MenuEvent(void *ptr, int event)
 	switch (((menucommon_s *) ptr)->id)
 	{
 			//FIXME: only one dot ?
-		case ID_CROSSHAIR_DOT:
-			break;
-		case ID_CROSSHAIR_CROSS:
-			break;
-		case ID_CROSSHAIR_CIRCLE:
+		case ID_CROSSHAIR_NUM:
 			break;
 		case ID_CROSSHAIR_SIZE:
 			break;
@@ -533,40 +515,16 @@ static void PlayerSettings_MenuInit(void)
 	s_playersettings.crosshairPulse.generic.y = y;
 	y += BIGCHAR_HEIGHT + 6;
 
-	s_playersettings.crosshairDot.generic.type = MTYPE_SLIDER;
-	s_playersettings.crosshairDot.generic.name = "Dot:";
-	s_playersettings.crosshairDot.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
-	s_playersettings.crosshairDot.generic.callback = PlayerSettings_MenuEvent;
-	s_playersettings.crosshairDot.generic.id = ID_CROSSHAIR_DOT;
-	s_playersettings.crosshairDot.generic.x = x;
-	s_playersettings.crosshairDot.generic.y = y;
-	s_playersettings.crosshairDot.minvalue = 0;
-	s_playersettings.crosshairDot.maxvalue = numDot;
-	s_playersettings.crosshairDot.integer = qtrue;
-	y += BIGCHAR_HEIGHT + 2;
-
-	s_playersettings.crosshairCircle.generic.type = MTYPE_SLIDER;
-	s_playersettings.crosshairCircle.generic.name = "Circle:";
-	s_playersettings.crosshairCircle.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
-	s_playersettings.crosshairCircle.generic.callback = PlayerSettings_MenuEvent;
-	s_playersettings.crosshairCircle.generic.id = ID_CROSSHAIR_CIRCLE;
-	s_playersettings.crosshairCircle.generic.x = x;
-	s_playersettings.crosshairCircle.generic.y = y;
-	s_playersettings.crosshairCircle.minvalue = 0;
-	s_playersettings.crosshairCircle.maxvalue = numCircle;
-	s_playersettings.crosshairCircle.integer = qtrue;
-	y += BIGCHAR_HEIGHT + 2;
-
-	s_playersettings.crosshairCross.generic.type = MTYPE_SLIDER;
-	s_playersettings.crosshairCross.generic.name = "Cross:";
-	s_playersettings.crosshairCross.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
-	s_playersettings.crosshairCross.generic.callback = PlayerSettings_MenuEvent;
-	s_playersettings.crosshairCross.generic.id = ID_CROSSHAIR_CROSS;
-	s_playersettings.crosshairCross.generic.x = x;
-	s_playersettings.crosshairCross.generic.y = y;
-	s_playersettings.crosshairCross.minvalue = 0;
-	s_playersettings.crosshairCross.maxvalue = numCross;
-	s_playersettings.crosshairCross.integer = qtrue;
+	s_playersettings.crosshairNum.generic.type = MTYPE_SLIDER;
+	s_playersettings.crosshairNum.generic.name = "Crosshair:";
+	s_playersettings.crosshairNum.generic.flags = QMF_PULSEIFFOCUS | QMF_SMALLFONT;
+	s_playersettings.crosshairNum.generic.callback = PlayerSettings_MenuEvent;
+	s_playersettings.crosshairNum.generic.id = ID_CROSSHAIR_NUM;
+	s_playersettings.crosshairNum.generic.x = x;
+	s_playersettings.crosshairNum.generic.y = y;
+	s_playersettings.crosshairNum.minvalue = 0;
+	s_playersettings.crosshairNum.maxvalue = numCross;
+	s_playersettings.crosshairNum.integer = qtrue;
 	y += BIGCHAR_HEIGHT + 2;
 
 	s_playersettings.crosshairSize.generic.type = MTYPE_SLIDER;
@@ -749,9 +707,7 @@ static void PlayerSettings_MenuInit(void)
 	Menu_AddItem(&s_playersettings.menu, &s_playersettings.crosshairHealth);
 	Menu_AddItem(&s_playersettings.menu, &s_playersettings.crosshairPulse);
 
-	Menu_AddItem(&s_playersettings.menu, &s_playersettings.crosshairDot);
-	Menu_AddItem(&s_playersettings.menu, &s_playersettings.crosshairCircle);
-	Menu_AddItem(&s_playersettings.menu, &s_playersettings.crosshairCross);
+	Menu_AddItem(&s_playersettings.menu, &s_playersettings.crosshairNum);
 	Menu_AddItem(&s_playersettings.menu, &s_playersettings.crosshairSize);
 
 	/*
@@ -795,24 +751,13 @@ void PlayerSettings_Cache(void)
 	UI_PlayerInfo_SetModel(&s_playersettings.playerinfo, "models/players/fallen");
 	strcpy(s_playersettings.playerModel, "models/players/fallen");
 
-	numDot = 0;
-	numCircle = 0;
 	numCross = 0;
 
 
 	for(i = 0; i < NUM_CROSSHAIRS; i++)
 	{
-
-		s_playersettings.crosshairDotShader[i] = trap_R_RegisterShaderNoMip(va("hud/crosshairs/dot%i", i + 1));
-		if(s_playersettings.crosshairDotShader[i])
-			numDot++;
-
-		s_playersettings.crosshairCircleShader[i] = trap_R_RegisterShaderNoMip(va("hud/crosshairs/circle%i", i + 1));
-		if(s_playersettings.crosshairCircleShader[i])
-			numCircle++;
-
-		s_playersettings.crosshairCrossShader[i] = trap_R_RegisterShaderNoMip(va("hud/crosshairs/cross%i", i + 1));
-		if(s_playersettings.crosshairCrossShader[i])
+		s_playersettings.crosshairShader[i] = trap_R_RegisterShaderNoMip(va("hud/crosshairs/xh%i", i + 1));
+		if(s_playersettings.crosshairShader[i])
 			numCross++;
 
 	}

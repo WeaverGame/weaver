@@ -1151,40 +1151,19 @@ CROSSHAIR
 
 void CG_DrawCrosshairNew(void)
 {
-	qhandle_t       dot;
-	qhandle_t       circle;
 	qhandle_t       cross;
 
 	float           w, h;
 	float           x, y;
 	float           f;
 
-
-	if(cg_crosshairDot.integer <= 0)	// no dot
-	{
-		dot = 0;
-	}
-	else
-	{
-		dot = cgs.media.crosshairDot[cg_crosshairDot.integer - 1];
-	}
-
-	if(cg_crosshairCircle.integer <= 0)	// no circle
-	{
-		circle = 0;
-	}
-	else
-	{
-		circle = cgs.media.crosshairCircle[cg_crosshairCircle.integer - 1];
-	}
-
-	if(cg_crosshairCross.integer <= 0)	// no cross
+	if(cg_drawCrosshair.integer <= 0)	// no cross
 	{
 		cross = 0;
 	}
 	else
 	{
-		cross = cgs.media.crosshairCross[cg_crosshairCross.integer - 1];
+		cross = cgs.media.crosshairShader[(cg_drawCrosshair.integer - 1) % NUM_CROSSHAIRS];
 	}
 
 	w = h = cg_crosshairSize.value;
@@ -1218,18 +1197,9 @@ void CG_DrawCrosshairNew(void)
 		trap_R_SetColor(NULL);
 	}
 
-
-	if(dot)
-		trap_R_DrawStretchPic(x + cg.refdef.x + 0.5 * (cg.refdef.width - w),
-							  y + cg.refdef.y + 0.5 * (cg.refdef.height - h), w, h, 0, 0, 1, 1, dot);
-	if(circle)
-		trap_R_DrawStretchPic(x + cg.refdef.x + 0.5 * (cg.refdef.width - w),
-							  y + cg.refdef.y + 0.5 * (cg.refdef.height - h), w, h, 0, 0, 1, 1, circle);
 	if(cross)
 		trap_R_DrawStretchPic(x + cg.refdef.x + 0.5 * (cg.refdef.width - w),
 							  y + cg.refdef.y + 0.5 * (cg.refdef.height - h), w, h, 0, 0, 1, 1, cross);
-
-
 
 	trap_R_SetColor(NULL);
 

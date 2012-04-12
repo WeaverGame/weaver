@@ -90,7 +90,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	GIANT_WIDTH			32
 #define	GIANT_HEIGHT		48
 
-#define	NUM_CROSSHAIRS		10
+#define	NUM_CROSSHAIRS		2
 
 #define TEAM_OVERLAY_MAXNAME_WIDTH	12
 #define TEAM_OVERLAY_MAXLOCATION_WIDTH	16
@@ -1146,12 +1146,6 @@ typedef struct
 	qhandle_t       scoreboard_top_red;
 	qhandle_t       scoreboard_top_blue;
 	qhandle_t       scoreboard_vs;
-
-	//new combination crosshair stuff
-	qhandle_t       crosshairDot[NUM_CROSSHAIRS];
-	qhandle_t       crosshairCircle[NUM_CROSSHAIRS];
-	qhandle_t       crosshairCross[NUM_CROSSHAIRS];
-
 
 	qhandle_t       lagometerShader;
 	qhandle_t       lagometer_lagShader;
