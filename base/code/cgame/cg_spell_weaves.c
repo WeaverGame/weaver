@@ -255,12 +255,6 @@ void CG_AddPlayerWeaveEffects(centity_t * player, playerState_t * ps, refEntity_
 	playerEntity_t *pe;
 	centity_t      *weaveEffect;
 
-	if(cg.clientNum == player->currentState.clientNum && !cg.renderingThirdPerson)
-	{
-		//Threads belong to this player, first person
-		return;
-	}
-
 	pe = &player->pe;
 
 	for(i = 0; i < MAX_PLAYER_WEAVE_EFFECTS; i++)
@@ -272,7 +266,11 @@ void CG_AddPlayerWeaveEffects(centity_t * player, playerState_t * ps, refEntity_
 
 		weaveEffect = &cg_entities[pe->weaveEffectEnt[i]];
 
-		if((weaveEffect == NULL) || (weaveEffect->currentValid < 1))
+		// Clean up old effects
+		if((weaveEffect == NULL) ||
+			(weaveEffect->currentValid < 1) ||
+			(weaveEffect->currentState.eType != ET_WEAVE_EFFECT) ||
+			(weaveEffect->currentState.generic1 != player->currentState.clientNum))
 		{
 			// this ent number is no longer a weave effect
 			pe->weaveEffectEnt[i] = 0;

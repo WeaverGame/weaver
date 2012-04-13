@@ -397,7 +397,7 @@ void WeaveEffect_Earthquake(centity_t * cent)
 	{
 		VectorCopy(cent->lerpOrigin, tmp);
 		VectorRandom(tmp, mins, maxs);
-		smoke = CG_SmokePuff(tmp, s1->angles, 30.0f, 1, 1, 1, 0.1, 300, cg.time, 0, 0, weave->instanceShader[0]);
+		smoke = CG_SmokePuff(tmp, s1->angles, 30.0f, 1.0f, 1.0f, 1.0f, 0.1f, 300.0f, cg.time, 0, 0, weave->instanceShader[0]);
 		smoke->leType = LE_SCALE_FADE;
 		VectorScale(smoke->pos.trDelta, 50.0f, smoke->pos.trDelta);
 	}
@@ -474,6 +474,7 @@ void WeaveEffect_PlayerInstance(centity_t * cent)
 			continue;
 		}
 		pe->weaveEffectEnt[i] = cent->currentState.number;
+		break;
 	}
 }
 
@@ -821,10 +822,10 @@ PlayerWeaveEffect_Shield
 */
 void PlayerWeaveEffect_Shield(centity_t * cent, centity_t * player, playerState_t * ps, refEntity_t * body)
 {
-	static const vec3_t offset = {0.0f, 0.0f, 40.0f};
 	refEntity_t     ent;
 	int             rf;
 	weaver_weaveCGInfo *weaveInfo;
+	int             boneIndex;
 
 	if(player->currentState.number == cg.snap->ps.clientNum && !cg.renderingThirdPerson)
 	{
@@ -836,14 +837,31 @@ void PlayerWeaveEffect_Shield(centity_t * cent, centity_t * player, playerState_
 	}
 
 	memset(&ent, 0, sizeof(ent));
-	VectorCopy(body->origin, ent.origin);
-	VectorAdd(ent.origin, offset, ent.origin);
 	AxisCopy(body->axis, ent.axis);
+
+	if(ps)
+	{
+		CG_PositionEntityOnTag(&ent, body, body->hModel, "head");
+	}
+	else
+	{
+		boneIndex = trap_R_BoneIndex(body->hModel, "head");
+		if(boneIndex >= 0 && boneIndex < player->pe.torso.skeleton.numBones)
+		{
+			AxisClear(ent.axis);
+			CG_PositionRotatedEntityOnBone(&ent, body, body->hModel, "head");
+		}
+		else
+		{
+			CG_Error("No tag found while adding shield.");
+		}
+	}
+	ent.origin[2] += 6.0f;
 	
 	weaveInfo = &cg_weaves[cent->currentState.weapon];
 	ent.customShader = weaveInfo->instanceShader[0];
 	ent.reType = RT_SPRITE;
-	ent.radius = 6;
+	ent.radius = 14.0f;
 	ent.renderfx = rf;
 
 	trap_R_AddRefEntityToScene(&ent);
