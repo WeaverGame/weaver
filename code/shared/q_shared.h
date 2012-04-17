@@ -35,7 +35,7 @@ extern "C" {
 #define PRODUCT_NAME            "Weaver" // Case, Spaces allowed
 #define PRODUCT_NAME_UPPPER     "Weaver" // Case, No spaces
 #define PRODUCT_NAME_LOWER      "weaver" // No case, No spaces
-#define PRODUCT_VERSION         "0.1.0"
+#define PRODUCT_VERSION         "0.2.0"
 
 #define ENGINE_NAME             "XreaL Engine"
 #define ENGINE_VERSION          "0.9.7"
