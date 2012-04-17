@@ -98,6 +98,29 @@ map_package() {
 	cd $TOP_BASE/maps/
 }
 
+data_package() {
+	cd ..
+	TOP_BASE=`pwd`
+
+	DATE=`date +%Y%m%d`
+	PK3NAME=data-$DATA_STRIPPED-$DATE.pk3
+
+	if [ "x$DATA_SUBREPO" == "x" ]; then
+        echo "data should be in a subrepo"
+        exit 1
+	else
+		# Map is in a subrepo (ie, base/map-THEMAP.pk3dir/maps/THEMAP.map), we want the whole pk3dir in the pk3
+		# cd to the base of the pk3dir so paths in the pk3 aren't under all this
+		cd ./maps/$DATA_PATH
+        echo "zipping data in `pwd` to $TOP_BASE_PK3NAME"
+		# add contents, exclude a few filetypes and the VCS data
+		zip $TOP_BASE/$PK3NAME -r . -x \*.prt -x \*.srf -x \*.bat -x \*\.hg\/\* -x \*\.git\/\* -x \*\.svn\/\*
+	fi
+
+	# cd back to whence it came
+	cd $TOP_BASE/maps/
+}
+
 map_readbspopts() {
 	if [ -r $MAP ]; then
 		#grab the bspopts from the map
@@ -204,6 +227,34 @@ check_map() {
 	echo "$MAP_STRIPPED.map found at $MAP"
 }
 
+check_data() {
+	# Locate .map and things
+	DATA_STRIPPED="$MAPNAME"
+    DATA_STRIPPED=`echo $DATA_STRIPPED | $CMD_SED -r 's/data-([a-zA-Z0-9]*).pk3dir/\1/g' `
+	DATA_PATH=""
+    echo "Check data from $MAPNAME, stripped to $DATA_STRIPPED"
+
+    for subrepo in `echo ../*.pk3dir`
+    do
+        TMP_PATH="$subrepo"
+        echo "Searching subrepo $TMP_PATH"
+        MATCH=`echo $subrepo | $CMD_GREP -Eo data-$DATA_STRIPPED.pk3dir`
+        if [ "x$MATCH" != "x" ]; then
+            DATA_PATH="$TMP_PATH"
+			DATA_SUBREPO="$subrepo"
+			break 1;
+		fi
+	done
+
+	if [ "x$DATA_SUBREPO" == "x" ]; then
+		echo "Could not find a data subrepo file for $DATA_STRIPPED"
+		exit 1
+	fi
+
+	MAP=""
+	echo "$DATA_STRIPPED found at $DATA_SUBREPO"
+}
+
 check_compiler() {
 	case `uname -m` in
 		x86_64)
@@ -282,6 +333,11 @@ case $COMMAND in
 	-pk3)
 		check_map;
 		map_package $PACKAGEOTPS;
+		;;
+
+	-pk3data)
+		check_data;
+		data_package $PACKAGEOTPS;
 		;;
 
 	-all)
