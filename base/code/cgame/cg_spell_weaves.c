@@ -340,6 +340,7 @@ void CG_AddPlayerThreads(centity_t * player, playerState_t * ps, refEntity_t * p
 		ent.renderfx = 0;
 	}
 
+	ent.renderfx |= RF_NOSHADOW;
 	ent.reType = RT_SPRITE;
 	ent.radius = 15.0f;
 
@@ -498,7 +499,7 @@ void CG_AddPlayerHeldWeave(centity_t * player, playerState_t * ps, refEntity_t *
 		ent[i].customShader = weaveInfo->icon;
 		ent[i].reType = RT_SPRITE;
 		ent[i].radius = 6;
-		ent[i].renderfx = rf;
+		ent[i].renderfx = rf | RF_NOSHADOW;
 
 		trap_R_AddRefEntityToScene(&ent[i]);
 	}
