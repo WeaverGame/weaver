@@ -1678,6 +1678,8 @@ extern vmCvar_t cg_gravityZ;
 extern vmCvar_t cg_drawWeaverDisc;
 extern vmCvar_t cg_drawWeaverThread;
 extern vmCvar_t cg_weaverTutorial;
+extern vmCvar_t cg_weaverTutorialMaxElement;
+extern vmCvar_t cg_weaverTutorialMaxDepth;
 extern vmCvar_t cg_tutorial;
 extern vmCvar_t cg_weaverDiscSize;
 extern vmCvar_t cg_weaverDiscX;

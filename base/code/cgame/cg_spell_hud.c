@@ -748,6 +748,7 @@ static void CG_DrawWeaverTutorialChildren(weaver_threadsMap_t * current, float x
 	int             i;
 	int             elementUsed;
 
+	// This is the element which the Weave will be drawn on, it will not change after the first level.
 	elementUsed = element;
 
 	for(i = WVP_NONE; i < WVP_NUMBER; i++)
@@ -756,24 +757,25 @@ static void CG_DrawWeaverTutorialChildren(weaver_threadsMap_t * current, float x
 		{
 			elementUsed = i;
 		}
-		if(powerCount[elementUsed] > 4)
+		if(powerCount[elementUsed] > cg_weaverTutorialMaxElement.integer)
+		{
+			// This element has a list of too many spells, skip drawing the rest
+			continue;
+		}
+		if(current->next[i] == NULL)
 		{
 			continue;
 		}
-		if(current->next[i] != NULL)
+		if(current->next[i]->weaveA > 0)
 		{
-			if(current->next[i]->weaveA > 0)
-			{
-				CG_DrawWeaverTutorialWeave(x, y, size, current->next[i]->weaveA, elementUsed, powerCount[elementUsed], depth + 1);
-				powerCount[elementUsed]++;
-			}
-			else
-			{
-				if(depth < 6)
-				{
-					CG_DrawWeaverTutorialChildren(current->next[i], x, y, size, elementUsed, depth + 1);
-				}
-			}
+			CG_DrawWeaverTutorialWeave(x, y, size, current->next[i]->weaveA, elementUsed, powerCount[elementUsed], depth + 1);
+			// Add to count of spells listed under this element
+			powerCount[elementUsed]++;
+		}
+		if(depth < cg_weaverTutorialMaxDepth.integer)
+		{
+			// While we haven't gone too deep yet, recurse
+			CG_DrawWeaverTutorialChildren(current->next[i], x, y, size, elementUsed, depth + 1);
 		}
 	}
 }
