@@ -42,6 +42,9 @@ qboolean        FireWeave_FireDarts(gentity_t * self, vec3_t start, vec3_t dir, 
 //FireMultiDarts
 qboolean        FireWeave_FireMultiDarts(gentity_t * self, vec3_t start, vec3_t dir, int heldWeaveNum);
 
+qboolean        FireWeave_WaterDarts(gentity_t * self, vec3_t start, vec3_t dir, int heldWeaveNum);
+qboolean        FireWeave_WaterDartsM(gentity_t * self, vec3_t start, vec3_t dir, int heldWeaveNum);
+
 //FireProtect
 gentity_t      *EndWeave_ProtectFire(gentity_t * self, vec3_t start, vec3_t dir, int heldWeaveNum);
 qboolean        FireWeave_ProtectFire(gentity_t * self, vec3_t start, vec3_t dir, int heldWeaveNum);

@@ -815,6 +815,66 @@ void CG_RegisterWeave(int weaveNum)
 			//weaveInfo->instanceRenderfx;
 			//weaveInfo->instanceSound;
 			break;
+		case WVW_A_AIRWATER_DARTS_S:
+
+			//misc resources
+			weaveInfo->firingSound = trap_S_RegisterSound("sound/weaves/firedart/cast.ogg");
+
+			//missiles
+			weaveInfo->missileModel[0] = trap_R_RegisterModel("models/weaves/needles/needle.md5mesh");
+			//weaveInfo->missileLight = 10;
+			//MAKERGB(weaveInfo->missileLightColor, 0.5f, 0.1f, 0.1f);
+			//weaveInfo->missileRenderfx;
+			//weaveInfo->missileSound = trap_S_RegisterSound("sound/weapons/plasma/lasfly.wav");
+
+			//weaveInfo->exploModel;
+			//weaveInfo->exploMark;
+			//weaveInfo->exploSprite = trap_R_RegisterShader("rocketExplosion");
+			weaveInfo->exploSfx = trap_S_RegisterSound("sound/weaves/firedart/impact.ogg");
+			weaveInfo->exploMark = cgs.media.bulletMarkShader;
+			weaveInfo->exploMarkRadius = 8;
+			//weaveInfo->exploLight = 100;
+			//MAKERGB(weaveInfo->exploLightColor, 0.75f, 0.5f, 0.1f);
+			//weaveInfo->exploDuration = 800;
+
+			//instance
+			//weaveInfo->instanceShader1 = trap_R_RegisterShader("");
+			//weaveInfo->instanceModel;
+			//weaveInfo->instanceLight;
+			//weaveInfo->instanceLightColor;
+			//weaveInfo->instanceRenderfx;
+			//weaveInfo->instanceSound;
+			break;
+		case WVW_A_AIRWATER_DARTS_M:
+
+			//misc resources
+			weaveInfo->firingSound = trap_S_RegisterSound("sound/weaves/firedart/cast.ogg");
+
+			//missiles
+			weaveInfo->missileModel[0] = trap_R_RegisterModel("models/weaves/needles/needle.md5mesh");
+			//weaveInfo->missileLight = 10;
+			//MAKERGB(weaveInfo->missileLightColor, 0.5f, 0.1f, 0.1f);
+			//weaveInfo->missileRenderfx;
+			//weaveInfo->missileSound = trap_S_RegisterSound("sound/weapons/plasma/lasfly.wav");
+
+			//weaveInfo->exploModel;
+			//weaveInfo->exploMark;
+			//weaveInfo->exploSprite = trap_R_RegisterShader("rocketExplosion");
+			weaveInfo->exploSfx = trap_S_RegisterSound("sound/weaves/firedart/impact.ogg");
+			weaveInfo->exploMark = cgs.media.bulletMarkShader;
+			weaveInfo->exploMarkRadius = 8;
+			//weaveInfo->exploLight = 100;
+			//MAKERGB(weaveInfo->exploLightColor, 0.75f, 0.5f, 0.1f);
+			//weaveInfo->exploDuration = 800;
+
+			//instance
+			//weaveInfo->instanceShader1 = trap_R_RegisterShader("");
+			//weaveInfo->instanceModel;
+			//weaveInfo->instanceLight;
+			//weaveInfo->instanceLightColor;
+			//weaveInfo->instanceRenderfx;
+			//weaveInfo->instanceSound;
+			break;
 		case WVW_D_AIR_PROTECT:
 
 			//misc resources

@@ -672,8 +672,7 @@ qboolean FireWeave_Fireball(gentity_t * self, vec3_t start, vec3_t dir, int held
 
 //End Fireball
 
-//Begin FireDarts
-qboolean FireWeave_FireDartsBase(gentity_t * self, vec3_t start, vec3_t dir, int heldWeaveNum, int weaveID)
+qboolean FireWeave_ShotBase(gentity_t * self, vec3_t start, vec3_t dir, int heldWeaveNum, int weaveID, int damage, int mod)
 {
 	trace_t         tr;
 	vec3_t          end;
@@ -727,17 +726,33 @@ qboolean FireWeave_FireDartsBase(gentity_t * self, vec3_t start, vec3_t dir, int
 	return qtrue;
 }
 
+//Begin FireDarts
+
 qboolean FireWeave_FireMultiDarts(gentity_t * self, vec3_t start, vec3_t dir, int heldWeaveNum)
 {
-	return FireWeave_FireDartsBase(self, start, dir, heldWeaveNum, WVW_A_FIRE_MULTIDARTS);
+	return FireWeave_ShotBase(self, start, dir, heldWeaveNum, WVW_A_FIRE_MULTIDARTS, WEAVE_FIREDARTS_DAMAGE, MOD_A_FIRE_DARTS);
 }
 
 qboolean FireWeave_FireDarts(gentity_t * self, vec3_t start, vec3_t dir, int heldWeaveNum)
 {
-	return FireWeave_FireDartsBase(self, start, dir, heldWeaveNum, WVW_A_FIRE_DARTS);
+	return FireWeave_ShotBase(self, start, dir, heldWeaveNum, WVW_A_FIRE_DARTS, WEAVE_FIREDARTS_DAMAGE, MOD_A_FIRE_MULTIDARTS);
 }
 
 //End FireDarts
+
+//Begin Needles
+
+qboolean FireWeave_WaterDarts(gentity_t * self, vec3_t start, vec3_t dir, int heldWeaveNum)
+{
+	return FireWeave_ShotBase(self, start, dir, heldWeaveNum, WVW_A_AIRWATER_DARTS_S, WEAVE_WATERDARTS_DAMAGE, MOD_A_AIRWATER_DARTS_S);
+}
+
+qboolean FireWeave_WaterDartsM(gentity_t * self, vec3_t start, vec3_t dir, int heldWeaveNum)
+{
+	return FireWeave_ShotBase(self, start, dir, heldWeaveNum, WVW_A_AIRWATER_DARTS_M, WEAVE_WATERDARTS_DAMAGE, MOD_A_AIRWATER_DARTS_M);
+}
+
+//End Needles
 
 //Begin Protects
 /*

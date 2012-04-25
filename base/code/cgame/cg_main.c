@@ -1346,6 +1346,8 @@ static void CG_RegisterWeaves(void)
 
 	CG_RegisterWeave(WVW_A_AIRWATER_RIP);
 	CG_RegisterWeave(WVW_D_AIRWATER_FOG);
+	CG_RegisterWeave(WVW_A_AIRWATER_DARTS_S);
+	CG_RegisterWeave(WVW_A_AIRWATER_DARTS_M);
 
 	CG_RegisterWeave(WVW_A_SPIRIT_SLICE_S);
 	CG_RegisterWeave(WVW_A_SPIRIT_SLICE_M);

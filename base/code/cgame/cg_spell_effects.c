@@ -790,6 +790,8 @@ void CG_WeaveEffect(centity_t * cent)
 			//Shots
 		case WVW_A_FIRE_DARTS:
 		case WVW_A_FIRE_MULTIDARTS:
+		case WVW_A_AIRWATER_DARTS_S:
+		case WVW_A_AIRWATER_DARTS_M:
 			WeaveEffect_Shot(cent);
 			break;
 			//Missiles
@@ -799,8 +801,6 @@ void CG_WeaveEffect(centity_t * cent)
 		case WVW_A_SPIRIT_BALEFIRE:
 		case WVW_A_AIR_BLAST:
 		case WVW_A_FIRE_BALL:
-		case WVW_A_AIRWATER_DARTS_S:
-		case WVW_A_AIRWATER_DARTS_M:
 		case WVW_A_EARTHWATER_SLOW:
 		case WVW_A_EARTHWATER_POISON:
 		case WVW_A_WATER_ICESHARDS_S:

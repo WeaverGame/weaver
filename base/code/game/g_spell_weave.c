@@ -786,7 +786,10 @@ qboolean HeldWeaveEffectExecute(gentity_t * heldWeave)
 			result = FireWeave_Poison(player, start, direction, heldWeaveNum);
 			break;
 		case WVW_A_AIRWATER_DARTS_S:
+			result = FireWeave_WaterDarts(player, start, direction, heldWeaveNum);
+			break;
 		case WVW_A_AIRWATER_DARTS_M:
+			result = FireWeave_WaterDartsM(player, start, direction, heldWeaveNum);
 			break;
 			//Fail
 		case WVW_NONE:
