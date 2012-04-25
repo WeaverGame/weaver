@@ -565,6 +565,13 @@ static qboolean PM_CheckJump(void)
 	}
 	PM_AddEvent(EV_JUMP);
 
+	// Jumping expends stamina
+	pm->ps->stats[STAT_STAMINA] -= JUMP_STAMINA;
+	if(pm->ps->stats[STAT_STAMINA] < 0)
+	{
+		pm->ps->stats[STAT_STAMINA] = 0;
+	}
+
 	if(pm->cmd.forwardmove >= 0)
 	{
 		PM_ForceLegsAnim(LEGS_JUMP);

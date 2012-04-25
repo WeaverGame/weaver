@@ -82,10 +82,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define SPRINT_SCALE 1.2f		//scale move speed by this constant
 #define HASTE_SCALE 1.2f		//scale move speed by this constant
 #define MAX_STAMINA 20000.0f
-#define RECHARGE_STAMINA 500
+#define JUMP_STAMINA 4000
+#define RECHARGE_STAMINA 600
 #define USE_STAMINA 5000
 #define CRIT_STAMINA 5000		//if current stamina is above this number (1/4), the player additionally recharges by RECHARGE_CRIT_STAMINA
-#define RECHARGE_CRIT_STAMINA 250
+#define RECHARGE_CRIT_STAMINA 300
 
 //
 // config strings are a general means of communicating variable length strings
