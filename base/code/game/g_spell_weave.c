@@ -393,6 +393,8 @@ void HeldWeaveUse(gentity_t * heldWeave)
 			{
 				Com_Printf("Weave execution returned 0. WeaveID=%d\n", heldWeave->s.weapon);
 			}
+			// This attempt to cast failed (e.g. no target), do not delay next attempt.
+			heldWeave->parent->client->ps.weaponTime = 10;
 			return;
 		}
 
