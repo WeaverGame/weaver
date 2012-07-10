@@ -2995,9 +2995,9 @@ void FS_AddGameDirectory(const char *path, const char *dir)
 	pakdirsi = 0;
 
 	// Log may not be initialized at this point, but it will still show in the console.
-	Com_Printf("FS_AddGameDirectory(\"%s\", \"%s\") found %d .pk3 and %d .pk3dir\n", path, dir, numfiles, numdirs);
+	Com_Printf("FS_AddGameDirectory: \"%s\" \"%s\"\n", path, dir);
 
-	for(; (pakfilesi + pakdirsi) < (numfiles + numdirs); )
+	while((pakfilesi < numfiles) || (pakdirsi < numdirs))
 	{
 		// Check if a pakfile or pakdir comes next
 		if(pakfilesi >= numfiles)
@@ -3026,6 +3026,8 @@ void FS_AddGameDirectory(const char *path, const char *dir)
 			Com_Printf("    pk3: %s\n", pakfile);
 			if((pak = FS_LoadZipFile(pakfile, pakfiles[pakfilesi])) == 0)
 			{
+				// This isn't a .pk3! Next!
+				pakfilesi++;
 				continue;
 			}
 
@@ -3073,8 +3075,11 @@ void FS_AddGameDirectory(const char *path, const char *dir)
 
 	// done
 	Sys_FreeFileList( pakfiles );
+	Sys_FreeFileList( pakdirs );
 
+	//
 	// add the directory to the search path
+	//
 	search = Z_Malloc(sizeof(searchpath_t));
 	search->dir = Z_Malloc(sizeof(*search->dir));
 
