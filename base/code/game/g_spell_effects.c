@@ -107,7 +107,7 @@ void G_RunWeaveEffect(gentity_t * weave_effect)
 		case WVW_D_EARTHFIRE_EXPLOSIVE_S:
 		case WVW_D_EARTHFIRE_EXPLOSIVE_M:
 			//Target
-		case WVW_A_FIRE_BLOSSOMS:
+		case WVW_A_EARTH_ROCKSTORM:
 		case WVW_A_SPIRIT_DEATHGATE:
 		case WVW_D_EARTH_UNLOCK:
 		case WVW_A_EARTHFIRE_IGNITE:

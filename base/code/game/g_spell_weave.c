@@ -260,7 +260,7 @@ void CreateWeaveID(gentity_t * self, int weaveID, int powerUsing)
 			/*begin holdable, no switch */
 		case WVW_D_SPIRIT_LINK:
 		case WVW_D_AIRFIRE_WALL:
-		case WVW_A_FIRE_BLOSSOMS:
+		case WVW_A_EARTH_ROCKSTORM:
 		case WVW_D_EARTH_UNLOCK:
 		case WVW_A_EARTHFIRE_IGNITE:
 		case WVW_D_EARTHFIRE_EXPLOSIVE_S:
@@ -554,7 +554,7 @@ void HeldWeaveEffectEnd(gentity_t * heldWeave)
 			EndWeave_Link(player, start, direction, heldWeaveNum);
 			//return instead of break, heldweave is cleared when disconnecting from linktarget
 			return;
-		case WVW_A_FIRE_BLOSSOMS:
+		case WVW_A_EARTH_ROCKSTORM:
 		case WVW_A_SPIRIT_DEATHGATE:
 			break;
 		case WVW_D_SPIRIT_STAMINA:
@@ -708,7 +708,7 @@ qboolean HeldWeaveEffectExecute(gentity_t * heldWeave)
 		case WVW_D_SPIRIT_LINK:
 			result = FireWeave_Link(player, start, direction, heldWeaveNum);
 			break;
-		case WVW_A_FIRE_BLOSSOMS:
+		case WVW_A_EARTH_ROCKSTORM:
 		case WVW_A_SPIRIT_DEATHGATE:
 		case WVW_D_EARTH_UNLOCK:
 		case WVW_A_EARTHFIRE_IGNITE:

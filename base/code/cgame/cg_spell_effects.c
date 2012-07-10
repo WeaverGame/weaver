@@ -750,7 +750,7 @@ void CG_WeaveEffect(centity_t * cent)
 			break;
 			//Target
 		case WVW_D_SPIRIT_LINK:
-		case WVW_A_FIRE_BLOSSOMS:
+		case WVW_A_EARTH_ROCKSTORM:
 		case WVW_A_SPIRIT_DEATHGATE:
 		case WVW_D_EARTH_UNLOCK:
 		case WVW_A_EARTHFIRE_IGNITE:

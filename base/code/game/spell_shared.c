@@ -80,15 +80,18 @@ weaver_threadsMap_t wm_Earthfire_Fire = {{NULL, NULL, NULL, NULL, &wm_Earthfire_
 weaver_threadsMap_t wm_Earthfire = {{NULL, NULL, &wm_Earthfire_Airfire, &wm_Earthfire_Fire, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_NONE, WVW_NONE};
 
 //Earth 4
+weaver_threadsMap_t wm_Earth_Air_Earthfire_Airfire = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_A_EARTH_ROCKSTORM, WVW_NONE};
 weaver_threadsMap_t wm_Earth_Fire_Earthfire_Earth = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_A_EARTH_QUAKE_L, WVW_NONE};
 //Earth 3
+weaver_threadsMap_t wm_Earth_Air_Earthfire = {{NULL, NULL, &wm_Earth_Air_Earthfire_Airfire, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_NONE, WVW_NONE};
 weaver_threadsMap_t wm_Earth_Fire_Earthfire = {{NULL, NULL, NULL, NULL, NULL, &wm_Earth_Fire_Earthfire_Earth, NULL, NULL, NULL, NULL}, WVW_A_EARTH_QUAKE_M, WVW_NONE};
 //Earth 2
+weaver_threadsMap_t wm_Earth_Air = {{NULL, NULL, NULL, NULL, &wm_Earth_Air_Earthfire, NULL, NULL, NULL, NULL, NULL}, WVW_NONE, WVW_NONE};
 weaver_threadsMap_t wm_Earth_Airfire = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_D_EARTH_UNLOCK, WVW_NONE}; //D
 weaver_threadsMap_t wm_Earth_Fire = {{NULL, NULL, NULL, NULL, &wm_Earth_Fire_Earthfire, NULL, NULL, NULL, NULL, NULL}, WVW_A_EARTH_QUAKE_S, WVW_NONE};
 weaver_threadsMap_t wm_Earth_Spirit = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_D_EARTH_PROTECT, WVW_NONE}; //D
 //Earth 1
-weaver_threadsMap_t wm_Earth = {{NULL, NULL, &wm_Earth_Airfire, &wm_Earth_Fire, NULL, NULL, NULL, NULL, NULL, &wm_Earth_Spirit}, WVW_NONE, WVW_NONE};
+weaver_threadsMap_t wm_Earth = {{NULL, &wm_Earth_Air, &wm_Earth_Airfire, &wm_Earth_Fire, NULL, NULL, NULL, NULL, NULL, &wm_Earth_Spirit}, WVW_NONE, WVW_NONE};
 
 //Earthwater 3
 weaver_threadsMap_t wm_Earthwater_Spirit_Water = {{NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, WVW_A_EARTHWATER_POISON, WVW_NONE};
@@ -266,8 +269,9 @@ void WeaveProtectScales(int weavenum, float *airprotect, float *fireprotect, flo
 			break;
 		case WVW_D_SPIRIT_LINK:
 			break;
-		case WVW_A_FIRE_BLOSSOMS:
-			*fireprotect = 1.0f;
+		case WVW_A_EARTH_ROCKSTORM:
+			*airprotect = 0.4f;
+			*earthprotect = 0.9f;
 			break;
 		case WVW_A_SPIRIT_DEATHGATE:
 			break;
