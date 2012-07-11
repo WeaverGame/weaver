@@ -55,17 +55,15 @@ protected:
 //	const uint32_t						_vertexAttribsUnsupported;
 	uint32_t							_vertexAttribs;	// can be set by uniforms
 
-
 	GLShader(const std::string& name, uint32_t vertexAttribsRequired/*, uint32_t vertexAttribsOptional, uint32_t vertexAttribsUnsupported*/):
 	  _name(name),
-	  _vertexAttribsRequired(vertexAttribsRequired)
+	  _activeMacros(0),
+	  _currentProgram(NULL),
+	  _vertexAttribsRequired(vertexAttribsRequired),
+	  _vertexAttribs(0)
 	  //_vertexAttribsOptional(vertexAttribsOptional),
 	  //_vertexAttribsUnsupported(vertexAttribsUnsupported)
 	{
-		_activeMacros = 0;
-		_currentProgram = NULL;
-		_vertexAttribs = 0;
-
 		//ri.Printf(PRINT_ALL, "/// -------------------------------------------------\n");
 	}
 
@@ -97,8 +95,15 @@ public:
 		_compileMacros.push_back(compileMacro);
 	}
 
-	size_t				GetNumOfCompiledMacros() const				{ return _compileMacros.size(); }
-	shaderProgram_t*	GetProgram() const							{ return _currentProgram; }
+	size_t 				GetNumOfCompiledMacros() const
+	{
+		return _compileMacros.size();
+	}
+
+	shaderProgram_t*	GetProgram() const
+	{
+		return _currentProgram;
+	}
 
 protected:
 	bool				GetCompileMacrosString(int permutation, std::string& compileMacrosOut) const;
@@ -181,7 +186,6 @@ public:
 	virtual void UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const = 0;
 };
 
-
 class GLCompileMacro
 {
 private:
@@ -222,9 +226,21 @@ protected:
 public:
 	virtual const char* GetName() const = 0;
 	virtual EGLCompileMacro GetType() const = 0;
-	virtual bool		HasConflictingMacros(int permutation, const std::vector<GLCompileMacro*>& macros) const { return false; }
-	virtual bool		MissesRequiredMacros(int permutation, const std::vector<GLCompileMacro*>& macros) const { return false; }
-	virtual uint32_t	GetRequiredVertexAttributes() const { return 0; }
+
+	virtual bool		HasConflictingMacros(int permutation, const std::vector<GLCompileMacro*>& macros) const
+	{
+		return false;
+	}
+
+	virtual bool		MissesRequiredMacros(int permutation, const std::vector<GLCompileMacro*>& macros) const
+	{
+		return false;
+	}
+
+	virtual uint32_t	GetRequiredVertexAttributes() const
+	{
+		return 0;
+	}
 
 	void EnableMacro()
 	{
@@ -249,9 +265,11 @@ public:
 	}
 
 public:
-	const int GetBit() { return _bit; }
+	int GetBit() const
+	{
+		return _bit;
+	}
 };
-
 
 class GLCompileMacro_USE_ALPHA_TESTING:
 GLCompileMacro
@@ -262,18 +280,36 @@ public:
 	{
 	}
 
-	const char* GetName() const { return "USE_ALPHA_TESTING"; }
-	EGLCompileMacro GetType() const { return USE_ALPHA_TESTING; }
+	const char* GetName() const
+	{
+		return "USE_ALPHA_TESTING";
+	}
 
-	void EnableAlphaTesting()		{ EnableMacro(); }
-	void DisableAlphaTesting()		{ DisableMacro(); }
+	EGLCompileMacro GetType() const
+	{
+		return USE_ALPHA_TESTING;
+	}
+
+	void EnableAlphaTesting()
+	{
+		EnableMacro();
+	}
+
+	void DisableAlphaTesting()
+	{
+		DisableMacro();
+	}
 
 	void SetAlphaTesting(bool enable)
 	{
 		if(enable)
+		{
 			EnableMacro();
+		}
 		else
+		{
 			DisableMacro();
+		}
 	}
 };
 
@@ -286,18 +322,36 @@ public:
 	{
 	}
 
-	const char* GetName() const { return "USE_PORTAL_CLIPPING"; }
-	EGLCompileMacro GetType() const { return USE_PORTAL_CLIPPING; }
+	const char* GetName() const
+	{
+		return "USE_PORTAL_CLIPPING";
+	}
 
-	void EnablePortalClipping()		{ EnableMacro(); }
-	void DisablePortalClipping()	{ DisableMacro(); }
+	EGLCompileMacro GetType() const
+	{
+		return USE_PORTAL_CLIPPING;
+	}
+
+	void EnablePortalClipping()
+	{
+		EnableMacro();
+	}
+
+	void DisablePortalClipping()
+	{
+		DisableMacro();
+	}
 
 	void SetPortalClipping(bool enable)
 	{
 		if(enable)
+		{
 			EnableMacro();
+		}
 		else
+		{
 			DisableMacro();
+		}
 	}
 };
 
@@ -310,18 +364,36 @@ public:
 	{
 	}
 
-	const char* GetName() const { return "USE_FRUSTUM_CLIPPING"; }
-	EGLCompileMacro GetType() const { return USE_FRUSTUM_CLIPPING; }
+	const char* GetName() const
+	{
+		return "USE_FRUSTUM_CLIPPING";
+	}
 
-	void EnableFrustumClipping()		{ EnableMacro(); }
-	void DisableFrustumClipping()		{ DisableMacro(); }
+	EGLCompileMacro GetType() const
+	{
+		return USE_FRUSTUM_CLIPPING;
+	}
+
+	void EnableFrustumClipping()
+	{
+		EnableMacro();
+	}
+
+	void DisableFrustumClipping()
+	{
+		DisableMacro();
+	}
 
 	void SetFrustumClipping(bool enable)
 	{
 		if(enable)
+		{
 			EnableMacro();
+		}
 		else
+		{
 			DisableMacro();
+		}
 	}
 };
 
@@ -334,17 +406,29 @@ public:
 	{
 	}
 
-	const char* GetName() const { return "USE_VERTEX_SKINNING"; }
-	EGLCompileMacro GetType() const { return USE_VERTEX_SKINNING; }
+	const char* GetName() const
+	{
+		return "USE_VERTEX_SKINNING";
+	}
+
+	EGLCompileMacro GetType() const
+	{
+		return USE_VERTEX_SKINNING;
+	}
+
 	bool		HasConflictingMacros(int permutation, const std::vector<GLCompileMacro*>& macros) const;
 	bool		MissesRequiredMacros(int permutation, const std::vector<GLCompileMacro*>& macros) const;
-	uint32_t	GetRequiredVertexAttributes() const { return ATTR_BONE_INDEXES | ATTR_BONE_WEIGHTS; }
-	
 
+	uint32_t	GetRequiredVertexAttributes() const
+	{
+		return ATTR_BONE_INDEXES | ATTR_BONE_WEIGHTS;
+	}
+	
 	void EnableVertexSkinning()
 	{
 		EnableMacro();
 	}
+
 	void DisableVertexSkinning()
 	{
 		DisableMacro();
@@ -353,9 +437,13 @@ public:
 	void SetVertexSkinning(bool enable)
 	{
 		if(enable)
+		{
 			EnableVertexSkinning();
+		}
 		else
+		{
 			DisableVertexSkinning();
+		}
 	}
 };
 
@@ -368,11 +456,18 @@ public:
 	{
 	}
 
-	const char* GetName() const { return "USE_VERTEX_ANIMATION"; }
-	EGLCompileMacro GetType() const { return USE_VERTEX_ANIMATION; }
+	const char* GetName() const
+	{
+		return "USE_VERTEX_ANIMATION";
+	}
+
+	EGLCompileMacro GetType() const
+	{
+		return USE_VERTEX_ANIMATION;
+	}
+
 	bool		HasConflictingMacros(int permutation, const std::vector<GLCompileMacro*>& macros) const;
 	uint32_t	GetRequiredVertexAttributes() const;
-
 
 	void EnableVertexAnimation()
 	{
@@ -387,9 +482,13 @@ public:
 	void SetVertexAnimation(bool enable)
 	{
 		if(enable)
+		{
 			EnableVertexAnimation();
+		}
 		else
+		{
 			DisableVertexAnimation();
+		}
 	}
 };
 
@@ -402,10 +501,22 @@ public:
 	{
 	}
 
-	const char* GetName() const { return "USE_DEFORM_VERTEXES"; }
-	EGLCompileMacro GetType() const { return USE_DEFORM_VERTEXES; }
+	const char* GetName() const
+	{
+		return "USE_DEFORM_VERTEXES";
+	}
+
+	EGLCompileMacro GetType() const
+	{
+		return USE_DEFORM_VERTEXES;
+	}
+
 	bool		HasConflictingMacros(int permutation, const std::vector<GLCompileMacro*>& macros) const;
-	uint32_t	GetRequiredVertexAttributes() const { return ATTR_NORMAL; }
+
+	uint32_t	GetRequiredVertexAttributes() const
+	{
+		return ATTR_NORMAL;
+	}
 
 	void EnableDeformVertexes()
 	{
@@ -427,9 +538,13 @@ public:
 	void SetDeformVertexes(bool enable)
 	{
 		if(enable && (glConfig.driverType == GLDRV_OPENGL3 && r_vboDeformVertexes->integer))
+		{
 			EnableMacro();
+		}
 		else
+		{
 			DisableMacro();
+		}
 	}
 };
 
@@ -442,9 +557,20 @@ public:
 	{
 	}
 
-	const char* GetName() const { return "USE_TCGEN_ENVIRONMENT"; }
-	EGLCompileMacro GetType() const { return USE_TCGEN_ENVIRONMENT; }
-	uint32_t	GetRequiredVertexAttributes() const { return ATTR_NORMAL; }
+	const char* GetName() const
+	{
+		return "USE_TCGEN_ENVIRONMENT";
+	}
+
+	EGLCompileMacro GetType() const
+	{
+		return USE_TCGEN_ENVIRONMENT;
+	}
+
+	uint32_t	GetRequiredVertexAttributes() const
+	{
+		return ATTR_NORMAL;
+	}
 
 	void EnableTCGenEnvironment()
 	{
@@ -459,9 +585,13 @@ public:
 	void SetTCGenEnvironment(bool enable)
 	{
 		if(enable)
+		{
 			EnableMacro();
+		}
 		else
+		{
 			DisableMacro();
+		}
 	}
 };
 
@@ -475,22 +605,43 @@ public:
 	{
 	}
 
-	const char* GetName() const { return "USE_NORMAL_MAPPING"; }
-	EGLCompileMacro GetType() const { return USE_NORMAL_MAPPING; }
-	uint32_t	GetRequiredVertexAttributes() const { return ATTR_NORMAL | ATTR_TANGENT | ATTR_BINORMAL; }
+	const char* GetName() const
+	{
+		return "USE_NORMAL_MAPPING";
+	}
 
-	void EnableNormalMapping()	{ EnableMacro(); }
-	void DisableNormalMapping()	{ DisableMacro(); }
+	EGLCompileMacro GetType() const
+	{
+		return USE_NORMAL_MAPPING;
+	}
+
+	uint32_t	GetRequiredVertexAttributes() const
+	{
+		return ATTR_NORMAL | ATTR_TANGENT | ATTR_BINORMAL;
+	}
+
+	void EnableNormalMapping()
+	{
+		EnableMacro();
+	}
+
+	void DisableNormalMapping()
+	{
+		DisableMacro();
+	}
 
 	void SetNormalMapping(bool enable)
 	{
 		if(enable)
+		{
 			EnableMacro();
+		}
 		else
+		{
 			DisableMacro();
+		}
 	}
 };
-
 
 class GLCompileMacro_USE_PARALLAX_MAPPING:
 GLCompileMacro
@@ -501,22 +652,40 @@ public:
 	{
 	}
 
-	const char* GetName() const { return "USE_PARALLAX_MAPPING"; }
-	EGLCompileMacro GetType() const { return USE_PARALLAX_MAPPING; }
+	const char* GetName() const
+	{
+		return "USE_PARALLAX_MAPPING";
+	}
+
+	EGLCompileMacro GetType() const
+	{
+		return USE_PARALLAX_MAPPING;
+	}
+
 	bool		MissesRequiredMacros(int permutation, const std::vector<GLCompileMacro*>& macros) const;
 
-	void EnableParallaxMapping()	{ EnableMacro(); }
-	void DisableParallaxMapping()	{ DisableMacro(); }
+	void EnableParallaxMapping()
+	{
+		EnableMacro();
+	}
+
+	void DisableParallaxMapping()
+	{
+		DisableMacro();
+	}
 
 	void SetParallaxMapping(bool enable)
 	{
 		if(enable)
+		{
 			EnableMacro();
+		}
 		else
+		{
 			DisableMacro();
+		}
 	}
 };
-
 
 class GLCompileMacro_USE_REFLECTIVE_SPECULAR:
 GLCompileMacro
@@ -527,22 +696,40 @@ public:
 	{
 	}
 
-	const char* GetName() const { return "USE_REFLECTIVE_SPECULAR"; }
-	EGLCompileMacro GetType() const { return USE_REFLECTIVE_SPECULAR; }
+	const char* GetName() const
+	{
+		return "USE_REFLECTIVE_SPECULAR";
+	}
+
+	EGLCompileMacro GetType() const
+	{
+		return USE_REFLECTIVE_SPECULAR;
+	}
+
 	bool		MissesRequiredMacros(int permutation, const std::vector<GLCompileMacro*>& macros) const;
 
-	void EnableReflectiveSpecular()		{ EnableMacro(); }
-	void DisableReflectiveSpecular()	{ DisableMacro(); }
+	void EnableReflectiveSpecular()
+	{
+		EnableMacro();
+	}
+
+	void DisableReflectiveSpecular()
+	{
+		DisableMacro();
+	}
 
 	void SetReflectiveSpecular(bool enable)
 	{
 		if(enable)
+		{
 			EnableMacro();
+		}
 		else
+		{
 			DisableMacro();
+		}
 	}
 };
-
 
 class GLCompileMacro_TWOSIDED:
 GLCompileMacro
@@ -553,20 +740,42 @@ public:
 	{
 	}
 
-	const char* GetName() const { return "TWOSIDED"; }
-	EGLCompileMacro GetType() const { return TWOSIDED; }
-	//bool		MissesRequiredMacros(int permutation, const std::vector<GLCompileMacro*>& macros) const;
-	uint32_t	GetRequiredVertexAttributes() const { return ATTR_NORMAL; }
+	const char* GetName() const
+	{
+		return "TWOSIDED";
+	}
 
-	void EnableMacro_TWOSIDED()		{ EnableMacro(); }
-	void DisableMacro_TWOSIDED()	{ DisableMacro(); }
+	EGLCompileMacro GetType() const
+	{
+		return TWOSIDED;
+	}
+
+	//bool		MissesRequiredMacros(int permutation, const std::vector<GLCompileMacro*>& macros) const;
+	uint32_t	GetRequiredVertexAttributes() const
+	{
+		return ATTR_NORMAL;
+	}
+
+	void EnableMacro_TWOSIDED()
+	{
+		EnableMacro();
+	}
+
+	void DisableMacro_TWOSIDED()
+	{
+		DisableMacro();
+	}
 
 	void SetMacro_TWOSIDED(cullType_t cullType)
 	{
 		if(cullType == CT_TWO_SIDED || cullType == CT_BACK_SIDED)
+		{
 			EnableMacro();
+		}
 		else
+		{
 			DisableMacro();
+		}
 	}
 };
 
@@ -579,18 +788,36 @@ public:
 	{
 	}
 
-	const char* GetName() const { return "EYE_OUTSIDE"; }
-	EGLCompileMacro GetType() const { return EYE_OUTSIDE; }
+	const char* GetName() const
+	{
+		return "EYE_OUTSIDE";
+	}
 
-	void EnableMacro_EYE_OUTSIDE()		{ EnableMacro(); }
-	void DisableMacro_EYE_OUTSIDE()	{ DisableMacro(); }
+	EGLCompileMacro GetType() const
+	{
+		return EYE_OUTSIDE;
+	}
+	
+	void EnableMacro_EYE_OUTSIDE()
+	{
+		EnableMacro();
+	}
+
+	void DisableMacro_EYE_OUTSIDE()
+	{
+		DisableMacro();
+	}
 
 	void SetMacro_EYE_OUTSIDE(bool enable)
 	{
 		if(enable)
+		{
 			EnableMacro();
+		}
 		else
+		{
 			DisableMacro();
+		}
 	}
 };
 
@@ -603,18 +830,36 @@ public:
 	{
 	}
 
-	const char* GetName() const { return "BRIGHTPASS_FILTER"; }
-	EGLCompileMacro GetType() const { return BRIGHTPASS_FILTER; }
+	const char* GetName() const
+	{
+		return "BRIGHTPASS_FILTER";
+	}
 
-	void EnableMacro_BRIGHTPASS_FILTER()		{ EnableMacro(); }
-	void DisableMacro_BRIGHTPASS_FILTER()	{ DisableMacro(); }
+	EGLCompileMacro GetType() const
+	{
+		return BRIGHTPASS_FILTER;
+	}
+
+	void EnableMacro_BRIGHTPASS_FILTER()
+	{
+		EnableMacro();
+	}
+
+	void DisableMacro_BRIGHTPASS_FILTER()
+	{
+		DisableMacro();
+	}
 
 	void SetMacro_BRIGHTPASS_FILTER(bool enable)
 	{
 		if(enable)
+		{
 			EnableMacro();
+		}
 		else
+		{
 			DisableMacro();
+		}
 	}
 };
 
@@ -627,21 +872,38 @@ public:
 	{
 	}
 
-	const char* GetName() const { return "LIGHT_DIRECTIONAL"; }
-	EGLCompileMacro GetType() const { return LIGHT_DIRECTIONAL; }
+	const char* GetName() const
+	{
+		return "LIGHT_DIRECTIONAL";
+	}
+	
+	EGLCompileMacro GetType() const
+	{
+		return LIGHT_DIRECTIONAL;
+	}
 
-	void EnableMacro_LIGHT_DIRECTIONAL()	{ EnableMacro(); }
-	void DisableMacro_LIGHT_DIRECTIONAL()	{ DisableMacro(); }
+	void EnableMacro_LIGHT_DIRECTIONAL()
+	{
+		EnableMacro();
+	}
+
+	void DisableMacro_LIGHT_DIRECTIONAL()
+	{
+		DisableMacro();
+	}
 
 	void SetMacro_LIGHT_DIRECTIONAL(bool enable)
 	{
 		if(enable)
+		{
 			EnableMacro();
+		}
 		else
+		{
 			DisableMacro();
+		}
 	}
 };
-
 
 class GLCompileMacro_USE_SHADOWING:
 GLCompileMacro
@@ -652,21 +914,38 @@ public:
 	{
 	}
 
-	const char* GetName() const { return "USE_SHADOWING"; }
-	EGLCompileMacro GetType() const { return USE_SHADOWING; }
+	const char* GetName() const
+	{
+		return "USE_SHADOWING";
+	}
 
-	void EnableShadowing()	{ EnableMacro(); }
-	void DisableShadowing()	{ DisableMacro(); }
+	EGLCompileMacro GetType() const
+	{
+		return USE_SHADOWING;
+	}
+
+	void EnableShadowing()
+	{
+		EnableMacro();
+	}
+
+	void DisableShadowing()
+	{
+		DisableMacro();
+	}
 
 	void SetShadowing(bool enable)
 	{
 		if(enable)
+		{
 			EnableMacro();
+		}
 		else
+		{
 			DisableMacro();
+		}
 	}
 };
-
 
 class GLCompileMacro_USE_GBUFFER:
 GLCompileMacro
@@ -677,21 +956,38 @@ public:
 	{
 	}
 
-	const char* GetName() const { return "USE_GBUFFER"; }
-	EGLCompileMacro GetType() const { return USE_GBUFFER; }
+	const char* GetName() const
+	{
+		return "USE_GBUFFER";
+	}
 
-	void EnableMacro_USE_GBUFFER()		{ EnableMacro(); }
-	void DisableMacro_USE_GBUFFER()	{ DisableMacro(); }
+	EGLCompileMacro GetType() const
+	{
+		return USE_GBUFFER;
+	}
+
+	void EnableMacro_USE_GBUFFER()
+	{
+		EnableMacro();
+	}
+
+	void DisableMacro_USE_GBUFFER()
+	{
+		DisableMacro();
+	}
 
 	void SetMacro_USE_GBUFFER(bool enable)
 	{
 		if(enable)
+		{
 			EnableMacro();
+		}
 		else
+		{
 			DisableMacro();
+		}
 	}
 };
-
 
 class u_ColorMap:
 GLUniform
@@ -702,7 +998,11 @@ public:
 	{
 	}
 
-	const char* GetName() const { return "u_ColorMap"; }
+	const char* GetName() const
+	{
+		return "u_ColorMap";
+	}
+
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
 		shaderProgram->u_ColorMap = glGetUniformLocationARB(shaderProgram->program, GetName());
@@ -723,7 +1023,11 @@ public:
 	{
 	}
 
-	const char* GetName() const { return "u_NormalMap"; }
+	const char* GetName() const
+	{
+		return "u_NormalMap";
+	}
+
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
 		shaderProgram->u_NormalMap = glGetUniformLocationARB(shaderProgram->program, GetName());
@@ -744,7 +1048,11 @@ public:
 	{
 	}
 
-	const char* GetName() const { return "u_CurrentMap"; }
+	const char* GetName() const
+	{
+		return "u_CurrentMap";
+	}
+
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
 		shaderProgram->u_CurrentMap = glGetUniformLocationARB(shaderProgram->program, GetName());
@@ -756,7 +1064,6 @@ public:
 	}
 };
 
-
 class u_ColorTextureMatrix:
 GLUniform
 {
@@ -766,7 +1073,11 @@ public:
 	{
 	}
 
-	const char* GetName() const { return "u_ColorTextureMatrix"; }
+	const char* GetName() const
+	{
+		return "u_ColorTextureMatrix";
+	}
+
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
 		shaderProgram->u_ColorTextureMatrix = glGetUniformLocationARB(shaderProgram->program, GetName());
@@ -787,7 +1098,11 @@ public:
 	{
 	}
 
-	const char* GetName() const { return "u_DiffuseTextureMatrix"; }
+	const char* GetName() const
+	{
+		return "u_DiffuseTextureMatrix";
+	}
+
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
 		shaderProgram->u_DiffuseTextureMatrix = glGetUniformLocationARB(shaderProgram->program, GetName());
@@ -808,7 +1123,11 @@ public:
 	{
 	}
 
-	const char* GetName() const { return "u_NormalTextureMatrix"; }
+	const char* GetName() const
+	{
+		return "u_NormalTextureMatrix";
+	}
+
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
 		shaderProgram->u_NormalTextureMatrix = glGetUniformLocationARB(shaderProgram->program, GetName());
@@ -829,7 +1148,11 @@ public:
 	{
 	}
 
-	const char* GetName() const { return "u_SpecularTextureMatrix"; }
+	const char* GetName() const
+	{
+		return "u_SpecularTextureMatrix";
+	}
+
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
 		shaderProgram->u_SpecularTextureMatrix = glGetUniformLocationARB(shaderProgram->program, GetName());
@@ -841,7 +1164,6 @@ public:
 	}
 };
 
-
 class u_AlphaTest:
 GLUniform
 {
@@ -851,7 +1173,11 @@ public:
 	{
 	}
 
-	const char* GetName() const { return "u_AlphaTest"; }
+	const char* GetName() const
+	{
+		return "u_AlphaTest";
+	}
+
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
 		shaderProgram->u_AlphaTest = glGetUniformLocationARB(shaderProgram->program, GetName());
@@ -863,7 +1189,6 @@ public:
 	}
 };
 
-
 class u_AmbientColor:
 GLUniform
 {
@@ -873,7 +1198,11 @@ public:
 	{
 	}
 
-	const char* GetName() const { return "u_AmbientColor"; }
+	const char* GetName() const
+	{
+		return "u_AmbientColor";
+	}
+
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
 		shaderProgram->u_AmbientColor = glGetUniformLocationARB(shaderProgram->program, GetName());
@@ -885,7 +1214,6 @@ public:
 	}
 };
 
-
 class u_ViewOrigin:
 GLUniform
 {
@@ -895,7 +1223,11 @@ public:
 	{
 	}
 
-	const char* GetName() const { return "u_ViewOrigin"; }
+	const char* GetName() const
+	{
+		return "u_ViewOrigin";
+	}
+
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
 		shaderProgram->u_ViewOrigin = glGetUniformLocationARB(shaderProgram->program, GetName());
@@ -907,7 +1239,6 @@ public:
 	}
 };
 
-
 class u_LightDir:
 GLUniform
 {
@@ -917,7 +1248,11 @@ public:
 	{
 	}
 
-	const char* GetName() const { return "u_LightDir"; }
+	const char* GetName() const
+	{
+		return "u_LightDir";
+	}
+
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
 		shaderProgram->u_LightDir = glGetUniformLocationARB(shaderProgram->program, GetName());
@@ -938,7 +1273,11 @@ public:
 	{
 	}
 
-	const char* GetName() const { return "u_LightOrigin"; }
+	const char* GetName() const
+	{
+		return "u_LightOrigin";
+	}
+
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
 		shaderProgram->u_LightOrigin = glGetUniformLocationARB(shaderProgram->program, GetName());
@@ -959,7 +1298,11 @@ public:
 	{
 	}
 
-	const char* GetName() const { return "u_LightColor"; }
+	const char* GetName() const
+	{
+		return "u_LightColor";
+	}
+
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
 		shaderProgram->u_LightColor = glGetUniformLocationARB(shaderProgram->program, GetName());
@@ -980,7 +1323,11 @@ public:
 	{
 	}
 
-	const char* GetName() const { return "u_LightRadius"; }
+	const char* GetName() const
+	{
+		return "u_LightRadius";
+	}
+
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
 		shaderProgram->u_LightRadius = glGetUniformLocationARB(shaderProgram->program, GetName());
@@ -992,7 +1339,6 @@ public:
 	}
 };
 
-
 class u_LightScale:
 GLUniform
 {
@@ -1002,7 +1348,11 @@ public:
 	{
 	}
 
-	const char* GetName() const { return "u_LightScale"; }
+	const char* GetName() const
+	{
+		return "u_LightScale";
+	}
+
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
 		shaderProgram->u_LightScale = glGetUniformLocationARB(shaderProgram->program, GetName());
@@ -1014,7 +1364,6 @@ public:
 	}
 };
 
-
 class u_LightWrapAround:
 GLUniform
 {
@@ -1024,7 +1373,11 @@ public:
 	{
 	}
 
-	const char* GetName() const { return "u_LightWrapAround"; }
+	const char* GetName() const
+	{
+		return "u_LightWrapAround";
+	}
+
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
 		shaderProgram->u_LightWrapAround = glGetUniformLocationARB(shaderProgram->program, GetName());
@@ -1045,7 +1398,11 @@ public:
 	{
 	}
 
-	const char* GetName() const { return "u_LightAttenuationMatrix"; }
+	const char* GetName() const
+	{
+		return "u_LightAttenuationMatrix";
+	}
+
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
 		shaderProgram->u_LightAttenuationMatrix = glGetUniformLocationARB(shaderProgram->program, GetName());
@@ -1057,7 +1414,6 @@ public:
 	}
 };
 
-
 class u_LightFrustum:
 GLUniform
 {
@@ -1067,7 +1423,11 @@ public:
 	{
 	}
 
-	const char* GetName() const { return "u_LightFrustum"; }
+	const char* GetName() const
+	{
+		return "u_LightFrustum";
+	}
+
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
 		shaderProgram->u_LightFrustum = glGetUniformLocationARB(shaderProgram->program, GetName());
@@ -1078,11 +1438,16 @@ public:
 		shaderProgram_t* program = _shader->GetProgram();
 
 #if 0
+
 		if(memcmp(program->t_LightFrustum, m))
+		{
 			return;
+		}
+
 #endif
 
 #if defined(LOG_GLSL_UNIFORMS)
+
 		if(r_logFile->integer)
 		{
 			GLimp_LogComment(va("--- SetUniform_LightFrustum( program = %s, "
@@ -1101,12 +1466,12 @@ public:
 								lightFrustum[5][0], lightFrustum[5][1], lightFrustum[5][2], lightFrustum[5][3]
 								));
 		}
+
 #endif
 
 		glUniform4fvARB(program->u_LightFrustum, 6, &lightFrustum[0][0]);
 	}
 };
-
 
 class u_ShadowTexelSize:
 GLUniform
@@ -1117,7 +1482,11 @@ public:
 	{
 	}
 
-	const char* GetName() const { return "u_ShadowTexelSize"; }
+	const char* GetName() const
+	{
+		return "u_ShadowTexelSize";
+	}
+
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
 		shaderProgram->u_ShadowTexelSize = glGetUniformLocationARB(shaderProgram->program, GetName());
@@ -1138,7 +1507,11 @@ public:
 	{
 	}
 
-	const char* GetName() const { return "u_ShadowBlur"; }
+	const char* GetName() const
+	{
+		return "u_ShadowBlur";
+	}
+
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
 		shaderProgram->u_ShadowBlur = glGetUniformLocationARB(shaderProgram->program, GetName());
@@ -1159,7 +1532,11 @@ public:
 	{
 	}
 
-	const char* GetName() const { return "u_ShadowMatrix"; }
+	const char* GetName() const
+	{
+		return "u_ShadowMatrix";
+	}
+
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
 		shaderProgram->u_ShadowMatrix = glGetUniformLocationARB(shaderProgram->program, GetName());
@@ -1171,7 +1548,6 @@ public:
 	}
 };
 
-
 class u_ShadowParallelSplitDistances:
 GLUniform
 {
@@ -1181,7 +1557,11 @@ public:
 	{
 	}
 
-	const char* GetName() const { return "u_ShadowParallelSplitDistances"; }
+	const char* GetName() const
+	{
+		return "u_ShadowParallelSplitDistances";
+	}
+
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
 		shaderProgram->u_ShadowParallelSplitDistances = glGetUniformLocationARB(shaderProgram->program, GetName());
@@ -1202,7 +1582,11 @@ public:
 	{
 	}
 
-	const char* GetName() const { return "u_Color"; }
+	const char* GetName() const
+	{
+		return "u_Color";
+	}
+
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
 		shaderProgram->u_Color = glGetUniformLocationARB(shaderProgram->program, GetName());
@@ -1214,9 +1598,6 @@ public:
 	}
 };
 
-
-
-
 class u_ModelMatrix:
 GLUniform
 {
@@ -1226,7 +1607,11 @@ public:
 	{
 	}
 
-	const char* GetName() const { return "u_ModelMatrix"; }
+	const char* GetName() const
+	{
+		return "u_ModelMatrix";
+	}
+
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
 		shaderProgram->u_ModelMatrix = glGetUniformLocationARB(shaderProgram->program, GetName());
@@ -1238,7 +1623,6 @@ public:
 	}
 };
 
-
 class u_ViewMatrix:
 GLUniform
 {
@@ -1248,7 +1632,11 @@ public:
 	{
 	}
 
-	const char* GetName() const { return "u_ViewMatrix"; }
+	const char* GetName() const
+	{
+		return "u_ViewMatrix";
+	}
+
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
 		shaderProgram->u_ViewMatrix = glGetUniformLocationARB(shaderProgram->program, GetName());
@@ -1260,7 +1648,6 @@ public:
 	}
 };
 
-
 class u_ModelViewMatrix:
 GLUniform
 {
@@ -1270,7 +1657,11 @@ public:
 	{
 	}
 
-	const char* GetName() const { return "u_ModelViewMatrix"; }
+	const char* GetName() const
+	{
+		return "u_ModelViewMatrix";
+	}
+
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
 		shaderProgram->u_ModelViewMatrix = glGetUniformLocationARB(shaderProgram->program, GetName());
@@ -1282,7 +1673,6 @@ public:
 	}
 };
 
-
 class u_ModelViewMatrixTranspose:
 GLUniform
 {
@@ -1292,7 +1682,11 @@ public:
 	{
 	}
 
-	const char* GetName() const { return "u_ModelViewMatrixTranspose"; }
+	const char* GetName() const
+	{
+		return "u_ModelViewMatrixTranspose";
+	}
+
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
 		shaderProgram->u_ModelViewMatrixTranspose = glGetUniformLocationARB(shaderProgram->program, GetName());
@@ -1304,7 +1698,6 @@ public:
 	}
 };
 
-
 class u_ProjectionMatrixTranspose:
 GLUniform
 {
@@ -1314,7 +1707,11 @@ public:
 	{
 	}
 
-	const char* GetName() const { return "u_ProjectionMatrixTranspose"; }
+	const char* GetName() const
+	{
+		return "u_ProjectionMatrixTranspose";
+	}
+
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
 		shaderProgram->u_ProjectionMatrixTranspose = glGetUniformLocationARB(shaderProgram->program, GetName());
@@ -1326,7 +1723,6 @@ public:
 	}
 };
 
-
 class u_ModelViewProjectionMatrix:
 GLUniform
 {
@@ -1336,7 +1732,11 @@ public:
 	{
 	}
 
-	const char* GetName() const { return "u_ModelViewProjectionMatrix"; }
+	const char* GetName() const
+	{
+		return "u_ModelViewProjectionMatrix";
+	}
+
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
 		shaderProgram->u_ModelViewProjectionMatrix = glGetUniformLocationARB(shaderProgram->program, GetName());
@@ -1348,7 +1748,6 @@ public:
 	}
 };
 
-
 class u_UnprojectMatrix:
 GLUniform
 {
@@ -1358,7 +1757,11 @@ public:
 	{
 	}
 
-	const char* GetName() const { return "u_UnprojectMatrix"; }
+	const char* GetName() const
+	{
+		return "u_UnprojectMatrix";
+	}
+
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
 		shaderProgram->u_UnprojectMatrix = glGetUniformLocationARB(shaderProgram->program, GetName());
@@ -1370,7 +1773,6 @@ public:
 	}
 };
 
-
 class u_BoneMatrix:
 GLUniform
 {
@@ -1380,7 +1782,11 @@ public:
 	{
 	}
 
-	const char* GetName() const { return "u_BoneMatrix"; }
+	const char* GetName() const
+	{
+		return "u_BoneMatrix";
+	}
+
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
 		shaderProgram->u_BoneMatrix = glGetUniformLocationARB(shaderProgram->program, GetName());
@@ -1392,7 +1798,6 @@ public:
 	}
 };
 
-
 class u_VertexInterpolation:
 GLUniform
 {
@@ -1402,7 +1807,11 @@ public:
 	{
 	}
 
-	const char* GetName() const { return "u_VertexInterpolation"; }
+	const char* GetName() const
+	{
+		return "u_VertexInterpolation";
+	}
+
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
 		shaderProgram->u_VertexInterpolation = glGetUniformLocationARB(shaderProgram->program, GetName());
@@ -1414,7 +1823,6 @@ public:
 	}
 };
 
-
 class u_PortalPlane:
 GLUniform
 {
@@ -1424,7 +1832,11 @@ public:
 	{
 	}
 
-	const char* GetName() const { return "u_PortalPlane"; }
+	const char* GetName() const
+	{
+		return "u_PortalPlane";
+	}
+
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
 		shaderProgram->u_PortalPlane = glGetUniformLocationARB(shaderProgram->program, GetName());
@@ -1445,7 +1857,11 @@ public:
 	{
 	}
 
-	const char* GetName() const { return "u_PortalRange"; }
+	const char* GetName() const
+	{
+		return "u_PortalRange";
+	}
+
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
 		shaderProgram->u_PortalRange = glGetUniformLocationARB(shaderProgram->program, GetName());
@@ -1457,7 +1873,6 @@ public:
 	}
 };
 
-
 class u_DepthScale:
 GLUniform
 {
@@ -1467,7 +1882,11 @@ public:
 	{
 	}
 
-	const char* GetName() const { return "u_DepthScale"; }
+	const char* GetName() const
+	{
+		return "u_DepthScale";
+	}
+
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
 		shaderProgram->u_DepthScale = glGetUniformLocationARB(shaderProgram->program, GetName());
@@ -1488,7 +1907,11 @@ public:
 	{
 	}
 
-	const char* GetName() const { return "u_EnvironmentInterpolation"; }
+	const char* GetName() const
+	{
+		return "u_EnvironmentInterpolation";
+	}
+
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
 		shaderProgram->u_EnvironmentInterpolation = glGetUniformLocationARB(shaderProgram->program, GetName());
@@ -1500,11 +1923,6 @@ public:
 	}
 };
 
-
-
-
-
-
 class u_DeformParms:
 GLUniform
 {
@@ -1514,7 +1932,11 @@ public:
 	{
 	}
 
-	const char* GetName() const { return "u_DeformParms"; }
+	const char* GetName() const
+	{
+		return "u_DeformParms";
+	}
+
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
 		shaderProgram->u_DeformParms = glGetUniformLocationARB(shaderProgram->program, GetName());
@@ -1526,7 +1948,9 @@ public:
 		int		deformOfs = 0;
 
 		if(numDeforms > MAX_SHADER_DEFORMS)
+		{
 			numDeforms = MAX_SHADER_DEFORMS;
+		}
 
 		deformParms[deformOfs++] = numDeforms;
 
@@ -1569,13 +1993,15 @@ public:
 					deformParms[deformOfs++] = ds->bulgeHeight;
 					deformParms[deformOfs++] = ds->bulgeSpeed;
 					break;
+
+				default:
+					break;
 			}
 
 			glUniform1fvARB(_shader->GetProgram()->u_DeformParms, MAX_SHADER_DEFORM_PARMS, deformParms);
 		}
 	}
 };
-
 
 class u_Time:
 GLUniform
@@ -1586,7 +2012,11 @@ public:
 	{
 	}
 
-	const char* GetName() const { return "u_Time"; }
+	const char* GetName() const
+	{
+		return "u_Time";
+	}
+
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
 		shaderProgram->u_Time = glGetUniformLocationARB(shaderProgram->program, GetName());
@@ -1597,10 +2027,6 @@ public:
 		GLSL_SetUniform_Time(_shader->GetProgram(), value);
 	}
 };
-
-
-
-
 
 class GLDeformStage:
 public u_DeformParms,
@@ -1614,9 +2040,6 @@ public:
 	}
 };
 
-
-
-
 class u_ColorModulate:
 GLUniform
 {
@@ -1626,7 +2049,11 @@ public:
 	{
 	}
 
-	const char* GetName() const { return "u_ColorModulate"; }
+	const char* GetName() const
+	{
+		return "u_ColorModulate";
+	}
+
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
 		shaderProgram->u_ColorModulate = glGetUniformLocationARB(shaderProgram->program, GetName());
@@ -1680,8 +2107,6 @@ public:
 	}
 };
 
-
-
 class u_FogDistanceVector:
 GLUniform
 {
@@ -1691,7 +2116,11 @@ public:
 	{
 	}
 
-	const char* GetName() const { return "u_FogDistanceVector"; }
+	const char* GetName() const
+	{
+		return "u_FogDistanceVector";
+	}
+
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
 		shaderProgram->u_FogDistanceVector = glGetUniformLocationARB(shaderProgram->program, GetName());
@@ -1702,23 +2131,27 @@ public:
 		shaderProgram_t* program = _shader->GetProgram();
 
 #if defined(USE_UNIFORM_FIREWALL)
+
 		if(Vector4Compare(program->t_FogDistanceVector, v))
+		{
 			return;
+		}
 
 		VectorCopy(v, program->t_FogDistanceVector);
 #endif
 
 #if defined(LOG_GLSL_UNIFORMS)
+
 		if(r_logFile->integer)
 		{
 			GLimp_LogComment(va("--- SetUniform_FogDistanceVector( program = %s, vector = ( %5.3f, %5.3f, %5.3f, %5.3f ) ) ---\n", program->name, v[0], v[1], v[2], v[3]));
 		}
+
 #endif
 
 		glUniform4fARB(program->u_FogDistanceVector, v[0], v[1], v[2], v[3]);
 	}
 };
-
 
 class u_FogDepthVector:
 GLUniform
@@ -1729,7 +2162,11 @@ public:
 	{
 	}
 
-	const char* GetName() const { return "u_FogDepthVector"; }
+	const char* GetName() const
+	{
+		return "u_FogDepthVector";
+	}
+
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
 		shaderProgram->u_FogDepthVector = glGetUniformLocationARB(shaderProgram->program, GetName());
@@ -1740,23 +2177,27 @@ public:
 		shaderProgram_t* program = _shader->GetProgram();
 
 #if defined(USE_UNIFORM_FIREWALL)
+
 		if(Vector4Compare(program->t_FogDepthVector, v))
+		{
 			return;
+		}
 
 		VectorCopy(v, program->t_FogDepthVector);
 #endif
 
 #if defined(LOG_GLSL_UNIFORMS)
+
 		if(r_logFile->integer)
 		{
 			GLimp_LogComment(va("--- SetUniform_FogDepthVector( program = %s, vector = ( %5.3f, %5.3f, %5.3f, %5.3f ) ) ---\n", program->name, v[0], v[1], v[2], v[3]));
 		}
+
 #endif
 
 		glUniform4fARB(program->u_FogDepthVector, v[0], v[1], v[2], v[3]);
 	}
 };
-
 
 class u_FogEyeT:
 GLUniform
@@ -1767,7 +2208,11 @@ public:
 	{
 	}
 
-	const char* GetName() const { return "u_FogEyeT"; }
+	const char* GetName() const
+	{
+		return "u_FogEyeT";
+	}
+
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
 		shaderProgram->u_FogEyeT = glGetUniformLocationARB(shaderProgram->program, GetName());
@@ -1778,23 +2223,27 @@ public:
 		shaderProgram_t* program = _shader->GetProgram();
 
 #if defined(USE_UNIFORM_FIREWALL)
+
 		if(program->t_FogEyeT == value)
+		{
 			return;
+		}
 
 		program->t_FogEyeT = value;
 #endif
 
 #if defined(LOG_GLSL_UNIFORMS)
+
 		if(r_logFile->integer)
 		{
 			GLimp_LogComment(va("--- SetUniform_FogEyeT( program = %s, value = %f ) ---\n", program->name, value));
 		}
+
 #endif
 
 		glUniform1fARB(program->u_FogEyeT, value);
 	}
 };
-
 
 class u_DeformMagnitude:
 GLUniform
@@ -1805,7 +2254,11 @@ public:
 	{
 	}
 
-	const char* GetName() const { return "u_DeformMagnitude"; }
+	const char* GetName() const
+	{
+		return "u_DeformMagnitude";
+	}
+
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
 		shaderProgram->u_DeformMagnitude = glGetUniformLocationARB(shaderProgram->program, GetName());
@@ -1816,24 +2269,27 @@ public:
 		shaderProgram_t* program = _shader->GetProgram();
 
 #if defined(USE_UNIFORM_FIREWALL)
+
 		if(program->t_DeformMagnitude == value)
+		{
 			return;
+		}
 
 		program->t_DeformMagnitude = value;
 #endif
 
 #if defined(LOG_GLSL_UNIFORMS)
+
 		if(r_logFile->integer)
 		{
 			GLimp_LogComment(va("--- SetUniform_DeformMagnitude( program = %s, value = %f ) ---\n", program->name, value));
 		}
+
 #endif
 
 		glUniform1fARB(program->u_DeformMagnitude, value);
 	}
 };
-
-
 
 class u_HDRKey:
 GLUniform
@@ -1844,7 +2300,11 @@ public:
 	{
 	}
 
-	const char* GetName() const { return "u_HDRKey"; }
+	const char* GetName() const
+	{
+		return "u_HDRKey";
+	}
+
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
 		shaderProgram->u_HDRKey = glGetUniformLocationARB(shaderProgram->program, GetName());
@@ -1855,17 +2315,22 @@ public:
 		shaderProgram_t* program = _shader->GetProgram();
 
 #if defined(USE_UNIFORM_FIREWALL)
+
 		if(program->t_HDRKey == value)
+		{
 			return;
+		}
 
 		program->t_HDRKey = value;
 #endif
 
 #if defined(LOG_GLSL_UNIFORMS)
+
 		if(r_logFile->integer)
 		{
 			GLimp_LogComment(va("--- SetUniform_HDRKey( program = %s, value = %f ) ---\n", program->name, value));
 		}
+
 #endif
 
 		glUniform1fARB(program->u_HDRKey, value);
@@ -1881,7 +2346,11 @@ public:
 	{
 	}
 
-	const char* GetName() const { return "u_HDRAverageLuminance"; }
+	const char* GetName() const
+	{
+		return "u_HDRAverageLuminance";
+	}
+
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
 		shaderProgram->u_HDRAverageLuminance = glGetUniformLocationARB(shaderProgram->program, GetName());
@@ -1892,17 +2361,22 @@ public:
 		shaderProgram_t* program = _shader->GetProgram();
 
 #if defined(USE_UNIFORM_FIREWALL)
+
 		if(program->t_HDRAverageLuminance == value)
+		{
 			return;
+		}
 
 		program->t_HDRAverageLuminance = value;
 #endif
 
 #if defined(LOG_GLSL_UNIFORMS)
+
 		if(r_logFile->integer)
 		{
 			GLimp_LogComment(va("--- SetUniform_HDRAverageLuminance( program = %s, value = %f ) ---\n", program->name, value));
 		}
+
 #endif
 
 		glUniform1fARB(program->u_HDRAverageLuminance, value);
@@ -1918,7 +2392,11 @@ public:
 	{
 	}
 
-	const char* GetName() const { return "u_HDRMaxLuminance"; }
+	const char* GetName() const
+	{
+		return "u_HDRMaxLuminance";
+	}
+
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
 		shaderProgram->u_HDRMaxLuminance = glGetUniformLocationARB(shaderProgram->program, GetName());
@@ -1929,17 +2407,22 @@ public:
 		shaderProgram_t* program = _shader->GetProgram();
 
 #if defined(USE_UNIFORM_FIREWALL)
+
 		if(program->t_HDRMaxLuminance == value)
+		{
 			return;
+		}
 
 		program->t_HDRMaxLuminance = value;
 #endif
 
 #if defined(LOG_GLSL_UNIFORMS)
+
 		if(r_logFile->integer)
 		{
 			GLimp_LogComment(va("--- SetUniform_HDRMaxLuminance( program = %s, value = %f ) ---\n", program->name, value));
 		}
+
 #endif
 
 		glUniform1fARB(program->u_HDRMaxLuminance, value);
@@ -1971,8 +2454,6 @@ public:
 	GLShader_generic();
 };
 
-
-
 class GLShader_lightMapping:
 public GLShader,
 public u_DiffuseTextureMatrix,
@@ -1997,8 +2478,6 @@ public GLCompileMacro_USE_PARALLAX_MAPPING//,
 public:
 	GLShader_lightMapping();
 };
-
-
 
 class GLShader_vertexLighting_DBS_entity:
 public GLShader,
@@ -2032,7 +2511,6 @@ public:
 	GLShader_vertexLighting_DBS_entity();
 };
 
-
 class GLShader_vertexLighting_DBS_world:
 public GLShader,
 public u_DiffuseTextureMatrix,
@@ -2059,8 +2537,6 @@ public GLCompileMacro_USE_PARALLAX_MAPPING//,
 public:
 	GLShader_vertexLighting_DBS_world();
 };
-
-
 
 class GLShader_forwardLighting_omniXYZ:
 public GLShader,
@@ -2100,7 +2576,6 @@ public:
 	GLShader_forwardLighting_omniXYZ();
 };
 
-
 class GLShader_forwardLighting_projXYZ:
 public GLShader,
 public u_DiffuseTextureMatrix,
@@ -2139,7 +2614,6 @@ public GLCompileMacro_USE_SHADOWING//,
 public:
 	GLShader_forwardLighting_projXYZ();
 };
-
 
 class GLShader_forwardLighting_directionalSun:
 public GLShader,
@@ -2182,8 +2656,6 @@ public:
 	GLShader_forwardLighting_directionalSun();
 };
 
-
-
 class GLShader_deferredLighting_omniXYZ:
 public GLShader,
 public u_ViewOrigin,
@@ -2210,7 +2682,6 @@ public GLCompileMacro_USE_SHADOWING//,
 public:
 	GLShader_deferredLighting_omniXYZ();
 };
-
 
 class GLShader_deferredLighting_projXYZ:
 public GLShader,
@@ -2239,7 +2710,6 @@ public GLCompileMacro_USE_SHADOWING//,
 public:
 	GLShader_deferredLighting_projXYZ();
 };
-
 
 class GLShader_deferredLighting_directionalSun:
 public GLShader,
@@ -2271,8 +2741,6 @@ public:
 	GLShader_deferredLighting_directionalSun();
 };
 
-
-
 class GLShader_geometricFill:
 public GLShader,
 public u_DiffuseTextureMatrix,
@@ -2302,7 +2770,6 @@ public:
 	GLShader_geometricFill();
 };
 
-
 class GLShader_shadowFill:
 public GLShader,
 public u_ColorTextureMatrix,
@@ -2328,7 +2795,6 @@ public:
 	GLShader_shadowFill();
 };
 
-
 class GLShader_reflection:
 public GLShader,
 public u_ColorMap,
@@ -2352,8 +2818,6 @@ public:
 	GLShader_reflection();
 };
 
-
-
 class GLShader_skybox:
 public GLShader,
 public u_ColorMap,
@@ -2369,7 +2833,6 @@ public GLCompileMacro_USE_PORTAL_CLIPPING
 public:
 	GLShader_skybox();
 };
-
 
 class GLShader_fogQuake3:
 public GLShader,
@@ -2393,7 +2856,6 @@ public:
 	GLShader_fogQuake3();
 };
 
-
 class GLShader_fogGlobal:
 public GLShader,
 public u_ViewOrigin,
@@ -2407,7 +2869,6 @@ public u_FogDepthVector
 public:
 	GLShader_fogGlobal();
 };
-
 
 class GLShader_heatHaze:
 public GLShader,
@@ -2435,7 +2896,6 @@ public:
 	GLShader_heatHaze();
 };
 
-
 class GLShader_screen:
 public GLShader,
 public u_ModelViewProjectionMatrix
@@ -2443,7 +2903,6 @@ public u_ModelViewProjectionMatrix
 public:
 	GLShader_screen();
 };
-
 
 class GLShader_portal:
 public GLShader,
@@ -2510,7 +2969,6 @@ public u_ModelViewProjectionMatrix
 public:
 	GLShader_debugShadowMap();
 };
-
 
 extern GLShader_generic* gl_genericShader;
 extern GLShader_lightMapping* gl_lightMappingShader;

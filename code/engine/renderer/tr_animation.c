@@ -346,7 +346,7 @@ static qboolean R_LoadMD5Anim(skelAnimation_t * skelAnim, void *buffer, int buff
 		token = Com_ParseExt(&buf_p, qfalse);
 		if(Q_stricmp(token, va("%i", i)))
 		{
-			ri.Printf(PRINT_WARNING, "RE_RegisterAnimation: expected '%i' found '%s' in model '%s'\n", token, name);
+			ri.Printf(PRINT_WARNING, "RE_RegisterAnimation: expected '%i' found '%s' in model '%s'\n", i, token, name);
 			return qfalse;
 		}
 
@@ -856,12 +856,11 @@ R_CullMD5
 static void R_CullMD5(trRefEntity_t * ent)
 {
 	int             i;
-	md5Model_t     *model;
 
 	if(ent->e.skeleton.type == SK_INVALID)
 	{
 		// no properly set skeleton so use the bounding box by the model instead by the animations
-		model = tr.currentModel->md5;
+		md5Model_t *model = tr.currentModel->md5;
 
 		VectorCopy(model->bounds[0], ent->localBounds[0]);
 		VectorCopy(model->bounds[1], ent->localBounds[1]);

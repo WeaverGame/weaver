@@ -1691,7 +1691,7 @@ static void Render_lightVolume(interaction_t * ia)
 			VectorCopy(light->origin, lightOrigin);
 			VectorCopy(tess.svars.color, lightColor);
 
-			shadowCompare = r_shadows->integer >= SHADOWING_ESM16 && !light->l.noShadows && light->shadowLOD >= 0;
+			shadowCompare = (qboolean)(r_shadows->integer >= SHADOWING_ESM16 && !light->l.noShadows && light->shadowLOD >= 0);
 
 			GLSL_SetUniform_ViewOrigin(&tr.lightVolumeShader_omni, viewOrigin);
 			GLSL_SetUniform_LightOrigin(&tr.lightVolumeShader_omni, lightOrigin);
