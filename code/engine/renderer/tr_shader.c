@@ -6277,7 +6277,7 @@ static void ScanAndLoadShaderFiles(void)
 	char          **shaderFiles;
 	char           *buffers[MAX_SHADER_FILES];
 	char           *p;
-	int             numShaders;
+	int             numShaderFiles;
 	int             i;
 	char           *oldp, *token, *hashMem;
 	int             shaderTextHashTableSizes[MAX_SHADERTEXT_HASH], hash, size;
@@ -6288,24 +6288,24 @@ static void ScanAndLoadShaderFiles(void)
 
 	// scan for shader files
 #if defined(COMPAT_Q3A) || defined(COMPAT_ET)
-	shaderFiles = ri.FS_ListFiles("scripts", ".shader", &numShaders);
+	shaderFiles = ri.FS_ListFiles("scripts", ".shader", &numShaderFiles);
 #else
-	shaderFiles = ri.FS_ListFiles("materials", ".mtr", &numShaders);
+	shaderFiles = ri.FS_ListFiles("materials", ".mtr", &numShaderFiles);
 #endif
 
-	if(!shaderFiles || !numShaders)
+	if(!shaderFiles || !numShaderFiles)
 	{
 		ri.Printf(PRINT_WARNING, "WARNING: no shader files found\n");
 		return;
 	}
 
-	if(numShaders > MAX_SHADER_FILES)
+	if(numShaderFiles > MAX_SHADER_FILES)
 	{
-		numShaders = MAX_SHADER_FILES;
+		numShaderFiles = MAX_SHADER_FILES;
 	}
 
 	// build single large buffer
-	for(i = 0; i < numShaders; i++)
+	for(i = 0; i < numShaderFiles; i++)
 	{
 #if defined(COMPAT_Q3A) || defined(COMPAT_ET)
 		Com_sprintf(filename, sizeof(filename), "scripts/%s", shaderFiles[i]);
@@ -6315,10 +6315,10 @@ static void ScanAndLoadShaderFiles(void)
 
 		sum += ri.FS_ReadFile(filename, NULL);
 	}
-	s_shaderText = ri.Hunk_Alloc(sum + numShaders * 2, h_low);
+	s_shaderText = ri.Hunk_Alloc(sum + numShaderFiles * 2, h_low);
 
 	// load in reverse order, so doubled shaders are overriden properly
-	for(i = numShaders - 1; i >= 0; i--)
+	for(i = numShaderFiles - 1; i >= 0; i--)
 	{
 #if defined(COMPAT_Q3A) || defined(COMPAT_ET)
 		Com_sprintf(filename, sizeof(filename), "scripts/%s", shaderFiles[i]);
@@ -6343,7 +6343,7 @@ static void ScanAndLoadShaderFiles(void)
 
 	Com_Memset(shaderTextHashTableSizes, 0, sizeof(shaderTextHashTableSizes));
 	size = 0;
-	for(i = 0; i < numShaders; i++)
+	for(i = 0; i < numShaderFiles; i++)
 	{
 #if defined(COMPAT_Q3A) || defined(COMPAT_ET)
 		Com_sprintf(filename, sizeof(filename), "scripts/%s", shaderFiles[i]);
@@ -6391,7 +6391,8 @@ static void ScanAndLoadShaderFiles(void)
 				token = Com_ParseExt(&p, qtrue);
 				if(Q_stricmp(token, "("))
 				{
-					Com_ParseWarning("expected ( found '%s'\n", token);
+					ri.Printf(PRINT_WARNING, "expected ( found '%s'\n", token);
+					//COM_ParseWarning("expected ( found '%s'\n", token);
 					break;
 				}
 
@@ -6408,7 +6409,8 @@ static void ScanAndLoadShaderFiles(void)
 
 				if(Q_stricmp(token, ")"))
 				{
-					Com_ParseWarning("expected ) found '%s'\n", token);
+					ri.Printf(PRINT_WARNING, "expected ( found '%s'\n", token);
+					//COM_ParseWarning("expected ) found '%s'\n", token);
 					break;
 				}
 			}
@@ -6422,7 +6424,7 @@ static void ScanAndLoadShaderFiles(void)
 			}
 
 			// if we passed the pointer to the next shader file
-			if(i < numShaders - 1)
+			if(i < numShaderFiles - 1)
 			{
 				if(p > buffers[i + 1])
 				{
@@ -6444,7 +6446,7 @@ static void ScanAndLoadShaderFiles(void)
 
 	Com_Memset(shaderTextHashTableSizes, 0, sizeof(shaderTextHashTableSizes));
 	//
-	for(i = 0; i < numShaders; i++)
+	for(i = 0; i < numShaderFiles; i++)
 	{
 #if defined(COMPAT_Q3A) || defined(COMPAT_ET)
 		Com_sprintf(filename, sizeof(filename), "scripts/%s", shaderFiles[i]);
@@ -6555,7 +6557,8 @@ static void ScanAndLoadShaderFiles(void)
 				token = Com_ParseExt(&p, qtrue);
 				if(Q_stricmp(token, "("))
 				{
-					Com_ParseWarning("expected ( found '%s'\n", token);
+					ri.Printf(PRINT_WARNING, "expected ( found '%s'\n", token);
+					//COM_ParseWarning("expected ( found '%s'\n", token);
 					break;
 				}
 
@@ -6572,7 +6575,8 @@ static void ScanAndLoadShaderFiles(void)
 
 				if(Q_stricmp(token, ")"))
 				{
-					Com_ParseWarning("expected ) found '%s'\n", token);
+					ri.Printf(PRINT_WARNING, "expected ( found '%s'\n", token);
+					//COM_ParseWarning("expected ) found '%s'\n", token);
 					break;
 				}
 			}
@@ -6586,7 +6590,7 @@ static void ScanAndLoadShaderFiles(void)
 			}
 
 			// if we passed the pointer to the next shader file
-			if(i < numShaders - 1)
+			if(i < numShaderFiles - 1)
 			{
 				if(p > buffers[i + 1])
 				{

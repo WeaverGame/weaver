@@ -43,6 +43,7 @@ VBO_t          *R_CreateVBO(const char *name, byte * vertexes, int vertexesSize,
 			break;
 
 		default:
+			glUsage = 0;
 			Com_Error(ERR_FATAL, "bad vboUsage_t given: %i", usage);
 	}
 
@@ -120,11 +121,14 @@ VBO_t          *R_CreateVBO2(const char *name, int numVertexes, srfVert_t * vert
 			break;
 
 		default:
+			glUsage = 0;
 			Com_Error(ERR_FATAL, "bad vboUsage_t given: %i", usage);
 	}
 
 	if(!numVertexes)
+	{
 		return NULL;
+	}
 
 	if(strlen(name) >= MAX_QPATH)
 	{
@@ -329,7 +333,6 @@ VBO_t          *R_CreateVBO2(const char *name, int numVertexes, srfVert_t * vert
 	return vbo;
 }
 
-
 /*
 ============
 R_CreateIBO
@@ -351,6 +354,7 @@ IBO_t          *R_CreateIBO(const char *name, byte * indexes, int indexesSize, v
 			break;
 
 		default:
+			glUsage = 0;
 			Com_Error(ERR_FATAL, "bad vboUsage_t given: %i", usage);
 	}
 
@@ -410,11 +414,14 @@ IBO_t          *R_CreateIBO2(const char *name, int numTriangles, srfTriangle_t *
 			break;
 
 		default:
+			glUsage = 0;
 			Com_Error(ERR_FATAL, "bad vboUsage_t given: %i", usage);
 	}
 
 	if(!numTriangles)
+	{
 		return NULL;
+	}
 
 	if(strlen(name) >= MAX_QPATH)
 	{
@@ -575,7 +582,9 @@ static void R_InitUnitCubeVBO()
 	srfTriangle_t  *triangles;
 
 	if(glConfig.smpActive)
+	{
 		ri.Error(ERR_FATAL, "R_InitUnitCubeVBO: FIXME SMP");
+	}
 
 	tess.multiDrawPrimitives = 0;
 	tess.numIndexes = 0;
@@ -681,7 +690,6 @@ void R_ShutdownVBOs(void)
 	R_BindNullVBO();
 	R_BindNullIBO();
 
-
 	for(i = 0; i < tr.vbos.currentElements; i++)
 	{
 		vbo = (VBO_t *) Com_GrowListElement(&tr.vbos, i);
@@ -703,6 +711,7 @@ void R_ShutdownVBOs(void)
 	}
 
 #if defined(USE_BSP_CLUSTERSURFACE_MERGING)
+
 	if(tr.world)
 	{
 		for(j = 0; j < MAX_VISCOUNTS; j++)
@@ -724,6 +733,7 @@ void R_ShutdownVBOs(void)
 			Com_DestroyGrowList(&tr.world->clusterVBOSurfaces[j]);
 		}
 	}
+
 #endif // #if defined(USE_BSP_CLUSTERSURFACE_MERGING)
 
 	Com_DestroyGrowList(&tr.vbos);
@@ -757,8 +767,11 @@ void R_VBOList_f(void)
 	}
 
 #if defined(USE_BSP_CLUSTERSURFACE_MERGING)
+
 	if(tr.world)
 	{
+		int j;
+
 		for(j = 0; j < MAX_VISCOUNTS; j++)
 		{
 			// FIXME: clean up this code
@@ -776,6 +789,7 @@ void R_VBOList_f(void)
 			}
 		}
 	}
+
 #endif // #if defined(USE_BSP_CLUSTERSURFACE_MERGING)
 
 	for(i = 0; i < tr.ibos.currentElements; i++)

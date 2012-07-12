@@ -6271,7 +6271,7 @@ void R_LoadEntities(lump_t * l)
 		}
 		else
 		{
-			if((numOmniLights + numProjLights + numParallelLights) < s_worldData.numLights);
+			if((numOmniLights + numProjLights + numParallelLights) < s_worldData.numLights)
 			{
 				switch (light->l.rlType)
 				{

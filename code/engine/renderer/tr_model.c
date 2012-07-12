@@ -104,7 +104,7 @@ qhandle_t RE_RegisterModel(const char *name)
 
 	if(!name || !name[0])
 	{
-		ri.Printf(PRINT_ALL, "RE_RegisterModel: NULL name\n");
+		ri.Printf(PRINT_DEVELOPER, "RE_RegisterModel: NULL name\n");
 		return 0;
 	}
 
@@ -804,6 +804,23 @@ int RE_LerpTagET(orientation_t * tag, const refEntity_t * refent, const char *ta
 		return -1;
 
 	}
+	else if( model->type == MOD_MD5 )
+	{
+		// Dushan: VS need this first
+		vec3_t tmp;
+
+		retval = RE_BoneIndex( handle, tagName );
+		if( retval <= 0 )
+			return -1;
+		VectorCopy( refent->skeleton.bones[retval].origin, tag->origin );
+		QuatToAxis( refent->skeleton.bones[retval].rotation, tag->axis );
+		VectorCopy( tag->axis[2], tmp );
+		VectorCopy( tag->axis[1], tag->axis[2] );
+		VectorCopy( tag->axis[0], tag->axis[1] );
+		VectorCopy(tmp, tag->axis[0]);
+		return retval;
+	}
+	  
 	/*
 	else
 	{
