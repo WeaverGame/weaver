@@ -2473,7 +2473,7 @@ static int DrawSurfCompare(const void *a, const void *b)
 R_SortDrawSurfs
 =================
 */
-static void R_SortDrawSurfs()
+static void R_SortDrawSurfs(void)
 {
 	drawSurf_t     *drawSurf;
 	shader_t       *shader;

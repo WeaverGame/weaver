@@ -36,14 +36,9 @@ PNG LOADING
 */
 static void png_read_data(png_structp png, png_bytep data, png_size_t length)
 {
-	Com_Memcpy(data, png->io_ptr, length);
-
-	// raynorpat: msvc is gay
-#if _MSC_VER
-	(byte *) png->io_ptr += length;
-#else
-	png->io_ptr += length;
-#endif
+	byte *io_ptr = png_get_io_ptr(png);
+	Com_Memcpy(data, io_ptr, length);
+	png_init_io(png, (png_FILE_p)(io_ptr + length));
 }
 
 static void png_user_warning_fn(png_structp png_ptr, png_const_charp warning_message)
@@ -54,7 +49,7 @@ static void png_user_warning_fn(png_structp png_ptr, png_const_charp warning_mes
 static void png_user_error_fn(png_structp png_ptr, png_const_charp error_message)
 {
 	ri.Printf(PRINT_ERROR, "libpng error: %s\n", error_message);
-	longjmp(png_ptr->jmpbuf, 0);
+	longjmp(png_jmpbuf(png_ptr), 0);
 }
 
 void LoadPNG(const char *name, byte ** pic, int *width, int *height, byte alphaByte)
@@ -201,15 +196,9 @@ static int      png_compressed_size;
 
 static void png_write_data(png_structp png, png_bytep data, png_size_t length)
 {
-	memcpy(png->io_ptr, data, length);
-
-	// raynorpat: msvc is gay
-#if _MSC_VER
-	(byte *) png->io_ptr += length;
-#else
-	png->io_ptr += length;
-#endif
-
+	byte *io_ptr = png_get_io_ptr(png);
+	Com_Memcpy(io_ptr, data, length);
+	png_init_io(png, (png_FILE_p)(io_ptr + length));
 	png_compressed_size += length;
 }
 

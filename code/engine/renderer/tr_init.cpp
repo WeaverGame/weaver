@@ -571,17 +571,60 @@ the format is xreal-YYYY_MM_DD-HH_MM_SS-MS.tga/jpeg/png
 
 /*
 ==================
-RB_TakeScreenshot
+RB_ReadPixels
+
+Reads an image but takes care of alignment issues for reading RGB images.
+Prepends the specified number of (uninitialized) bytes to the buffer.
+
+The returned buffer must be freed with ri.Hunk_FreeTempMemory().
+==================
+*/
+static byte *RB_ReadPixels(int x, int y, int width, int height, size_t offset)
+{
+	byte *buffer, *pixels;
+#if defined(USE_D3D10)
+	// TODO
+#else
+	int lineLen, paddedLineLen;
+	int i;
+	GLint packAlign;
+
+	glGetIntegerv(GL_PACK_ALIGNMENT, &packAlign);
+
+	lineLen = width * 3;
+	paddedLineLen = PAD(lineLen, packAlign);
+
+	// Allocate a few more bytes so that we can choose an alignment we like
+	buffer = (byte*)ri.Hunk_AllocateTempMemory(offset + (paddedLineLen * height) + packAlign);
+
+	pixels = (byte*)PADP(buffer + offset, packAlign);
+	glReadPixels(x, y, width, height, GL_RGB, GL_UNSIGNED_BYTE, pixels);
+
+	// Drop alignment and line padding bytes
+	for(i = 0; i < height; ++i)
+	{
+		memmove(buffer + offset + (i * lineLen), pixels + (i * paddedLineLen), lineLen);
+	}
+#endif
+
+	return buffer;
+}
+
+/*
+==================
+R_TakeScreenshot
 ==================
 */
 static void RB_TakeScreenshot(int x, int y, int width, int height, char *fileName)
 {
 	byte           *buffer;
-	int             i, c, temp;
+	size_t          dataSize;
+	byte           *end, *p;
 
-	buffer = (byte*) ri.Hunk_AllocateTempMemory(glConfig.vidWidth * glConfig.vidHeight * 3 + 18);
-
+	// with 18 bytes for the TGA file header
+	buffer = RB_ReadPixels(x, y, width, height, 18);
 	Com_Memset(buffer, 0, 18);
+
 	buffer[2] = 2;				// uncompressed type
 	buffer[12] = width & 255;
 	buffer[13] = width >> 8;
@@ -589,28 +632,23 @@ static void RB_TakeScreenshot(int x, int y, int width, int height, char *fileNam
 	buffer[15] = height >> 8;
 	buffer[16] = 24;			// pixel size
 
-#if defined(USE_D3D10)
-	// TODO
-#else
-	glReadPixels(x, y, width, height, GL_RGB, GL_UNSIGNED_BYTE, buffer + 18);
-#endif
+	dataSize = 3 * width * height;
 
-	// swap rgb to bgr
-	c = 18 + width * height * 3;
-	for(i = 18; i < c; i += 3)
+	// swap RGB to BGR
+	end = buffer + 18 + dataSize;
+	for(p = buffer + 18; p < end; p += 3)
 	{
-		temp = buffer[i];
-		buffer[i] = buffer[i + 2];
-		buffer[i + 2] = temp;
+		byte temp = p[0];
+		p[0] = p[2];
+		p[2] = temp;
 	}
 
-	// gamma correct
 	if((tr.overbrightBits > 0) && glConfig.deviceSupportsGamma)
 	{
-		R_GammaCorrect(buffer + 18, glConfig.vidWidth * glConfig.vidHeight * 3);
+		R_GammaCorrect(buffer + 18, dataSize);
 	}
 
-	ri.FS_WriteFile(fileName, buffer, c);
+	//ri.FS_WriteFile(fileName, buffer, 18 + dataSize);
 
 	ri.Hunk_FreeTempMemory(buffer);
 }
@@ -622,24 +660,15 @@ RB_TakeScreenshotJPEG
 */
 static void RB_TakeScreenshotJPEG(int x, int y, int width, int height, char *fileName)
 {
-	byte           *buffer;
+	byte *buffer = RB_ReadPixels(x, y, width, height, 0);
 
-	buffer = (byte*) ri.Hunk_AllocateTempMemory(glConfig.vidWidth * glConfig.vidHeight * 3);
-
-#if defined(USE_D3D10)
-	// TODO
-#else
-	glReadPixels(x, y, width, height, GL_RGB, GL_UNSIGNED_BYTE, buffer);
-#endif
-
-	// gamma correct
 	if((tr.overbrightBits > 0) && glConfig.deviceSupportsGamma)
 	{
-		R_GammaCorrect(buffer, glConfig.vidWidth * glConfig.vidHeight * 3);
+		R_GammaCorrect(buffer, 3 * width * height);
 	}
 
-	ri.FS_WriteFile(fileName, buffer, 1);	// create path
-	SaveJPG(fileName, 90, glConfig.vidWidth, glConfig.vidHeight, buffer);
+	//ri.FS_WriteFile(fileName, buffer, 1);	// create path
+	SaveJPG(fileName, 90, width, height, buffer);
 
 	ri.Hunk_FreeTempMemory(buffer);
 }
@@ -651,24 +680,15 @@ RB_TakeScreenshotPNG
 */
 static void RB_TakeScreenshotPNG(int x, int y, int width, int height, char *fileName)
 {
-	byte           *buffer;
+	byte *buffer = RB_ReadPixels(x, y, width, height, 0);
 
-	buffer = (byte*) ri.Hunk_AllocateTempMemory(glConfig.vidWidth * glConfig.vidHeight * 3);
-
-#if defined(USE_D3D10)
-	// TODO
-#else
-	glReadPixels(x, y, width, height, GL_RGB, GL_UNSIGNED_BYTE, buffer);
-#endif
-
-	// gamma correct
 	if((tr.overbrightBits > 0) && glConfig.deviceSupportsGamma)
 	{
-		R_GammaCorrect(buffer, glConfig.vidWidth * glConfig.vidHeight * 3);
+		R_GammaCorrect(buffer, 3 * width * height);
 	}
 
-	ri.FS_WriteFile(fileName, buffer, 1);	// create path
-	SavePNG(fileName, buffer, glConfig.vidWidth, glConfig.vidHeight, 3, qfalse);
+	//ri.FS_WriteFile(fileName, buffer, 1);	// create path
+	SavePNG(fileName, buffer, width, height, 3, qfalse);
 
 	ri.Hunk_FreeTempMemory(buffer);
 }

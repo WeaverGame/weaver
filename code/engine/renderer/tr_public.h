@@ -68,7 +68,7 @@ typedef struct
 	// a scene is built up by calls to R_ClearScene and the various R_Add functions.
 	// Nothing is drawn until R_RenderScene is called.
 	void            (*ClearScene) (void);
-	void            (*AddRefEntityToScene) (const refEntity_t * ent);
+	void            (*AddRefEntityToScene) (const refEntity_t * re);
 
 	int             (*LightForPoint) (vec3_t point, vec3_t ambientLight, vec3_t directedLight, vec3_t lightDir);
 
@@ -174,8 +174,6 @@ typedef struct
 	void            (*Cvar_SetValue) (const char *name, float value);
 	void            (*Cvar_CheckRange) (cvar_t * cv, float minVal, float maxVal, qboolean shouldBeIntegral);
 
-	int             (*Cvar_VariableIntegerValue) (const char *var_name);
-
 	void            (*Cmd_AddCommand) (const char *name, void (*cmd) (void));
 	void            (*Cmd_RemoveCommand) (const char *name);
 
@@ -183,6 +181,8 @@ typedef struct
 	char           *(*Cmd_Argv) (int i);
 
 	void            (*Cmd_ExecuteText) (int exec_when, const char *text);
+
+	int             (*Cvar_VariableIntegerValue) (const char *var_name);
 
 	// visualization for debugging collision detection
 	byte           *(*CM_ClusterPVS)(int cluster);
