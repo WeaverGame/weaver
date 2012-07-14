@@ -1598,27 +1598,31 @@ default values.
 ==========================================================
 */
 
-#define	CVAR_ARCHIVE		1	// set to cause it to be saved to vars.rc
-								// used for system variables, not for player
-								// specific configurations
-#define	CVAR_USERINFO		2	// sent to server on connect or change
-#define	CVAR_SERVERINFO		4	// sent in response to front end requests
-#define	CVAR_SYSTEMINFO		8	// these cvars will be duplicated on all clients
-#define	CVAR_INIT			16	// don't allow change from console at all,
-								// but can be set from the command line
-#define	CVAR_LATCH			32	// will only change when C code next does
-								// a Cvar_Get(), so it can't be changed
-								// without proper initialization.  modified
-								// will be set, even though the value hasn't
-								// changed yet
-#define	CVAR_ROM			64	// display only, cannot be set by user at all
-#define	CVAR_USER_CREATED	128	// created by a set command
-#define	CVAR_TEMP			256	// can be set even when cheats are disabled, but is not archived
-#define CVAR_CHEAT			512	// can not be changed if cheats are disabled
-#define CVAR_NORESTART		1024	// do not clear when a cvar_restart is issued
-#define CVAR_SERVER_CREATED 2048	// cvar was created by a server the client connected to
-#define CVAR_VM_CREATED		0x1000	// cvar was created exclusively in one of the VMs.
-#define CVAR_NONEXISTENT	0xFFFFFFFF	// cvar doesn't exist
+typedef enum cvar_flags_s
+{
+	CVAR_ARCHIVE		= BIT(0),	// set to cause it to be saved to vars.rc
+									// used for system variables, not for player
+									// specific configurations
+	CVAR_USERINFO		= BIT(1),	// sent to server on connect or change
+	CVAR_SERVERINFO		= BIT(2),	// sent in response to front end requests
+	CVAR_SYSTEMINFO		= BIT(3),	// these cvars will be duplicated on all clients
+	CVAR_INIT			= BIT(4),	// don't allow change from console at all,
+									// but can be set from the command line
+	CVAR_LATCH			= BIT(5),	// will only change when C code next does
+									// a Cvar_Get(), so it can't be changed
+									// without proper initialization.  modified
+									// will be set, even though the value hasn't
+									// changed yet
+	CVAR_ROM			= BIT(6),	// display only, cannot be set by user at all
+	CVAR_USER_CREATED	= BIT(7),	// created by a set command
+	CVAR_TEMP			= BIT(8),	// can be set even when cheats are disabled, but is not archived
+	CVAR_CHEAT			= BIT(9),	// can not be changed if cheats are disabled
+	CVAR_NORESTART		= BIT(10),	// do not clear when a cvar_restart is issued
+	CVAR_SERVER_CREATED	= BIT(11),	// cvar was created by a server the client connected to
+	CVAR_VM_CREATED		= BIT(12),	// cvar was created exclusively in one of the VMs.
+	CVAR_SHADER			= BIT(13),	// tell renderer to recompile shaders.
+	CVAR_NONEXISTENT	= BIT(15)	// Cvar doesn't exist.
+} cvar_flags_t;
 
 // nothing outside the Cvar_*() functions should modify these fields!
 typedef struct cvar_s

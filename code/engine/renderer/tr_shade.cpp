@@ -24,15 +24,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tr_local.h"
 #include "gl_shader.h"
 
-
-
-
-//#define USE_GLSL_OPTIMIZER 1
-
 #if defined(USE_GLSL_OPTIMIZER)
 #include "../../libs/glsl-optimizer/src/glsl/glsl_optimizer.h"
-
-static struct glslopt_ctx* s_glslOptimizer;
 #endif
 
 /*
@@ -693,6 +686,7 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, const char
 static void GLSL_LinkProgram(GLhandleARB program)
 {
 	GLint           linked;
+	char           *msg = "";
 
 	glLinkProgramARB(program);
 
@@ -700,7 +694,7 @@ static void GLSL_LinkProgram(GLhandleARB program)
 	if(!linked)
 	{
 		GLSL_PrintInfoLog(program, qfalse);
-		ri.Error(ERR_DROP, "%s\nshaders failed to link");
+		ri.Error(ERR_DROP, "%s\nshaders failed to link", msg);
 	}
 }
 
@@ -1223,6 +1217,10 @@ void GLSL_InitGPUShaders(void)
 #endif
 
 	ri.Printf(PRINT_ALL, "GLSL shaders load time = %5.2f seconds\n", (endTime - startTime) / 1000.0);
+
+	if( r_recompileShaders->integer ) {
+		ri.Cvar_Set( "r_recompileShaders", "0" );
+	}
 }
 
 void GLSL_ShutdownGPUShaders(void)

@@ -85,7 +85,9 @@ typedef unsigned short glIndex_t;
 #define DEBUG_OPTIMIZEVERTICES 0
 #define CALC_REDUNDANT_SHADOWVERTS 0
 
-#define GLSL_COMPILE_STARTUP_ONLY 1
+#if !defined(USE_D3D10)
+//#define GLSL_COMPILE_STARTUP_ONLY 1
+#endif
 
 //#define USE_BSP_CLUSTERSURFACE_MERGING 1
 
@@ -3969,6 +3971,7 @@ extern cvar_t  *r_compressSpecularMaps;
 extern cvar_t  *r_compressNormalMaps;
 extern cvar_t  *r_heatHazeFix;
 extern cvar_t  *r_noMarksOnTrisurfs;
+extern cvar_t  *r_recompileShaders;
 
 extern cvar_t  *r_norefresh;	// bypasses the ref rendering
 extern cvar_t  *r_drawentities;	// disable/enable entity rendering

@@ -117,7 +117,8 @@ protected:
 														const char *programName,
 														const std::string& vertexShaderText,
 														const std::string& fragmentShaderText,
-														const std::string& compileMacros) const;
+														const std::string& compileMacros,
+														int iteration) const;
 
 private:
 	void				CompileGPUShader(GLuint program, const char* programName, const char *shaderText, int shaderTextSize, GLenum shaderType) const;
@@ -129,8 +130,10 @@ private:
 	void				BindAttribLocations(GLuint program) const;
 
 protected:
-	void				ValidateProgram(GLhandleARB program) const;
-	void				ShowProgramUniforms(GLhandleARB program) const;
+	void				ValidateProgram(GLuint program) const;
+	void				SaveShaderProgram(GLuint program, const char *pname, int i) const;
+	bool				LoadShaderProgram(GLuint program, const char *pname, int i) const;
+	void				ShowProgramUniforms(GLuint program) const;
 	
 public:
 	void				SelectProgram();
@@ -2993,5 +2996,9 @@ extern GLShader_cameraEffects* gl_cameraEffectsShader;
 extern GLShader_blurX* gl_blurXShader;
 extern GLShader_blurY* gl_blurYShader;
 extern GLShader_debugShadowMap* gl_debugShadowMapShader;
+
+#ifdef USE_GLSL_OPTIMIZER
+extern struct glslopt_ctx *s_glslOptimizer;
+#endif
 
 #endif	// GL_SHADER_H
