@@ -1940,6 +1940,9 @@ void            CG_DrawWeaverChat(void);
 void            CG_DrawWeaverNotify(void);
 void            CG_DrawWeaverCrosshairNames(void);
 
+// cg_spell_hands.c
+void            CG_AddWeaverViewWeapon(playerState_t * ps);
+
 // cg_tutorial.c
 char           *CG_TutorialText( void );
 
@@ -1986,6 +1989,10 @@ void            CG_PrevWeapon_f(void);
 void            CG_Weapon_f(void);
 
 void            CG_PositionEntityOnWeaponTag(refEntity_t *gun, const refEntity_t * parent, qhandle_t parentModel, playerState_t * ps, centity_t * cent);
+
+void            CG_WeaponAnimation(centity_t * cent, weaponInfo_t * weapon, int weaponNumber, int weaponState, int weaponTime);
+void            CG_CalculateWeaponPosition(vec3_t origin, vec3_t angles);
+int             CG_MapTorsoToWeaponFrame(clientInfo_t * ci, int frame);
 
 void            CG_RegisterWeapon(int weaponNum);
 void            CG_RegisterItemVisuals(int itemNum);

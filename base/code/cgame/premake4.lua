@@ -42,6 +42,7 @@ project "base_cgame"
 		"cg_spell_effects.c",
 		"cg_spell_ents.c",
 		"cg_spell_hud.c",
+		"cg_spell_hands.c",
 		"cg_spell_sense.c",
 		"cg_spell_util.h",
 		"cg_spell_weaves.c",

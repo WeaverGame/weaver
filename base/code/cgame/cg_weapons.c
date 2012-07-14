@@ -977,7 +977,7 @@ VIEW WEAPON
 CG_MapTorsoToWeaponFrame
 =================
 */
-static int CG_MapTorsoToWeaponFrame(clientInfo_t * ci, int frame)
+int CG_MapTorsoToWeaponFrame(clientInfo_t * ci, int frame)
 {
 	// change weapon
 	if(frame >= ci->animations[TORSO_DROP].firstFrame && frame < ci->animations[TORSO_DROP].firstFrame + 9)
@@ -1274,7 +1274,7 @@ static void CG_RunWeaponLerpFrame(weaponInfo_t * wi, lerpFrame_t * lf, int weapo
 CG_WeaponAnimation
 =================
 */
-static void CG_WeaponAnimation(centity_t * cent, weaponInfo_t * weapon, int weaponNumber, int weaponState, int weaponTime)
+void CG_WeaponAnimation(centity_t * cent, weaponInfo_t * weapon, int weaponNumber, int weaponState, int weaponTime)
 {
 	clientInfo_t   *ci;
 	int             clientNum;
@@ -1302,7 +1302,7 @@ static void CG_WeaponAnimation(centity_t * cent, weaponInfo_t * weapon, int weap
 CG_CalculateWeaponPosition
 ==============
 */
-static void CG_CalculateWeaponPosition(vec3_t origin, vec3_t angles)
+void CG_CalculateWeaponPosition(vec3_t origin, vec3_t angles)
 {
 	float           scale;
 	int             delta;
