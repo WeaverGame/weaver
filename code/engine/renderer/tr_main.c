@@ -2985,7 +2985,7 @@ void R_AddLightInteractions()
 		R_SetupLightScissor(light);
 
 		// set up view dependent light depth bounds
-		R_SetupLightDepthBounds(light);
+		//R_SetupLightDepthBounds(light);
 
 		// set up view dependent light Level of Detail
 		R_SetupLightLOD(light);
@@ -3488,7 +3488,7 @@ void R_RenderView(viewParms_t * parms)
 	tr.viewParms.interactions = tr.refdef.interactions + firstInteraction;
 	tr.viewParms.numInteractions = tr.refdef.numInteractions - firstInteraction;
 
-	R_SortDrawSurfs(tr.viewParms.drawSurfs, tr.viewParms.numDrawSurfs, tr.viewParms.interactions, tr.viewParms.numInteractions);
+	R_SortDrawSurfs();
 
 	// draw main system development information (surface outlines, etc)
 	R_DebugGraphics();

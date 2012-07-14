@@ -1017,7 +1017,7 @@ typedef struct
 	expression_t    fresnelScaleExp;
 	expression_t    fresnelBiasExp;
 
-	expression_t	normalScaleExp;
+	expression_t    normalScaleExp;
 
 	expression_t    etaExp;
 	expression_t    etaDeltaExp;
@@ -1357,172 +1357,172 @@ typedef struct shaderProgram_s
 	int32_t         u_EnvironmentMap0;
 	int32_t         u_EnvironmentMap1;
 
-	int32_t			u_RandomMap;
+	int32_t         u_RandomMap;
 	int32_t         u_GrainMap;
 	int32_t         u_VignetteMap;
 
 	int32_t         u_ColorTextureMatrix;
-	matrix_t		t_ColorTextureMatrix;
+	matrix_t        t_ColorTextureMatrix;
 
 	int32_t         u_DiffuseTextureMatrix;
-	matrix_t		t_DiffuseTextureMatrix;
+	matrix_t        t_DiffuseTextureMatrix;
 
 	int32_t         u_NormalTextureMatrix;
-	matrix_t		t_NormalTextureMatrix;
+	matrix_t        t_NormalTextureMatrix;
 
 	int32_t         u_SpecularTextureMatrix;
-	matrix_t		t_SpecularTextureMatrix;
+	matrix_t        t_SpecularTextureMatrix;
 
 	int32_t         u_AlphaTest;
-	alphaTest_t		t_AlphaTest;
+	alphaTest_t     t_AlphaTest;
 
 	int32_t         u_ViewOrigin;
-	vec3_t			t_ViewOrigin;
+	vec3_t          t_ViewOrigin;
 
-	GLint			u_DeformParms;
+	GLint           u_DeformParms;
 
 	int32_t         u_Color;
-	vec4_t			t_Color;
+	vec4_t          t_Color;
 
 	int32_t         u_ColorModulate;
-	vec4_t			t_ColorModulate;
+	vec4_t          t_ColorModulate;
 
 	int32_t         u_AmbientColor;
-	vec3_t			t_AmbientColor;
+	vec3_t          t_AmbientColor;
 
 	int32_t         u_LightDir;
-	vec3_t			t_LightDir;
+	vec3_t          t_LightDir;
 
 	int32_t         u_LightOrigin;
-	vec3_t			t_LightOrigin;
+	vec3_t          t_LightOrigin;
 
 	int32_t         u_LightColor;
-	vec3_t			t_LightColor;
+	vec3_t          t_LightColor;
 
 	int32_t         u_LightRadius;
-	float			t_LightRadius;
+	float           t_LightRadius;
 
 	int32_t         u_LightParallel;
-	qboolean		t_LightParallel;
+	qboolean        t_LightParallel;
 
 	int32_t         u_LightScale;
-	float			t_LightScale;
+	float           t_LightScale;
 
 	int32_t         u_LightWrapAround;
-	float			t_LightWrapAround;
+	float           t_LightWrapAround;
 
 	int32_t         u_LightAttenuationMatrix;
-	matrix_t		t_LightAttenuationMatrix;
+	matrix_t        t_LightAttenuationMatrix;
 
 	int32_t         u_LightFrustum;
 
 	int32_t         u_ShadowMatrix;
-	matrix_t		t_ShadowMatrix;
+	matrix_t        t_ShadowMatrix;
 
 	int32_t         u_ShadowCompare;
-	qboolean		t_ShadowCompare;
+	qboolean        t_ShadowCompare;
 
 	int32_t         u_ShadowTexelSize;
-	float			t_ShadowTexelSize;
+	float           t_ShadowTexelSize;
 
 	int32_t         u_ShadowBlur;
-	float			t_ShadowBlur;
+	float           t_ShadowBlur;
 
-	GLint			u_ShadowParallelSplitDistances;
-	vec4_t			t_ShadowParallelSplitDistances;
+	GLint           u_ShadowParallelSplitDistances;
+	vec4_t          t_ShadowParallelSplitDistances;
 
 	int32_t         u_RefractionIndex;
-	float			t_RefractionIndex;
+	float           t_RefractionIndex;
 
 	int32_t         u_FresnelPower;
 	int32_t         u_FresnelScale;
 	int32_t         u_FresnelBias;
 
-	GLint			u_NormalScale;
+	GLint           u_NormalScale;
 
 	int32_t         u_EtaRatio;
 
 	int32_t         u_FogDensity;
 	int32_t         u_FogColor;
 
-	GLint			u_FogDistanceVector;
-	vec4_t			t_FogDistanceVector;
+	GLint           u_FogDistanceVector;
+	vec4_t          t_FogDistanceVector;
 
-	GLint			u_FogDepthVector;
-	vec4_t			t_FogDepthVector;
+	GLint           u_FogDepthVector;
+	vec4_t          t_FogDepthVector;
 
-	GLint			u_FogEyeT;
-	float			t_FogEyeT;
+	GLint           u_FogEyeT;
+	float           t_FogEyeT;
 
 	int32_t         u_SSAOJitter;
 	int32_t         u_SSAORadius;
 
-	GLint			u_ParallaxMapping;
-	qboolean		t_ParallaxMapping;
+	GLint           u_ParallaxMapping;
+	qboolean        t_ParallaxMapping;
 
 	int32_t         u_DepthScale;
-	float			t_DepthScale;
+	float           t_DepthScale;
 
 
-	GLint			u_PortalClipping;
-	qboolean		t_PortalClipping;
+	GLint           u_PortalClipping;
+	qboolean        t_PortalClipping;
 
-	GLint			u_PortalPlane;
-	vec4_t			t_PortalPlane;
+	GLint           u_PortalPlane;
+	vec4_t          t_PortalPlane;
 
 	int32_t         u_PortalRange;
-	float			t_PortalRange;
+	float           t_PortalRange;
 
-	GLint			u_EnvironmentInterpolation;
-	float			t_EnvironmentInterpolation;
+	GLint           u_EnvironmentInterpolation;
+	float           t_EnvironmentInterpolation;
 
-	GLint			u_HDRKey;
-	float			t_HDRKey;
+	GLint           u_HDRKey;
+	float           t_HDRKey;
 
-	GLint			u_HDRAverageLuminance;
-	float			t_HDRAverageLuminance;
+	GLint           u_HDRAverageLuminance;
+	float           t_HDRAverageLuminance;
 
-	GLint			u_HDRMaxLuminance;
-	float			t_HDRMaxLuminance;
+	GLint           u_HDRMaxLuminance;
+	float           t_HDRMaxLuminance;
 
 	int32_t         u_DeformMagnitude;
 	float			t_DeformMagnitude;
 
 
 	int32_t         u_ModelMatrix;	// model -> world
-	matrix_t		t_ModelMatrix;
+	matrix_t        t_ModelMatrix;
 
 	int32_t         u_ViewMatrix;	// world -> camera
-	matrix_t		t_ViewMatrix;
+	matrix_t        t_ViewMatrix;
 
 	int32_t         u_ModelViewMatrix;	// model -> camera
-	matrix_t		t_ModelViewMatrix;
+	matrix_t        t_ModelViewMatrix;
 
 	int32_t         u_ModelViewMatrixTranspose;
-	matrix_t		t_ModelViewMatrixTranspose;
+	matrix_t        t_ModelViewMatrixTranspose;
 
 	int32_t         u_ProjectionMatrix;
-	matrix_t		t_ProjectionMatrix;
+	matrix_t        t_ProjectionMatrix;
 
 	int32_t         u_ProjectionMatrixTranspose;
-	matrix_t		t_ProjectionMatrixTranspose;
+	matrix_t        t_ProjectionMatrixTranspose;
 
 	int32_t         u_ModelViewProjectionMatrix;
-	matrix_t		t_ModelViewProjectionMatrix;
+	matrix_t        t_ModelViewProjectionMatrix;
 
 	int32_t         u_UnprojectMatrix;
-	matrix_t		t_UnprojectMatrix;
+	matrix_t        t_UnprojectMatrix;
 
 	int32_t         u_VertexSkinning;
-	qboolean		t_VertexSkinning;
+	qboolean        t_VertexSkinning;
 
-	GLint			u_VertexInterpolation;
-	float			t_VertexInterpolation;
+	GLint           u_VertexInterpolation;
+	float           t_VertexInterpolation;
 
 	int32_t         u_BoneMatrix;
 
 	int32_t         u_Time;
-	float			t_Time;
+	float           t_Time;
 } shaderProgram_t;
 
 #define	SHADER_PROGRAM_T_OFS(x) ((size_t)&(((shaderProgram_t *)0)->x))
@@ -1534,7 +1534,7 @@ typedef struct shaderProgram_s
 
 #if defined(LOG_GLSL_UNIFORMS)
 extern cvar_t  *r_logFile;		// number of frames to emit GL logs
-void            GLimp_LogComment(char *comment);
+void            GLimp_LogComment(const char *comment);
 #endif
 
 // *INDENT-OFF*
@@ -1588,7 +1588,7 @@ static ID_INLINE void GLSL_SetUniform_SpecularTextureMatrix(shaderProgram_t * pr
 }
 
 
-void            GLimp_LogComment(char *comment);
+void            GLimp_LogComment(const char *comment);
 
 static ID_INLINE void GLSL_SetUniform_AlphaTest(shaderProgram_t * program, uint32_t stateBits)
 {
@@ -4463,7 +4463,7 @@ void           *GLimp_RendererSleep(void);
 void            GLimp_FrontEndSleep(void);
 void            GLimp_WakeRenderer(void *data);
 
-void            GLimp_LogComment(char *comment);
+void            GLimp_LogComment(const char *comment);
 
 
 // NOTE TTimo linux works with float gamma value, not the gamma table

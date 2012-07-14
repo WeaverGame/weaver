@@ -648,7 +648,7 @@ static void RB_TakeScreenshot(int x, int y, int width, int height, char *fileNam
 		R_GammaCorrect(buffer + 18, dataSize);
 	}
 
-	//ri.FS_WriteFile(fileName, buffer, 18 + dataSize);
+	ri.FS_WriteFile(fileName, buffer, 18 + dataSize);
 
 	ri.Hunk_FreeTempMemory(buffer);
 }
@@ -667,9 +667,7 @@ static void RB_TakeScreenshotJPEG(int x, int y, int width, int height, char *fil
 		R_GammaCorrect(buffer, 3 * width * height);
 	}
 
-	//ri.FS_WriteFile(fileName, buffer, 1);	// create path
 	SaveJPG(fileName, 90, width, height, buffer);
-
 	ri.Hunk_FreeTempMemory(buffer);
 }
 
@@ -687,9 +685,7 @@ static void RB_TakeScreenshotPNG(int x, int y, int width, int height, char *file
 		R_GammaCorrect(buffer, 3 * width * height);
 	}
 
-	//ri.FS_WriteFile(fileName, buffer, 1);	// create path
 	SavePNG(fileName, buffer, width, height, 3, qfalse);
-
 	ri.Hunk_FreeTempMemory(buffer);
 }
 

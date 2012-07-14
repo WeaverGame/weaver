@@ -1622,14 +1622,14 @@ static qboolean ParseHeightMap(char **text, byte ** pic, int *width, int *height
 	R_LoadImage(text, pic, width, height, bits, materialName);
 	if(!pic)
 	{
-		ri.Printf(PRINT_WARNING, "WARNING: failed loading of image for heightMap\n", token);
+		ri.Printf(PRINT_WARNING, "WARNING: failed loading of image for heightMap\n");
 		return qfalse;
 	}
 
 	token = Com_ParseExt(text, qfalse);
 	if(token[0] != ',')
 	{
-		ri.Printf(PRINT_WARNING, "WARNING: no matching ',' found\n");
+		ri.Printf(PRINT_WARNING, "WARNING: no matching ',' found for heightMap\n");
 		return qfalse;
 	}
 
@@ -1674,7 +1674,7 @@ static qboolean ParseDisplaceMap(char **text, byte ** pic, int *width, int *heig
 	token = Com_ParseExt(text, qfalse);
 	if(token[0] != ',')
 	{
-		ri.Printf(PRINT_WARNING, "WARNING: no matching ',' found\n");
+		ri.Printf(PRINT_WARNING, "WARNING: no matching ',' found for displaceMap\n");
 		return qfalse;
 	}
 
@@ -1737,7 +1737,7 @@ static qboolean ParseAddNormals(char **text, byte ** pic, int *width, int *heigh
 	token = Com_ParseExt(text, qfalse);
 	if(token[0] != ',')
 	{
-		ri.Printf(PRINT_WARNING, "WARNING: no matching ',' found\n");
+		ri.Printf(PRINT_WARNING, "WARNING: no matching ',' found for addNormals\n");
 		return qfalse;
 	}
 

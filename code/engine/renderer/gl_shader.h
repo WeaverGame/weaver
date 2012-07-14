@@ -73,7 +73,7 @@ protected:
 		{
 			if(_shaderPrograms[i].program)
 			{
-				glDeleteObjectARB(_shaderPrograms[i].program);
+				glDeleteProgram(_shaderPrograms[ i ].program);
 			}
 		}
 	}
@@ -120,20 +120,18 @@ protected:
 														const std::string& compileMacros) const;
 
 private:
-	void				CompileGPUShader(GLhandleARB program, const char* programName, const char *shaderText, int shaderTextSize, GLenum shaderType) const;
-
+	void				CompileGPUShader(GLuint program, const char* programName, const char *shaderText, int shaderTextSize, GLenum shaderType) const;
 	void				PrintShaderText(const std::string& shaderText) const;
-	void				PrintShaderSource(GLhandleARB object) const;
-	void				PrintInfoLog(GLhandleARB object, bool developerOnly) const;
+	void				PrintShaderSource(GLuint object) const;
+	void				PrintInfoLog(GLuint object, bool developerOnly) const;
 
-	void				LinkProgram(GLhandleARB program) const;
-	void				BindAttribLocations(GLhandleARB program) const;
+	void				LinkProgram(GLuint program) const;
+	void				BindAttribLocations(GLuint program) const;
 
 protected:
 	void				ValidateProgram(GLhandleARB program) const;
 	void				ShowProgramUniforms(GLhandleARB program) const;
 	
-
 public:
 	void				SelectProgram();
 	void				BindProgram();
@@ -1005,12 +1003,12 @@ public:
 
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
-		shaderProgram->u_ColorMap = glGetUniformLocationARB(shaderProgram->program, GetName());
+		shaderProgram->u_ColorMap = glGetUniformLocation( shaderProgram->program, GetName() );
 	}
 
 	void SetUniform_ColorMap(int texUnit)
 	{
-		glUniform1iARB(_shader->GetProgram()->u_ColorMap, texUnit);
+		glUniform1i( _shader->GetProgram()->u_ColorMap, texUnit );
 	}
 };
 
@@ -1030,12 +1028,12 @@ public:
 
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
-		shaderProgram->u_NormalMap = glGetUniformLocationARB(shaderProgram->program, GetName());
+		shaderProgram->u_NormalMap = glGetUniformLocation( shaderProgram->program, GetName() );
 	}
 
 	void SetUniform_NormalMap(int texUnit)
 	{
-		glUniform1iARB(_shader->GetProgram()->u_NormalMap, texUnit);
+		glUniform1i( _shader->GetProgram()->u_NormalMap, texUnit );
 	}
 };
 
@@ -1055,12 +1053,12 @@ public:
 
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
-		shaderProgram->u_CurrentMap = glGetUniformLocationARB(shaderProgram->program, GetName());
+		shaderProgram->u_CurrentMap = glGetUniformLocation( shaderProgram->program, GetName() );
 	}
 
 	void SetUniform_CurrentMap(int texUnit)
 	{
-		glUniform1iARB(_shader->GetProgram()->u_CurrentMap, texUnit);
+		glUniform1i( _shader->GetProgram()->u_CurrentMap, texUnit );
 	}
 };
 
@@ -1080,7 +1078,7 @@ public:
 
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
-		shaderProgram->u_ColorTextureMatrix = glGetUniformLocationARB(shaderProgram->program, GetName());
+		shaderProgram->u_ColorTextureMatrix = glGetUniformLocation( shaderProgram->program, GetName() );
 	}
 
 	void SetUniform_ColorTextureMatrix(const matrix_t m)
@@ -1105,7 +1103,7 @@ public:
 
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
-		shaderProgram->u_DiffuseTextureMatrix = glGetUniformLocationARB(shaderProgram->program, GetName());
+		shaderProgram->u_DiffuseTextureMatrix = glGetUniformLocation(shaderProgram->program, GetName());
 	}
 
 	void SetUniform_DiffuseTextureMatrix(const matrix_t m)
@@ -1130,7 +1128,7 @@ public:
 
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
-		shaderProgram->u_NormalTextureMatrix = glGetUniformLocationARB(shaderProgram->program, GetName());
+		shaderProgram->u_NormalTextureMatrix = glGetUniformLocation(shaderProgram->program, GetName());
 	}
 
 	void SetUniform_NormalTextureMatrix(const matrix_t m)
@@ -1155,7 +1153,7 @@ public:
 
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
-		shaderProgram->u_SpecularTextureMatrix = glGetUniformLocationARB(shaderProgram->program, GetName());
+		shaderProgram->u_SpecularTextureMatrix = glGetUniformLocation(shaderProgram->program, GetName());
 	}
 
 	void SetUniform_SpecularTextureMatrix(const matrix_t m)
@@ -1180,7 +1178,7 @@ public:
 
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
-		shaderProgram->u_AlphaTest = glGetUniformLocationARB(shaderProgram->program, GetName());
+		shaderProgram->u_AlphaTest = glGetUniformLocation(shaderProgram->program, GetName());
 	}
 
 	void SetUniform_AlphaTest(uint32_t stateBits)
@@ -1205,7 +1203,7 @@ public:
 
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
-		shaderProgram->u_AmbientColor = glGetUniformLocationARB(shaderProgram->program, GetName());
+		shaderProgram->u_AmbientColor = glGetUniformLocation(shaderProgram->program, GetName());
 	}
 
 	void SetUniform_AmbientColor(const vec3_t v)
@@ -1230,7 +1228,7 @@ public:
 
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
-		shaderProgram->u_ViewOrigin = glGetUniformLocationARB(shaderProgram->program, GetName());
+		shaderProgram->u_ViewOrigin = glGetUniformLocation(shaderProgram->program, GetName());
 	}
 
 	void SetUniform_ViewOrigin(const vec3_t v)
@@ -1255,7 +1253,7 @@ public:
 
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
-		shaderProgram->u_LightDir = glGetUniformLocationARB(shaderProgram->program, GetName());
+		shaderProgram->u_LightDir = glGetUniformLocation(shaderProgram->program, GetName());
 	}
 
 	void SetUniform_LightDir(const vec3_t v)
@@ -1280,7 +1278,7 @@ public:
 
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
-		shaderProgram->u_LightOrigin = glGetUniformLocationARB(shaderProgram->program, GetName());
+		shaderProgram->u_LightOrigin = glGetUniformLocation(shaderProgram->program, GetName());
 	}
 
 	void SetUniform_LightOrigin(const vec3_t v)
@@ -1305,7 +1303,7 @@ public:
 
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
-		shaderProgram->u_LightColor = glGetUniformLocationARB(shaderProgram->program, GetName());
+		shaderProgram->u_LightColor = glGetUniformLocation(shaderProgram->program, GetName());
 	}
 
 	void SetUniform_LightColor(const vec3_t v)
@@ -1330,7 +1328,7 @@ public:
 
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
-		shaderProgram->u_LightRadius = glGetUniformLocationARB(shaderProgram->program, GetName());
+		shaderProgram->u_LightRadius = glGetUniformLocation(shaderProgram->program, GetName());
 	}
 
 	void SetUniform_LightRadius(float value)
@@ -1355,7 +1353,7 @@ public:
 
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
-		shaderProgram->u_LightScale = glGetUniformLocationARB(shaderProgram->program, GetName());
+		shaderProgram->u_LightScale = glGetUniformLocation(shaderProgram->program, GetName());
 	}
 
 	void SetUniform_LightScale(float value)
@@ -1380,7 +1378,7 @@ public:
 
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
-		shaderProgram->u_LightWrapAround = glGetUniformLocationARB(shaderProgram->program, GetName());
+		shaderProgram->u_LightWrapAround = glGetUniformLocation(shaderProgram->program, GetName());
 	}
 
 	void SetUniform_LightWrapAround(float value)
@@ -1405,7 +1403,7 @@ public:
 
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
-		shaderProgram->u_LightAttenuationMatrix = glGetUniformLocationARB(shaderProgram->program, GetName());
+		shaderProgram->u_LightAttenuationMatrix = glGetUniformLocation(shaderProgram->program, GetName());
 	}
 
 	void SetUniform_LightAttenuationMatrix(const matrix_t m)
@@ -1430,7 +1428,7 @@ public:
 
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
-		shaderProgram->u_LightFrustum = glGetUniformLocationARB(shaderProgram->program, GetName());
+		shaderProgram->u_LightFrustum = glGetUniformLocation(shaderProgram->program, GetName());
 	}
 
 	void SetUniform_LightFrustum(vec4_t lightFrustum[6])
@@ -1469,7 +1467,7 @@ public:
 
 #endif
 
-		glUniform4fvARB(program->u_LightFrustum, 6, &lightFrustum[0][0]);
+		glUniform4fv(program->u_LightFrustum, 6, &lightFrustum[0][0]);
 	}
 };
 
@@ -1489,7 +1487,7 @@ public:
 
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
-		shaderProgram->u_ShadowTexelSize = glGetUniformLocationARB(shaderProgram->program, GetName());
+		shaderProgram->u_ShadowTexelSize = glGetUniformLocation(shaderProgram->program, GetName());
 	}
 
 	void SetUniform_ShadowTexelSize(float value)
@@ -1514,7 +1512,7 @@ public:
 
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
-		shaderProgram->u_ShadowBlur = glGetUniformLocationARB(shaderProgram->program, GetName());
+		shaderProgram->u_ShadowBlur = glGetUniformLocation(shaderProgram->program, GetName());
 	}
 
 	void SetUniform_ShadowBlur(float value)
@@ -1539,7 +1537,7 @@ public:
 
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
-		shaderProgram->u_ShadowMatrix = glGetUniformLocationARB(shaderProgram->program, GetName());
+		shaderProgram->u_ShadowMatrix = glGetUniformLocation(shaderProgram->program, GetName());
 	}
 
 	void SetUniform_ShadowMatrix(matrix_t m[MAX_SHADOWMAPS])
@@ -1564,7 +1562,7 @@ public:
 
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
-		shaderProgram->u_ShadowParallelSplitDistances = glGetUniformLocationARB(shaderProgram->program, GetName());
+		shaderProgram->u_ShadowParallelSplitDistances = glGetUniformLocation(shaderProgram->program, GetName());
 	}
 
 	void SetUniform_ShadowParallelSplitDistances(const vec4_t v)
@@ -1589,7 +1587,7 @@ public:
 
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
-		shaderProgram->u_Color = glGetUniformLocationARB(shaderProgram->program, GetName());
+		shaderProgram->u_Color = glGetUniformLocation(shaderProgram->program, GetName());
 	}
 
 	void SetUniform_Color(const vec4_t v)
@@ -1614,7 +1612,7 @@ public:
 
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
-		shaderProgram->u_ModelMatrix = glGetUniformLocationARB(shaderProgram->program, GetName());
+		shaderProgram->u_ModelMatrix = glGetUniformLocation(shaderProgram->program, GetName());
 	}
 
 	void SetUniform_ModelMatrix(const matrix_t m)
@@ -1639,7 +1637,7 @@ public:
 
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
-		shaderProgram->u_ViewMatrix = glGetUniformLocationARB(shaderProgram->program, GetName());
+		shaderProgram->u_ViewMatrix = glGetUniformLocation(shaderProgram->program, GetName());
 	}
 
 	void SetUniform_ViewMatrix(const matrix_t m)
@@ -1664,7 +1662,7 @@ public:
 
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
-		shaderProgram->u_ModelViewMatrix = glGetUniformLocationARB(shaderProgram->program, GetName());
+		shaderProgram->u_ModelViewMatrix = glGetUniformLocation(shaderProgram->program, GetName());
 	}
 
 	void SetUniform_ModelViewMatrix(const matrix_t m)
@@ -1689,7 +1687,7 @@ public:
 
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
-		shaderProgram->u_ModelViewMatrixTranspose = glGetUniformLocationARB(shaderProgram->program, GetName());
+		shaderProgram->u_ModelViewMatrixTranspose = glGetUniformLocation(shaderProgram->program, GetName());
 	}
 
 	void SetUniform_ModelViewMatrixTranspose(const matrix_t m)
@@ -1714,7 +1712,7 @@ public:
 
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
-		shaderProgram->u_ProjectionMatrixTranspose = glGetUniformLocationARB(shaderProgram->program, GetName());
+		shaderProgram->u_ProjectionMatrixTranspose = glGetUniformLocation(shaderProgram->program, GetName());
 	}
 
 	void SetUniform_ProjectionMatrixTranspose(const matrix_t m)
@@ -1739,7 +1737,7 @@ public:
 
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
-		shaderProgram->u_ModelViewProjectionMatrix = glGetUniformLocationARB(shaderProgram->program, GetName());
+		shaderProgram->u_ModelViewProjectionMatrix = glGetUniformLocation(shaderProgram->program, GetName());
 	}
 
 	void SetUniform_ModelViewProjectionMatrix(const matrix_t m)
@@ -1764,7 +1762,7 @@ public:
 
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
-		shaderProgram->u_UnprojectMatrix = glGetUniformLocationARB(shaderProgram->program, GetName());
+		shaderProgram->u_UnprojectMatrix = glGetUniformLocation(shaderProgram->program, GetName());
 	}
 
 	void SetUniform_UnprojectMatrix(const matrix_t m)
@@ -1789,12 +1787,12 @@ public:
 
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
-		shaderProgram->u_BoneMatrix = glGetUniformLocationARB(shaderProgram->program, GetName());
+		shaderProgram->u_BoneMatrix = glGetUniformLocation(shaderProgram->program, GetName());
 	}
 
 	void SetUniform_BoneMatrix(int numBones, const matrix_t boneMatrices[MAX_BONES])
 	{
-		glUniformMatrix4fvARB(_shader->GetProgram()->u_BoneMatrix, numBones, GL_FALSE, &boneMatrices[0][0]);
+		glUniformMatrix4fv(_shader->GetProgram()->u_BoneMatrix, numBones, GL_FALSE, &boneMatrices[0][0]);
 	}
 };
 
@@ -1814,7 +1812,7 @@ public:
 
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
-		shaderProgram->u_VertexInterpolation = glGetUniformLocationARB(shaderProgram->program, GetName());
+		shaderProgram->u_VertexInterpolation = glGetUniformLocation(shaderProgram->program, GetName());
 	}
 
 	void SetUniform_VertexInterpolation(float value)
@@ -1839,7 +1837,7 @@ public:
 
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
-		shaderProgram->u_PortalPlane = glGetUniformLocationARB(shaderProgram->program, GetName());
+		shaderProgram->u_PortalPlane = glGetUniformLocation(shaderProgram->program, GetName());
 	}
 
 	void SetUniform_PortalPlane(const vec4_t v)
@@ -1864,7 +1862,7 @@ public:
 
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
-		shaderProgram->u_PortalRange = glGetUniformLocationARB(shaderProgram->program, GetName());
+		shaderProgram->u_PortalRange = glGetUniformLocation(shaderProgram->program, GetName());
 	}
 
 	void SetUniform_PortalRange(float value)
@@ -1889,7 +1887,7 @@ public:
 
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
-		shaderProgram->u_DepthScale = glGetUniformLocationARB(shaderProgram->program, GetName());
+		shaderProgram->u_DepthScale = glGetUniformLocation(shaderProgram->program, GetName());
 	}
 
 	void SetUniform_DepthScale(float value)
@@ -1914,7 +1912,7 @@ public:
 
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
-		shaderProgram->u_EnvironmentInterpolation = glGetUniformLocationARB(shaderProgram->program, GetName());
+		shaderProgram->u_EnvironmentInterpolation = glGetUniformLocation(shaderProgram->program, GetName());
 	}
 
 	void SetUniform_EnvironmentInterpolation(float value)
@@ -1939,7 +1937,7 @@ public:
 
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
-		shaderProgram->u_DeformParms = glGetUniformLocationARB(shaderProgram->program, GetName());
+		shaderProgram->u_DeformParms = glGetUniformLocation(shaderProgram->program, GetName());
 	}
 
 	void SetUniform_DeformParms(deformStage_t deforms[MAX_SHADER_DEFORMS], int numDeforms)
@@ -1998,7 +1996,7 @@ public:
 					break;
 			}
 
-			glUniform1fvARB(_shader->GetProgram()->u_DeformParms, MAX_SHADER_DEFORM_PARMS, deformParms);
+			glUniform1fv(_shader->GetProgram()->u_DeformParms, MAX_SHADER_DEFORM_PARMS, deformParms);
 		}
 	}
 };
@@ -2019,7 +2017,7 @@ public:
 
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
-		shaderProgram->u_Time = glGetUniformLocationARB(shaderProgram->program, GetName());
+		shaderProgram->u_Time = glGetUniformLocation(shaderProgram->program, GetName());
 	}
 
 	void SetUniform_Time(float value)
@@ -2056,7 +2054,7 @@ public:
 
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
-		shaderProgram->u_ColorModulate = glGetUniformLocationARB(shaderProgram->program, GetName());
+		shaderProgram->u_ColorModulate = glGetUniformLocation(shaderProgram->program, GetName());
 	}
 
 	void SetUniform_ColorModulate(colorGen_t colorGen, alphaGen_t alphaGen)
@@ -2123,7 +2121,7 @@ public:
 
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
-		shaderProgram->u_FogDistanceVector = glGetUniformLocationARB(shaderProgram->program, GetName());
+		shaderProgram->u_FogDistanceVector = glGetUniformLocation(shaderProgram->program, GetName());
 	}
 
 	void SetUniform_FogDistanceVector(const vec4_t v)
@@ -2149,7 +2147,7 @@ public:
 
 #endif
 
-		glUniform4fARB(program->u_FogDistanceVector, v[0], v[1], v[2], v[3]);
+		glUniform4f(program->u_FogDistanceVector, v[0], v[1], v[2], v[3]);
 	}
 };
 
@@ -2169,7 +2167,7 @@ public:
 
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
-		shaderProgram->u_FogDepthVector = glGetUniformLocationARB(shaderProgram->program, GetName());
+		shaderProgram->u_FogDepthVector = glGetUniformLocation(shaderProgram->program, GetName());
 	}
 
 	void SetUniform_FogDepthVector(const vec4_t v)
@@ -2195,7 +2193,7 @@ public:
 
 #endif
 
-		glUniform4fARB(program->u_FogDepthVector, v[0], v[1], v[2], v[3]);
+		glUniform4f(program->u_FogDepthVector, v[0], v[1], v[2], v[3]);
 	}
 };
 
@@ -2215,7 +2213,7 @@ public:
 
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
-		shaderProgram->u_FogEyeT = glGetUniformLocationARB(shaderProgram->program, GetName());
+		shaderProgram->u_FogEyeT = glGetUniformLocation(shaderProgram->program, GetName());
 	}
 
 	void SetUniform_FogEyeT(float value)
@@ -2241,7 +2239,7 @@ public:
 
 #endif
 
-		glUniform1fARB(program->u_FogEyeT, value);
+		glUniform1f(program->u_FogEyeT, value);
 	}
 };
 
@@ -2261,7 +2259,7 @@ public:
 
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
-		shaderProgram->u_DeformMagnitude = glGetUniformLocationARB(shaderProgram->program, GetName());
+		shaderProgram->u_DeformMagnitude = glGetUniformLocation(shaderProgram->program, GetName());
 	}
 
 	void SetUniform_DeformMagnitude(float value)
@@ -2287,7 +2285,7 @@ public:
 
 #endif
 
-		glUniform1fARB(program->u_DeformMagnitude, value);
+		glUniform1f(program->u_DeformMagnitude, value);
 	}
 };
 
@@ -2307,7 +2305,7 @@ public:
 
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
-		shaderProgram->u_HDRKey = glGetUniformLocationARB(shaderProgram->program, GetName());
+		shaderProgram->u_HDRKey = glGetUniformLocation(shaderProgram->program, GetName());
 	}
 
 	void SetUniform_HDRKey(float value)
@@ -2333,7 +2331,7 @@ public:
 
 #endif
 
-		glUniform1fARB(program->u_HDRKey, value);
+		glUniform1f(program->u_HDRKey, value);
 	}
 };
 
@@ -2353,7 +2351,7 @@ public:
 
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
-		shaderProgram->u_HDRAverageLuminance = glGetUniformLocationARB(shaderProgram->program, GetName());
+		shaderProgram->u_HDRAverageLuminance = glGetUniformLocation(shaderProgram->program, GetName());
 	}
 
 	void SetUniform_HDRAverageLuminance(float value)
@@ -2379,7 +2377,7 @@ public:
 
 #endif
 
-		glUniform1fARB(program->u_HDRAverageLuminance, value);
+		glUniform1f(program->u_HDRAverageLuminance, value);
 	}
 };
 
@@ -2399,7 +2397,7 @@ public:
 
 	void				UpdateShaderProgramUniformLocation(shaderProgram_t *shaderProgram) const
 	{
-		shaderProgram->u_HDRMaxLuminance = glGetUniformLocationARB(shaderProgram->program, GetName());
+		shaderProgram->u_HDRMaxLuminance = glGetUniformLocation(shaderProgram->program, GetName());
 	}
 
 	void SetUniform_HDRMaxLuminance(float value)
@@ -2425,7 +2423,7 @@ public:
 
 #endif
 
-		glUniform1fARB(program->u_HDRMaxLuminance, value);
+		glUniform1f(program->u_HDRMaxLuminance, value);
 	}
 };
 
