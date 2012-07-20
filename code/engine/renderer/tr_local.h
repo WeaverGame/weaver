@@ -1063,6 +1063,7 @@ typedef struct
 {
 	vec3_t          color;
 	float           depthForOpaque;
+	float           density;
 } fogParms_t;
 
 typedef enum
@@ -3922,6 +3923,10 @@ extern float    displayAspect;	// FIXME
 extern cvar_t  *r_glCoreProfile;
 extern cvar_t  *r_glMinMajorVersion;
 extern cvar_t  *r_glMinMinorVersion;
+
+#ifdef USE_GLSL_OPTIMIZER
+extern cvar_t  *r_glslOptimizer;
+#endif
 
 extern cvar_t  *r_flares;		// light flares
 extern cvar_t  *r_flareSize;

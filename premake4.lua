@@ -46,6 +46,12 @@ newoption
 	description = "Compile with webp image format support"
 }
 
+newoption
+{
+	trigger = "with-glsl-opt",
+	description = "Compile with glsl-optimizer support"
+}
+
 --
 --newoption
 --{

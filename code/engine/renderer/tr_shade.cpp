@@ -909,7 +909,7 @@ void GLSL_InitGPUShaders(void)
 	GL_CheckErrors();
 
 #if defined(USE_GLSL_OPTIMIZER)
-	s_glslOptimizer = glslopt_initialize();
+	s_glslOptimizer = glslopt_initialize(qfalse);
 #endif
 
 	startTime = ri.Milliseconds();
@@ -985,7 +985,7 @@ void GLSL_InitGPUShaders(void)
 
 #ifdef VOLUMETRIC_LIGHTING
 	// volumetric lighting
-	GLSL_InitGPUShader(&tr.lightVolumeShader_omni, "lightVolume_omni", ATTR_POSITION, qtrue);
+	GLSL_InitGPUShader(&tr.lightVolumeShader_omni, "lightVolume_omni", ATTR_POSITION, qtrue, qtrue);
 
 	tr.lightVolumeShader_omni.u_DepthMap =
 		glGetUniformLocationARB(tr.lightVolumeShader_omni.program, "u_DepthMap");
