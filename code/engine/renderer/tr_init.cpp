@@ -358,7 +358,7 @@ static void AssertCvarRange(cvar_t * cv, float minVal, float maxVal, qboolean sh
 ** to the user.
 */
 #if !defined(USE_D3D10)
-static void InitOpenGL(void)
+static qboolean InitOpenGL(void)
 {
 	char            renderer_buffer[1024];
 
@@ -378,7 +378,9 @@ static void InitOpenGL(void)
 	{
 		GLint           temp;
 
-		GLimp_Init();
+		if(!GLimp_Init()) {
+			return qfalse;
+		}
 
 		GL_CheckErrors();
 
@@ -413,6 +415,8 @@ static void InitOpenGL(void)
 	// set default state
 	GL_SetDefaultState();
 	GL_CheckErrors();
+
+	return qtrue;
 }
 #endif
 
@@ -1773,7 +1777,7 @@ void R_Register(void)
 R_Init
 ===============
 */
-void R_Init(void)
+qboolean R_Init(void)
 {
 	int             err;
 	int             i;
@@ -1823,25 +1827,6 @@ void R_Init(void)
 	R_NoiseInit();
 
 	R_Register();
-
-	backEndData[0] = (backEndData_t *) ri.Hunk_Alloc(sizeof(*backEndData[0]), h_low);
-	backEndData[0]->polys = (srfPoly_t *) ri.Hunk_Alloc(r_maxPolys->integer * sizeof(srfPoly_t), h_low);
-	backEndData[0]->polyVerts = (polyVert_t *) ri.Hunk_Alloc(r_maxPolyVerts->integer * sizeof(polyVert_t), h_low);
-	backEndData[0]->polybuffers = (srfPolyBuffer_t *) ri.Hunk_Alloc(r_maxPolys->integer * sizeof(srfPolyBuffer_t), h_low);
-	
-	if(r_smp->integer)
-	{
-		backEndData[1] = (backEndData_t *) ri.Hunk_Alloc(sizeof(*backEndData[1]), h_low);
-		backEndData[1]->polys = (srfPoly_t *) ri.Hunk_Alloc(r_maxPolys->integer * sizeof(srfPoly_t), h_low);
-		backEndData[1]->polyVerts = (polyVert_t *) ri.Hunk_Alloc(r_maxPolyVerts->integer * sizeof(polyVert_t), h_low);
-		backEndData[1]->polybuffers = (srfPolyBuffer_t *) ri.Hunk_Alloc(r_maxPolys->integer * sizeof(srfPolyBuffer_t), h_low);
-	}
-	else
-	{
-		backEndData[1] = NULL;
-	}
-
-	R_ToggleSmpFrame();
 
 #if defined(USE_D3D10)
 	if(glConfig.vidWidth == 0)
@@ -2071,13 +2056,34 @@ void R_Init(void)
 	// set default state
 	//D3D10_SetDefaultState();
 #else
-	InitOpenGL();
+	if(!InitOpenGL()) {
+		return qfalse;
+	}
 
 #if !defined(GLSL_COMPILE_STARTUP_ONLY)
 	GLSL_InitGPUShaders();
 #endif
 
 #endif
+
+	backEndData[0] = (backEndData_t *) ri.Hunk_Alloc(sizeof(*backEndData[0]), h_low);
+	backEndData[0]->polys = (srfPoly_t *) ri.Hunk_Alloc(r_maxPolys->integer * sizeof(srfPoly_t), h_low);
+	backEndData[0]->polyVerts = (polyVert_t *) ri.Hunk_Alloc(r_maxPolyVerts->integer * sizeof(polyVert_t), h_low);
+	backEndData[0]->polybuffers = (srfPolyBuffer_t *) ri.Hunk_Alloc(r_maxPolys->integer * sizeof(srfPolyBuffer_t), h_low);
+	
+	if(r_smp->integer)
+	{
+		backEndData[1] = (backEndData_t *) ri.Hunk_Alloc(sizeof(*backEndData[1]), h_low);
+		backEndData[1]->polys = (srfPoly_t *) ri.Hunk_Alloc(r_maxPolys->integer * sizeof(srfPoly_t), h_low);
+		backEndData[1]->polyVerts = (polyVert_t *) ri.Hunk_Alloc(r_maxPolyVerts->integer * sizeof(polyVert_t), h_low);
+		backEndData[1]->polybuffers = (srfPolyBuffer_t *) ri.Hunk_Alloc(r_maxPolys->integer * sizeof(srfPolyBuffer_t), h_low);
+	}
+	else
+	{
+		backEndData[1] = NULL;
+	}
+
+	R_ToggleSmpFrame();
 
 	R_InitImages();
 
@@ -2114,14 +2120,11 @@ void R_Init(void)
 		glGenQueriesARB(MAX_OCCLUSION_QUERIES, tr.occlusionQueryObjects);
 	}
 
-	err = glGetError();
-	if(err != GL_NO_ERROR)
-	{
-		ri.Error(ERR_FATAL, "R_Init() - glGetError() failed = 0x%x\n", err);
-		//ri.Printf(PRINT_ALL, "glGetError() = 0x%x\n", err);
-	}
+	GL_CheckErrors();
 
 	ri.Printf(PRINT_ALL, "----- finished R_Init -----\n");
+
+	return qtrue;
 }
 
 /*

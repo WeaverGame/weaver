@@ -48,13 +48,14 @@ typedef struct
 	// BeginRegistration makes any existing media pointers invalid
 	// and returns the current gl configuration, including screen width
 	// and height, which can be used by the client to intelligently
-	// size display elements
-	void            (*BeginRegistration) (glconfig_t * config, glconfig2_t * glconfig2);
-	qhandle_t		(*RegisterModel) (const char *name);
-	qhandle_t		(*RegisterSkin) (const char *name);
-	qhandle_t		(*RegisterShader) (const char *name);
-	qhandle_t		(*RegisterShaderNoMip) (const char *name);
-	qhandle_t		(*RegisterShaderLightAttenuation) (const char *name);
+	// size display elements. Returns false if the renderer couldn't
+	// be initialized.
+	qboolean        (*BeginRegistration) (glconfig_t * config, glconfig2_t * glconfig2);
+	qhandle_t       (*RegisterModel) (const char *name);
+	qhandle_t       (*RegisterSkin) (const char *name);
+	qhandle_t       (*RegisterShader) (const char *name);
+	qhandle_t       (*RegisterShaderNoMip) (const char *name);
+	qhandle_t       (*RegisterShaderLightAttenuation) (const char *name);
 	void            (*LoadWorld) (const char *name);
 
 	// the vis data is a large enough block of data that we go to the trouble
@@ -104,8 +105,8 @@ typedef struct
 	void            (*ModelBounds) (qhandle_t model, vec3_t mins, vec3_t maxs);
 
 	void            (*RemapShader) (const char *oldShader, const char *newShader, const char *offsetTime);
-	qboolean		(*GetEntityToken) (char *buffer, int size);
-	qboolean		(*inPVS) (const vec3_t p1, const vec3_t p2);
+	qboolean        (*GetEntityToken) (char *buffer, int size);
+	qboolean        (*inPVS) (const vec3_t p1, const vec3_t p2);
 
 	void            (*RegisterFont) (const char *fontName, int pointSize, fontInfo_t * font);
 	// XreaL BEGIN
@@ -117,8 +118,8 @@ typedef struct
 
 	// RB: alternative skeletal animation system
 #if defined(USE_REFENTITY_ANIMATIONSYSTEM)
-	qhandle_t		(*RegisterAnimation) (const char *name);
-	int				(*CheckSkeleton) (refSkeleton_t * skel, qhandle_t model, qhandle_t anim);
+	qhandle_t       (*RegisterAnimation) (const char *name);
+	int             (*CheckSkeleton) (refSkeleton_t * skel, qhandle_t model, qhandle_t anim);
 	int             (*BuildSkeleton) (refSkeleton_t * skel, qhandle_t anim, int startFrame, int endFrame, float frac,
 									  qboolean clearOrigin);
 	int             (*BlendSkeleton) (refSkeleton_t * skel, const refSkeleton_t * blend, float frac);

@@ -1243,7 +1243,7 @@ static shader_t *ShaderForShaderNum(int shaderNum)
 	shader_t       *shader;
 	dshader_t      *dsh;
 
-	shaderNum = LittleLong(shaderNum);
+	shaderNum = LittleLong(shaderNum) + 0; // silence the warning
 	if(shaderNum < 0 || shaderNum >= s_worldData.numShaders)
 	{
 		ri.Error(ERR_DROP, "ShaderForShaderNum: bad num %i", shaderNum);

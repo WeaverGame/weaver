@@ -801,6 +801,7 @@ BSPSurfaceCompare
 compare function for qsort()
 =================
 */
+#if defined(USE_BSP_CLUSTERSURFACE_MERGING)
 static int BSPSurfaceCompare(const void *a, const void *b)
 {
 	bspSurface_t   *aa, *bb;
@@ -830,7 +831,6 @@ static int BSPSurfaceCompare(const void *a, const void *b)
 R_UpdateClusterSurfaces()
 ===============
 */
-#if defined(USE_BSP_CLUSTERSURFACE_MERGING)
 static void R_UpdateClusterSurfaces()
 {
 	int             i, k, l;
@@ -1410,7 +1410,7 @@ static void DrawNode_r(bspNode_t * node, int planeBits)
 
 		if(r_logFile->integer)
 		{
-			GLimp_LogComment(va("--- DrawNode_r( node = %i, isLeaf = %i ) ---\n", node - tr.world->nodes, node->contents == -1));
+			GLimp_LogComment(va("--- DrawNode_r( node = %li, isLeaf = %i ) ---\n", (long)(node - tr.world->nodes), node->contents == -1));
 		}
 
 		if(node->contents != -1)// && !(node->contents & CONTENTS_TRANSLUCENT))
@@ -1542,7 +1542,7 @@ static void IssueMultiOcclusionQueries(link_t * multiQueue, link_t * individualQ
 		{
 			node = (bspNode_t *) l->data;
 
-			GLimp_LogComment(va("%i, ", (int)(node - tr.world->nodes)));
+			GLimp_LogComment(va("%li, ", (long)(node - tr.world->nodes)));
 		}
 		GLimp_LogComment("])");
 	}
@@ -1682,7 +1682,7 @@ static void GetOcclusionQueryResult(bspNode_t *node)
 
 	if(r_logFile->integer)
 	{
-		GLimp_LogComment(va("GetOcclusionQueryResult(%i): available = %i, samples = %i\n", (int)(node - tr.world->nodes), available, ocSamples));
+		GLimp_LogComment(va("GetOcclusionQueryResult(%li): available = %i, samples = %i\n", (long)(node - tr.world->nodes), available, ocSamples));
 	}
 
 	GL_CheckErrors();
@@ -1812,8 +1812,8 @@ static void TraverseNode(link_t * distanceQueue, bspNode_t * node)
 
 		if(r_logFile->integer)
 		{
-			GLimp_LogComment(va("distance-queue <-- node %i\n", (int)(node->children[0] - tr.world->nodes)));
-			GLimp_LogComment(va("distance-queue <-- node %i\n", (int)(node->children[1] - tr.world->nodes)));
+			GLimp_LogComment(va("distance-queue <-- node %li\n", (long)(node->children[0] - tr.world->nodes)));
+			GLimp_LogComment(va("distance-queue <-- node %li\n", (long)(node->children[1] - tr.world->nodes)));
 		}
 	}
 }
@@ -2026,7 +2026,7 @@ static void R_CoherentHierachicalCulling()
 					{
 						if(r_logFile->integer)
 						{
-							GLimp_LogComment(va("MULTI query node %i visible\n", (int)(node - tr.world->nodes)));
+							GLimp_LogComment(va("MULTI query node %li visible\n", (long)(node - tr.world->nodes)));
 						}
 
 						multiQueryNode = node;
@@ -2049,7 +2049,7 @@ static void R_CoherentHierachicalCulling()
 					{
 						if(r_logFile->integer)
 						{
-							GLimp_LogComment(va("single query node %i visible\n", (int)(node - tr.world->nodes)));
+							GLimp_LogComment(va("single query node %li visible\n", (long)(node - tr.world->nodes)));
 						}
 
 						if(r_dynamicBspOcclusionCulling->integer == 1)
@@ -2115,7 +2115,7 @@ static void R_CoherentHierachicalCulling()
 
 			if(r_logFile->integer)
 			{
-				GLimp_LogComment(va("distance-queue --> node %i\n", (int)(node - tr.world->nodes)));
+				GLimp_LogComment(va("distance-queue --> node %li\n", (long)(node - tr.world->nodes)));
 			}
 
 			if(	node->visCounts[tr.visIndex] == tr.visCounts[tr.visIndex] && // node was marked as potentially visible
@@ -2199,7 +2199,7 @@ static void R_CoherentHierachicalCulling()
 					{
 						if(r_logFile->integer)
 						{
-							GLimp_LogComment(va("i-queue <-- node %i\n", (int)(node - tr.world->nodes)));
+							GLimp_LogComment(va("i-queue <-- node %li\n", (long)(node - tr.world->nodes)));
 						}
 
 						EnQueue(&invisibleQueue, node);
@@ -2214,7 +2214,7 @@ static void R_CoherentHierachicalCulling()
 						{
 							if(r_logFile->integer)
 							{
-								GLimp_LogComment(va("v-queue <-- node %i\n", (int)(node - tr.world->nodes)));
+								GLimp_LogComment(va("v-queue <-- node %li\n", (long)(node - tr.world->nodes)));
 							}
 
 							EnQueue(&visibleQueue, node);

@@ -1154,6 +1154,16 @@ typedef struct shader_s
 	struct shader_s *next;
 } shader_t;
 
+typedef struct corona_s
+{
+	vec3_t          origin;
+	vec3_t          color;		// range from 0.0 to 1.0, should be color normalized
+	vec3_t          transformed;	// origin in local coordinate system
+	float           scale;		// uses r_flaresize as the baseline (1.0)
+	int             id;
+	qboolean        visible;	// still send the corona request, even if not visible, for proper fading
+} corona_t;
+
 #if 0
 enum
 {
@@ -2387,16 +2397,6 @@ typedef struct decalProjector_s
 	vec4_t          texMat[3][2];
 }
 decalProjector_t;
-
-typedef struct corona_s
-{
-	vec3_t          origin;
-	vec3_t          color;		// range from 0.0 to 1.0, should be color normalized
-	vec3_t          transformed;	// origin in local coordinate system
-	float           scale;		// uses r_flaresize as the baseline (1.0)
-	int             id;
-	qboolean        visible;	// still send the corona request, even if not visible, for proper fading
-} corona_t;
 
 
 //=================================================================================
@@ -4359,7 +4359,7 @@ void            RE_StretchRaw(int x, int y, int w, int h, int cols, int rows, co
 void            RE_UploadCinematic(int w, int h, int cols, int rows, const byte * data, int client, qboolean dirty);
 
 void            RE_BeginFrame(stereoFrame_t stereoFrame);
-void            RE_BeginRegistration(glconfig_t * glconfig, glconfig2_t * glconfig2);
+qboolean        RE_BeginRegistration(glconfig_t * glconfig, glconfig2_t * glconfig2);
 void            RE_LoadWorldMap(const char *mapname);
 void            RE_SetWorldVisData(const byte * vis);
 qhandle_t       RE_RegisterModel(const char *name);
@@ -4377,7 +4377,7 @@ float           R_ProcessLightmap(byte ** pic, int in_padding, int width, int he
 model_t        *R_AllocModel(void);
 
 
-void            R_Init(void);
+qboolean        R_Init(void);
 
 
 qboolean        R_GetModeInfo(int *width, int *height, float *windowAspect, int mode);
@@ -4461,7 +4461,7 @@ IMPLEMENTATION SPECIFIC FUNCTIONS
 ====================================================================
 */
 
-void            GLimp_Init(void);
+qboolean        GLimp_Init(void);
 void            GLimp_Shutdown(void);
 void            GLimp_EndFrame(void);
 

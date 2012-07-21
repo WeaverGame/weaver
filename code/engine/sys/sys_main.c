@@ -91,9 +91,22 @@ void Sys_SetDefaultInstallPath(const char *path)
 	Q_strreplace(installPath, sizeof(installPath), "bin/win64", "");
 	Q_strreplace(installPath, sizeof(installPath), "bin\\win64", "");
 	
-	Q_strreplace(installPath, sizeof(installPath), "bin/linux-x86", "");
+	// Note:Try longer match for OS-x86_64 before OS-x86
 	Q_strreplace(installPath, sizeof(installPath), "bin/linux-x86_64", "");
+	Q_strreplace(installPath, sizeof(installPath), "bin/linux-x86", "");
 	Q_strreplace(installPath, sizeof(installPath), "bin/linux-native", "");
+
+	Q_strreplace(installPath, sizeof(installPath), "bin/bsd-x86_64", "");
+	Q_strreplace(installPath, sizeof(installPath), "bin/bsd-x86", "");
+	Q_strreplace(installPath, sizeof(installPath), "bin/bsd-native", "");
+
+	Q_strreplace(installPath, sizeof(installPath), "bin/freebsd-x86_64", "");
+	Q_strreplace(installPath, sizeof(installPath), "bin/freebsd-x86", "");
+	Q_strreplace(installPath, sizeof(installPath), "bin/freebsd-native", "");
+
+	// MacOS X x86 and x64
+	Q_strreplace(installPath, sizeof(installPath), "bin/macosx", "");	
+
 }
 
 /*
@@ -519,7 +532,6 @@ void           *Sys_LoadDll(const char *name, char *fqpath,
 	{
 		Com_Printf("Sys_LoadDll(%s) failed to find vmMain function:\n\"%s\" !\n", name, Sys_LibraryError());
 		Sys_UnloadLibrary(libHandle);
-
 		return NULL;
 	}
 
@@ -697,3 +709,4 @@ int main(int argc, char **argv)
 
 	return 0;
 }
+
