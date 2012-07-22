@@ -1,3 +1,5 @@
+
+
 project "XreaL-master"
 	targetname  "XreaL-master"
 	language    "C++"
@@ -17,20 +19,11 @@ project "XreaL-master"
 	{ 
 		--"DEDICATED",
 	}
-	
-	--
-	-- Platform Configurations
-	-- 	
-	--configuration "x32"
-	--	targetdir 	"../../../bin32"
-	
-	--configuration "x64"
-	--	targetdir 	"../../../bin64"
-	
+
 	-- 
 	-- Project Configurations
 	-- 
-	configuration "vs*"
+	configuration { "windows" }
 		--flags       { "WinMain" }
 		links
 		{ 
@@ -47,13 +40,7 @@ project "XreaL-master"
 			--"USE_ALLOCA"
 		}
 
-	configuration { "vs*", "x32" }
-		targetdir 	"../../../bin/win32"
-		
-	configuration { "vs*", "x64" }
-		targetdir 	"../../../bin/win64"
-
-	configuration { "linux", "gmake" }
+	configuration { "linux or solaris or bsd os macosx", "gmake" }
 		buildoptions
 		{
 			--"`pkg-config --cflags sdl`",
@@ -62,20 +49,26 @@ project "XreaL-master"
 		{
 			--"`pkg-config --libs sdl`",
 		}
-	
-	configuration "linux"
-		targetname  "xreal-master"
+
+	configuration { "linux or solaris or bsd os macosx" }
 		links
 		{
 			"m",
 		}
-		
-	configuration { "linux", "x32" }
-		targetdir 	"../../../bin/linux-x86"
-		
-	configuration { "linux", "x64" }
-		targetdir 	"../../../bin/linux-x86_64"
-		
-	configuration { "linux", "native" }
-		targetdir 	"../../../bin/linux-native"
-	
+
+	--
+	-- Platform Configurations
+	--
+	configuration { "windows", "x32" }
+		targetdir 	("../../../bin/win32")
+
+	configuration { "windows", "x64" }
+		targetdir 	("../../../bin/win64")
+
+	configuration { "linux or solaris or bsd" }
+		targetname  "xreal-master"
+		targetdir 	("../../../bin/" .. os.get() .. "-" .. proc)
+
+	configuration { "macosx" }
+		targetname  "xreal-master"
+		targetdir 	("../../../bin/macosx")

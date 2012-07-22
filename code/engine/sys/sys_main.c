@@ -98,10 +98,12 @@ void Sys_SetDefaultInstallPath(const char *path)
 
 	Q_strreplace(installPath, sizeof(installPath), "bin/bsd-x86_64", "");
 	Q_strreplace(installPath, sizeof(installPath), "bin/bsd-x86", "");
+	Q_strreplace(installPath, sizeof(installPath), "bin/bsd-amd64", "");
 	Q_strreplace(installPath, sizeof(installPath), "bin/bsd-native", "");
 
 	Q_strreplace(installPath, sizeof(installPath), "bin/freebsd-x86_64", "");
 	Q_strreplace(installPath, sizeof(installPath), "bin/freebsd-x86", "");
+	Q_strreplace(installPath, sizeof(installPath), "bin/freebsd-amd64", "");
 	Q_strreplace(installPath, sizeof(installPath), "bin/freebsd-native", "");
 
 	// MacOS X x86 and x64
@@ -485,9 +487,11 @@ static void    *Sys_TryLibraryLoad(const char *base, const char *gamedir, const 
 Sys_LoadDll
 
 Used to load a development dll instead of a virtual machine
-#1 look down current path
-#2 look in fs_homepath
-#3 look in fs_basepath
+#1 look in sys_binpath (i.e. current binary's path)
+   these paths are arch/os specific allowing arch/os specific gamecode binaries
+#2 look in current path
+#3 look in fs_homepath
+#4 look in fs_basepath
 =================
 */
 void           *Sys_LoadDll(const char *name, char *fqpath,
@@ -500,18 +504,25 @@ void           *Sys_LoadDll(const char *name, char *fqpath,
 	char           *homepath;
 	char           *pwdpath;
 	char           *gamedir;
+	char           *binpath;
 
 	assert(name);
 
 	Q_snprintf(fname, sizeof(fname), "%s" ARCH_STRING DLL_EXT, name);
 
 	// TODO: use fs_searchpaths from files.c
+	binpath = Sys_BinaryPath();
 	pwdpath = Sys_Cwd();
 	basepath = Cvar_VariableString("fs_basepath");
 	homepath = Cvar_VariableString("fs_homepath");
 	gamedir = Cvar_VariableString("fs_game");
 
-	libHandle = Sys_TryLibraryLoad(pwdpath, gamedir, fname, fqpath);
+	Com_Printf("Sys_LoadDLL(%s) searching from cwd: %s\n", name, pwdpath);
+
+	libHandle = Sys_TryLibraryLoad(binpath, gamedir, fname, fqpath);
+
+	if(!libHandle && pwdpath)
+		libHandle = Sys_TryLibraryLoad(pwdpath, gamedir, fname, fqpath);
 
 	if(!libHandle && homepath)
 		libHandle = Sys_TryLibraryLoad(homepath, gamedir, fname, fqpath);

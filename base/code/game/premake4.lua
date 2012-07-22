@@ -1,7 +1,8 @@
 
 
 project "base_game"
-	targetname  "game"
+	targetname  ("qagame"..proc)
+	targetprefix ""
 	targetdir 	"../.."
 	language    "C++"
 	kind        "SharedLib"
@@ -12,7 +13,7 @@ project "base_game"
 		"../../../code/shared/q_shared.h",
 		"../../../code/shared/g_public.h",
 		"../../../code/shared/surfaceflags.h",
-		
+
 		--"**.c", "**.cpp", "**.h",
 		"*.h",
 		"acebot_ai.c",
@@ -56,7 +57,7 @@ project "base_game"
 
 		"spell_info.def",
 		"spell_shared.c",
-		
+
 		"../../../code/libs/lua/src/lapi.c",
 		"../../../code/libs/lua/src/lcode.c",
 		"../../../code/libs/lua/src/ldebug.c",
@@ -98,26 +99,14 @@ project "base_game"
 		"../../../code/libs/lua/src",
 	}
 	defines
-	{ 
+	{
 		"QAGAME",
 		"LUA"
 	}
-	
+
 	--
-	-- Platform Configurations
-	--
-	configuration "x32"
-		targetname  "qagamex86"
-	
-	configuration "x64"
-		targetname  "qagamex86_64"
-				
-	configuration "native"
-		targetname  "qagamex86_64"
-				
-	-- 
 	-- Project Configurations
-	-- 
+	--
 	configuration "vs*"
 		linkoptions
 		{
@@ -128,17 +117,18 @@ project "base_game"
 			"WIN32",
 			"_CRT_SECURE_NO_WARNINGS",
 		}
-	
-	configuration { "linux", "x32" }
-		targetname  "qagamei386"
-		targetprefix ""
-	
-	configuration { "linux", "x64" }
-		targetname  "qagamex86_64"
-		targetprefix ""
-	
-	configuration { "linux", "native" }
-		targetname  "qagamex86_64"
-		targetprefix ""
 
-	
+	--
+	-- Platform Configurations
+	--
+	configuration { "windows", "x32" }
+		targetdir  ("../../../bin/win32/base")
+
+	configuration { "windows", "x64" }
+		targetdir  ("../../../bin/win64/base")
+
+	configuration { "linux or solaris or bsd" }
+		targetdir 	("../../../bin/" .. os.get() .. "-" .. proc .. "/base")
+
+	configuration { "macosx" }
+		targetdir 	("../../../bin/macosx/base")

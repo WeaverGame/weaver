@@ -254,7 +254,7 @@ const char     *Sys_Dirname(char *path)
 	Q_strncpyz(dir, path, sizeof(dir));
 	length = strlen(dir) - 1;
 
-	while(length > 0 && dir[length] != '\\')
+	while(length > 0 && (dir[length] != '\\' && dir[length] != '/'))
 		length--;
 
 	dir[length] = '\0';

@@ -1,4 +1,5 @@
 
+
 project "Weaver"
 	targetname  "weaver"
 	language    "C++"
@@ -7,13 +8,13 @@ project "Weaver"
 	files
 	{
 		"../shared/**.c", "../shared/**.h",
-		
+
 		--"botlib/**.c", "botlib/**.h",
-		
+
 		"client/**.c", "client/**.h",
 		"server/**.c", "server/**.h",
-		
-		"qcommon/**.h", 
+
+		"qcommon/**.h",
 		"qcommon/cmd.c",
 		"qcommon/common.c",
 		"qcommon/cvar.c",
@@ -33,19 +34,19 @@ project "Weaver"
 		"qcommon/cm_test.c",
 		"qcommon/cm_trace.c",
 		"qcommon/cm_trisoup.c",
-		
+
 		"renderer/**.c", "renderer/**.cpp", "renderer/**.h",
-		
+
 		"../libs/glew/src/glew.c",
 		"../libs/glew/src/glew.h",
-		
+
 		"../libs/jpeg/**.c", "../../libs/jpeg/**.h",
 		"../libs/png/**.c", "../../libs/png/**.h",
 		"../libs/zlib/**.c", "../../libs/zlib/**.h",
 		"../libs/openexr/**.cpp", "../../libs/openexr/**.h",
-		
+
 		--"../libs/ft2/**.c", "../../libs/ft2/**.h",
-		
+
 		"../libs/freetype/src/autofit/autofit.c",
 		"../libs/freetype/src/bdf/bdf.c",
 		"../libs/freetype/src/cff/cff.c",
@@ -79,10 +80,10 @@ project "Weaver"
 		"../libs/freetype/src/cid/type1cid.c",
 		"../libs/freetype/src/type42/type42.c",
 		"../libs/freetype/src/winfonts/winfnt.c",
-		
+
 		"../libs/ogg/src/bitwise.c",
 		"../libs/ogg/src/framing.c",
-		
+
 		"../libs/vorbis/lib/mdct.c",
 		"../libs/vorbis/lib/smallft.c",
 		"../libs/vorbis/lib/block.c",
@@ -104,7 +105,7 @@ project "Weaver"
 		"../libs/vorbis/lib/lookup.c",
 		"../libs/vorbis/lib/bitrate.c",
 		"../libs/vorbis/lib/vorbisfile.c",
-		
+
 		-- "../libs/speex/bits.c",
 		-- "../libs/speex/buffer.c",
 		-- "../libs/speex/cb_search.c",
@@ -145,7 +146,7 @@ project "Weaver"
 		-- "../libs/speex/vbr.c",
 		-- "../libs/speex/stereo.c",
 		-- "../libs/speex/vq.c",
-		
+
 		"../libs/theora/lib/dec/apiwrapper.c",
 		"../libs/theora/lib/dec/bitpack.c",
 		"../libs/theora/lib/dec/decapiwrapper.c",
@@ -172,7 +173,7 @@ project "Weaver"
 		"../libs/speex/include",
 	}
 	defines
-	{ 
+	{
 		"STANDALONE",
 		"REF_HARD_LINKED",
 		"GLEW_STATIC",
@@ -183,7 +184,7 @@ project "Weaver"
 		"USE_CIN_THEORA",
 		"USE_ALLOCA",
 		"FLOATING_POINT",
-		--"USE_CURL", 
+		--"USE_CURL",
 		--"USE_MUMBLE",
 		--"USE_INTERNAL_GLFW",
 		--"USE_INTERNAL_GLEW",
@@ -194,24 +195,24 @@ project "Weaver"
 		"renderer/tr_animation_mdm.c",
 		"renderer/tr_model_mdm.c",
 	}
-	
+
 	--
 	-- Platform Configurations
-	-- 	
+	--
 	configuration "x32"
 		files
-		{ 
+		{
 			--"code/qcommon/vm_x86.c",
 			"../libs/theora/lib/dec/x86/mmxidct.c",
 			"../libs/theora/lib/dec/x86/mmxfrag.c",
 			"../libs/theora/lib/dec/x86/mmxstate.c",
 			"../libs/theora/lib/dec/x86/x86state.c"
 		}
-	
+
 	configuration "x64"
 		--targetdir 	"../../bin64"
 		files
-		{ 
+		{
 			--"qcommon/vm_x86_64.c",
 			--"qcommon/vm_x86_64_assembler.c",
 			"../libs/theora/lib/dec/x86/mmxidct.c",
@@ -219,7 +220,7 @@ project "Weaver"
 			"../libs/theora/lib/dec/x86/mmxstate.c",
 			"../libs/theora/lib/dec/x86/x86state.c"
 		}
-		
+
 	--
 	-- Options Configurations
 	--
@@ -257,7 +258,7 @@ project "Weaver"
 	configuration { "with-webp", "gmake" }
 		buildoptions
 		{
-			
+
 			"`pkg-config --cflags libwebp`",
 		}
 		linkoptions
@@ -313,11 +314,11 @@ project "Weaver"
 			-- os.execute("cd ../libs/curl-7.12.2;cd lib;nmake /f Makefile.vc6 CFG=release")
 		-- end
 	-- }
-	
-	-- 
+
+	--
 	-- Project Configurations
-	-- 
-	configuration "vs*"
+	--
+	configuration "windows"
 		flags       { "WinMain" }
 		files
 		{
@@ -329,12 +330,12 @@ project "Weaver"
 			"sys/sdl_glimp.c",
 			"sys/sdl_input.c",
 			"sys/sdl_snd.c",
-			
+
 			"sys/xreal.ico",
 			"sys/win_resource.rc",
-			
+
 			"../libs/glew/src/wglew.h",
-			
+
 			--"code/glfw/lib/win32/*.c", "code/glfw/lib/win32/*.h",
 		}
 		excludes
@@ -356,7 +357,7 @@ project "Weaver"
 		{
 			--"../libs/curl-7.12.2/lib"
 		}
-		
+
 		links
 		{
 			"SDL",
@@ -375,7 +376,7 @@ project "Weaver"
 		{
 			--"/MT"
 		}
-		linkoptions 
+		linkoptions
 		{
 			"/LARGEADDRESSAWARE",
 			--"/NODEFAULTLIB:libcmt.lib",
@@ -387,10 +388,9 @@ project "Weaver"
 			"WIN32",
 			"_CRT_SECURE_NO_WARNINGS",
 		}
-		
-		
-	configuration { "vs*", "x32" }
-		targetdir 	"../../bin/win32"
+
+
+	configuration { "windows", "x32" }
 		files
 		{
 			"gldraw.c",
@@ -406,9 +406,8 @@ project "Weaver"
 			--"libcurl",
 			"OpenAL32",
 		}
-		
-	configuration { "vs*", "x64" }
-		targetdir 	"../../bin/win64"
+
+	configuration { "windows", "x64" }
 		libdirs
 		{
 			"../libs/sdl/lib64",
@@ -421,7 +420,7 @@ project "Weaver"
 			"OpenAL32",
 		}
 
-	configuration { "linux", "gmake" }
+	configuration { "linux or solaris or bsd", "gmake" }
 		buildoptions
 		{
 			--"`pkg-config --cflags x11`",
@@ -445,18 +444,8 @@ project "Weaver"
 			--"libcurl",
 			"openal",
 		}
-	
-	configuration { "linux", "x32" }
-		targetdir 	"../../bin/linux-x86"
-		
-	configuration { "linux", "x64" }
-		targetdir 	"../../bin/linux-x86_64"
-	
-	configuration { "linux", "native" }
-		targetdir 	"../../bin/linux-native"
-	
-	configuration "linux"
-		targetname  "xreal"
+
+	configuration "linux or solaris or bsd or macosx"
 		files
 		{
 			"sys/sys_main.c",
@@ -481,71 +470,29 @@ project "Weaver"
 		{
             "PNG_NO_ASSEMBLER_CODE",
 		}
-	
-	configuration { "solaris", "gmake" }
-		buildoptions
-		{
-			--"`pkg-config --cflags x11`",
-			--"`pkg-config --cflags xext`",
-			--"`pkg-config --cflags xxf86dga`",
-			--"`pkg-config --cflags xxf86vm`",
-			"`pkg-config --cflags sdl`",
-			"`pkg-config --cflags libcurl`",
-		}
-		linkoptions
-		{
-			--"`pkg-config --libs x11`",
-			--"`pkg-config --libs xext`",
-			--"`pkg-config --libs xxf86dga`",
-			--"`pkg-config --libs xxf86vm`",
-			"`pkg-config --libs sdl`",
-			"`pkg-config --libs libcurl`",
-		}
-		links
-		{
-			--"libcurl",
-			"openal",
-		}
-	
-	configuration { "solaris", "x32" }
-		targetdir 	"../../bin/solaris-x86"
-		
-	configuration { "solaris", "x64" }
-		targetdir 	"../../bin/solaris-x86_64"
-	
+
 	configuration "solaris"
-		targetname  "xreal"
-		files
-		{
-			"sys/sys_main.c",
-			"sys/sys_unix.c",
-			"sys/con_log.c",
-			"sys/con_passive.c",
-			"sys/sdl_gamma.c",
-			"sys/sdl_glimp.c",
-			"sys/sdl_input.c",
-			"sys/sdl_snd.c",
-			"../libs/glew/src/glew.c",
-		}
-		--buildoptions
-		--{
-		--	"-pthread"
-		--}
 		links
 		{
-			"GL",
 			"socket",
 			"nsl",
 			"SDL",
 		}
-		defines
-		{
-            "PNG_NO_ASSEMBLER_CODE",
-		}
-	
 
-project "XreaL-dedicated"
-	targetname  "XreaL-dedicated"
+	configuration { "windows", "x32" }
+		targetdir 	"../../bin/win32"
+
+	configuration { "windows", "x64" }
+		targetdir 	"../../bin/win64"
+
+	configuration { "linux or solaris or bsd" }
+		targetdir 	("../../bin/" .. os.get() .. "-" .. proc)
+
+	configuration { "macosx" }
+		targetdir 	("../../bin/macosx")
+
+project "Weaver-dedicated"
+	targetname  "weaver-dedicated"
 	language    "C++"
 	kind        "ConsoleApp"
 	targetdir 	"../.."
@@ -553,17 +500,17 @@ project "XreaL-dedicated"
 	files
 	{
 		"../shared/**.c", "../shared/**.h",
-		
+
 		"botlib/**.c", "botlib/**.h",
 		"server/**.c", "server/**.h",
-		
+
 		"splines/**.cpp", "splines/**.h",
 
 		"null/null_client.c",
 		"null/null_input.c",
 		"null/null_snddma.c",
-		
-		"qcommon/**.h", 
+
+		"qcommon/**.h",
 		"qcommon/cmd.c",
 		"qcommon/common.c",
 		"qcommon/cvar.c",
@@ -582,7 +529,7 @@ project "XreaL-dedicated"
 		"qcommon/cm_test.c",
 		"qcommon/cm_trace.c",
 		"qcommon/cm_trisoup.c",
-		
+
 		"../libs/zlib/**.c", "../../libs/zlib/**.h",
 	}
 	includedirs
@@ -591,7 +538,7 @@ project "XreaL-dedicated"
 		"../shared",
 	}
 	defines
-	{ 
+	{
 		"DEDICATED",
 		"STANDALONE",
 		--"USE_MUMBLE",
@@ -601,23 +548,20 @@ project "XreaL-dedicated"
 	{
 		"server/sv_rankings.c",
 	}
-	
+
 	--
 	-- Platform Configurations
-	-- 	
+	--
 	configuration "x32"
 		files
-		{ 
+		{
 			--"code/qcommon/vm_x86.c",
 		}
-	
-	--configuration "x64"
-	--	targetdir 	"../../bin64"
-	
-	-- 
+
+	--
 	-- Project Configurations
-	-- 
-	configuration "vs*"
+	--
+	configuration "windows"
 		flags       { "WinMain" }
 		files
 		{
@@ -625,7 +569,7 @@ project "XreaL-dedicated"
 			"sys/sys_win32.c",
 			"sys/con_log.c",
 			"sys/con_win32.c",
-			
+
 			"sys/xreal.ico",
 			"sys/win_resource.rc",
 		}
@@ -634,7 +578,7 @@ project "XreaL-dedicated"
 			--"../libs/curl-7.12.2/lib"
 		}
 		links
-		{ 
+		{
 			"winmm",
 			"wsock32",
 			"user32",
@@ -642,14 +586,6 @@ project "XreaL-dedicated"
 			"ws2_32",
 			"Psapi"
 		}
-		--linkoptions
-		--{
-		--	"/NODEFAULTLIB:libc"
-		--}
-		-- buildoptions
-		-- {
-			-- "/EHa",
-		-- }
 		defines
 		{
 			"WIN32",
@@ -660,13 +596,13 @@ project "XreaL-dedicated"
 			--"USE_ALLOCA"
 		}
 
-	configuration { "vs*", "x32" }
-		targetdir 	"../../bin/win32"
-		
-	configuration { "vs*", "x64" }
-		targetdir 	"../../bin/win64"
+	configuration { "windows", "x32" }
+		targetdir 	("../../bin/win32")
 
-	configuration { "linux", "gmake" }
+	configuration { "windows", "x64" }
+		targetdir 	("../../bin/win64")
+
+	configuration { "linux or solaris or bsd or macosx", "gmake" }
 		buildoptions
 		{
 			"`pkg-config --cflags sdl`",
@@ -675,18 +611,8 @@ project "XreaL-dedicated"
 		{
 			"`pkg-config --libs sdl`",
 		}
-	
-	configuration { "linux", "x32" }
-		targetdir 	"../../bin/linux-x86"
-		
-	configuration { "linux", "x64" }
-		targetdir 	"../../bin/linux-x86_64"
-	
-	configuration { "linux", "native" }
-		targetdir 	"../../bin/linux-native"
-	
-	configuration "linux"
-		targetname  "xreal-dedicated"
+
+	configuration { "linux or solaris or bsd or macosx" }
 		files
 		{
 			"sys/sys_main.c",
@@ -698,47 +624,26 @@ project "XreaL-dedicated"
 		--{
 		--	"-pthread"
 		--}
+
+	configuration { "linux or solaris" }
 		links
 		{
 			"dl",
 			"m",
 		}
-	
-	configuration { "solaris", "gmake" }
-		buildoptions
-		{
-			"`pkg-config --cflags sdl`",
-		}
-		linkoptions
-		{
-			"`pkg-config --libs sdl`",
-		}
-	
-	configuration { "solaris", "x32" }
-		targetdir 	"../../bin/solaris-x86"
-		
-	configuration { "solaris", "x64" }
-		targetdir 	"../../bin/solaris-x86_64"
-	
+
 	configuration "solaris"
-		targetname  "xreal-dedicated"
-		files
-		{
-			"sys/sys_main.c",
-			"sys/sys_unix.c",
-			"sys/con_log.c",
-			"sys/con_tty.c",
-		}
-		--buildoptions
-		--{
-		--	"-pthread"
-		--}
 		links
 		{
-			"dl",
-			"m",
 			"socket",
 			"nsl",
 			"SDL",
 		}
-		
+
+	configuration { "linux or solaris or bsd" }
+		targetdir 	("../../bin/" .. os.get() .. "-" .. proc)
+
+	configuration { "macosx" }
+		targetdir 	("../../bin/macosx")
+
+

@@ -2,10 +2,10 @@
 -- XreaL build configuration script
 -- 
 solution "Weaver"
-	--configurations { "Release", "ReleaseWithSymbols", "Debug" }
+	--configurations { "Release", "Debug" }
 	configurations { "Release", "Debug" }
 	platforms {"x32", "x64", "native"}
-	
+
 	--
 	-- Release/Debug Configurations
 	--
@@ -15,19 +15,10 @@ solution "Weaver"
 		{
 			"OptimizeSpeed",
 			"EnableSSE",
+			"Symbols",
 			--"StaticRuntime"
 		}
-		
-	--configuration "ReleaseReleaseWithSymbols"
-	--	defines     "NDEBUG"
-	--	flags
-	--	{
-	--		"OptimizeSpeed",
-	--		"EnableSSE",
-	--		"Symbols",
-	--		"StaticRuntime"
-	--	}
-	
+
 	configuration "Debug"
 		defines     "_DEBUG"
 		flags
@@ -96,6 +87,25 @@ newoption
 --if _OPTIONS["with-openal"] then
 --	_OPTIONS["with-openal"] = "openal-" .. _OPTIONS["with-openal"]
 --end
+
+if (tonumber(_PREMAKE_VERSION) < 4.4) then
+	dofile("premake4_44.lua")
+end
+
+if os.get() == "windows" then
+	if os.is64bit() then
+		proc = "x86_64"
+	else
+		proc = "x86"
+	end
+else
+	--configuration { "linux or solaris or bsd or macosx" }
+	proc = os.outputof("uname -p")
+	if proc == "unknown" then
+		-- fallback
+		proc = os.outputof("uname -m")
+	end
+end
 
 include "code/engine"
 include "base/code/game"

@@ -1,7 +1,8 @@
 
 
 project "base_ui"
-	targetname  "ui"
+	targetname  ("ui"..proc)
+	targetprefix ""
 	targetdir 	"../.."
 	language    "C++"
 	kind        "SharedLib"
@@ -34,19 +35,7 @@ project "base_ui"
 	{ 
 		--"CGAMEDLL",
 	}
-	
-	--
-	-- Platform Configurations
-	--
-	configuration "x32"
-		targetname  "uix86"
-	
-	configuration "x64"
-		targetname  "uix86_64"
-				
-	configuration "native"
-		targetname  "uix86_64"
-				
+
 	-- 
 	-- Project Configurations
 	-- 
@@ -60,16 +49,18 @@ project "base_ui"
 			"WIN32",
 			"_CRT_SECURE_NO_WARNINGS",
 		}
-	
-	configuration { "linux", "x32" }
-		targetname  "uii386"
-		targetprefix ""
-	
-	configuration { "linux", "x64" }
-		targetname  "uix86_64"
-		targetprefix ""
-	
-	configuration { "linux", "native" }
-		targetname  "uix86_64"
-		targetprefix ""
-	
+
+	--
+	-- Platform Configurations
+	--
+	configuration { "windows", "x32" }
+		targetdir  ("../../../bin/win32/base")
+
+	configuration { "windows", "x64" }
+		targetdir  ("../../../bin/win64/base")
+
+	configuration { "linux or solaris or bsd" }
+		targetdir 	("../../../bin/" .. os.get() .. "-" .. proc .. "/base")
+
+	configuration { "macosx" }
+		targetdir 	("../../../bin/macosx/base")

@@ -1,4 +1,5 @@
 
+
 project "XMap2"
 	targetname  "XMap2"
 	language    "C++"
@@ -40,18 +41,7 @@ project "XMap2"
 	{ 
 		--"USE_XML", 
 	}
-	
-	
-	--
-	-- Platform Configurations
-	-- 	
-	--configuration "x32"
-	--	targetdir 	"../../../bin32"
-	
-	--configuration "x64"
-	--	targetdir 	"../../../bin64"
-	
-	
+
 	-- 
 	-- Project Configurations
 	-- 
@@ -86,9 +76,8 @@ project "XMap2"
 			--"FLOATING_POINT",
 			--"USE_ALLOCA"
 		}
-		
+
 	configuration { "vs*", "x32" }
-		targetdir 	"../../../bin/win32"
 		defines
 		{
 			"USE_OPENGL",
@@ -106,16 +95,15 @@ project "XMap2"
 			"opengl32",
 			"glu32",
 		}
-		
+
 	configuration { "vs*", "x64" }
-		targetdir 	"../../../bin/win64"
 		libdirs
 		{
 			"../../libs/glib/lib64",
 			"../../libs/sdl/lib64",
 		}
-	
-	configuration { "linux", "gmake" }
+
+	configuration { "linux or solaris or bsd or macosx", "gmake" }
 		defines
 		{
 			"USE_OPENGL",
@@ -130,21 +118,28 @@ project "XMap2"
 			"`pkg-config --libs glib-2.0`",
 			"`pkg-config --libs sdl`",
 		}
-		
-	configuration { "linux", "x32" }
-		targetdir 	"../../../bin/linux-x86"
-		
-	configuration { "linux", "x64" }
-		targetdir 	"../../../bin/linux-x86_64"
 
-	configuration { "linux", "native" }
-		targetdir 	"../../../bin/linux-native"
-	
-	configuration "linux"
+	configuration { "linux or solaris or bsd or macosx" }
 		targetname  "xmap2"
 		links
 		{
 			"GL",
 			"GLU",
 		}
-		
+
+	--
+	-- Platform Configurations
+	--
+	configuration { "windows", "x32" }
+		targetdir 	("../../../bin/win32")
+
+	configuration { "windows", "x64" }
+		targetdir 	("../../../bin/win64")
+
+	configuration { "linux or solaris or bsd" }
+		targetname  "xmap2"
+		targetdir 	("../../../bin/" .. os.get() .. "-" .. proc)
+
+	configuration { "macosx" }
+		targetname  "xmap2"
+		targetdir 	("../../../bin/macosx")
