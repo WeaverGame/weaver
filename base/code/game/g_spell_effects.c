@@ -26,6 +26,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "g_spell_util.h"
 
 /*
+Notes:
+Do not call a RunWeave_* function from inside a FireWeave_ function,
+specifically when the RunWeave_ can cause the effect to end (e.g. do G_WeaveEffectRelease(ent)).
+This will cause a crash because the effect will be destroyed as it is created, and in an invalid state
+for the code immediately following the create.
+*/
+
+
+/*
 =================
 G_WeaveEffectRelease
 
@@ -234,19 +243,19 @@ void RunWeave_MoveToTarget(gentity_t * ent)
 	trap_LinkEntity(ent);
 }
 
-qboolean RunWeave_TargetClientAccessible(gentity_t * target_ent, gentity_t * parent)
+qboolean IsTargetClientAccessible(gentity_t * target_ent, gentity_t * parent)
 {
 	if(!trap_InPVS(target_ent->s.pos.trBase, parent->s.pos.trBase))
 	{
 		// Cannot see target client
-		DEBUGWEAVEING("RunWeave_TargetClientAccessible: end, out of PVS");
+		DEBUGWEAVEING("IsTargetClientAccessible: end, out of PVS");
 		return qfalse;
 	}
 
 	if(target_ent->client->pers.connected != CON_CONNECTED)
 	{
 		// Target has disconnected
-		DEBUGWEAVEING("RunWeave_TargetClientAccessible: end, target disconnected");
+		DEBUGWEAVEING("IsTargetClientAccessible: end, target disconnected");
 		return qfalse;
 	}
 
@@ -466,6 +475,21 @@ team_t EnemyTeamOf(team_t thisTeam)
 	{
 		return TEAM_BLUE;
 	}
+}
+
+qboolean IsLivePlayer(gentity_t * target)
+{
+	if(target != NULL && target->client == NULL)
+	{
+		if(target->client->ps.pm_type == PM_NORMAL)
+		{
+			if(target->health > 0)
+			{
+				return qtrue;
+			}
+		}
+	}
+	return qfalse;
 }
 
 qboolean GetTargetPlayerMasked(vec3_t start, vec3_t dir, int length, int passent, team_t team, int *result, int contentmask)
@@ -1268,8 +1292,6 @@ qboolean FireWeave_Shield(gentity_t * self, vec3_t start, vec3_t dir, int heldWe
 
 	// Terminate current spells
 	ClientWeaverCleanupSpells(target->client);
-	
-	RunWeave_Shield(bolt);
 
 	//weave = bolt;
 	return qtrue;
@@ -1283,7 +1305,14 @@ Shield
 */
 void RunWeave_Shield(gentity_t * ent)
 {
-	if(!RunWeave_TargetClientAccessible(ent->target_ent, ent->parent))
+	if(!IsLivePlayer(ent->target_ent))
+	{
+		G_WeaveEffectRelease(ent);
+		DEBUGWEAVEING("RunWeave_Shield: end");
+		return;
+	}
+
+	if(!IsTargetClientAccessible(ent->target_ent, ent->parent))
 	{
 		G_WeaveEffectRelease(ent);
 		DEBUGWEAVEING("RunWeave_Shield: end");
@@ -1462,7 +1491,14 @@ void RunWeave_GrabPlayer(gentity_t * ent)
 	vec3_t          offsetDir;
 	vec3_t          playerOrigin;
 
-	if(!RunWeave_TargetClientAccessible(ent->target_ent, ent->parent))
+	if(!IsLivePlayer(ent->target_ent))
+	{
+		G_WeaveEffectRelease(ent);
+		DEBUGWEAVEING("RunWeave_Shield: end");
+		return;
+	}
+
+	if(!IsTargetClientAccessible(ent->target_ent, ent->parent))
 	{
 		G_WeaveEffectRelease(ent);
 		DEBUGWEAVEING("RunWeave_GrabPlayer: end");
@@ -1599,7 +1635,6 @@ qboolean FireWeave_Heal(gentity_t * self, vec3_t start, vec3_t dir, int heldWeav
 
 	//Com_Printf("SHIELD FIRE: shild spawned, EffectEnt = %d\n", bolt->s.number, bolt->s.otherEntityNum);
 
-	RunWeave_Heal(bolt);
 	trap_LinkEntity(bolt);
 
 	//weave = bolt;
@@ -1650,7 +1685,7 @@ Heal
 */
 void RunWeave_Heal(gentity_t * ent)
 {
-	if(!RunWeave_TargetClientAccessible(ent->target_ent, ent->parent))
+	if(!IsTargetClientAccessible(ent->target_ent, ent->parent))
 	{
 		G_WeaveEffectRelease(ent);
 		DEBUGWEAVEING("RunWeave_Heal: end");
@@ -2714,8 +2749,6 @@ qboolean FireWeave_Stamina(gentity_t * self, vec3_t start, vec3_t dir, int heldW
 	//prevent held weave expiring
 	heldWeave->nextthink = 0;
 
-	RunWeave_Stamina(bolt);
-
 	//weave = bolt;
 	return qtrue;
 }
@@ -2728,7 +2761,14 @@ Stamina
 */
 void RunWeave_Stamina(gentity_t * ent)
 {
-	if(!RunWeave_TargetClientAccessible(ent->target_ent, ent->parent))
+	if(!IsLivePlayer(ent->target_ent))
+	{
+		G_WeaveEffectRelease(ent);
+		DEBUGWEAVEING("RunWeave_Shield: end");
+		return;
+	}
+
+	if(!IsTargetClientAccessible(ent->target_ent, ent->parent))
 	{
 		G_WeaveEffectRelease(ent);
 		DEBUGWEAVEING("RunWeave_Heal: end");
@@ -2844,8 +2884,6 @@ qboolean FireWeave_Lightning(gentity_t * self, vec3_t start, vec3_t dir, int hel
 	G_HeldWeave_SetState(heldWeave, WST_INPROCESS);
 	//prevent held weave expiring
 	heldWeave->nextthink = 0;
-
-	RunWeave_Lightning(bolt);
 
 	//weave = bolt;
 	return qtrue;
