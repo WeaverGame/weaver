@@ -237,7 +237,7 @@ void CreateWeaveID(gentity_t * self, int weaveID, int powerUsing)
 			/*begin end on exec */
 		case WVW_A_AIRFIRE_SWORD:
 			//give item
-			heldWeave = HeldWeaveCreate(self, weaveID, TIME_TWO_MIN, powerUsing, 1, qtrue);
+			//heldWeave = HeldWeaveCreate(self, weaveID, TIME_TWO_MIN, powerUsing, 1, qtrue);
 			break;
 		case WVW_D_AIRFIRE_LIGHT:
 		case WVW_D_AIRWATER_FOG:
