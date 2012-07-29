@@ -2985,7 +2985,7 @@ void R_AddLightInteractions()
 		R_SetupLightScissor(light);
 
 		// set up view dependent light depth bounds
-		//R_SetupLightDepthBounds(light);
+		R_SetupLightDepthBounds(light);
 
 		// set up view dependent light Level of Detail
 		R_SetupLightLOD(light);

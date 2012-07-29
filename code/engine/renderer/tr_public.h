@@ -175,6 +175,8 @@ typedef struct
 	void            (*Cvar_SetValue) (const char *name, float value);
 	void            (*Cvar_CheckRange) (cvar_t * cv, float minVal, float maxVal, qboolean shouldBeIntegral);
 
+	int             (*Cvar_VariableIntegerValue) (const char *var_name);
+
 	void            (*Cmd_AddCommand) (const char *name, void (*cmd) (void));
 	void            (*Cmd_RemoveCommand) (const char *name);
 
@@ -182,8 +184,6 @@ typedef struct
 	char           *(*Cmd_Argv) (int i);
 
 	void            (*Cmd_ExecuteText) (int exec_when, const char *text);
-
-	int             (*Cvar_VariableIntegerValue) (const char *var_name);
 
 	// visualization for debugging collision detection
 	byte           *(*CM_ClusterPVS)(int cluster);

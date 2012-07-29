@@ -6391,8 +6391,7 @@ static void ScanAndLoadShaderFiles(void)
 				token = Com_ParseExt(&p, qtrue);
 				if(Q_stricmp(token, "("))
 				{
-					ri.Printf(PRINT_WARNING, "expected ( found '%s'\n", token);
-					//COM_ParseWarning("expected ( found '%s'\n", token);
+					Com_ParseWarning("expected ( found '%s'\n", token);
 					break;
 				}
 
@@ -6409,8 +6408,7 @@ static void ScanAndLoadShaderFiles(void)
 
 				if(Q_stricmp(token, ")"))
 				{
-					ri.Printf(PRINT_WARNING, "expected ( found '%s'\n", token);
-					//COM_ParseWarning("expected ) found '%s'\n", token);
+					Com_ParseWarning("expected ) found '%s'\n", token);
 					break;
 				}
 			}
@@ -6557,8 +6555,7 @@ static void ScanAndLoadShaderFiles(void)
 				token = Com_ParseExt(&p, qtrue);
 				if(Q_stricmp(token, "("))
 				{
-					ri.Printf(PRINT_WARNING, "expected ( found '%s'\n", token);
-					//COM_ParseWarning("expected ( found '%s'\n", token);
+					Com_ParseWarning("expected ( found '%s'\n", token);
 					break;
 				}
 
@@ -6575,8 +6572,7 @@ static void ScanAndLoadShaderFiles(void)
 
 				if(Q_stricmp(token, ")"))
 				{
-					ri.Printf(PRINT_WARNING, "expected ( found '%s'\n", token);
-					//COM_ParseWarning("expected ) found '%s'\n", token);
+					Com_ParseWarning("expected ) found '%s'\n", token);
 					break;
 				}
 			}

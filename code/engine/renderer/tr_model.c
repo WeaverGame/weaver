@@ -146,7 +146,11 @@ qhandle_t RE_RegisterModel(const char *name)
 	// load the files
 	numLoaded = 0;
 
-	if(strstr(name, ".md5mesh") || strstr(name, ".psk") || strstr(name, ".mds") || strstr(name, ".mdm") || strstr(name, ".mdx"))
+#if defined(COMPAT_ET)
+	if(strstr(name, ".mds") || strstr(name, ".mdm") || strstr(name, ".mdx") || strstr(name, ".md5mesh") || strstr(name, ".psk"))
+#else
+	if(strstr(name, ".md5mesh") || strstr(name, ".psk"))
+#endif
 	{
 		// try loading skeletal file
 

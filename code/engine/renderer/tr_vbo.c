@@ -43,7 +43,6 @@ VBO_t          *R_CreateVBO(const char *name, byte * vertexes, int vertexesSize,
 			break;
 
 		default:
-			glUsage = 0;
 			Com_Error(ERR_FATAL, "bad vboUsage_t given: %i", usage);
 	}
 
@@ -121,7 +120,6 @@ VBO_t          *R_CreateVBO2(const char *name, int numVertexes, srfVert_t * vert
 			break;
 
 		default:
-			glUsage = 0;
 			Com_Error(ERR_FATAL, "bad vboUsage_t given: %i", usage);
 	}
 
@@ -354,7 +352,6 @@ IBO_t          *R_CreateIBO(const char *name, byte * indexes, int indexesSize, v
 			break;
 
 		default:
-			glUsage = 0;
 			Com_Error(ERR_FATAL, "bad vboUsage_t given: %i", usage);
 	}
 
@@ -414,7 +411,6 @@ IBO_t          *R_CreateIBO2(const char *name, int numTriangles, srfTriangle_t *
 			break;
 
 		default:
-			glUsage = 0;
 			Com_Error(ERR_FATAL, "bad vboUsage_t given: %i", usage);
 	}
 
@@ -747,7 +743,7 @@ R_VBOList_f
 */
 void R_VBOList_f(void)
 {
-	int             i, j;
+	int             i;
 	VBO_t          *vbo;
 	IBO_t          *ibo;
 	int             vertexesSize = 0;
