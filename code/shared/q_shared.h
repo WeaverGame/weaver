@@ -1621,7 +1621,7 @@ typedef enum cvar_flags_s
 	CVAR_SERVER_CREATED	= BIT(11),	// cvar was created by a server the client connected to
 	CVAR_VM_CREATED		= BIT(12),	// cvar was created exclusively in one of the VMs.
 	CVAR_SHADER			= BIT(13),	// tell renderer to recompile shaders.
-	CVAR_NONEXISTENT	= BIT(15)	// Cvar doesn't exist.
+	CVAR_NONEXISTENT	= 0xFFFFFFFF // cvar doesn't exist
 } cvar_flags_t;
 
 // nothing outside the Cvar_*() functions should modify these fields!
