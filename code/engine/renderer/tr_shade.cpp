@@ -124,7 +124,7 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, const char
 			break;
 		}
 
-		if(shaderType == GL_VERTEX_SHADER_ARB)
+		if(shaderType == GL_VERTEX_SHADER)
 		{
 			Com_sprintf(filename, sizeof(filename), "glsl/%s_vp.glsl", token);
 			ri.Printf(PRINT_DEVELOPER, "...loading vertex shader '%s'\n", filename);
@@ -155,7 +155,7 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, const char
 	}
 
 	// load main() program
-	if(shaderType == GL_VERTEX_SHADER_ARB)
+	if(shaderType == GL_VERTEX_SHADER)
 	{
 		Com_sprintf(filename, sizeof(filename), "glsl/%s_vp.glsl", name);
 		ri.Printf(PRINT_DEVELOPER, "...loading vertex main() shader '%s'\n", filename);
@@ -193,7 +193,7 @@ static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, const char
 		{
 			Q_strcat(bufferExtra, sizeof(bufferExtra), "#version 130\n");
 
-			if(shaderType == GL_VERTEX_SHADER_ARB)
+			if(shaderType == GL_VERTEX_SHADER)
 			{
 				Q_strcat(bufferExtra, sizeof(bufferExtra), "#define attribute in\n");
 				Q_strcat(bufferExtra, sizeof(bufferExtra), "#define varying out\n");
@@ -740,57 +740,57 @@ void GLSL_ShowProgramUniforms(GLhandleARB program)
 static void GLSL_BindAttribLocations(GLhandleARB program, uint32_t attribs)
 {
 	if(attribs & ATTR_POSITION)
-		glBindAttribLocationARB(program, ATTR_INDEX_POSITION, "attr_Position");
+		glBindAttribLocation(program, ATTR_INDEX_POSITION, "attr_Position");
 
 	if(attribs & ATTR_TEXCOORD)
-		glBindAttribLocationARB(program, ATTR_INDEX_TEXCOORD0, "attr_TexCoord0");
+		glBindAttribLocation(program, ATTR_INDEX_TEXCOORD0, "attr_TexCoord0");
 
 	if(attribs & ATTR_LIGHTCOORD)
-		glBindAttribLocationARB(program, ATTR_INDEX_TEXCOORD1, "attr_TexCoord1");
+		glBindAttribLocation(program, ATTR_INDEX_TEXCOORD1, "attr_TexCoord1");
 
 //  if(attribs & ATTR_TEXCOORD2)
-//      glBindAttribLocationARB(program, ATTR_INDEX_TEXCOORD2, "attr_TexCoord2");
+//      glBindAttribLocation(program, ATTR_INDEX_TEXCOORD2, "attr_TexCoord2");
 
 //  if(attribs & ATTR_TEXCOORD3)
-//      glBindAttribLocationARB(program, ATTR_INDEX_TEXCOORD3, "attr_TexCoord3");
+//      glBindAttribLocation(program, ATTR_INDEX_TEXCOORD3, "attr_TexCoord3");
 
 	if(attribs & ATTR_TANGENT)
-		glBindAttribLocationARB(program, ATTR_INDEX_TANGENT, "attr_Tangent");
+		glBindAttribLocation(program, ATTR_INDEX_TANGENT, "attr_Tangent");
 
 	if(attribs & ATTR_BINORMAL)
-		glBindAttribLocationARB(program, ATTR_INDEX_BINORMAL, "attr_Binormal");
+		glBindAttribLocation(program, ATTR_INDEX_BINORMAL, "attr_Binormal");
 
 	if(attribs & ATTR_NORMAL)
-		glBindAttribLocationARB(program, ATTR_INDEX_NORMAL, "attr_Normal");
+		glBindAttribLocation(program, ATTR_INDEX_NORMAL, "attr_Normal");
 
 	if(attribs & ATTR_COLOR)
-		glBindAttribLocationARB(program, ATTR_INDEX_COLOR, "attr_Color");
+		glBindAttribLocation(program, ATTR_INDEX_COLOR, "attr_Color");
 
 #if !defined(COMPAT_Q3A) && !defined(COMPAT_ET)
 	if(attribs & ATTR_PAINTCOLOR)
-		glBindAttribLocationARB(program, ATTR_INDEX_PAINTCOLOR, "attr_PaintColor");
+		glBindAttribLocation(program, ATTR_INDEX_PAINTCOLOR, "attr_PaintColor");
 
 	if(attribs & ATTR_LIGHTDIRECTION)
-		glBindAttribLocationARB(program, ATTR_INDEX_LIGHTDIRECTION, "attr_LightDirection");
+		glBindAttribLocation(program, ATTR_INDEX_LIGHTDIRECTION, "attr_LightDirection");
 #endif
 
 	if(glConfig2.vboVertexSkinningAvailable)
 	{
-		glBindAttribLocationARB(program, ATTR_INDEX_BONE_INDEXES, "attr_BoneIndexes");
-		glBindAttribLocationARB(program, ATTR_INDEX_BONE_WEIGHTS, "attr_BoneWeights");
+		glBindAttribLocation(program, ATTR_INDEX_BONE_INDEXES, "attr_BoneIndexes");
+		glBindAttribLocation(program, ATTR_INDEX_BONE_WEIGHTS, "attr_BoneWeights");
 	}
 
 	if(attribs & ATTR_POSITION2)
-		glBindAttribLocationARB(program, ATTR_INDEX_POSITION2, "attr_Position2");
+		glBindAttribLocation(program, ATTR_INDEX_POSITION2, "attr_Position2");
 
 	if(attribs & ATTR_TANGENT2)
-		glBindAttribLocationARB(program, ATTR_INDEX_TANGENT2, "attr_Tangent2");
+		glBindAttribLocation(program, ATTR_INDEX_TANGENT2, "attr_Tangent2");
 
 	if(attribs & ATTR_BINORMAL2)
-		glBindAttribLocationARB(program, ATTR_INDEX_BINORMAL2, "attr_Binormal2");
+		glBindAttribLocation(program, ATTR_INDEX_BINORMAL2, "attr_Binormal2");
 
 	if(attribs & ATTR_NORMAL2)
-		glBindAttribLocationARB(program, ATTR_INDEX_NORMAL2, "attr_Normal2");
+		glBindAttribLocation(program, ATTR_INDEX_NORMAL2, "attr_Normal2");
 }
 
 static void GLSL_InitGPUShader(shaderProgram_t * program, const char *name, int attribs, qboolean fragmentShader, qboolean optimize)
@@ -958,15 +958,15 @@ void GLSL_InitGPUShaders(void)
 	GLSL_InitGPUShader(&tr.depthToColorShader, "depthToColor", ATTR_POSITION, qtrue, qtrue);
 
 	tr.depthToColorShader.u_ModelViewProjectionMatrix =
-		glGetUniformLocationARB(tr.depthToColorShader.program, "u_ModelViewProjectionMatrix");
+		glGetUniformLocation(tr.depthToColorShader.program, "u_ModelViewProjectionMatrix");
 	if(glConfig2.vboVertexSkinningAvailable)
 	{
-		tr.depthToColorShader.u_VertexSkinning = glGetUniformLocationARB(tr.depthToColorShader.program, "u_VertexSkinning");
-		tr.depthToColorShader.u_BoneMatrix = glGetUniformLocationARB(tr.depthToColorShader.program, "u_BoneMatrix");
+		tr.depthToColorShader.u_VertexSkinning = glGetUniformLocation(tr.depthToColorShader.program, "u_VertexSkinning");
+		tr.depthToColorShader.u_BoneMatrix = glGetUniformLocation(tr.depthToColorShader.program, "u_BoneMatrix");
 	}
 
 	glUseProgramObjectARB(tr.depthToColorShader.program);
-	//glUniform1iARB(tr.depthToColorShader.u_ColorMap, 0);
+	//glUniform1i(tr.depthToColorShader.u_ColorMap, 0);
 	glUseProgramObjectARB(0);
 
 	GLSL_ValidateProgram(tr.depthToColorShader.program);
@@ -988,29 +988,29 @@ void GLSL_InitGPUShaders(void)
 	GLSL_InitGPUShader(&tr.lightVolumeShader_omni, "lightVolume_omni", ATTR_POSITION, qtrue, qtrue);
 
 	tr.lightVolumeShader_omni.u_DepthMap =
-		glGetUniformLocationARB(tr.lightVolumeShader_omni.program, "u_DepthMap");
+		glGetUniformLocation(tr.lightVolumeShader_omni.program, "u_DepthMap");
 	tr.lightVolumeShader_omni.u_AttenuationMapXY =
-		glGetUniformLocationARB(tr.lightVolumeShader_omni.program, "u_AttenuationMapXY");
+		glGetUniformLocation(tr.lightVolumeShader_omni.program, "u_AttenuationMapXY");
 	tr.lightVolumeShader_omni.u_AttenuationMapZ =
-		glGetUniformLocationARB(tr.lightVolumeShader_omni.program, "u_AttenuationMapZ");
-	tr.lightVolumeShader_omni.u_ShadowMap = glGetUniformLocationARB(tr.lightVolumeShader_omni.program, "u_ShadowMap");
-	tr.lightVolumeShader_omni.u_ViewOrigin = glGetUniformLocationARB(tr.lightVolumeShader_omni.program, "u_ViewOrigin");
-	tr.lightVolumeShader_omni.u_LightOrigin = glGetUniformLocationARB(tr.lightVolumeShader_omni.program, "u_LightOrigin");
-	tr.lightVolumeShader_omni.u_LightColor = glGetUniformLocationARB(tr.lightVolumeShader_omni.program, "u_LightColor");
-	tr.lightVolumeShader_omni.u_LightRadius = glGetUniformLocationARB(tr.lightVolumeShader_omni.program, "u_LightRadius");
-	tr.lightVolumeShader_omni.u_LightScale = glGetUniformLocationARB(tr.lightVolumeShader_omni.program, "u_LightScale");
+		glGetUniformLocation(tr.lightVolumeShader_omni.program, "u_AttenuationMapZ");
+	tr.lightVolumeShader_omni.u_ShadowMap = glGetUniformLocation(tr.lightVolumeShader_omni.program, "u_ShadowMap");
+	tr.lightVolumeShader_omni.u_ViewOrigin = glGetUniformLocation(tr.lightVolumeShader_omni.program, "u_ViewOrigin");
+	tr.lightVolumeShader_omni.u_LightOrigin = glGetUniformLocation(tr.lightVolumeShader_omni.program, "u_LightOrigin");
+	tr.lightVolumeShader_omni.u_LightColor = glGetUniformLocation(tr.lightVolumeShader_omni.program, "u_LightColor");
+	tr.lightVolumeShader_omni.u_LightRadius = glGetUniformLocation(tr.lightVolumeShader_omni.program, "u_LightRadius");
+	tr.lightVolumeShader_omni.u_LightScale = glGetUniformLocation(tr.lightVolumeShader_omni.program, "u_LightScale");
 	tr.lightVolumeShader_omni.u_LightAttenuationMatrix =
-		glGetUniformLocationARB(tr.lightVolumeShader_omni.program, "u_LightAttenuationMatrix");
-	tr.lightVolumeShader_omni.u_ShadowCompare = glGetUniformLocationARB(tr.lightVolumeShader_omni.program, "u_ShadowCompare");
+		glGetUniformLocation(tr.lightVolumeShader_omni.program, "u_LightAttenuationMatrix");
+	tr.lightVolumeShader_omni.u_ShadowCompare = glGetUniformLocation(tr.lightVolumeShader_omni.program, "u_ShadowCompare");
 	tr.lightVolumeShader_omni.u_ModelViewProjectionMatrix =
-		glGetUniformLocationARB(tr.lightVolumeShader_omni.program, "u_ModelViewProjectionMatrix");
-	tr.lightVolumeShader_omni.u_UnprojectMatrix = glGetUniformLocationARB(tr.lightVolumeShader_omni.program, "u_UnprojectMatrix");
+		glGetUniformLocation(tr.lightVolumeShader_omni.program, "u_ModelViewProjectionMatrix");
+	tr.lightVolumeShader_omni.u_UnprojectMatrix = glGetUniformLocation(tr.lightVolumeShader_omni.program, "u_UnprojectMatrix");
 
 	glUseProgramObjectARB(tr.lightVolumeShader_omni.program);
-	glUniform1iARB(tr.lightVolumeShader_omni.u_DepthMap, 0);
-	glUniform1iARB(tr.lightVolumeShader_omni.u_AttenuationMapXY, 1);
-	glUniform1iARB(tr.lightVolumeShader_omni.u_AttenuationMapZ, 2);
-	glUniform1iARB(tr.lightVolumeShader_omni.u_ShadowMap, 3);
+	glUniform1i(tr.lightVolumeShader_omni.u_DepthMap, 0);
+	glUniform1i(tr.lightVolumeShader_omni.u_AttenuationMapXY, 1);
+	glUniform1i(tr.lightVolumeShader_omni.u_AttenuationMapZ, 2);
+	glUniform1i(tr.lightVolumeShader_omni.u_ShadowMap, 3);
 	glUseProgramObjectARB(0);
 
 	GLSL_ValidateProgram(tr.lightVolumeShader_omni.program);
@@ -1022,39 +1022,39 @@ void GLSL_InitGPUShaders(void)
 	GLSL_InitGPUShader(&tr.deferredShadowingShader_proj, "deferredShadowing_proj", ATTR_POSITION, qtrue, qtrue);
 
 	tr.deferredShadowingShader_proj.u_DepthMap =
-		glGetUniformLocationARB(tr.deferredShadowingShader_proj.program, "u_DepthMap");
+		glGetUniformLocation(tr.deferredShadowingShader_proj.program, "u_DepthMap");
 	tr.deferredShadowingShader_proj.u_AttenuationMapXY =
-		glGetUniformLocationARB(tr.deferredShadowingShader_proj.program, "u_AttenuationMapXY");
+		glGetUniformLocation(tr.deferredShadowingShader_proj.program, "u_AttenuationMapXY");
 	tr.deferredShadowingShader_proj.u_AttenuationMapZ =
-		glGetUniformLocationARB(tr.deferredShadowingShader_proj.program, "u_AttenuationMapZ");
+		glGetUniformLocation(tr.deferredShadowingShader_proj.program, "u_AttenuationMapZ");
 	tr.deferredShadowingShader_proj.u_ShadowMap =
-		glGetUniformLocationARB(tr.deferredShadowingShader_proj.program, "u_ShadowMap");
+		glGetUniformLocation(tr.deferredShadowingShader_proj.program, "u_ShadowMap");
 	tr.deferredShadowingShader_proj.u_LightOrigin =
-		glGetUniformLocationARB(tr.deferredShadowingShader_proj.program, "u_LightOrigin");
+		glGetUniformLocation(tr.deferredShadowingShader_proj.program, "u_LightOrigin");
 	tr.deferredShadowingShader_proj.u_LightColor =
-		glGetUniformLocationARB(tr.deferredShadowingShader_proj.program, "u_LightColor");
+		glGetUniformLocation(tr.deferredShadowingShader_proj.program, "u_LightColor");
 	tr.deferredShadowingShader_proj.u_LightRadius =
-		glGetUniformLocationARB(tr.deferredShadowingShader_proj.program, "u_LightRadius");
+		glGetUniformLocation(tr.deferredShadowingShader_proj.program, "u_LightRadius");
 	tr.deferredShadowingShader_proj.u_LightAttenuationMatrix =
-		glGetUniformLocationARB(tr.deferredShadowingShader_proj.program, "u_LightAttenuationMatrix");
+		glGetUniformLocation(tr.deferredShadowingShader_proj.program, "u_LightAttenuationMatrix");
 	tr.deferredShadowingShader_proj.u_ShadowMatrix =
-		glGetUniformLocationARB(tr.deferredShadowingShader_proj.program, "u_ShadowMatrix");
+		glGetUniformLocation(tr.deferredShadowingShader_proj.program, "u_ShadowMatrix");
 	tr.deferredShadowingShader_proj.u_ShadowCompare =
-		glGetUniformLocationARB(tr.deferredShadowingShader_proj.program, "u_ShadowCompare");
+		glGetUniformLocation(tr.deferredShadowingShader_proj.program, "u_ShadowCompare");
 	tr.deferredShadowingShader_proj.u_PortalClipping =
-		glGetUniformLocationARB(tr.deferredShadowingShader_proj.program, "u_PortalClipping");
+		glGetUniformLocation(tr.deferredShadowingShader_proj.program, "u_PortalClipping");
 	tr.deferredShadowingShader_proj.u_PortalPlane =
-		glGetUniformLocationARB(tr.deferredShadowingShader_proj.program, "u_PortalPlane");
+		glGetUniformLocation(tr.deferredShadowingShader_proj.program, "u_PortalPlane");
 	tr.deferredShadowingShader_proj.u_ModelViewProjectionMatrix =
-		glGetUniformLocationARB(tr.deferredShadowingShader_proj.program, "u_ModelViewProjectionMatrix");
+		glGetUniformLocation(tr.deferredShadowingShader_proj.program, "u_ModelViewProjectionMatrix");
 	tr.deferredShadowingShader_proj.u_UnprojectMatrix =
-		glGetUniformLocationARB(tr.deferredShadowingShader_proj.program, "u_UnprojectMatrix");
+		glGetUniformLocation(tr.deferredShadowingShader_proj.program, "u_UnprojectMatrix");
 
 	glUseProgramObjectARB(tr.deferredShadowingShader_proj.program);
-	glUniform1iARB(tr.deferredShadowingShader_proj.u_DepthMap, 0);
-	glUniform1iARB(tr.deferredShadowingShader_proj.u_AttenuationMapXY, 1);
-	glUniform1iARB(tr.deferredShadowingShader_proj.u_AttenuationMapZ, 2);
-	glUniform1iARB(tr.deferredShadowingShader_proj.u_ShadowMap, 3);
+	glUniform1i(tr.deferredShadowingShader_proj.u_DepthMap, 0);
+	glUniform1i(tr.deferredShadowingShader_proj.u_AttenuationMapXY, 1);
+	glUniform1i(tr.deferredShadowingShader_proj.u_AttenuationMapZ, 2);
+	glUniform1i(tr.deferredShadowingShader_proj.u_ShadowMap, 3);
 	glUseProgramObjectARB(0);
 
 	GLSL_ValidateProgram(tr.deferredShadowingShader_proj.program);
@@ -1112,29 +1112,29 @@ void GLSL_InitGPUShaders(void)
 #endif
 			, qtrue, qtrue);
 
-	tr.liquidShader.u_CurrentMap = glGetUniformLocationARB(tr.liquidShader.program, "u_CurrentMap");
-	tr.liquidShader.u_PortalMap = glGetUniformLocationARB(tr.liquidShader.program, "u_PortalMap");
-	tr.liquidShader.u_DepthMap = glGetUniformLocationARB(tr.liquidShader.program, "u_DepthMap");
-	tr.liquidShader.u_NormalMap = glGetUniformLocationARB(tr.liquidShader.program, "u_NormalMap");
-	tr.liquidShader.u_NormalTextureMatrix = glGetUniformLocationARB(tr.liquidShader.program, "u_NormalTextureMatrix");
-	tr.liquidShader.u_ViewOrigin = glGetUniformLocationARB(tr.liquidShader.program, "u_ViewOrigin");
-	tr.liquidShader.u_RefractionIndex = glGetUniformLocationARB(tr.liquidShader.program, "u_RefractionIndex");
-	tr.liquidShader.u_FresnelPower = glGetUniformLocationARB(tr.liquidShader.program, "u_FresnelPower");
-	tr.liquidShader.u_FresnelScale = glGetUniformLocationARB(tr.liquidShader.program, "u_FresnelScale");
-	tr.liquidShader.u_FresnelBias = glGetUniformLocationARB(tr.liquidShader.program, "u_FresnelBias");
-	tr.liquidShader.u_NormalScale = glGetUniformLocationARB(tr.liquidShader.program, "u_NormalScale");
-	tr.liquidShader.u_FogDensity = glGetUniformLocationARB(tr.liquidShader.program, "u_FogDensity");
-	tr.liquidShader.u_FogColor = glGetUniformLocationARB(tr.liquidShader.program, "u_FogColor");
-	tr.liquidShader.u_ModelMatrix = glGetUniformLocationARB(tr.liquidShader.program, "u_ModelMatrix");
+	tr.liquidShader.u_CurrentMap = glGetUniformLocation(tr.liquidShader.program, "u_CurrentMap");
+	tr.liquidShader.u_PortalMap = glGetUniformLocation(tr.liquidShader.program, "u_PortalMap");
+	tr.liquidShader.u_DepthMap = glGetUniformLocation(tr.liquidShader.program, "u_DepthMap");
+	tr.liquidShader.u_NormalMap = glGetUniformLocation(tr.liquidShader.program, "u_NormalMap");
+	tr.liquidShader.u_NormalTextureMatrix = glGetUniformLocation(tr.liquidShader.program, "u_NormalTextureMatrix");
+	tr.liquidShader.u_ViewOrigin = glGetUniformLocation(tr.liquidShader.program, "u_ViewOrigin");
+	tr.liquidShader.u_RefractionIndex = glGetUniformLocation(tr.liquidShader.program, "u_RefractionIndex");
+	tr.liquidShader.u_FresnelPower = glGetUniformLocation(tr.liquidShader.program, "u_FresnelPower");
+	tr.liquidShader.u_FresnelScale = glGetUniformLocation(tr.liquidShader.program, "u_FresnelScale");
+	tr.liquidShader.u_FresnelBias = glGetUniformLocation(tr.liquidShader.program, "u_FresnelBias");
+	tr.liquidShader.u_NormalScale = glGetUniformLocation(tr.liquidShader.program, "u_NormalScale");
+	tr.liquidShader.u_FogDensity = glGetUniformLocation(tr.liquidShader.program, "u_FogDensity");
+	tr.liquidShader.u_FogColor = glGetUniformLocation(tr.liquidShader.program, "u_FogColor");
+	tr.liquidShader.u_ModelMatrix = glGetUniformLocation(tr.liquidShader.program, "u_ModelMatrix");
 	tr.liquidShader.u_ModelViewProjectionMatrix =
-		glGetUniformLocationARB(tr.liquidShader.program, "u_ModelViewProjectionMatrix");
-	tr.liquidShader.u_UnprojectMatrix = glGetUniformLocationARB(tr.liquidShader.program, "u_UnprojectMatrix");
+		glGetUniformLocation(tr.liquidShader.program, "u_ModelViewProjectionMatrix");
+	tr.liquidShader.u_UnprojectMatrix = glGetUniformLocation(tr.liquidShader.program, "u_UnprojectMatrix");
 
 	glUseProgramObjectARB(tr.liquidShader.program);
-	glUniform1iARB(tr.liquidShader.u_CurrentMap, 0);
-	glUniform1iARB(tr.liquidShader.u_PortalMap, 1);
-	glUniform1iARB(tr.liquidShader.u_DepthMap, 2);
-	glUniform1iARB(tr.liquidShader.u_NormalMap, 3);
+	glUniform1i(tr.liquidShader.u_CurrentMap, 0);
+	glUniform1i(tr.liquidShader.u_PortalMap, 1);
+	glUniform1i(tr.liquidShader.u_DepthMap, 2);
+	glUniform1i(tr.liquidShader.u_NormalMap, 3);
 	glUseProgramObjectARB(0);
 
 	GLSL_ValidateProgram(tr.liquidShader.program);
@@ -1144,20 +1144,20 @@ void GLSL_InitGPUShaders(void)
 	// volumetric fog post process effect
 	GLSL_InitGPUShader(&tr.volumetricFogShader, "volumetricFog", ATTR_POSITION, qtrue, qtrue);
 
-	tr.volumetricFogShader.u_DepthMap = glGetUniformLocationARB(tr.volumetricFogShader.program, "u_DepthMap");
-	tr.volumetricFogShader.u_DepthMapBack = glGetUniformLocationARB(tr.volumetricFogShader.program, "u_DepthMapBack");
-	tr.volumetricFogShader.u_DepthMapFront = glGetUniformLocationARB(tr.volumetricFogShader.program, "u_DepthMapFront");
-	tr.volumetricFogShader.u_ViewOrigin = glGetUniformLocationARB(tr.volumetricFogShader.program, "u_ViewOrigin");
-	tr.volumetricFogShader.u_FogDensity = glGetUniformLocationARB(tr.volumetricFogShader.program, "u_FogDensity");
-	tr.volumetricFogShader.u_FogColor = glGetUniformLocationARB(tr.volumetricFogShader.program, "u_FogColor");
-	tr.volumetricFogShader.u_UnprojectMatrix = glGetUniformLocationARB(tr.volumetricFogShader.program, "u_UnprojectMatrix");
+	tr.volumetricFogShader.u_DepthMap = glGetUniformLocation(tr.volumetricFogShader.program, "u_DepthMap");
+	tr.volumetricFogShader.u_DepthMapBack = glGetUniformLocation(tr.volumetricFogShader.program, "u_DepthMapBack");
+	tr.volumetricFogShader.u_DepthMapFront = glGetUniformLocation(tr.volumetricFogShader.program, "u_DepthMapFront");
+	tr.volumetricFogShader.u_ViewOrigin = glGetUniformLocation(tr.volumetricFogShader.program, "u_ViewOrigin");
+	tr.volumetricFogShader.u_FogDensity = glGetUniformLocation(tr.volumetricFogShader.program, "u_FogDensity");
+	tr.volumetricFogShader.u_FogColor = glGetUniformLocation(tr.volumetricFogShader.program, "u_FogColor");
+	tr.volumetricFogShader.u_UnprojectMatrix = glGetUniformLocation(tr.volumetricFogShader.program, "u_UnprojectMatrix");
 	tr.volumetricFogShader.u_ModelViewProjectionMatrix =
-		glGetUniformLocationARB(tr.volumetricFogShader.program, "u_ModelViewProjectionMatrix");
+		glGetUniformLocation(tr.volumetricFogShader.program, "u_ModelViewProjectionMatrix");
 
 	glUseProgramObjectARB(tr.volumetricFogShader.program);
-	glUniform1iARB(tr.volumetricFogShader.u_DepthMap, 0);
-	glUniform1iARB(tr.volumetricFogShader.u_DepthMapBack, 1);
-	glUniform1iARB(tr.volumetricFogShader.u_DepthMapFront, 2);
+	glUniform1i(tr.volumetricFogShader.u_DepthMap, 0);
+	glUniform1i(tr.volumetricFogShader.u_DepthMapBack, 1);
+	glUniform1i(tr.volumetricFogShader.u_DepthMapFront, 2);
 	glUseProgramObjectARB(0);
 
 	GLSL_ValidateProgram(tr.volumetricFogShader.program);
@@ -1169,20 +1169,20 @@ void GLSL_InitGPUShaders(void)
 	GLSL_InitGPUShader(&tr.screenSpaceAmbientOcclusionShader, "screenSpaceAmbientOcclusion", ATTR_POSITION, qtrue, qtrue);
 
 	tr.screenSpaceAmbientOcclusionShader.u_CurrentMap =
-		glGetUniformLocationARB(tr.screenSpaceAmbientOcclusionShader.program, "u_CurrentMap");
+		glGetUniformLocation(tr.screenSpaceAmbientOcclusionShader.program, "u_CurrentMap");
 	tr.screenSpaceAmbientOcclusionShader.u_DepthMap =
-		glGetUniformLocationARB(tr.screenSpaceAmbientOcclusionShader.program, "u_DepthMap");
+		glGetUniformLocation(tr.screenSpaceAmbientOcclusionShader.program, "u_DepthMap");
 	tr.screenSpaceAmbientOcclusionShader.u_ModelViewProjectionMatrix =
-		glGetUniformLocationARB(tr.screenSpaceAmbientOcclusionShader.program, "u_ModelViewProjectionMatrix");
-	//tr.screenSpaceAmbientOcclusionShader.u_ViewOrigin = glGetUniformLocationARB(tr.screenSpaceAmbientOcclusionShader.program, "u_ViewOrigin");
-	//tr.screenSpaceAmbientOcclusionShader.u_SSAOJitter = glGetUniformLocationARB(tr.screenSpaceAmbientOcclusionShader.program, "u_SSAOJitter");
-	//tr.screenSpaceAmbientOcclusionShader.u_SSAORadius = glGetUniformLocationARB(tr.screenSpaceAmbientOcclusionShader.program, "u_SSAORadius");
-	//tr.screenSpaceAmbientOcclusionShader.u_UnprojectMatrix = glGetUniformLocationARB(tr.screenSpaceAmbientOcclusionShader.program, "u_UnprojectMatrix");
-	//tr.screenSpaceAmbientOcclusionShader.u_ProjectMatrix = glGetUniformLocationARB(tr.screenSpaceAmbientOcclusionShader.program, "u_ProjectMatrix");
+		glGetUniformLocation(tr.screenSpaceAmbientOcclusionShader.program, "u_ModelViewProjectionMatrix");
+	//tr.screenSpaceAmbientOcclusionShader.u_ViewOrigin = glGetUniformLocation(tr.screenSpaceAmbientOcclusionShader.program, "u_ViewOrigin");
+	//tr.screenSpaceAmbientOcclusionShader.u_SSAOJitter = glGetUniformLocation(tr.screenSpaceAmbientOcclusionShader.program, "u_SSAOJitter");
+	//tr.screenSpaceAmbientOcclusionShader.u_SSAORadius = glGetUniformLocation(tr.screenSpaceAmbientOcclusionShader.program, "u_SSAORadius");
+	//tr.screenSpaceAmbientOcclusionShader.u_UnprojectMatrix = glGetUniformLocation(tr.screenSpaceAmbientOcclusionShader.program, "u_UnprojectMatrix");
+	//tr.screenSpaceAmbientOcclusionShader.u_ProjectMatrix = glGetUniformLocation(tr.screenSpaceAmbientOcclusionShader.program, "u_ProjectMatrix");
 
 	glUseProgramObjectARB(tr.screenSpaceAmbientOcclusionShader.program);
-	glUniform1iARB(tr.screenSpaceAmbientOcclusionShader.u_CurrentMap, 0);
-	glUniform1iARB(tr.screenSpaceAmbientOcclusionShader.u_DepthMap, 1);
+	glUniform1i(tr.screenSpaceAmbientOcclusionShader.u_CurrentMap, 0);
+	glUniform1i(tr.screenSpaceAmbientOcclusionShader.u_DepthMap, 1);
 	glUseProgramObjectARB(0);
 
 	GLSL_ValidateProgram(tr.screenSpaceAmbientOcclusionShader.program);
@@ -1193,14 +1193,14 @@ void GLSL_InitGPUShaders(void)
 	// depth of field post process effect
 	GLSL_InitGPUShader(&tr.depthOfFieldShader, "depthOfField", ATTR_POSITION, qtrue, qtrue);
 
-	tr.depthOfFieldShader.u_CurrentMap = glGetUniformLocationARB(tr.depthOfFieldShader.program, "u_CurrentMap");
-	tr.depthOfFieldShader.u_DepthMap = glGetUniformLocationARB(tr.depthOfFieldShader.program, "u_DepthMap");
+	tr.depthOfFieldShader.u_CurrentMap = glGetUniformLocation(tr.depthOfFieldShader.program, "u_CurrentMap");
+	tr.depthOfFieldShader.u_DepthMap = glGetUniformLocation(tr.depthOfFieldShader.program, "u_DepthMap");
 	tr.depthOfFieldShader.u_ModelViewProjectionMatrix =
-		glGetUniformLocationARB(tr.depthOfFieldShader.program, "u_ModelViewProjectionMatrix");
+		glGetUniformLocation(tr.depthOfFieldShader.program, "u_ModelViewProjectionMatrix");
 
 	glUseProgramObjectARB(tr.depthOfFieldShader.program);
-	glUniform1iARB(tr.depthOfFieldShader.u_CurrentMap, 0);
-	glUniform1iARB(tr.depthOfFieldShader.u_DepthMap, 1);
+	glUniform1i(tr.depthOfFieldShader.u_CurrentMap, 0);
+	glUniform1i(tr.depthOfFieldShader.u_DepthMap, 1);
 	glUseProgramObjectARB(0);
 
 	GLSL_ValidateProgram(tr.depthOfFieldShader.program);

@@ -379,11 +379,11 @@ static void DrawSkySide(struct image_s *image, const int mins[2], const int maxs
 
 		for(s = mins[0] + HALF_SKY_SUBDIVISIONS; s <= maxs[0] + HALF_SKY_SUBDIVISIONS; s++)
 		{
-			glVertexAttrib4fvARB(ATTR_INDEX_TEXCOORD0, s_skyTexCoords[t][s]);
-			glVertexAttrib4fvARB(ATTR_INDEX_POSITION, s_skyPoints[t][s]);
+			glVertexAttrib4fv(ATTR_INDEX_TEXCOORD0, s_skyTexCoords[t][s]);
+			glVertexAttrib4fv(ATTR_INDEX_POSITION, s_skyPoints[t][s]);
 
-			glVertexAttrib4fvARB(ATTR_INDEX_TEXCOORD0, s_skyTexCoords[t + 1][s]);
-			glVertexAttrib4fvARB(ATTR_INDEX_POSITION, s_skyPoints[t + 1][s]);
+			glVertexAttrib4fv(ATTR_INDEX_TEXCOORD0, s_skyTexCoords[t + 1][s]);
+			glVertexAttrib4fv(ATTR_INDEX_POSITION, s_skyPoints[t + 1][s]);
 		}
 
 		glEnd();
@@ -738,8 +738,7 @@ void RB_DrawSun(void)
 	GLSL_SetUniform_DeformGen(&tr.genericShader, DGEN_NONE);
 	GLSL_SetUniform_AlphaTest(&tr.genericShader, -1.0);
 
-	MatrixSetupTranslation(transformMatrix, backEnd.viewParms.orientation.origin[0], backEnd.viewParms.orientation.origin[1],
-						   backEnd.viewParms.orientation.origin[2]);
+	MatrixSetupTranslation(transformMatrix, backEnd.viewParms.orientation.origin[0], backEnd.viewParms.orientation.origin[1], backEnd.viewParms.orientation.origin[2]);
 	MatrixMultiply(backEnd.viewParms.world.viewMatrix, transformMatrix, modelViewMatrix);
 
 	GL_LoadProjectionMatrix(backEnd.viewParms.projectionMatrix);
