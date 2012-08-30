@@ -821,7 +821,7 @@ static int GLimp_SetMode(int mode, qboolean fullscreen, qboolean noborder)
 					else if(stencilbits == 16)
 					{
 						stencilbits = 8;
-				}
+					}
 			}
 		}
 
