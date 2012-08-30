@@ -279,7 +279,7 @@ RB_TestFlare
 void RB_TestFlare(flare_t * f)
 {
 	float           depth;
-	qboolean        visible;
+	bool            visible;
 	float           fade;
 	float           screenZ;
 

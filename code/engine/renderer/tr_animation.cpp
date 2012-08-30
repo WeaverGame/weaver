@@ -45,7 +45,7 @@ static skelAnimation_t *R_AllocAnimation(void)
 		return NULL;
 	}
 
-	anim = ri.Hunk_Alloc(sizeof(*anim), h_low);
+	anim = (skelAnimation_t*)ri.Hunk_Alloc(sizeof(*anim), h_low);
 	anim->index = tr.numAnimations;
 	tr.animations[tr.numAnimations] = anim;
 	tr.numAnimations++;
@@ -70,7 +70,7 @@ void R_InitAnimations(void)
 	strcpy(anim->name, "<default animation>");
 }
 
-static qboolean R_LoadMD5Anim(skelAnimation_t * skelAnim, void *buffer, int bufferSize, const char *name)
+static qboolean R_LoadMD5Anim(skelAnimation_t * skelAnim, byte *buffer, int bufferSize, const char *name)
 {
 	int             i, j;
 	md5Animation_t *anim;
@@ -80,10 +80,10 @@ static qboolean R_LoadMD5Anim(skelAnimation_t * skelAnim, void *buffer, int buff
 	int             version;
 	char           *buf_p;
 
-	buf_p = buffer;
+	buf_p = (char*)buffer;
 
 	skelAnim->type = AT_MD5;
-	skelAnim->md5 = anim = ri.Hunk_Alloc(sizeof(*anim), h_low);
+	skelAnim->md5 = anim = (md5Animation_t*)ri.Hunk_Alloc(sizeof(*anim), h_low);
 
 	// skip MD5Version indent string
 	Com_ParseExt(&buf_p, qfalse);
@@ -157,7 +157,7 @@ static qboolean R_LoadMD5Anim(skelAnimation_t * skelAnim, void *buffer, int buff
 	}
 
 	// parse all the channels
-	anim->channels = ri.Hunk_Alloc(sizeof(md5Channel_t) * anim->numChannels, h_low);
+	anim->channels = (md5Channel_t*)ri.Hunk_Alloc(sizeof(md5Channel_t) * anim->numChannels, h_low);
 
 	for(i = 0, channel = anim->channels; i < anim->numChannels; i++, channel++)
 	{
@@ -205,7 +205,7 @@ static qboolean R_LoadMD5Anim(skelAnimation_t * skelAnim, void *buffer, int buff
 		return qfalse;
 	}
 
-	anim->frames = ri.Hunk_Alloc(sizeof(md5Frame_t) * anim->numFrames, h_low);
+	anim->frames = (md5Frame_t*)ri.Hunk_Alloc(sizeof(md5Frame_t) * anim->numFrames, h_low);
 
 	for(i = 0, frame = anim->frames; i < anim->numFrames; i++, frame++)
 	{
@@ -357,7 +357,7 @@ static qboolean R_LoadMD5Anim(skelAnimation_t * skelAnim, void *buffer, int buff
 			return qfalse;
 		}
 
-		frame->components = ri.Hunk_Alloc(sizeof(float) * anim->numAnimatedComponents, h_low);
+		frame->components = (float*)ri.Hunk_Alloc(sizeof(float) * anim->numAnimatedComponents, h_low);
 		for(j = 0; j < anim->numAnimatedComponents; j++)
 		{
 			token = Com_ParseExt(&buf_p, qtrue);
@@ -425,7 +425,7 @@ static void GetBone(memStream_t *s, axBone_t * bone)
 	bone->zSize = MemStreamGetFloat(s);
 }
 
-static qboolean R_LoadPSA(skelAnimation_t * skelAnim, void *buffer, int bufferSize, const char *name)
+static qboolean R_LoadPSA(skelAnimation_t * skelAnim, byte *buffer, int bufferSize, const char *name)
 {
 	int             i, j, k;
 	memStream_t    *stream;
@@ -488,7 +488,7 @@ static qboolean R_LoadPSA(skelAnimation_t * skelAnim, void *buffer, int bufferSi
 		return qfalse;
 	}
 
-	refBones = ri.Hunk_Alloc(numReferenceBones * sizeof(axReferenceBone_t), h_low);
+	refBones = (axReferenceBone_t*)ri.Hunk_Alloc(numReferenceBones * sizeof(axReferenceBone_t), h_low);
 	for(i = 0, refBone = refBones; i < numReferenceBones; i++, refBone++)
 	{
 		MemStreamRead(stream, refBone->name, sizeof(refBone->name));
@@ -556,7 +556,7 @@ static qboolean R_LoadPSA(skelAnimation_t * skelAnim, void *buffer, int bufferSi
 		{
 			Q_strncpyz(skelAnim->name, name, sizeof(skelAnim->name));
 			skelAnim->type = AT_PSA;
-			skelAnim->psa = psa = ri.Hunk_Alloc(sizeof(*psa), h_low);
+			skelAnim->psa = psa = (psaAnimation_t*)ri.Hunk_Alloc(sizeof(*psa), h_low);
 		}
 		else
 		{
@@ -569,7 +569,7 @@ static qboolean R_LoadPSA(skelAnimation_t * skelAnim, void *buffer, int bufferSi
 
 			Q_strncpyz(extraAnim->name, name, sizeof(extraAnim->name));
 			extraAnim->type = AT_PSA;
-			extraAnim->psa = psa = ri.Hunk_Alloc(sizeof(*psa), h_low);
+			extraAnim->psa = psa = (psaAnimation_t*)ri.Hunk_Alloc(sizeof(*psa), h_low);
 
 			Com_AddToGrowList(&extraAnims, extraAnim);
 		}
@@ -660,12 +660,12 @@ static qboolean R_LoadPSA(skelAnimation_t * skelAnim, void *buffer, int bufferSi
 		}
 		else
 		{
-			extraAnim = Com_GrowListElement(&extraAnims, i - 1);
+			extraAnim = (skelAnimation_t*)Com_GrowListElement(&extraAnims, i - 1);
 			psa = extraAnim->psa;
 		}
 
 		psa->numKeys = psa->info.numBones * psa->info.numRawFrames;
-		psa->keys = ri.Hunk_Alloc(psa->numKeys * sizeof(axAnimationKey_t), h_low);
+		psa->keys = (axAnimationKey_t*)ri.Hunk_Alloc(psa->numKeys * sizeof(axAnimationKey_t), h_low);
 
 		for(j = 0, key = &psa->keys[0]; j < psa->numKeys; j++, key++)
 		{
@@ -709,9 +709,9 @@ qhandle_t RE_RegisterAnimation(const char *name)
 {
 	qhandle_t       hAnim;
 	skelAnimation_t *anim;
-	char           *buffer;
+	byte           *buffer;
 	int             bufferLen;
-	qboolean		loaded = qfalse;
+	qboolean        loaded = qfalse;
 
 	if(!name || !name[0])
 	{
@@ -906,8 +906,8 @@ void R_AddMD5Surfaces(trRefEntity_t * ent)
 	md5Surface_t   *surface;
 	shader_t       *shader;
 	int             i;
-	qboolean        personalModel;
-	int				fogNum;
+	bool            personalModel;
+	int             fogNum;
 
 	model = tr.currentModel->md5;
 
@@ -977,7 +977,7 @@ void R_AddMD5Surfaces(trRefEntity_t * ent)
 			// don't add third_person objects if not viewing through a portal
 			if(!personalModel)
 			{
-				R_AddDrawSurf((void *)surface, shader, -1, fogNum);
+				R_AddDrawSurf((surfaceType_t*)surface, shader, -1, fogNum);
 			}
 		}
 	}
@@ -1028,7 +1028,7 @@ void R_AddMD5Surfaces(trRefEntity_t * ent)
 			// don't add third_person objects if not viewing through a portal
 			if(!personalModel)
 			{
-				R_AddDrawSurf((void *)vboSurface, shader, -1, fogNum);
+				R_AddDrawSurf((surfaceType_t*)vboSurface, shader, -1, fogNum);
 			}
 		}
 	}
@@ -1045,7 +1045,7 @@ void R_AddMD5Interactions(trRefEntity_t * ent, trRefLight_t * light)
 	md5Model_t     *model;
 	md5Surface_t   *surface;
 	shader_t       *shader = 0;
-	qboolean        personalModel;
+	bool            personalModel;
 	byte            cubeSideBits = CUBESIDE_CLIPALL;
 	interactionType_t iaType = IA_DEFAULT;
 
@@ -1144,7 +1144,7 @@ void R_AddMD5Interactions(trRefEntity_t * ent, trRefLight_t * light)
 			// don't add third_person objects if not viewing through a portal
 			if(!personalModel)
 			{
-				R_AddLightInteraction(light, (void *)surface, shader, cubeSideBits, iaType);
+				R_AddLightInteraction(light, (surfaceType_t*)surface, shader, cubeSideBits, iaType);
 				tr.pc.c_dlightSurfaces++;
 			}
 		}
@@ -1198,7 +1198,7 @@ void R_AddMD5Interactions(trRefEntity_t * ent, trRefLight_t * light)
 			// don't add third_person objects if not viewing through a portal
 			if(!personalModel)
 			{
-				R_AddLightInteraction(light, (void *)vboSurface, shader, cubeSideBits, iaType);
+				R_AddLightInteraction(light, (surfaceType_t*)vboSurface, shader, cubeSideBits, iaType);
 				tr.pc.c_dlightSurfaces++;
 			}
 		}

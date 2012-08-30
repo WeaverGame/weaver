@@ -134,7 +134,7 @@ FBO_t          *R_CreateFBO(const char *name, int width, int height)
 		ri.Error(ERR_DROP, "R_CreateFBO: MAX_FBOS hit");
 	}
 
-	fbo = tr.fbos[tr.numFBOs] = ri.Hunk_Alloc(sizeof(*fbo), h_low);
+	fbo = tr.fbos[tr.numFBOs] = (FBO_t*)ri.Hunk_Alloc(sizeof(*fbo), h_low);
 	Q_strncpyz(fbo->name, name, sizeof(fbo->name));
 	fbo->index = tr.numFBOs++;
 	fbo->width = width;
@@ -158,7 +158,7 @@ void R_CreateFBOColorBuffer(FBO_t * fbo, int format, int index)
 #if defined(USE_D3D10)
 	// TODO
 #else
-	qboolean        absent;
+	bool            absent;
 
 	if(index < 0 || index >= glConfig2.maxColorAttachments)
 	{
@@ -203,7 +203,7 @@ void R_CreateFBODepthBuffer(FBO_t * fbo, int format)
 #if defined(USE_D3D10)
 	// TODO
 #else
-	qboolean        absent;
+	bool            absent;
 
 	if(format != GL_DEPTH_COMPONENT &&
 	   format != GL_DEPTH_COMPONENT16_ARB && format != GL_DEPTH_COMPONENT24_ARB && format != GL_DEPTH_COMPONENT32_ARB)
@@ -238,7 +238,7 @@ void R_CreateFBOStencilBuffer(FBO_t * fbo, int format)
 #if defined(USE_D3D10)
 	// TODO
 #else
-	qboolean        absent;
+	bool            absent;
 
 	if(format != GL_STENCIL_INDEX &&
 	   //format != GL_STENCIL_INDEX_EXT &&
@@ -276,7 +276,7 @@ void R_CreateFBOPackedDepthStencilBuffer(FBO_t * fbo, int format)
 #if defined(USE_D3D10)
 	// TODO
 #else
-	qboolean        absent;
+	bool            absent;
 
 	if(format != GL_DEPTH_STENCIL_EXT && format != GL_DEPTH24_STENCIL8_EXT)
 	{

@@ -50,14 +50,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 extern "C" {
 #endif
 
-#if 1
-#define GL_INDEX_TYPE		GL_UNSIGNED_INT
-typedef unsigned int glIndex_t;
-#else
-#define GL_INDEX_TYPE		GL_UNSIGNED_SHORT
-typedef unsigned short glIndex_t;
-#endif
-
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
 
 // everything that is needed by the backend needs
@@ -168,9 +160,9 @@ enum
 
 typedef struct link_s
 {
-	void            *data;
-	int				numElements;	// only used by sentinels
-	struct link_s	*prev, *next;
+	void           *data;
+	int             numElements;	// only used by sentinels
+	struct link_s  *prev, *next;
 } link_t;
 
 static ID_INLINE void InitLink(link_t *l, void *data)
@@ -347,16 +339,16 @@ typedef struct trRefLight_s
 	qboolean        additive;	// texture detail is lost tho when the lightmap is dark
 	vec3_t          origin;		// l.origin + rotated l.center
 	vec3_t          transformed;	// origin in local coordinate system
-	vec3_t			direction;	// for directional lights (sun)
+	vec3_t          direction;	// for directional lights (sun)
 
 	matrix_t        transformMatrix;	// light to world
 	matrix_t        viewMatrix;			// object to light
 	matrix_t        projectionMatrix;	// light frustum
 
-	float			falloffLength;
+	float           falloffLength;
 
-	matrix_t		shadowMatrices[MAX_SHADOWMAPS];
-	matrix_t		shadowMatricesBiased[MAX_SHADOWMAPS];
+	matrix_t        shadowMatrices[MAX_SHADOWMAPS];
+	matrix_t        shadowMatricesBiased[MAX_SHADOWMAPS];
 	matrix_t        attenuationMatrix;	// attenuation * (light view * entity transform)
 	matrix_t        attenuationMatrix2;	// attenuation * tcMod matrices
 
@@ -372,15 +364,15 @@ typedef struct trRefLight_s
 	float           depthFar;
 	qboolean        noDepthBoundsTest;
 
-	qboolean		clipsNearPlane;
+	qboolean        clipsNearPlane;
 
 	qboolean        noOcclusionQueries;
 	uint32_t        occlusionQueryObject;
 	uint32_t        occlusionQuerySamples;
-	link_t			multiQuery;				// CHC++: list of all nodes that are used by the same occlusion query
+	link_t          multiQuery;				// CHC++: list of all nodes that are used by the same occlusion query
 
 	frustum_t       frustum;
-	vec4_t			localFrustum[6];
+	vec4_t          localFrustum[6];
 	struct VBO_s   *frustumVBO;
 	struct IBO_s   *frustumIBO;
 	uint16_t        frustumIndexes;
@@ -404,7 +396,7 @@ typedef struct trRefLight_s
 	uint16_t        numLightOnlyInteractions;
 	qboolean        noSort;		// don't sort interactions by material
 
-	link_t			leafs;
+	link_t          leafs;
 
 	int             visCounts[MAX_VISCOUNTS];	// node needs to be traversed if current
 	//struct bspNode_s **leafs;
@@ -1499,7 +1491,7 @@ typedef struct shaderProgram_s
 	float           t_HDRMaxLuminance;
 
 	int32_t         u_DeformMagnitude;
-	float			t_DeformMagnitude;
+	float           t_DeformMagnitude;
 
 
 	int32_t         u_ModelMatrix;	// model -> world
@@ -2438,7 +2430,7 @@ typedef struct
 	int             originalBrushNumber;
 	vec3_t          bounds[2];
 
-	vec4_t			color;		// in packed byte format
+	vec4_t          color;		// in packed byte format
 	float           tcScale;	// texture coordinate vector scales
 	fogParms_t      fogParms;
 
@@ -2459,7 +2451,7 @@ typedef struct
 
 	int             frameSceneNum;	// copied from tr.frameSceneNum
 	int             frameCount;	// copied from tr.frameCount
-	int				viewCount; // copied from tr.viewCount
+	int             viewCount; // copied from tr.viewCount
 
 	cplane_t        portalPlane;	// clip anything behind this if mirroring
 	int             viewportX, viewportY, viewportWidth, viewportHeight;
@@ -2469,7 +2461,7 @@ typedef struct
 	matrix_t        projectionMatrix;
 	matrix_t        unprojectionMatrix;	// transform pixel window space -> world space
 
-	float			parallelSplitDistances[MAX_SHADOWMAPS + 1];	// distances in camera space
+	float           parallelSplitDistances[MAX_SHADOWMAPS + 1];	// distances in camera space
 
 	frustum_t       frustums[MAX_SHADOWMAPS + 1];	// first frustum is the default one with complete zNear - zFar range
 													// and the other ones are for PSSM
@@ -5168,6 +5160,8 @@ void            RE_RegisterFont(const char *fontName, int pointSize, fontInfo_t 
 void			RE_RenderToTexture(int textureid, int x, int y, int w, int h);
 void			RE_Finish(void);
 
+void			LoadRGBEToFloats(const char *name, float **pic, int *width, int *height, qboolean doGamma, qboolean toneMap, qboolean compensate);
+void			LoadRGBEToHalfs(const char *name, unsigned short ** halfImage, int *width, int *height);
 
 #if defined(__cplusplus)
 }

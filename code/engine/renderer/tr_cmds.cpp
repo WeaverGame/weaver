@@ -330,7 +330,7 @@ void R_AddDrawViewCmd()
 {
 	drawViewCommand_t *cmd;
 
-	cmd = R_GetCommandBuffer(sizeof(*cmd));
+	cmd = (drawViewCommand_t*)R_GetCommandBuffer(sizeof(*cmd));
 	if(!cmd)
 	{
 		return;
@@ -357,7 +357,7 @@ void RE_SetColor(const float *rgba)
 	{
 		return;
 	}
-	cmd = R_GetCommandBuffer(sizeof(*cmd));
+	cmd = (setColorCommand_t*)R_GetCommandBuffer(sizeof(*cmd));
 	if(!cmd)
 	{
 		return;
@@ -390,7 +390,7 @@ void RE_StretchPic(float x, float y, float w, float h, float s1, float t1, float
 	{
 		return;
 	}
-	cmd = R_GetCommandBuffer(sizeof(*cmd));
+	cmd = (stretchPicCommand_t*)R_GetCommandBuffer(sizeof(*cmd));
 	if(!cmd)
 	{
 		return;
@@ -423,7 +423,7 @@ void RE_2DPolyies(polyVert_t * verts, int numverts, qhandle_t hShader)
 		return;
 	}
 
-	cmd = R_GetCommandBuffer(sizeof(*cmd));
+	cmd = (poly2dCommand_t*)R_GetCommandBuffer(sizeof(*cmd));
 	if(!cmd)
 	{
 		return;
@@ -448,7 +448,7 @@ void RE_RotatedPic(float x, float y, float w, float h, float s1, float t1, float
 {
 	stretchPicCommand_t *cmd;
 
-	cmd = R_GetCommandBuffer(sizeof(*cmd));
+	cmd = (stretchPicCommand_t*)R_GetCommandBuffer(sizeof(*cmd));
 	if(!cmd)
 	{
 		return;
@@ -487,7 +487,7 @@ void RE_StretchPicGradient(float x, float y, float w, float h,
 {
 	stretchPicCommand_t *cmd;
 
-	cmd = R_GetCommandBuffer(sizeof(*cmd));
+	cmd = (stretchPicCommand_t*)R_GetCommandBuffer(sizeof(*cmd));
 	if(!cmd)
 	{
 		return;
@@ -552,7 +552,7 @@ void RE_BeginFrame(stereoFrame_t stereoFrame)
 
 #if defined(USE_D3D10)
 	// draw buffer stuff
-	cmd = R_GetCommandBuffer(sizeof(*cmd));
+	cmd = (drawBufferCommand_t*)R_GetCommandBuffer(sizeof(*cmd));
 	if(!cmd)
 	{
 		return;
@@ -655,7 +655,7 @@ void RE_BeginFrame(stereoFrame_t stereoFrame)
 	}
 
 	// draw buffer stuff
-	cmd = R_GetCommandBuffer(sizeof(*cmd));
+	cmd = (drawBufferCommand_t*)R_GetCommandBuffer(sizeof(*cmd));
 	if(!cmd)
 	{
 		return;
@@ -711,7 +711,7 @@ void RE_EndFrame(int *frontEndMsec, int *backEndMsec)
 	{
 		return;
 	}
-	cmd = R_GetCommandBuffer(sizeof(*cmd));
+	cmd = (swapBuffersCommand_t*)R_GetCommandBuffer(sizeof(*cmd));
 	if(!cmd)
 	{
 		return;
@@ -750,7 +750,7 @@ void RE_TakeVideoFrame(int width, int height, byte * captureBuffer, byte * encod
 		return;
 	}
 
-	cmd = R_GetCommandBuffer(sizeof(*cmd));
+	cmd = (videoFrameCommand_t*)R_GetCommandBuffer(sizeof(*cmd));
 	if(!cmd)
 	{
 		return;
@@ -784,13 +784,13 @@ void RE_RenderToTexture(int textureid, int x, int y, int w, int h)
 		return;
 	}
 
-	cmd = R_GetCommandBuffer(sizeof(*cmd));
+	cmd = (renderToTextureCommand_t*)R_GetCommandBuffer(sizeof(*cmd));
 	if(!cmd)
 	{
 		return;
 	}
 	cmd->commandId = RC_RENDERTOTEXTURE;
-	cmd->image = tr.images[textureid];
+	cmd->image = (image_t*)tr.images.currentElements;
 	cmd->x = x;
 	cmd->y = y;
 	cmd->w = w;
@@ -809,7 +809,7 @@ void RE_Finish(void)
 
 	ri.Printf(PRINT_ALL, "RE_Finish\n");
 
-	cmd = R_GetCommandBuffer(sizeof(*cmd));
+	cmd = (renderFinishCommand_t*)R_GetCommandBuffer(sizeof(*cmd));
 	if(!cmd)
 	{
 		return;

@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 extern "C"
 {
 #endif
-//#include "tr_local.h"
+#include "tr_local.h"
 #include <q_shared.h>
 #ifdef __cplusplus
 }
@@ -39,8 +39,6 @@ extern "C"
 extern          "C"
 {
 #endif
-
-void LoadRGBEToFloats(const char *name, float **pic, int *width, int *height, qboolean doGamma, qboolean toneMap, qboolean compensate);
 
 void LoadRGBEToHalfs(const char *name, unsigned short ** halfImage, int *width, int *height)
 {

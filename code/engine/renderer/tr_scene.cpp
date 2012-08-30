@@ -132,7 +132,7 @@ void R_AddPolygonSurfaces(void)
 	for(i = 0, poly = tr.refdef.polys; i < tr.refdef.numPolys; i++, poly++)
 	{
 		sh = R_GetShaderByHandle(poly->hShader);
-		R_AddDrawSurf((void *)poly, sh, -1, poly->fogIndex);
+		R_AddDrawSurf((surfaceType_t*)poly, sh, -1, poly->fogIndex);
 	}
 }
 
@@ -156,7 +156,7 @@ void R_AddPolygonBufferSurfaces(void)
 		sh = R_GetShaderByHandle(polybuffer->pPolyBuffer->shader);
 
 		//R_AddDrawSurf((void *)polybuffer, sh, polybuffer->fogIndex, 0, 0);
-		R_AddDrawSurf((void *)polybuffer, sh, -1, polybuffer->fogIndex);
+		R_AddDrawSurf((surfaceType_t*)polybuffer, sh, -1, polybuffer->fogIndex);
 	}
 }
 
@@ -351,7 +351,7 @@ void RE_AddRefEntityToScene(const refEntity_t * ent)
 		return;
 	}
 
-	if(ent->reType < 0 || ent->reType >= RT_MAX_REF_ENTITY_TYPE)
+	if((unsigned)ent->reType >= RT_MAX_REF_ENTITY_TYPE)
 	{
 		ri.Error(ERR_DROP, "RE_AddRefEntityToScene: bad reType %i", ent->reType);
 	}
@@ -387,7 +387,7 @@ void RE_AddRefLightToScene(const refLight_t * l)
 		return;
 	}
 
-	if(l->rlType < 0 || l->rlType >= RL_MAX_REF_LIGHT_TYPE)
+	if((unsigned)l->rlType >= RL_MAX_REF_LIGHT_TYPE)
 	{
 		ri.Error(ERR_DROP, "RE_AddRefLightToScene: bad rlType %i", l->rlType);
 	}

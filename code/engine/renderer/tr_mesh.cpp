@@ -263,8 +263,8 @@ void R_AddMDVSurfaces(trRefEntity_t * ent)
 	mdvSurface_t   *mdvSurface = 0;
 	shader_t       *shader = 0;
 	int             lod;
-	qboolean        personalModel;
-	int				fogNum;
+	bool            personalModel;
+	int             fogNum;
 
 	// don't add third_person objects if not in a portal
 	personalModel = (ent->e.renderfx & RF_THIRD_PERSON) && !tr.viewParms.isPortal;
@@ -334,7 +334,7 @@ void R_AddMDVSurfaces(trRefEntity_t * ent)
 			// don't add third_person objects if not viewing through a portal
 			if(!personalModel)
 			{
-				R_AddDrawSurf((void *)vboSurface, shader, -1, fogNum);
+				R_AddDrawSurf((surfaceType_t*)vboSurface, shader, -1, fogNum);
 			}
 		}
 	}
@@ -349,7 +349,7 @@ void R_AddMDVSurfaces(trRefEntity_t * ent)
 			// don't add third_person objects if not viewing through a portal
 			if(!personalModel)
 			{
-				R_AddDrawSurf((void *)mdvSurface, shader, -1, fogNum);
+				R_AddDrawSurf((surfaceType_t*)mdvSurface, shader, -1, fogNum);
 			}
 		}
 	}
@@ -367,7 +367,7 @@ void R_AddMDVInteractions(trRefEntity_t * ent, trRefLight_t * light)
 	mdvSurface_t   *mdvSurface = 0;
 	shader_t       *shader = 0;
 	int             lod;
-	qboolean        personalModel;
+	bool            personalModel;
 	byte            cubeSideBits;
 	interactionType_t iaType = IA_DEFAULT;
 
@@ -448,7 +448,7 @@ void R_AddMDVInteractions(trRefEntity_t * ent, trRefLight_t * light)
 			// don't add third_person objects if not viewing through a portal
 			if(!personalModel)
 			{
-				R_AddLightInteraction(light, (void *)vboSurface, shader, cubeSideBits, iaType);
+				R_AddLightInteraction(light, (surfaceType_t*)vboSurface, shader, cubeSideBits, iaType);
 				tr.pc.c_dlightSurfaces++;
 			}
 		}
@@ -468,7 +468,7 @@ void R_AddMDVInteractions(trRefEntity_t * ent, trRefLight_t * light)
 			// don't add third_person objects if not viewing through a portal
 			if(!personalModel)
 			{
-				R_AddLightInteraction(light, (void *)mdvSurface, shader, cubeSideBits, iaType);
+				R_AddLightInteraction(light, (surfaceType_t*)mdvSurface, shader, cubeSideBits, iaType);
 				tr.pc.c_dlightSurfaces++;
 			}
 		}

@@ -52,13 +52,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define RF_FORCENOLOD		0x00000400
 
 // refdef flags
-#define RDF_NOWORLDMODEL	( 1 << 0 )	// used for player configuration screen
-#define RDF_NOSHADOWS		( 1 << 1 )	// force renderer to use faster lighting only path
-#define RDF_HYPERSPACE		( 1 << 2 )	// teleportation effect
+#define RDF_NOWORLDMODEL    ( 1 << 0 )	// used for player configuration screen
+#define RDF_NOSHADOWS       ( 1 << 1 )	// force renderer to use faster lighting only path
+#define RDF_HYPERSPACE      ( 1 << 2 )	// teleportation effect
 #define RDF_SKYBOXPORTAL    ( 1 << 3 )
 
-#define RDF_UNDERWATER		( 1 << 4 )	// enable automatic underwater caustics and fog
-#define RDF_DRAWINGSKY		( 1 << 5 )
+#define RDF_UNDERWATER      ( 1 << 4 )	// enable automatic underwater caustics and fog
+#define RDF_DRAWINGSKY      ( 1 << 5 )
 #define RDF_SNOOPERVIEW     ( 1 << 6 )
 
 // XreaL BEGIN
@@ -67,6 +67,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // XreaL END
 
 
+#define GL_INDEX_TYPE       GL_UNSIGNED_INT
+typedef unsigned int glIndex_t;
 typedef struct
 {
 	vec3_t          xyz;
@@ -428,7 +430,7 @@ typedef struct polyBuffer_s
 	byte            color[MAX_PB_VERTS][4];
 	int             numVerts;
 
-	int             indicies[MAX_PB_INDICIES];
+	glIndex_t       indicies[MAX_PB_INDICIES];
 	int             numIndicies;
 
 	qhandle_t       shader;

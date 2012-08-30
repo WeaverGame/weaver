@@ -48,6 +48,8 @@ generates a texture projection matrix for a triangle
 returns qfalse if a texture matrix cannot be created
 */
 
+#define	dVectorMA(v, s, b, o)	((o)[0]=(v)[0]+(b)[0]*(s),(o)[1]=(v)[1]+(b)[1]*(s),(o)[2]=(v)[2]+(b)[2]*(s))
+#define dVectorSubtract(a,b,c)	((c)[0]=(a)[0]-(b)[0],(c)[1]=(a)[1]-(b)[1],(c)[2]=(a)[2]-(b)[2])
 typedef double  dvec3_t[3];
 
 static qboolean MakeTextureMatrix(vec4_t texMat[2], vec4_t projection, decalVert_t * a, decalVert_t * b, decalVert_t * c)
@@ -61,11 +63,11 @@ static qboolean MakeTextureMatrix(vec4_t texMat[2], vec4_t projection, decalVert
 
 	/* project triangle onto plane of projection */
 	d = DotProduct(a->xyz, projection) - projection[3];
-	VectorMA(a->xyz, -d, projection, pa);
+	dVectorMA(a->xyz, -d, projection, pa);
 	d = DotProduct(b->xyz, projection) - projection[3];
-	VectorMA(b->xyz, -d, projection, pb);
+	dVectorMA(b->xyz, -d, projection, pb);
 	d = DotProduct(c->xyz, projection) - projection[3];
-	VectorMA(c->xyz, -d, projection, pc);
+	dVectorMA(c->xyz, -d, projection, pc);
 
 	/* calculate barycentric basis for the triangle */
 	bb = (b->st[0] - a->st[0]) * (c->st[1] - a->st[1]) - (c->st[0] - a->st[0]) * (b->st[1] - a->st[1]);
@@ -96,7 +98,7 @@ static qboolean MakeTextureMatrix(vec4_t texMat[2], vec4_t projection, decalVert
 	xyz[1] = bary[0] * pa[1] + bary[1] * pb[1] + bary[2] * pc[1];
 	xyz[2] = bary[0] * pa[2] + bary[1] * pb[2] + bary[2] * pc[2];
 
-	VectorSubtract(xyz, origin, vecs[0]);
+	dVectorSubtract(xyz, origin, vecs[0]);
 
 	/* calculate t vector */
 	s = 0.0f;
@@ -109,7 +111,7 @@ static qboolean MakeTextureMatrix(vec4_t texMat[2], vec4_t projection, decalVert
 	xyz[1] = bary[0] * pa[1] + bary[1] * pb[1] + bary[2] * pc[1];
 	xyz[2] = bary[0] * pa[2] + bary[1] * pb[2] + bary[2] * pc[2];
 
-	VectorSubtract(xyz, origin, vecs[1]);
+	dVectorSubtract(xyz, origin, vecs[1]);
 
 	/* calcuate r vector */
 	VectorScale(projection, -1.0f, vecs[2]);
@@ -937,7 +939,7 @@ void R_AddDecalSurface(decal_t * decal)
 
 	/* add surface to scene */
 	//R_AddDrawSurf((void *)srf, decal->shader, decal->fogIndex, 0, dlightMap);
-	R_AddDrawSurf((void *)srf, decal->shader, -1, decal->fogIndex);
+	R_AddDrawSurf((surfaceType_t*)srf, decal->shader, -1, decal->fogIndex);
 	tr.pc.c_decalSurfaces++;
 
 	/* free temporary decal */

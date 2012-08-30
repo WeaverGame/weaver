@@ -34,8 +34,8 @@ qboolean R_LoadMDM(model_t * mod, void *buffer, const char *name);
 static qboolean R_LoadMDX(model_t * mod, void *buffer, const char *name);
 #endif
 
-qboolean R_LoadMD5(model_t * mod, void *buffer, int bufferSize, const char *name);
-qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const char *name);
+qboolean R_LoadMD5(model_t * mod, byte *buffer, int bufferSize, const char *name);
+qboolean R_LoadPSK(model_t * mod, byte *buffer, int bufferSize, const char *name);
 
 model_t        *loadmodel;
 
@@ -71,7 +71,7 @@ model_t        *R_AllocModel(void)
 		return NULL;
 	}
 
-	mod = ri.Hunk_Alloc(sizeof(*tr.models[tr.numModels]), h_low);
+	mod = (model_t*)ri.Hunk_Alloc(sizeof(*tr.models[tr.numModels]), h_low);
 	mod->index = tr.numModels;
 	tr.models[tr.numModels] = mod;
 	tr.numModels++;
@@ -94,7 +94,7 @@ asked for again.
 qhandle_t RE_RegisterModel(const char *name)
 {
 	model_t        *mod;
-	unsigned       *buffer;
+	byte           *buffer;
 	int             bufferLen = 0;
 	int             lod;
 	int             ident;
@@ -353,7 +353,7 @@ static qboolean R_LoadMDX(model_t * mod, void *buffer, const char *mod_name)
 	mod->type = MOD_MDX;
 	size = LittleLong(pinmodel->ofsEnd);
 	mod->dataSize += size;
-	mdx = mod->mdx = ri.Hunk_Alloc(size, h_low);
+	mdx = mod->mdx = (mdxHeader_t*)ri.Hunk_Alloc(size, h_low);
 
 	memcpy(mdx, buffer, LittleLong(pinmodel->ofsEnd));
 

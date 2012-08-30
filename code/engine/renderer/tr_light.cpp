@@ -100,7 +100,7 @@ void R_AddBrushModelInteractions(trRefEntity_t * ent, trRefLight_t * light)
 			if(shader->isSky || (!shader->interactLight && shader->noShadows))
 				continue;
 
-			R_AddLightInteraction(light, (void *)vboSurface, shader, cubeSideBits, iaType);
+			R_AddLightInteraction(light, (surfaceType_t*)vboSurface, shader, cubeSideBits, iaType);
 			tr.pc.c_dlightSurfaces++;
 		}
 	}
@@ -790,8 +790,8 @@ void R_SetupLightFrustum(trRefLight_t * light)
 
 				Tess_AddCube(vec3_origin, worldBounds[0], worldBounds[1], colorWhite);
 
-				verts = ri.Hunk_AllocateTempMemory(tess.numVertexes * sizeof(srfVert_t));
-				triangles = ri.Hunk_AllocateTempMemory((tess.numIndexes / 3) * sizeof(srfTriangle_t));
+				verts = (srfVert_t*)ri.Hunk_AllocateTempMemory(tess.numVertexes * sizeof(srfVert_t));
+				triangles = (srfTriangle_t*)ri.Hunk_AllocateTempMemory((tess.numIndexes / 3) * sizeof(srfTriangle_t));
 
 				for(i = 0; i < tess.numVertexes; i++)
 				{
@@ -900,8 +900,8 @@ void R_SetupLightFrustum(trRefLight_t * light)
 					Tess_AddQuadStamp2(quadVerts, colorRed);
 				}
 
-				verts = ri.Hunk_AllocateTempMemory(tess.numVertexes * sizeof(srfVert_t));
-				triangles = ri.Hunk_AllocateTempMemory((tess.numIndexes / 3) * sizeof(srfTriangle_t));
+				verts = (srfVert_t*)ri.Hunk_AllocateTempMemory(tess.numVertexes * sizeof(srfVert_t));
+				triangles = (srfTriangle_t*)ri.Hunk_AllocateTempMemory((tess.numIndexes / 3) * sizeof(srfTriangle_t));
 
 				for(i = 0; i < tess.numVertexes; i++)
 				{
@@ -1131,7 +1131,7 @@ qboolean R_AddLightInteraction(trRefLight_t * light, surfaceType_t * surface, sh
 	ia = &tr.refdef.interactions[iaIndex];
 	tr.refdef.numInteractions++;
 
-	light->noSort = iaIndex == 0;
+	light->noSort = (qboolean)(iaIndex == 0);
 
 	// connect to interaction grid
 	if(!light->firstInteraction)
@@ -1351,8 +1351,8 @@ static void R_AddEdgeToLightScissor(trRefLight_t * light, vec3_t local1, vec3_t 
 		frust = &tr.viewParms.frustums[0][i];
 
 		// check edge to frustrum plane
-		side1 = ((DotProduct(frust->normal, world1) - frust->dist) >= 0.0);
-		side2 = ((DotProduct(frust->normal, world2) - frust->dist) >= 0.0);
+		side1 = (qboolean)((DotProduct(frust->normal, world1) - frust->dist) >= 0.0);
+		side2 = (qboolean)((DotProduct(frust->normal, world2) - frust->dist) >= 0.0);
 
 		if(glConfig2.occlusionQueryAvailable && i == FRUSTUM_NEAR)
 		{
@@ -1399,7 +1399,7 @@ void R_SetupLightScissor(trRefLight_t * light)
 	light->scissor.coords[2] = tr.viewParms.viewportX + tr.viewParms.viewportWidth;
 	light->scissor.coords[3] = tr.viewParms.viewportY + tr.viewParms.viewportHeight;
 
-	light->clipsNearPlane = (BoxOnPlaneSide(light->worldBounds[0], light->worldBounds[1], &tr.viewParms.frustums[0][FRUSTUM_NEAR]) == 3);
+	light->clipsNearPlane = (qboolean)(BoxOnPlaneSide(light->worldBounds[0], light->worldBounds[1], &tr.viewParms.frustums[0][FRUSTUM_NEAR]) == 3);
 
 	if(glConfig2.occlusionQueryAvailable)
 	{

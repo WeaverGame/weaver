@@ -181,7 +181,7 @@ static qboolean ParseVector(char **text, int count, float *v)
 }
 
 
-opstring_t      opStrings[] = {
+extern const opstring_t opStrings[] = {
 	{"bad", OP_BAD}
 	,
 
@@ -286,7 +286,7 @@ opstring_t      opStrings[] = {
 
 static void GetOpType(char *token, expOperation_t * op)
 {
-	opstring_t     *opString;
+	const opstring_t *opString;
 	char            tableName[MAX_QPATH];
 	int             hash;
 	shaderTable_t  *tb;
@@ -2639,7 +2639,7 @@ static void ParseDeform(char **text)
 		{
 			n = 0;
 		}
-		ds->deformation = DEFORM_TEXT0 + n;
+		ds->deformation = (deform_t)(DEFORM_TEXT0 + n);
 		return;
 	}
 
@@ -4080,7 +4080,7 @@ static qboolean ParseShader(char *_text)
 				because it breaks the computation of the current shader
 			*/
 			tokenLen = strlen(token) + 1;
-			tr.sunShaderName = ri.Hunk_Alloc(sizeof(char) * tokenLen, h_low);
+			tr.sunShaderName = (char*)ri.Hunk_Alloc(sizeof(char) * tokenLen, h_low);
 			Q_strncpyz(tr.sunShaderName, token, tokenLen);
 		}
 //----(SA)  added
@@ -4777,7 +4777,7 @@ static shader_t *GeneratePermanentShader(void)
 		return tr.defaultShader;
 	}
 
-	newShader = ri.Hunk_Alloc(sizeof(shader_t), h_low);
+	newShader = (shader_t*)ri.Hunk_Alloc(sizeof(shader_t), h_low);
 
 	*newShader = shader;
 
@@ -4804,13 +4804,13 @@ static shader_t *GeneratePermanentShader(void)
 		{
 			break;
 		}
-		newShader->stages[i] = ri.Hunk_Alloc(sizeof(stages[i]), h_low);
+		newShader->stages[i] = (shaderStage_t*)ri.Hunk_Alloc(sizeof(stages[i]), h_low);
 		*newShader->stages[i] = stages[i];
 
 		for(b = 0; b < MAX_TEXTURE_BUNDLES; b++)
 		{
 			size = newShader->stages[i]->bundle[b].numTexMods * sizeof(texModInfo_t);
-			newShader->stages[i]->bundle[b].texMods = ri.Hunk_Alloc(size, h_low);
+			newShader->stages[i]->bundle[b].texMods = (texModInfo_t*)ri.Hunk_Alloc(size, h_low);
 			Com_Memcpy(newShader->stages[i]->bundle[b].texMods, stages[i].bundle[b].texMods, size);
 		}
 	}
@@ -4841,7 +4841,7 @@ static void GeneratePermanentShaderTable(float *values, int numValues)
 		return;
 	}
 
-	newTable = ri.Hunk_Alloc(sizeof(shaderTable_t), h_low);
+	newTable = (shaderTable_t*)ri.Hunk_Alloc(sizeof(shaderTable_t), h_low);
 
 	*newTable = table;
 
@@ -4851,7 +4851,7 @@ static void GeneratePermanentShaderTable(float *values, int numValues)
 	tr.numTables++;
 
 	newTable->numValues = numValues;
-	newTable->values = ri.Hunk_Alloc(sizeof(float) * numValues, h_low);
+	newTable->values = (float*)ri.Hunk_Alloc(sizeof(float) * numValues, h_low);
 
 //  ri.Printf(PRINT_ALL, "values: \n");
 	for(i = 0; i < numValues; i++)
@@ -5233,7 +5233,7 @@ qboolean RE_LoadDynamicShader(const char *shadername, const char *shadertext)
 	{
 		lastdptr->next = dptr;
 	}
-	dptr->shadertext = ri.Z_Malloc(strlen(shadertext) + 1);
+	dptr->shadertext = (char*)ri.Z_Malloc(strlen(shadertext) + 1);
 	if(!dptr->shadertext)
 	{
 		Com_Error(ERR_FATAL, "Couldn't allocate buffer for dynamic shader %s\n", shadername);
@@ -6079,7 +6079,7 @@ static void ScanAndLoadGuideFiles(void)
 
 		sum += ri.FS_ReadFile(filename, NULL);
 	}
-	s_guideText = ri.Hunk_Alloc(sum + numGuides * 2, h_low);
+	s_guideText = (char*)ri.Hunk_Alloc(sum + numGuides * 2, h_low);
 
 	// load in reverse order, so doubled templates are overriden properly
 	for(i = numGuides - 1; i >= 0; i--)
@@ -6177,7 +6177,7 @@ static void ScanAndLoadGuideFiles(void)
 
 	size += MAX_GUIDETEXT_HASH;
 
-	hashMem = ri.Hunk_Alloc(size * sizeof(char *), h_low);
+	hashMem = (char*)ri.Hunk_Alloc(size * sizeof(char *), h_low);
 
 	for(i = 0; i < MAX_GUIDETEXT_HASH; i++)
 	{
@@ -6315,7 +6315,7 @@ static void ScanAndLoadShaderFiles(void)
 
 		sum += ri.FS_ReadFile(filename, NULL);
 	}
-	s_shaderText = ri.Hunk_Alloc(sum + numShaderFiles * 2, h_low);
+	s_shaderText = (char*)ri.Hunk_Alloc(sum + numShaderFiles * 2, h_low);
 
 	// load in reverse order, so doubled shaders are overriden properly
 	for(i = numShaderFiles - 1; i >= 0; i--)
@@ -6434,7 +6434,7 @@ static void ScanAndLoadShaderFiles(void)
 
 	size += MAX_SHADERTEXT_HASH;
 
-	hashMem = ri.Hunk_Alloc(size * sizeof(char *), h_low);
+	hashMem = (char*)ri.Hunk_Alloc(size * sizeof(char *), h_low);
 
 	for(i = 0; i < MAX_SHADERTEXT_HASH; i++)
 	{

@@ -2801,7 +2801,7 @@ void R_AddPolygonInteractions(trRefLight_t * light)
 		if(!BoundsIntersect(light->worldBounds[0], light->worldBounds[1], worldBounds[0], worldBounds[1]))
 			continue;
 
-		R_AddLightInteraction(light, (void *)poly, shader, CUBESIDE_CLIPALL, IA_LIGHTONLY);
+		R_AddLightInteraction(light, (surfaceType_t*)poly, shader, CUBESIDE_CLIPALL, IA_LIGHTONLY);
 	}
 }
 

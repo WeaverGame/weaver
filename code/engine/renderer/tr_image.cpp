@@ -141,7 +141,7 @@ void GL_TextureMode(const char *string)
 	// change all the existing mipmap texture objects
 	for(i = 0; i < tr.images.currentElements; i++)
 	{
-		image = Com_GrowListElement(&tr.images, i);
+		image = (image_t*)Com_GrowListElement(&tr.images, i);
 
 		if(image->filterType == FT_DEFAULT)
 		{
@@ -172,7 +172,7 @@ int R_SumOfUsedImages(void)
 	total = 0;
 	for(i = 0; i < tr.images.currentElements; i++)
 	{
-		image = Com_GrowListElement(&tr.images, i);
+		image = (image_t*)Com_GrowListElement(&tr.images, i);
 
 		if(image->frameUsed == tr.frameCount)
 		{
@@ -206,7 +206,7 @@ void R_ImageList_f(void)
 
 	for(i = 0; i < tr.images.currentElements; i++)
 	{
-		image = Com_GrowListElement(&tr.images, i);
+		image = (image_t*)Com_GrowListElement(&tr.images, i);
 
 		ri.Printf(PRINT_ALL, "%4i: %4i %4i  %s   ",
 				  i, image->uploadWidth, image->uploadHeight, yesno[image->filterType == FT_DEFAULT]);
@@ -397,7 +397,7 @@ before or after.
 ================
 */
 static void ResampleTexture(unsigned *in, int inwidth, int inheight, unsigned *out, int outwidth, int outheight,
-							qboolean normalMap)
+							bool normalMap)
 {
 	int             x, y;
 	unsigned       *inrow, *inrow2;
@@ -506,7 +506,7 @@ Scale up the pixel values in a texture to increase the
 lighting range
 ================
 */
-void R_LightScaleTexture(unsigned *in, int inwidth, int inheight, qboolean onlyGamma)
+void R_LightScaleTexture(unsigned *in, int inwidth, int inheight, bool onlyGamma)
 {
 	if(onlyGamma)
 	{
@@ -581,7 +581,7 @@ static void R_MipMap2(unsigned *in, int inWidth, int inHeight)
 
 	outWidth = inWidth >> 1;
 	outHeight = inHeight >> 1;
-	temp = ri.Hunk_AllocateTempMemory(outWidth * outHeight * 4);
+	temp = (unsigned int*)ri.Hunk_AllocateTempMemory(outWidth * outHeight * 4);
 
 	inWidthMask = inWidth - 1;
 	inHeightMask = inHeight - 1;
@@ -1120,7 +1120,7 @@ void R_UploadImage(const byte ** dataArray, int numData, image_t * image)
 		}
 	}
 
-	scaledBuffer = ri.Hunk_AllocateTempMemory(sizeof(byte) * scaledWidth * scaledHeight * 4);
+	scaledBuffer = (byte*)ri.Hunk_AllocateTempMemory(sizeof(byte) * scaledWidth * scaledHeight * 4);
 
 	// set target
 	switch (image->type)
@@ -1486,7 +1486,7 @@ image_t        *R_AllocImage(const char *name, qboolean linkIntoHashTable)
 		return NULL;
 	}
 
-	image = ri.Hunk_Alloc(sizeof(image_t), h_low);
+	image = (image_t*)ri.Hunk_Alloc(sizeof(image_t), h_low);
 	Com_Memset(image, 0, sizeof(image_t));
 
 #if defined(USE_D3D10)
@@ -2304,7 +2304,7 @@ static void R_Rotate(byte * in, int width, int height, int degrees)
 	int             x, y, x2, y2;
 	byte           *out, *tmp;
 
-	tmp = Com_Allocate(width * height * 4);
+	tmp = (byte*)Com_Allocate(width * height * 4);
 
 	// rotate into tmp buffer
 	for(y = 0; y < height; y++)
@@ -2684,7 +2684,7 @@ static void R_CreateFogImage(void)
 	float           d;
 	float           borderColor[4];
 
-	data = ri.Hunk_AllocateTempMemory(FOG_S * FOG_T * 4);
+	data = (byte*)ri.Hunk_AllocateTempMemory(FOG_S * FOG_T * 4);
 
 	g = 2.0;
 
@@ -2831,7 +2831,7 @@ static void R_CreateContrastRenderFBOImage(void)
 		height = NearestPowerOfTwo(glConfig.vidHeight) * 0.25f;
 	}
 
-	data = ri.Hunk_AllocateTempMemory(width * height * 4);
+	data = (byte*)ri.Hunk_AllocateTempMemory(width * height * 4);
 
 	if(r_hdrRendering->integer && glConfig2.textureFloatAvailable)
 	{
@@ -2862,7 +2862,7 @@ static void R_CreateBloomRenderFBOImage(void)
 		height = NearestPowerOfTwo(glConfig.vidHeight) * 0.25f;
 	}
 
-	data = ri.Hunk_AllocateTempMemory(width * height * 4);
+	data = (byte*)ri.Hunk_AllocateTempMemory(width * height * 4);
 
 	for(i = 0; i < 2; i++)
 	{
@@ -2895,7 +2895,7 @@ static void R_CreateCurrentRenderImage(void)
 		height = NearestPowerOfTwo(glConfig.vidHeight);
 	}
 
-	data = ri.Hunk_AllocateTempMemory(width * height * 4);
+	data = (byte*)ri.Hunk_AllocateTempMemory(width * height * 4);
 
 	tr.currentRenderImage = R_CreateImage("_currentRender", data, width, height, IF_NOPICMIP | IF_NOCOMPRESSION, FT_NEAREST, WT_CLAMP);
 
@@ -2918,7 +2918,7 @@ static void R_CreateDepthRenderImage(void)
 		height = NearestPowerOfTwo(glConfig.vidHeight);
 	}
 
-	data = ri.Hunk_AllocateTempMemory(width * height * 4);
+	data = (byte*)ri.Hunk_AllocateTempMemory(width * height * 4);
 
 #if 0
 	if(glConfig2.framebufferPackedDepthStencilAvailable)
@@ -2953,7 +2953,7 @@ static void R_CreatePortalRenderImage(void)
 		height = NearestPowerOfTwo(glConfig.vidHeight);
 	}
 
-	data = ri.Hunk_AllocateTempMemory(width * height * 4);
+	data = (byte*)ri.Hunk_AllocateTempMemory(width * height * 4);
 
 	if(r_hdrRendering->integer && glConfig2.textureFloatAvailable)
 	{
@@ -2983,7 +2983,7 @@ static void R_CreateOcclusionRenderFBOImage(void)
 		height = NearestPowerOfTwo(glConfig.vidHeight);
 	}
 
-	data = ri.Hunk_AllocateTempMemory(width * height * 4);
+	data = (byte*)ri.Hunk_AllocateTempMemory(width * height * 4);
 
 	//
 #if 0
@@ -3020,7 +3020,7 @@ static void R_CreateDepthToColorFBOImages(void)
 		height = NearestPowerOfTwo(glConfig.vidHeight);
 	}
 
-	data = ri.Hunk_AllocateTempMemory(width * height * 4);
+	data = (byte*)ri.Hunk_AllocateTempMemory(width * height * 4);
 
 #if 0
 	if(glConfig.hardwareType == GLHW_ATI_DX10)
@@ -3066,7 +3066,7 @@ static void R_CreateDownScaleFBOImages(void)
 		height = NearestPowerOfTwo(glConfig.vidHeight * 0.25f);
 	}
 
-	data = ri.Hunk_AllocateTempMemory(width * height * 4);
+	data = (byte*)ri.Hunk_AllocateTempMemory(width * height * 4);
 	if(r_hdrRendering->integer && glConfig2.textureFloatAvailable)
 	{
 		tr.downScaleFBOImage_quarter = R_CreateImage("_downScaleFBOImage_quarter", data, width, height, IF_NOPICMIP | IF_RGBA16F, FT_NEAREST, WT_CLAMP);
@@ -3079,7 +3079,7 @@ static void R_CreateDownScaleFBOImages(void)
 
 
 	width = height = 64;
-	data = ri.Hunk_AllocateTempMemory(width * height * 4);
+	data = (byte*)ri.Hunk_AllocateTempMemory(width * height * 4);
 	if(r_hdrRendering->integer && glConfig2.textureFloatAvailable)
 	{
 		tr.downScaleFBOImage_64x64 = R_CreateImage("_downScaleFBOImage_64x64", data, width, height, IF_NOPICMIP | IF_RGBA16F, FT_NEAREST, WT_CLAMP);
@@ -3147,7 +3147,7 @@ static void R_CreateDeferredRenderFBOImages(void)
 		height = NearestPowerOfTwo(glConfig.vidHeight);
 	}
 
-	data = ri.Hunk_AllocateTempMemory(width * height * 4);
+	data = (byte*)ri.Hunk_AllocateTempMemory(width * height * 4);
 
 	if(DS_STANDARD_ENABLED())
 	{
@@ -3195,7 +3195,7 @@ static void R_CreateShadowMapFBOImage(void)
 	{
 		width = height = shadowMapResolutions[i];
 
-		data = ri.Hunk_AllocateTempMemory(width * height * 4);
+		data = (byte*)ri.Hunk_AllocateTempMemory(width * height * 4);
 
 		if(glConfig.driverType == GLDRV_OPENGL3 || (glConfig.hardwareType == GLHW_NV_DX10 || glConfig.hardwareType == GLHW_ATI_DX10))
 		{
@@ -3249,7 +3249,7 @@ static void R_CreateShadowMapFBOImage(void)
 	{
 		width = height = sunShadowMapResolutions[i];
 
-		data = ri.Hunk_AllocateTempMemory(width * height * 4);
+		data = (byte*)ri.Hunk_AllocateTempMemory(width * height * 4);
 
 		if(glConfig.driverType == GLDRV_OPENGL3 || (glConfig.hardwareType == GLHW_NV_DX10 || glConfig.hardwareType == GLHW_ATI_DX10))
 		{
@@ -3315,7 +3315,7 @@ static void R_CreateShadowCubeFBOImage(void)
 
 		for(i = 0; i < 6; i++)
 		{
-			data[i] = ri.Hunk_AllocateTempMemory(width * height * 4);
+			data[i] = (byte*)ri.Hunk_AllocateTempMemory(width * height * 4);
 		}
 
 		if(glConfig.driverType == GLDRV_OPENGL3 || (glConfig.hardwareType == GLHW_NV_DX10 || glConfig.hardwareType == GLHW_ATI_DX10))
@@ -3380,7 +3380,7 @@ static void R_CreateBlackCubeImage(void)
 
 	for(i = 0; i < 6; i++)
 	{
-		data[i] = ri.Hunk_AllocateTempMemory(width * height * 4);
+		data[i] = (byte*)ri.Hunk_AllocateTempMemory(width * height * 4);
 		Com_Memset(data[i], 0, width * height * 4);
 	}
 
@@ -3406,7 +3406,7 @@ static void R_CreateWhiteCubeImage(void)
 
 	for(i = 0; i < 6; i++)
 	{
-		data[i] = ri.Hunk_AllocateTempMemory(width * height * 4);
+		data[i] = (byte*)ri.Hunk_AllocateTempMemory(width * height * 4);
 		Com_Memset(data[i], 0xFF, width * height * 4);
 	}
 
@@ -3562,6 +3562,7 @@ void R_SetColorMappings(void)
 
 	// setup the overbright lighting
 	tr.overbrightBits = r_overBrightBits->integer;
+
 	if(!glConfig.deviceSupportsGamma)
 	{
 		tr.overbrightBits = 0;	// need hardware gamma for overbright
@@ -3623,25 +3624,31 @@ void R_SetColorMappings(void)
 		{
 			inf = 255 * pow(i / 255.0f, 1.0f / g) + 0.5f;
 		}
+
 		inf <<= shift;
+
 		if(inf < 0)
 		{
 			inf = 0;
 		}
+
 		if(inf > 255)
 		{
 			inf = 255;
 		}
+
 		s_gammatable[i] = inf;
 	}
 
 	for(i = 0; i < 256; i++)
 	{
 		j = i * r_intensity->value;
+
 		if(j > 255)
 		{
 			j = 255;
 		}
+
 		s_intensitytable[i] = j;
 	}
 
@@ -3710,7 +3717,7 @@ void R_ShutdownImages(void)
 
 	for(i = 0; i < tr.images.currentElements; i++)
 	{
-		image = Com_GrowListElement(&tr.images, i);
+		image = (image_t*)Com_GrowListElement(&tr.images, i);
 
 		glDeleteTextures(1, &image->texnum);
 	}
@@ -3752,7 +3759,7 @@ int RE_GetTextureId(const char *name)
 
 	for(i = 0; i < tr.images.currentElements; i++)
 	{
-		image = Com_GrowListElement(&tr.images, i);
+		image = (image_t*)Com_GrowListElement(&tr.images, i);
 
 		if(!strcmp(name, image->name))
 		{

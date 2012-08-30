@@ -92,7 +92,7 @@ static int CompareTrianglesByMaterialIndex(const void *a, const void *b)
 R_LoadPSK
 =================
 */
-qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const char *modName)
+qboolean R_LoadPSK(model_t * mod, byte *buffer, int bufferSize, const char *modName)
 {
 	int             i, j, k;
 	memStream_t    *stream;
@@ -164,7 +164,7 @@ qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const char *modN
 
 	mod->type = MOD_MD5;
 	mod->dataSize += sizeof(md5Model_t);
-	md5 = mod->md5 = ri.Hunk_Alloc(sizeof(md5Model_t), h_low);
+	md5 = mod->md5 = (md5Model_t*)ri.Hunk_Alloc(sizeof(md5Model_t), h_low);
 
 	// read points
 	GetChunkHeader(stream, &chunkHeader);
@@ -185,7 +185,7 @@ qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const char *modN
 	PrintChunkHeader(&chunkHeader);
 
 	numPoints = chunkHeader.numData;
-	points = Com_Allocate(numPoints * sizeof(axPoint_t));
+	points = (axPoint_t*)Com_Allocate(numPoints * sizeof(axPoint_t));
 	for(i = 0, point = points; i < numPoints; i++, point++)
 	{
 		point->point[0] = MemStreamGetFloat(stream);
@@ -219,7 +219,7 @@ qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const char *modN
 	PrintChunkHeader(&chunkHeader);
 
 	numVertexes = chunkHeader.numData;
-	vertexes = Com_Allocate(numVertexes * sizeof(axVertex_t));
+	vertexes = (axVertex_t*)Com_Allocate(numVertexes * sizeof(axVertex_t));
 	for(i = 0, vertex = vertexes; i < numVertexes; i++, vertex++)
 	{
 		vertex->pointIndex = MemStreamGetShort(stream);
@@ -280,7 +280,7 @@ qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const char *modN
 	PrintChunkHeader(&chunkHeader);
 
 	numTriangles = chunkHeader.numData;
-	triangles = Com_Allocate(numTriangles * sizeof(axTriangle_t));
+	triangles = (axTriangle_t*)Com_Allocate(numTriangles * sizeof(axTriangle_t));
 	for(i = 0, triangle = triangles; i < numTriangles; i++, triangle++)
 	{
 		for(j = 0; j < 3; j++)
@@ -328,7 +328,7 @@ qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const char *modN
 	PrintChunkHeader(&chunkHeader);
 
 	numMaterials = chunkHeader.numData;
-	materials = Com_Allocate(numMaterials * sizeof(axMaterial_t));
+	materials = (axMaterial_t*)Com_Allocate(numMaterials * sizeof(axMaterial_t));
 	for(i = 0, material = materials; i < numMaterials; i++, material++)
 	{
 		MemStreamRead(stream, material->name, sizeof(material->name));
@@ -398,7 +398,7 @@ qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const char *modN
 	PrintChunkHeader(&chunkHeader);
 
 	numReferenceBones = chunkHeader.numData;
-	refBones = Com_Allocate(numReferenceBones * sizeof(axReferenceBone_t));
+	refBones = (axReferenceBone_t*)Com_Allocate(numReferenceBones * sizeof(axReferenceBone_t));
 	for(i = 0, refBone = refBones; i < numReferenceBones; i++, refBone++)
 	{
 		MemStreamRead(stream, refBone->name, sizeof(refBone->name));
@@ -466,7 +466,7 @@ qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const char *modN
 	PrintChunkHeader(&chunkHeader);
 
 	numWeights = chunkHeader.numData;
-	axWeights = Com_Allocate(numWeights * sizeof(axBoneWeight_t));
+	axWeights = (axBoneWeight_t*)Com_Allocate(numWeights * sizeof(axBoneWeight_t));
 	for(i = 0, axWeight = axWeights; i < numWeights; i++, axWeight++)
 	{
 		axWeight->weight = MemStreamGetFloat(stream);
@@ -528,7 +528,7 @@ qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const char *modN
 	//ri.Printf(PRINT_ALL, "R_LoadPSK: '%s' has %i bones\n", modName, md5->numBones);
 
 	// copy all reference bones
-	md5->bones = ri.Hunk_Alloc(sizeof(*md5Bone) * md5->numBones, h_low);
+	md5->bones = (md5Bone_t*)ri.Hunk_Alloc(sizeof(*md5Bone) * md5->numBones, h_low);
 	for(i = 0, md5Bone = md5->bones, refBone = refBones; i < md5->numBones; i++, md5Bone++, refBone++)
 	{
 		Q_strncpyz(md5Bone->name, refBone->name, sizeof(md5Bone->name));
@@ -631,7 +631,7 @@ qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const char *modN
 	Com_InitGrowList(&vboVertexes, 10000);
 	for(i = 0, vertex = vertexes; i < numVertexes; i++, vertex++)
 	{
-		md5Vertex_t *vboVert = Com_Allocate(sizeof(*vboVert));
+		md5Vertex_t *vboVert = (md5Vertex_t*)Com_Allocate(sizeof(*vboVert));
 
 		for(j = 0; j < 3; j++)
 		{
@@ -657,12 +657,12 @@ qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const char *modN
 			//ri.Printf(PRINT_WARNING, "R_LoadPSK: vertex %i requires more weights %i than the maximum of %i in model '%s'\n", i, vboVert->numWeights, MAX_WEIGHTS, modName);
 		}
 
-		vboVert->weights = ri.Hunk_Alloc(sizeof(*vboVert->weights) * vboVert->numWeights, h_low);
+		vboVert->weights = (md5Weight_t**)ri.Hunk_Alloc(sizeof(*vboVert->weights) * vboVert->numWeights, h_low);
 		for(j = 0, axWeight = axWeights, k = 0; j < numWeights; j++, axWeight++)
 		{
 			if(axWeight->pointIndex == vertex->pointIndex && axWeight->weight > 0.0f)
 			{
-				weight = ri.Hunk_Alloc(sizeof(*weight), h_low);
+				weight = (md5Weight_t*)ri.Hunk_Alloc(sizeof(*weight), h_low);
 
 				weight->boneIndex = axWeight->boneIndex;
 				weight->boneWeight = axWeight->weight;
@@ -701,12 +701,12 @@ qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const char *modN
 	Com_InitGrowList(&sortedTriangles, 1000);
 	for(i = 0, triangle = triangles; i < numTriangles; i++, triangle++)
 	{
-		skelTriangle_t *sortTri = Com_Allocate(sizeof(*sortTri));
+		skelTriangle_t *sortTri = (skelTriangle_t*)Com_Allocate(sizeof(*sortTri));
 
 		for(j = 0; j < 3; j++)
 		{
 			sortTri->indexes[j] = triangle->indexes[j];
-			sortTri->vertexes[j] = Com_GrowListElement(&vboVertexes, triangle->indexes[j]);
+			sortTri->vertexes[j] = (md5Vertex_t*)Com_GrowListElement(&vboVertexes, triangle->indexes[j]);
 		}
 		sortTri->referenced = qfalse;
 
@@ -725,7 +725,7 @@ qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const char *modN
 
 		for(j = 0; j < vboVertexes.currentElements; j++)
 		{
-			v0 = Com_GrowListElement(&vboVertexes, j);
+			v0 = (md5Vertex_t*)Com_GrowListElement(&vboVertexes, j);
 
 			VectorClear(v0->tangent);
 			VectorClear(v0->binormal);
@@ -734,11 +734,11 @@ qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const char *modN
 
 		for(j = 0; j < sortedTriangles.currentElements; j++)
 		{
-			skelTriangle_t *tri = Com_GrowListElement(&sortedTriangles, j);
+			skelTriangle_t *tri = (skelTriangle_t*)Com_GrowListElement(&sortedTriangles, j);
 
-			v0 = Com_GrowListElement(&vboVertexes, tri->indexes[0]);
-			v1 = Com_GrowListElement(&vboVertexes, tri->indexes[1]);
-			v2 = Com_GrowListElement(&vboVertexes, tri->indexes[2]);
+			v0 = (md5Vertex_t*)Com_GrowListElement(&vboVertexes, tri->indexes[0]);
+			v1 = (md5Vertex_t*)Com_GrowListElement(&vboVertexes, tri->indexes[1]);
+			v2 = (md5Vertex_t*)Com_GrowListElement(&vboVertexes, tri->indexes[2]);
 
 			p0 = v0->position;
 			p1 = v1->position;
@@ -759,7 +759,7 @@ qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const char *modN
 			{
 				float          *v;
 
-				v0 = Com_GrowListElement(&vboVertexes, tri->indexes[k]);
+				v0 = (md5Vertex_t*)Com_GrowListElement(&vboVertexes, tri->indexes[k]);
 
 				v = v0->tangent;
 				VectorAdd(v, tangent, v);
@@ -774,7 +774,7 @@ qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const char *modN
 
 		for(j = 0; j < vboVertexes.currentElements; j++)
 		{
-			v0 = Com_GrowListElement(&vboVertexes, j);
+			v0 = (md5Vertex_t*)Com_GrowListElement(&vboVertexes, j);
 
 			VectorNormalize(v0->tangent);
 			VectorNormalize(v0->binormal);
@@ -927,7 +927,7 @@ qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const char *modN
 					if(materialIndex != oldMaterialIndex)
 						continue;
 
-					sortTri = Com_GrowListElement(&sortedTriangles, j);
+					sortTri = (skelTriangle_t*)Com_GrowListElement(&sortedTriangles, j);
 
 					if(sortTri->referenced)
 						continue;
@@ -963,21 +963,21 @@ qboolean R_LoadPSK(model_t * mod, void *buffer, int bufferSize, const char *modN
 
 	for(j = 0; j < sortedTriangles.currentElements; j++)
 	{
-		skelTriangle_t *sortTri = Com_GrowListElement(&sortedTriangles, j);
+		skelTriangle_t *sortTri = (skelTriangle_t*)Com_GrowListElement(&sortedTriangles, j);
 		Com_Dealloc(sortTri);
 	}
 	Com_DestroyGrowList(&sortedTriangles);
 
 	for(j = 0; j < vboVertexes.currentElements; j++)
 	{
-		md5Vertex_t *v = Com_GrowListElement(&vboVertexes, j);
+		md5Vertex_t *v = (md5Vertex_t*)Com_GrowListElement(&vboVertexes, j);
 		Com_Dealloc(v);
 	}
 	Com_DestroyGrowList(&vboVertexes);
 
 	// move VBO surfaces list to hunk
 	md5->numVBOSurfaces = vboSurfaces.currentElements;
-	md5->vboSurfaces = ri.Hunk_Alloc(md5->numVBOSurfaces * sizeof(*md5->vboSurfaces), h_low);
+	md5->vboSurfaces = (srfVBOMD5Mesh_t**)ri.Hunk_Alloc(md5->numVBOSurfaces * sizeof(*md5->vboSurfaces), h_low);
 
 	for(i = 0; i < md5->numVBOSurfaces; i++)
 	{
