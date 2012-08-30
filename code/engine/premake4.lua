@@ -35,7 +35,7 @@ project "Weaver"
 		"qcommon/cm_trace.c",
 		"qcommon/cm_trisoup.c",
 
-		"renderer/**.c", "renderer/**.cpp", "renderer/**.h",
+		"renderer/**.cpp", "renderer/**.h",
 
 		"../libs/glew/src/glew.c",
 		"../libs/glew/src/glew.h",
