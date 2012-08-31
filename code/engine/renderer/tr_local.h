@@ -86,7 +86,7 @@ extern "C" {
 typedef enum
 {
 	DS_DISABLED,				// traditional Doom 3 style rendering
-	DS_STANDARD,				// deferred rendering like in Stalker
+	DS_STANDARD					// deferred rendering like in Stalker
 } deferredShading_t;
 
 typedef enum
@@ -376,7 +376,7 @@ typedef struct trRefLight_s
 	struct VBO_s   *frustumVBO;
 	struct IBO_s   *frustumIBO;
 	uint16_t        frustumIndexes;
-	uint16_t       	frustumVerts;
+	uint16_t        frustumVerts;
 
 	screenRect_t    scissor;
 
@@ -424,10 +424,10 @@ typedef struct
 	vec3_t          worldCorners[8];
 
 	// GPU occlusion culling
-	qboolean		noOcclusionQueries;
+	qboolean        noOcclusionQueries;
 	uint32_t        occlusionQueryObject;
 	uint32_t        occlusionQuerySamples;
-	link_t			multiQuery;				// CHC++: list of all nodes that are used by the same occlusion query
+	link_t          multiQuery;				// CHC++: list of all nodes that are used by the same occlusion query
 } trRefEntity_t;
 
 typedef struct
@@ -444,10 +444,10 @@ typedef struct
 // useful helper struct
 typedef struct vertexHash_s
 {
-	vec3_t				xyz;
-	void			    *data;
+	vec3_t          xyz;
+	void           *data;
 
-	struct vertexHash_s	*next;
+	struct vertexHash_s *next;
 } vertexHash_t;
 
 enum
@@ -552,7 +552,7 @@ typedef struct VBO_s
 
 	uint32_t        vertexesVBO;
 	uint32_t        vertexesSize;	// amount of memory data allocated for all vertices in bytes
-	uint32_t		vertexesNum;
+	uint32_t        vertexesNum;
 	uint32_t        ofsXYZ;
 	uint32_t        ofsTexCoords;
 	uint32_t        ofsLightCoords;
@@ -560,15 +560,15 @@ typedef struct VBO_s
 	uint32_t        ofsBinormals;
 	uint32_t        ofsNormals;
 	uint32_t        ofsColors;
-	uint32_t		ofsPaintColors;		// for advanced terrain blending
-	uint32_t		ofsLightDirections;
+	uint32_t        ofsPaintColors;		// for advanced terrain blending
+	uint32_t        ofsLightDirections;
 	uint32_t        ofsBoneIndexes;
 	uint32_t        ofsBoneWeights;
 
-	uint32_t		sizeXYZ;
-	uint32_t		sizeTangents;
-	uint32_t		sizeBinormals;
-	uint32_t		sizeNormals;
+	uint32_t        sizeXYZ;
+	uint32_t        sizeTangents;
+	uint32_t        sizeBinormals;
+	uint32_t        sizeNormals;
 
 	uint32_t        attribs;
 } VBO_t;
@@ -579,7 +579,7 @@ typedef struct IBO_s
 
 	uint32_t        indexesVBO;
 	uint32_t        indexesSize;	// amount of memory data allocated for all triangles in bytes
-	uint32_t		indexesNum;
+	uint32_t        indexesNum;
 
 //  uint32_t        ofsIndexes;
 } IBO_t;
@@ -984,7 +984,7 @@ typedef struct
 
 	expression_t    alphaTestExp;
 
-	qboolean		tcGen_Environment;
+	qboolean        tcGen_Environment;
 
 	byte            constantColor[4];	// for CGEN_CONST and AGEN_CONST
 
@@ -3854,13 +3854,13 @@ typedef struct
 	int             numFBOs;
 	FBO_t          *fbos[MAX_FBOS];
 
-	GLuint			vao;
+	GLuint          vao;
 
 	growList_t      vbos;
 	growList_t      ibos;
 
 	byte           *cubeTemp[6];	// 6 textures for cubemap storage
-	growList_t		cubeProbes;		// all cubemaps in a linear growing list
+	growList_t      cubeProbes;		// all cubemaps in a linear growing list
 	vertexHash_t  **cubeHashTable;	// hash table for faster access
 
 	// shader indexes from other modules will be looked up in tr.shaders[]
@@ -4515,16 +4515,16 @@ typedef struct shaderCommands_s
 	shader_t       *lightShader;
 
 	qboolean        skipTangentSpaces;
-	qboolean		skipVBO;
+	qboolean        skipVBO;
 	int16_t         lightmapNum;
-	int16_t			fogNum;
+	int16_t         fogNum;
 
 	uint32_t        numIndexes;
 	uint32_t        numVertexes;
 
-	int				multiDrawPrimitives;
-	glIndex_t*		multiDrawIndexes[MAX_MULTIDRAW_PRIMITIVES];
-	int				multiDrawCounts[MAX_MULTIDRAW_PRIMITIVES];
+	int             multiDrawPrimitives;
+	glIndex_t*      multiDrawIndexes[MAX_MULTIDRAW_PRIMITIVES];
+	int             multiDrawCounts[MAX_MULTIDRAW_PRIMITIVES];
 
 	qboolean        vboVertexSkinning;
 	matrix_t        boneMatrices[MAX_BONES];
@@ -4554,7 +4554,7 @@ void            Tess_Begin(	void (*stageIteratorFunc)(),
 							int	fogNum);
 // *INDENT-ON*
 void            Tess_End(void);
-void			Tess_EndBegin();
+void            Tess_EndBegin();
 void            Tess_DrawElements();
 void            Tess_CheckOverflow(int verts, int indexes);
 
@@ -4582,8 +4582,8 @@ Add a polyhedron that is composed of four triangular faces
 */
 void            Tess_AddTetrahedron(vec4_t tetraVerts[4], vec4_t const color);
 
-void			Tess_AddCube(const vec3_t position, const vec3_t minSize, const vec3_t maxSize, const vec4_t color);
-void			Tess_AddCubeWithNormals(const vec3_t position, const vec3_t minSize, const vec3_t maxSize, const vec4_t color);
+void            Tess_AddCube(const vec3_t position, const vec3_t minSize, const vec3_t maxSize, const vec4_t color);
+void            Tess_AddCubeWithNormals(const vec3_t position, const vec3_t minSize, const vec3_t maxSize, const vec4_t color);
 
 void            Tess_InstantQuad(vec4_t quadVerts[4]);
 void            Tess_UpdateVBOs(uint32_t attribBits);
@@ -5128,13 +5128,13 @@ void            RE_BeginFrame(stereoFrame_t stereoFrame);
 void            RE_EndFrame(int *frontEndMsec, int *backEndMsec);
 
 
-void			LoadTGA(const char *name, byte ** pic, int *width, int *height, byte alphaByte);
+void            LoadTGA(const char *name, byte ** pic, int *width, int *height, byte alphaByte);
 
 void            LoadJPG(const char *filename, unsigned char **pic, int *width, int *height, byte alphaByte);
 void            SaveJPG(char *filename, int quality, int image_width, int image_height, unsigned char *image_buffer);
 int             SaveJPGToBuffer(byte * buffer, size_t bufferSize, int quality, int image_width, int image_height, byte * image_buffer);
 
-void			LoadPNG(const char *name, byte ** pic, int *width, int *height, byte alphaByte);
+void            LoadPNG(const char *name, byte ** pic, int *width, int *height, byte alphaByte);
 void            SavePNG(const char *name, const byte * pic, int width, int height, int numBytes, qboolean flip);
 
 #ifdef USE_WEBP
@@ -5157,11 +5157,11 @@ void            R_DoneFreeType();
 void            RE_RegisterFont(const char *fontName, int pointSize, fontInfo_t * font);
 
 // bani
-void			RE_RenderToTexture(int textureid, int x, int y, int w, int h);
-void			RE_Finish(void);
+void            RE_RenderToTexture(int textureid, int x, int y, int w, int h);
+void            RE_Finish(void);
 
-void			LoadRGBEToFloats(const char *name, float **pic, int *width, int *height, qboolean doGamma, qboolean toneMap, qboolean compensate);
-void			LoadRGBEToHalfs(const char *name, unsigned short ** halfImage, int *width, int *height);
+void            LoadRGBEToFloats(const char *name, float **pic, int *width, int *height, qboolean doGamma, qboolean toneMap, qboolean compensate);
+void            LoadRGBEToHalfs(const char *name, unsigned short ** halfImage, int *width, int *height);
 
 #if defined(__cplusplus)
 }

@@ -534,7 +534,9 @@ qboolean R_GetModeInfo(int *width, int *height, float *windowAspect, int mode)
 		*width = r_customwidth->integer;
 		*height = r_customheight->integer;
 		*windowAspect = r_customaspect->value;
-	} else {
+	}
+	else
+	{
 		vm = &r_vidModes[mode];
 	
 		*width = vm->width;
@@ -604,7 +606,7 @@ static byte *RB_ReadPixels(int x, int y, int width, int height, size_t offset)
 	paddedLineLen = PAD(lineLen, packAlign);
 
 	// Allocate a few more bytes so that we can choose an alignment we like
-	buffer = (byte*)ri.Hunk_AllocateTempMemory(offset + (paddedLineLen * height) + packAlign);
+	buffer = (byte*)ri.Hunk_AllocateTempMemory(offset + (paddedLineLen * height) + packAlign - 1);
 
 	pixels = (byte*)PADP(buffer + offset, packAlign);
 	glReadPixels(x, y, width, height, GL_RGB, GL_UNSIGNED_BYTE, pixels);
@@ -1111,7 +1113,7 @@ void GL_SetDefaultState(void)
 
 	GL_CheckErrors();
 
-	glVertexAttrib4fARB(ATTR_INDEX_COLOR, 1, 1, 1, 1);
+	glVertexAttrib4f(ATTR_INDEX_COLOR, 1, 1, 1, 1);
 
 	GL_CheckErrors();
 
@@ -1156,8 +1158,8 @@ void GL_SetDefaultState(void)
 	glState.currentProgram = 0;
 	glUseProgramObjectARB(0);
 
-	glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-	glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	glState.currentVBO = NULL;
 	glState.currentIBO = NULL;
 
@@ -1165,7 +1167,7 @@ void GL_SetDefaultState(void)
 
 	// the vertex array is always enabled, but the color and texture
 	// arrays are enabled and disabled around the compiled vertex array call
-	glEnableVertexAttribArrayARB(ATTR_INDEX_POSITION);
+	glEnableVertexAttribArray(ATTR_INDEX_POSITION);
 
 	/*
 	   OpenGL 3.0 spec: E.1. PROFILES AND DEPRECATED FEATURES OF OPENGL 3.0 405
@@ -1460,7 +1462,7 @@ void R_Register(void)
 	r_depthOfField = ri.Cvar_Get("r_depthOfField", "0", CVAR_ARCHIVE);
 #endif
 
-	r_reflectionMapping = ri.Cvar_Get("r_reflectionMapping", "0", CVAR_CHEAT);
+	r_reflectionMapping = ri.Cvar_Get("r_reflectionMapping", "1", CVAR_ARCHIVE | CVAR_LATCH | CVAR_SHADER);
 	r_highQualityNormalMapping = ri.Cvar_Get("r_highQualityNormalMapping", "0", CVAR_ARCHIVE | CVAR_LATCH);
 
 	r_forceAmbient = ri.Cvar_Get("r_forceAmbient", "0.125", CVAR_ARCHIVE | CVAR_LATCH);
@@ -1487,12 +1489,12 @@ void R_Register(void)
 
 	r_singleShader = ri.Cvar_Get("r_singleShader", "0", CVAR_CHEAT | CVAR_LATCH);
 	r_stitchCurves = ri.Cvar_Get("r_stitchCurves", "1", CVAR_CHEAT | CVAR_LATCH);
-	r_debugShadowMaps = ri.Cvar_Get("r_debugShadowMaps", "0", CVAR_CHEAT | CVAR_SHADER);
+	r_debugShadowMaps = ri.Cvar_Get("r_debugShadowMaps", "0", CVAR_CHEAT | CVAR_LATCH | CVAR_SHADER);
 	r_shadowMapLuminanceAlpha = ri.Cvar_Get("r_shadowMapLuminanceAlpha", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_shadowMapLinearFilter = ri.Cvar_Get("r_shadowMapLinearFilter", "1", CVAR_CHEAT | CVAR_LATCH);
-	r_lightBleedReduction = ri.Cvar_Get("r_lightBleedReduction", "0", CVAR_CHEAT | CVAR_SHADER);
-	r_overDarkeningFactor = ri.Cvar_Get("r_overDarkeningFactor", "30.0", CVAR_CHEAT | CVAR_SHADER);
-	r_shadowMapDepthScale = ri.Cvar_Get("r_shadowMapDepthScale", "1.41", CVAR_CHEAT | CVAR_SHADER);
+	r_lightBleedReduction = ri.Cvar_Get("r_lightBleedReduction", "0", CVAR_CHEAT | CVAR_LATCH | CVAR_SHADER);
+	r_overDarkeningFactor = ri.Cvar_Get("r_overDarkeningFactor", "30.0", CVAR_CHEAT | CVAR_LATCH | CVAR_SHADER);
+	r_shadowMapDepthScale = ri.Cvar_Get("r_shadowMapDepthScale", "1.41", CVAR_CHEAT | CVAR_LATCH | CVAR_SHADER);
 
 	r_parallelShadowSplitWeight = ri.Cvar_Get("r_parallelShadowSplitWeight", "0.9", CVAR_CHEAT);
 	r_parallelShadowSplits = ri.Cvar_Get("r_parallelShadowSplits", "2", CVAR_CHEAT | CVAR_SHADER);
@@ -1522,16 +1524,16 @@ void R_Register(void)
 	r_ambientScale = ri.Cvar_Get("r_ambientScale", "0.6", CVAR_CHEAT);
 	r_lightScale = ri.Cvar_Get("r_lightScale", "2", CVAR_CHEAT);
 
-	r_vboFaces = ri.Cvar_Get("r_vboFaces", "1", CVAR_CHEAT);
-	r_vboCurves = ri.Cvar_Get("r_vboCurves", "1", CVAR_CHEAT);
-	r_vboTriangles = ri.Cvar_Get("r_vboTriangles", "1", CVAR_CHEAT);
-	r_vboShadows = ri.Cvar_Get("r_vboShadows", "1", CVAR_CHEAT);
-	r_vboLighting = ri.Cvar_Get("r_vboLighting", "1", CVAR_CHEAT);
-	r_vboModels = ri.Cvar_Get("r_vboModels", "1", CVAR_CHEAT);
-	r_vboOptimizeVertices = ri.Cvar_Get("r_vboOptimizeVertices", "1", CVAR_CHEAT | CVAR_LATCH);
-	r_vboVertexSkinning = ri.Cvar_Get("r_vboVertexSkinning", "1", CVAR_ARCHIVE | CVAR_LATCH);
-	r_vboDeformVertexes = ri.Cvar_Get("r_vboDeformVertexes", "0", CVAR_ARCHIVE | CVAR_LATCH);
-	r_vboSmoothNormals = ri.Cvar_Get("r_vboSmoothNormals", "1", CVAR_ARCHIVE | CVAR_LATCH);
+	r_vboFaces = ri.Cvar_Get("r_vboFaces", "1", CVAR_CHEAT | CVAR_SHADER);
+	r_vboCurves = ri.Cvar_Get("r_vboCurves", "1", CVAR_CHEAT | CVAR_SHADER);
+	r_vboTriangles = ri.Cvar_Get("r_vboTriangles", "1", CVAR_CHEAT | CVAR_SHADER);
+	r_vboShadows = ri.Cvar_Get("r_vboShadows", "1", CVAR_CHEAT | CVAR_SHADER);
+	r_vboLighting = ri.Cvar_Get("r_vboLighting", "1", CVAR_CHEAT | CVAR_SHADER);
+	r_vboModels = ri.Cvar_Get("r_vboModels", "1", CVAR_CHEAT | CVAR_SHADER);
+	r_vboOptimizeVertices = ri.Cvar_Get("r_vboOptimizeVertices", "1", CVAR_CHEAT | CVAR_LATCH | CVAR_SHADER);
+	r_vboVertexSkinning = ri.Cvar_Get("r_vboVertexSkinning", "1", CVAR_ARCHIVE | CVAR_LATCH | CVAR_SHADER);
+	r_vboDeformVertexes = ri.Cvar_Get("r_vboDeformVertexes", "0", CVAR_ARCHIVE | CVAR_LATCH | CVAR_SHADER);
+	r_vboSmoothNormals = ri.Cvar_Get("r_vboSmoothNormals", "1", CVAR_ARCHIVE | CVAR_LATCH | CVAR_SHADER);
 
 #if defined(USE_BSP_CLUSTERSURFACE_MERGING)
 	r_mergeClusterSurfaces = ri.Cvar_Get("r_mergeClusterSurfaces", "0", CVAR_CHEAT);
@@ -1540,15 +1542,15 @@ void R_Register(void)
 	r_mergeClusterTriangles = ri.Cvar_Get("r_mergeClusterTriangles", "1", CVAR_CHEAT);
 #endif
 
-	r_dynamicBspOcclusionCulling = ri.Cvar_Get("r_dynamicBspOcclusionCulling", "0", CVAR_ARCHIVE);
-	r_dynamicEntityOcclusionCulling = ri.Cvar_Get("r_dynamicEntityOcclusionCulling", "0", CVAR_CHEAT);
+	r_dynamicBspOcclusionCulling = ri.Cvar_Get("r_dynamicBspOcclusionCulling", "0", CVAR_ARCHIVE | CVAR_SHADER);
+	r_dynamicEntityOcclusionCulling = ri.Cvar_Get("r_dynamicEntityOcclusionCulling", "0", CVAR_CHEAT | CVAR_SHADER);
 	r_dynamicLightOcclusionCulling = ri.Cvar_Get("r_dynamicLightOcclusionCulling", "0", CVAR_CHEAT);
 	r_chcMaxPrevInvisNodesBatchSize = ri.Cvar_Get("r_chcMaxPrevInvisNodesBatchSize", "50", CVAR_CHEAT);
 	r_chcMaxVisibleFrames = ri.Cvar_Get("r_chcMaxVisibleFrames", "10", CVAR_CHEAT);
 	r_chcVisibilityThreshold = ri.Cvar_Get("r_chcVisibilityThreshold", "20", CVAR_CHEAT);
 	r_chcIgnoreLeaves = ri.Cvar_Get("r_chcIgnoreLeaves", "0", CVAR_CHEAT);
 
-	r_hdrRendering = ri.Cvar_Get("r_hdrRendering", "0", CVAR_ARCHIVE | CVAR_LATCH);
+	r_hdrRendering = ri.Cvar_Get("r_hdrRendering", "0", CVAR_ARCHIVE | CVAR_LATCH | CVAR_SHADER);
 
 	// HACK turn off HDR for development
 	if(r_deferredShading->integer)
@@ -1576,6 +1578,7 @@ void R_Register(void)
 	r_bloom = ri.Cvar_Get("r_bloom", "0", CVAR_ARCHIVE);
 	r_bloomBlur = ri.Cvar_Get("r_bloomBlur", "5.0", CVAR_CHEAT);
 	r_bloomPasses = ri.Cvar_Get("r_bloomPasses", "2", CVAR_CHEAT);
+	
 	r_rotoscope = ri.Cvar_Get("r_rotoscope", "0", CVAR_ARCHIVE);
 	r_cameraPostFX = ri.Cvar_Get("r_cameraPostFX", "0", CVAR_ARCHIVE);
 	r_cameraVignette = ri.Cvar_Get("r_cameraVignette", "1", CVAR_ARCHIVE);
@@ -2117,7 +2120,7 @@ qboolean R_Init(void)
 
 	if(glConfig2.occlusionQueryBits && glConfig.driverType != GLDRV_MESA)
 	{
-		glGenQueriesARB(MAX_OCCLUSION_QUERIES, tr.occlusionQueryObjects);
+		glGenQueries(MAX_OCCLUSION_QUERIES, tr.occlusionQueryObjects);
 	}
 
 	GL_CheckErrors();
@@ -2172,7 +2175,7 @@ void RE_Shutdown(qboolean destroyWindow)
 
 		if(glConfig2.occlusionQueryBits && glConfig.driverType != GLDRV_MESA)
 		{
-			glDeleteQueriesARB(MAX_OCCLUSION_QUERIES, tr.occlusionQueryObjects);
+			glDeleteQueries(MAX_OCCLUSION_QUERIES, tr.occlusionQueryObjects);
 
 			if(tr.world)
 			{
@@ -2184,7 +2187,7 @@ void RE_Shutdown(qboolean destroyWindow)
 				{
 					node = &tr.world->nodes[j];
 
-					glDeleteQueriesARB(MAX_VIEWS, node->occlusionQueryObjects);
+					glDeleteQueries(MAX_VIEWS, node->occlusionQueryObjects);
 				}
 
 				/*
@@ -2192,7 +2195,7 @@ void RE_Shutdown(qboolean destroyWindow)
 				{
 					light = &tr.world->lights[j];
 
-					glDeleteQueriesARB(MAX_VIEWS, light->occlusionQueryObjects);
+					glDeleteQueries(MAX_VIEWS, light->occlusionQueryObjects);
 				}
 				*/
 			}

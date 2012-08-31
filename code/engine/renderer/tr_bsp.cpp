@@ -5163,8 +5163,8 @@ static void R_LoadNodesAndLeafs(lump_t * nodeLump, lump_t * leafLump)
 	srfVert_t      *verts = NULL;
 	srfTriangle_t  *triangles = NULL;
 	IBO_t          *volumeIBO;
-	vec3_t			mins, maxs;
-//	vec3_t			offset = {0.01, 0.01, 0.01};
+	vec3_t          mins, maxs;
+//	vec3_t          offset = {0.01, 0.01, 0.01};
 
 	ri.Printf(PRINT_ALL, "...loading nodes and leaves\n");
 

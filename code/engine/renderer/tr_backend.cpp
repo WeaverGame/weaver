@@ -8582,8 +8582,8 @@ static void RB_RenderDebugUtils()
 		vec4_t          lightColor;
 		vec4_t          quadVerts[4];
 
-		vec3_t			minSize = {-2, -2, -2};
-		vec3_t			maxSize = { 2,  2,  2};
+		vec3_t          minSize = {-2, -2, -2};
+		vec3_t          maxSize = { 2,  2,  2};
 
 		gl_genericShader->DisableAlphaTesting();
 		gl_genericShader->DisablePortalClipping();

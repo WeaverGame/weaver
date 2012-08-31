@@ -1340,7 +1340,7 @@ static void R_AddEdgeToLightScissor(trRefLight_t * light, vec3_t local1, vec3_t 
 	int             i;
 	vec3_t          intersect = {0};
 	vec3_t          world1, world2;
-	qboolean        side1, side2;
+	bool            side1, side2;
 	cplane_t       *frust;
 
 	for(i = 0; i < FRUSTUM_PLANES; i++)
@@ -1351,8 +1351,8 @@ static void R_AddEdgeToLightScissor(trRefLight_t * light, vec3_t local1, vec3_t 
 		frust = &tr.viewParms.frustums[0][i];
 
 		// check edge to frustrum plane
-		side1 = (qboolean)((DotProduct(frust->normal, world1) - frust->dist) >= 0.0);
-		side2 = (qboolean)((DotProduct(frust->normal, world2) - frust->dist) >= 0.0);
+		side1 = ((DotProduct(frust->normal, world1) - frust->dist) >= 0.0);
+		side2 = ((DotProduct(frust->normal, world2) - frust->dist) >= 0.0);
 
 		if(glConfig2.occlusionQueryAvailable && i == FRUSTUM_NEAR)
 		{

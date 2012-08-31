@@ -27,10 +27,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 R_CreateVBO
 ============
 */
-VBO_t          *R_CreateVBO(const char *name, byte * vertexes, int vertexesSize, vboUsage_t usage)
+VBO_t          *R_CreateVBO(const char *name, byte *vertexes, int vertexesSize, vboUsage_t usage)
 {
 	VBO_t          *vbo;
-	int				glUsage;
+	int             glUsage;
 
 	switch (usage)
 	{
@@ -97,7 +97,7 @@ R_CreateVBO2
 RB: OPTIMIZE rewrite to not use memcpy
 ============
 */
-VBO_t          *R_CreateVBO2(const char *name, int numVertexes, srfVert_t * verts, unsigned int stateBits, vboUsage_t usage)
+VBO_t          *R_CreateVBO2(const char *name, int numVertexes, srfVert_t *verts, unsigned int stateBits, vboUsage_t usage)
 {
 	VBO_t          *vbo;
 	int             i, j;
@@ -107,7 +107,7 @@ VBO_t          *R_CreateVBO2(const char *name, int numVertexes, srfVert_t * vert
 	int             dataOfs;
 
 	vec4_t          tmp;
-	int				glUsage;
+	int             glUsage;
 
 	switch (usage)
 	{
@@ -336,10 +336,10 @@ VBO_t          *R_CreateVBO2(const char *name, int numVertexes, srfVert_t * vert
 R_CreateIBO
 ============
 */
-IBO_t          *R_CreateIBO(const char *name, byte * indexes, int indexesSize, vboUsage_t usage)
+IBO_t          *R_CreateIBO(const char *name, byte *indexes, int indexesSize, vboUsage_t usage)
 {
 	IBO_t          *ibo;
-	int				glUsage;
+	int             glUsage;
 
 	switch (usage)
 	{
@@ -387,7 +387,7 @@ IBO_t          *R_CreateIBO(const char *name, byte * indexes, int indexesSize, v
 R_CreateIBO2
 ============
 */
-IBO_t          *R_CreateIBO2(const char *name, int numTriangles, srfTriangle_t * triangles, vboUsage_t usage)
+IBO_t          *R_CreateIBO2(const char *name, int numTriangles, srfTriangle_t *triangles, vboUsage_t usage)
 {
 	IBO_t          *ibo;
 	int             i, j;
@@ -398,7 +398,7 @@ IBO_t          *R_CreateIBO2(const char *name, int numTriangles, srfTriangle_t *
 
 	srfTriangle_t  *tri;
 	glIndex_t       index;
-	int				glUsage;
+	int             glUsage;
 
 	switch (usage)
 	{
@@ -569,8 +569,8 @@ void R_BindNullIBO(void)
 
 static void R_InitUnitCubeVBO()
 {
-	vec3_t			mins = {-1, -1, -1};
-	vec3_t			maxs = { 1,  1,  1};
+	vec3_t          mins = {-1, -1, -1};
+	vec3_t          maxs = { 1,  1,  1};
 	
 	int             i, j;
 	vec4_t          quadVerts[4];
@@ -773,7 +773,7 @@ void R_VBOList_f(void)
 			// FIXME: clean up this code
 			for(i = 0; i < tr.world->clusterVBOSurfaces[j].currentElements; i++)
 			{
-				srfVBOMesh_t   *vboSurf;
+				srfVBOMesh_t *vboSurf;
 
 				vboSurf = (srfVBOMesh_t *) Com_GrowListElement(&tr.world->clusterVBOSurfaces[j], i);
 				ibo = vboSurf->ibo;
