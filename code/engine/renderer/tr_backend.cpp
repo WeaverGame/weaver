@@ -164,7 +164,7 @@ void GL_BindProgram(shaderProgram_t * program)
 
 	if(glState.currentProgram != program)
 	{
-		glUseProgramObjectARB(program->program);
+		glUseProgram(program->program);
 		glState.currentProgram = program;
 	}
 }
@@ -178,7 +178,7 @@ void GL_BindNullProgram(void)
 
 	if(glState.currentProgram)
 	{
-		glUseProgramObjectARB(0);
+		glUseProgram(0);
 		glState.currentProgram = NULL;
 	}
 }
@@ -192,11 +192,11 @@ void GL_SelectTexture(int unit)
 
 	if(unit >= 0 && unit <= 31)
 	{
-		glActiveTextureARB(GL_TEXTURE0_ARB + unit);
+		glActiveTexture(GL_TEXTURE0 + unit);
 
 		if(r_logFile->integer)
 		{
-			GLimp_LogComment(va("glActiveTextureARB( GL_TEXTURE%i_ARB )\n", unit));
+			GLimp_LogComment(va("glActiveTexture( GL_TEXTURE%i )\n", unit));
 		}
 	}
 	else
@@ -1594,7 +1594,6 @@ static void RB_RenderOpaqueSurfacesIntoDepth(bool onlyWorld)
 
 
 // *INDENT-OFF*
-#ifdef VOLUMETRIC_LIGHTING
 static void Render_lightVolume(interaction_t * ia)
 {
 	int             j;
@@ -1678,7 +1677,7 @@ static void Render_lightVolume(interaction_t * ia)
 			GLimp_LogComment("--- Render_lightVolume_omni ---\n");
 
 			// enable shader, set arrays
-			GL_BindProgram(&tr.lightVolumeShader_omni);
+			gl_volumetricLightingShader->BindProgram();
 			//GL_VertexAttribsState(tr.lightVolumeShader_omni.attribs);
 			GL_Cull(CT_TWO_SIDED);
 			GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
@@ -1691,22 +1690,22 @@ static void Render_lightVolume(interaction_t * ia)
 			VectorCopy(light->origin, lightOrigin);
 			VectorCopy(tess.svars.color, lightColor);
 
-			shadowCompare = (qboolean)(r_shadows->integer >= SHADOWING_ESM16 && !light->l.noShadows && light->shadowLOD >= 0);
+			shadowCompare = (r_shadows->integer >= SHADOWING_ESM16 && !light->l.noShadows && light->shadowLOD >= 0);
 
-			GLSL_SetUniform_ViewOrigin(&tr.lightVolumeShader_omni, viewOrigin);
-			GLSL_SetUniform_LightOrigin(&tr.lightVolumeShader_omni, lightOrigin);
-			GLSL_SetUniform_LightColor(&tr.lightVolumeShader_omni, lightColor);
-			GLSL_SetUniform_LightRadius(&tr.lightVolumeShader_omni, light->sphereRadius);
-			GLSL_SetUniform_LightScale(&tr.lightVolumeShader_omni, light->l.scale);
-			GLSL_SetUniform_LightAttenuationMatrix(&tr.lightVolumeShader_omni, light->attenuationMatrix2);
+			gl_volumetricLightingShader->SetUniform_ViewOrigin(viewOrigin);
+			gl_volumetricLightingShader->SetUniform_LightOrigin(lightOrigin);
+			gl_volumetricLightingShader->SetUniform_LightColor(lightColor);
+			gl_volumetricLightingShader->SetUniform_LightRadius(light->sphereRadius);
+			gl_volumetricLightingShader->SetUniform_LightScale(light->l.scale);
+			gl_volumetricLightingShader->SetUniform_LightAttenuationMatrix(light->attenuationMatrix2);
 
-			// FIXME GLSL_SetUniform_ShadowMatrix(&tr.lightVolumeShader_omni, light->attenuationMatrix);
-			GLSL_SetUniform_ShadowCompare(&tr.lightVolumeShader_omni, shadowCompare);
+			// FIXME  gl_volumetricLightingShader->SetUniform_ShadowMatrix(light->attenuationMatrix);
+			gl_volumetricLightingShader->SetUniform_ShadowCompare(shadowCompare);
 
-			GLSL_SetUniform_ModelViewProjectionMatrix(&tr.lightVolumeShader_omni, glState.modelViewProjectionMatrix[glState.stackIndex]);
-			GLSL_SetUniform_UnprojectMatrix(&tr.lightVolumeShader_omni, backEnd.viewParms.unprojectionMatrix);
+			gl_volumetricLightingShader->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
+			gl_volumetricLightingShader->SetUniform_UnprojectMatrix(backEnd.viewParms.unprojectionMatrix);
 
-			//GLSL_SetUniform_PortalClipping(&tr.lightVolumeShader_omni, backEnd.viewParms.isPortal);
+			//gl_volumetricLightingShader->SetUniform_PortalClipping(&tr.lightVolumeShader_omni, backEnd.viewParms.isPortal);
 
 			// bind u_DepthMap
 			GL_SelectTexture(0);
@@ -1755,7 +1754,6 @@ static void Render_lightVolume(interaction_t * ia)
 
 	GL_PopMatrix();
 }
-#endif
 // *INDENT-ON*
 
 
@@ -2134,13 +2132,11 @@ static void RB_RenderInteractions()
 			// draw the contents of the last shader batch
 			Tess_End();
 
-#ifdef VOLUMETRIC_LIGHTING
 			// draw the light volume if needed
 			if(light->shader->volumetricLight)
 			{
 				Render_lightVolume(ia);
 			}
-#endif
 
 			if(iaCount < (backEnd.viewParms.numInteractions - 1))
 			{
@@ -3376,13 +3372,11 @@ static void RB_RenderInteractionsShadowMapped()
 			}
 			else
 			{
-#ifdef VOLUMETRIC_LIGHTING
 				// draw the light volume if needed
 				if(light->shader->volumetricLight)
 				{
 					Render_lightVolume(ia);
 				}
-#endif
 
 				if(iaCount < (backEnd.viewParms.numInteractions - 1))
 				{
@@ -6290,13 +6284,11 @@ static void RB_RenderInteractionsDeferredShadowMapped()
 			}
 			else
 			{
-#ifdef VOLUMETRIC_LIGHTING
 				// draw the light volume if needed
 				if(light->shader->volumetricLight)
 				{
 					Render_lightVolume(ia);
 				}
-#endif
 
 				if(iaCount < (backEnd.viewParms.numInteractions - 1))
 				{
@@ -6749,6 +6741,12 @@ void RB_RenderBloom()
 
 
 		// render bloom in multiple passes
+#if 1
+		gl_bloomShader->BindProgram();
+
+		gl_bloomShader->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
+		gl_bloomShader->SetUniform_BlurMargnitudeValue(r_bloomBlur->value);
+#endif
 		for(i = 0; i < 2; i++)
 		{
 			for(j = 0; j < r_bloomPasses->integer; j++)
@@ -6848,7 +6846,6 @@ void RB_RenderBloom()
 
 void RB_RenderRotoscope(void)
 {
-#if 0 //!defined(GLSL_COMPILE_STARTUP_ONLY)
 	matrix_t        ortho;
 
 	GLimp_LogComment("--- RB_RenderRotoscope ---\n");
@@ -6869,10 +6866,9 @@ void RB_RenderRotoscope(void)
 	GL_Cull(CT_TWO_SIDED);
 
 	// enable shader, set arrays
-	GL_BindProgram(&tr.rotoscopeShader);
-
-	GLSL_SetUniform_ModelViewProjectionMatrix(&tr.rotoscopeShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
-	glUniform1fARB(tr.rotoscopeShader.u_BlurMagnitude, r_bloomBlur->value);
+	gl_rotoscopeShader->BindProgram();
+	gl_rotoscopeShader->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
+	gl_rotoscopeShader->SetUniform_BlurMargnitudeValue(r_rotoscopeBlur->value);
 
 	GL_SelectTexture(0);
 	GL_Bind(tr.currentRenderImage);
@@ -6885,7 +6881,6 @@ void RB_RenderRotoscope(void)
 	GL_PopMatrix();
 
 	GL_CheckErrors();
-#endif
 }
 
 void RB_CameraPostFX(void)
@@ -8391,7 +8386,7 @@ void RB_RenderEntityOcclusionQueries()
 //
 // ================================================================================================
 
-#if 0
+#if 1
 void RB_RenderBspOcclusionQueries()
 {
 	GLimp_LogComment("--- RB_RenderBspOcclusionQueries ---\n");
@@ -8408,15 +8403,21 @@ void RB_RenderBspOcclusionQueries()
 		GL_LoadProjectionMatrix(backEnd.viewParms.projectionMatrix);
 
 		// set uniforms
-		GLSL_SetUniform_TCGen_Environment(&tr.genericShader,  qfalse);
-		GLSL_SetUniform_ColorGen(&tr.genericShader, CGEN_VERTEX);
-		GLSL_SetUniform_AlphaGen(&tr.genericShader, AGEN_VERTEX);
+		gl_genericShader->SetUniform_ColorModulate(CGEN_CONST, AGEN_CONST);
+		gl_genericShader->SetUniform_Color(colorBlue);
+
+		GL_LoadProjectionMatrix(backEnd.viewParms.projectionMatrix);
+
+		// set uniforms
+		gl_genericShader->SetTCGenEnvironment(qfalse);
+		gl_genericShader->SetUniform_ColorModulate(CGEN_CONST, AGEN_CONST);
+		gl_genericShader->SetUniform_Color(colorBlue);
 		if(glConfig2.vboVertexSkinningAvailable)
 		{
 			gl_genericShader->SetVertexSkinning(qfalse);
 		}
-		GLSL_SetUniform_DeformGen(&tr.genericShader, DGEN_NONE);
-		GLSL_SetUniform_AlphaTest(&tr.genericShader, 0);
+		gl_genericShader->SetUniform_DeformParms(tess.surfaceShader->deforms, tess.surfaceShader->numDeforms);
+		gl_genericShader->SetUniform_AlphaTest(0);
 
 		// set up the transformation matrix
 		backEnd.orientation = backEnd.viewParms.world;
@@ -8479,7 +8480,7 @@ void RB_CollectBspOcclusionQueries()
 
 	if(glConfig2.occlusionQueryBits && glConfig.driverType != GLDRV_MESA && r_dynamicBspOcclusionCulling->integer)
 	{
-		//int             j;
+		int             j;
 		bspNode_t      *node;
 		link_t		   *l, *next, *sentinel;
 
@@ -8515,13 +8516,13 @@ void RB_CollectBspOcclusionQueries()
 					available = 0;
 					if(glIsQuery(node->occlusionQueryObjects[backEnd.viewParms.viewCount]))
 					{
-						glGetQueryObjectiv(node->occlusionQueryObjects[backEnd.viewParms.viewCount], GL_QUERY_RESULT_AVAILABLE_ARB, &available);
+						glGetQueryObjectiv(node->occlusionQueryObjects[backEnd.viewParms.viewCount], GL_QUERY_RESULT_AVAILABLE, &available);
 						GL_CheckErrors();
 					}
 
 					if(available)
 					{
-						node->issueOcclusionQuery = qfalse;
+						node->issueOcclusionQuery[j] = qfalse;
 						avCount++;
 
 						//if(//avCount % oc)
@@ -10392,7 +10393,7 @@ static void RB_RenderView(void)
 		GL_CheckErrors();
 
 		// render bloom post process effect
-		//RB_RenderBloom();
+		RB_RenderBloom();
 
 		// copy offscreen rendered scene to the current OpenGL context
 		RB_RenderDeferredShadingResultToFrameBuffer();
@@ -10783,15 +10784,11 @@ static void RB_RenderView(void)
 		// render rotoscope post process effect
 		RB_RenderRotoscope();
 
-#if 0
 		// add the sun flare
 		RB_DrawSun();
-#endif
 
-#if 0
 		// add light flares on lights that aren't obscured
 		RB_RenderFlares();
-#endif
 
 		// wait until all bsp node occlusion queries are back
 		//RB_CollectBspOcclusionQueries();

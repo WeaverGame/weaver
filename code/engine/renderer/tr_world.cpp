@@ -1633,7 +1633,7 @@ static void IssueMultiOcclusionQueries(link_t * multiQueue, link_t * individualQ
 	GLimp_LogComment("--- IssueMultiOcclusionQueries end ---\n");
 }
 
-static qboolean ResultAvailable(bspNode_t *node)
+static bool ResultAvailable(bspNode_t *node)
 {
 	GLint			available;
 
@@ -1646,7 +1646,7 @@ static qboolean ResultAvailable(bspNode_t *node)
 		GL_CheckErrors();
 	}
 
-	return (qboolean) available;
+	return available;
 }
 
 static void GetOcclusionQueryResult(bspNode_t *node)

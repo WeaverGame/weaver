@@ -29,6 +29,9 @@ static int      r_firstSceneInteraction;
 static int      r_numLights;
 static int      r_firstSceneLight;
 
+static int      r_numcoronas;
+static int      r_firstSceneCorona;
+
 static int      r_numEntities;
 static int      r_firstSceneEntity;
 
@@ -540,13 +543,10 @@ void RE_AddDynamicLightToSceneQ3A(const vec3_t org, float radius, float r, float
 /*
 ==============
 RE_AddCoronaToScene
-
-RB: TODO
 ==============
 */
 void RE_AddCoronaToScene(const vec3_t org, float r, float g, float b, float scale, int id, qboolean visible)
 {
-#if 0
 	corona_t       *cor;
 
 	if(!tr.registered)
@@ -566,7 +566,6 @@ void RE_AddCoronaToScene(const vec3_t org, float r, float g, float b, float scal
 	cor->scale = scale;
 	cor->id = id;
 	cor->visible = visible;
-#endif
 }
 
 
@@ -668,6 +667,9 @@ void RE_RenderScene(const refdef_t * fd)
 	tr.refdef.numLights = r_numLights - r_firstSceneLight;
 	tr.refdef.lights = &backEndData[tr.smpFrame]->lights[r_firstSceneLight];
 
+	tr.refdef.num_coronas = r_numcoronas - r_firstSceneCorona;
+	tr.refdef.coronas = &backEndData[tr.smpFrame]->coronas[r_firstSceneCorona];
+
 	tr.refdef.numPolys = r_numPolys - r_firstScenePoly;
 	tr.refdef.polys = &backEndData[tr.smpFrame]->polys[r_firstScenePoly];
 
@@ -733,6 +735,8 @@ void RE_RenderScene(const refdef_t * fd)
 
 	parms.fovX = tr.refdef.fov_x;
 	parms.fovY = tr.refdef.fov_y;
+
+	parms.stereoFrame = tr.refdef.stereoFrame;
 
 	VectorCopy(fd->vieworg, parms.orientation.origin);
 	VectorCopy(fd->viewaxis[0], parms.orientation.axis[0]);

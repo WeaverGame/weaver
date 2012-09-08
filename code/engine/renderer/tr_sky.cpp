@@ -460,6 +460,7 @@ static void DrawSkyBox(shader_t * shader)
 	tess.numIndexes = 0;
 	tess.numVertexes = 0;
 
+	GL_State( GLS_DEFAULT );
 	for(i = 0; i < 6; i++)
 	{
 		int             sky_mins_subd[2], sky_maxs_subd[2];
@@ -707,7 +708,6 @@ void R_InitSkyTexCoords(float heightCloud)
 */
 void RB_DrawSun(void)
 {
-#if 0
 	float           size;
 	float           dist;
 	vec3_t          origin, vec1, vec2;
@@ -726,17 +726,17 @@ void RB_DrawSun(void)
 
 	GL_PushMatrix();
 
-	GL_BindProgram(&tr.genericShader);
+	gl_genericShader->DisableAlphaTesting();
+	gl_genericShader->DisablePortalClipping();
+	gl_genericShader->DisableVertexSkinning();
+	gl_genericShader->DisableVertexAnimation();
+	gl_genericShader->DisableDeformVertexes();
+	gl_genericShader->DisableTCGenEnvironment();
+
+	gl_genericShader->BindProgram();
 
 	// set uniforms
-	GLSL_SetUniform_TCGen_Environment(&tr.genericShader,  qfalse);
-	GLSL_SetUniform_InverseVertexColor(&tr.genericShader,  qfalse);
-	if(glConfig2.vboVertexSkinningAvailable)
-	{
-		GLSL_SetUniform_VertexSkinning(&tr.genericShader, qfalse);
-	}
-	GLSL_SetUniform_DeformGen(&tr.genericShader, DGEN_NONE);
-	GLSL_SetUniform_AlphaTest(&tr.genericShader, -1.0);
+	gl_genericShader->SetUniform_ColorModulate(CGEN_VERTEX, AGEN_VERTEX);
 
 	MatrixSetupTranslation(transformMatrix, backEnd.viewParms.orientation.origin[0], backEnd.viewParms.orientation.origin[1], backEnd.viewParms.orientation.origin[2]);
 	MatrixMultiply(backEnd.viewParms.world.viewMatrix, transformMatrix, modelViewMatrix);
@@ -744,10 +744,10 @@ void RB_DrawSun(void)
 	GL_LoadProjectionMatrix(backEnd.viewParms.projectionMatrix);
 	GL_LoadModelViewMatrix(modelViewMatrix);
 
-	GLSL_SetUniform_ModelMatrix(&tr.genericShader, backEnd.orientation.transformMatrix);
-	GLSL_SetUniform_ModelViewProjectionMatrix(&tr.genericShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
+	gl_genericShader->SetUniform_ModelMatrix(backEnd.orientation.transformMatrix);
+	gl_genericShader->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
 
-	GLSL_SetUniform_PortalClipping(&tr.genericShader, backEnd.viewParms.isPortal);
+	gl_genericShader->SetPortalClipping(backEnd.viewParms.isPortal);
 	if(backEnd.viewParms.isPortal)
 	{
 		float           plane[4];
@@ -758,7 +758,7 @@ void RB_DrawSun(void)
 		plane[2] = backEnd.viewParms.portalPlane.normal[2];
 		plane[3] = backEnd.viewParms.portalPlane.dist;
 
-		GLSL_SetUniform_PortalPlane(&tr.genericShader, plane);
+		gl_genericShader->SetUniform_PortalPlane(plane);
 	}
 
 
@@ -776,7 +776,7 @@ void RB_DrawSun(void)
 	glDepthRange(1.0, 1.0);
 
 	// FIXME: use quad stamp
-	Tess_Begin(Tess_StageIteratorGeneric, tr.sunShader, NULL, tess.skipTangentSpaces, qfalse, -1, tess.fogNum);
+	Tess_Begin(Tess_StageIteratorGeneric, NULL, tr.sunShader, NULL, tess.skipTangentSpaces, qfalse, -1, tess.fogNum);
 	VectorCopy(origin, temp);
 	VectorSubtract(temp, vec1, temp);
 	VectorSubtract(temp, vec2, temp);
@@ -846,7 +846,6 @@ void RB_DrawSun(void)
 	glDepthRange(0.0, 1.0);
 
 	GL_PopMatrix();
-#endif
 }
 
 

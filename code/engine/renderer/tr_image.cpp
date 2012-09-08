@@ -3589,6 +3589,7 @@ void R_SetColorMappings(void)
 			tr.overbrightBits = 1;
 		}
 	}
+
 	if(tr.overbrightBits < 0)
 	{
 		tr.overbrightBits = 0;
@@ -3652,10 +3653,7 @@ void R_SetColorMappings(void)
 		s_intensitytable[i] = j;
 	}
 
-	if(glConfig.deviceSupportsGamma)
-	{
-		GLimp_SetGamma(s_gammatable, s_gammatable, s_gammatable);
-	}
+	GLimp_SetGamma( s_gammatable, s_gammatable, s_gammatable );
 }
 
 

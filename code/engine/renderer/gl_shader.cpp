@@ -57,6 +57,16 @@ GLShader_blurX* gl_blurXShader = NULL;
 GLShader_blurY* gl_blurYShader = NULL;
 GLShader_debugShadowMap* gl_debugShadowMapShader = NULL;
 
+//Dushan
+GLShader_liquid                          *gl_liquidShader = NULL;
+GLShader_rotoscope                       *gl_rotoscopeShader = NULL;
+GLShader_bloom                           *gl_bloomShader = NULL;
+GLShader_refraction                      *gl_refractionShader = NULL;
+GLShader_depthToColor                    *gl_depthToColorShader = NULL;
+GLShader_volumetricFog                   *gl_volumetricFogShader = NULL;
+GLShader_volumetricLighting              *gl_volumetricLightingShader = NULL;
+GLShader_dispersion                      *gl_dispersionShader = NULL;
+
 bool GLCompileMacro_USE_VERTEX_SKINNING::HasConflictingMacros(int permutation, const std::vector<GLCompileMacro*>& macros) const
 {
 	for(size_t i = 0; i < macros.size(); i++)
@@ -1439,7 +1449,8 @@ GLShader_generic::GLShader_generic():
 		GLCompileMacro_USE_VERTEX_SKINNING(this),
 		GLCompileMacro_USE_VERTEX_ANIMATION(this),
 		GLCompileMacro_USE_DEFORM_VERTEXES(this),
-		GLCompileMacro_USE_TCGEN_ENVIRONMENT(this)
+		GLCompileMacro_USE_TCGEN_ENVIRONMENT(this),
+		GLCompileMacro_USE_TCGEN_LIGHTMAP(this)
 {
 	CompilePermutations();
 }
@@ -2561,4 +2572,224 @@ void GLShader_debugShadowMap::SetShaderProgramUniformLocations( shaderProgram_t 
 void GLShader_debugShadowMap::SetShaderProgramUniforms( shaderProgram_t * shaderProgram )
 {
 	glUniform1i( shaderProgram->u_CurrentMap, 0 );
+}
+
+// Dushan
+GLShader_liquid::GLShader_liquid() :
+	GLShader( "liquid", ATTR_POSITION | ATTR_TEXCOORD | ATTR_TANGENT | ATTR_BINORMAL | ATTR_NORMAL | ATTR_COLOR
+#if !defined(COMPAT_Q3A) && !defined(COMPAT_ET)
+			| ATTR_LIGHTDIRECTION
+#endif
+			),
+	u_NormalTextureMatrix( this ),
+	u_ModelViewProjectionMatrix( this ),
+	u_ViewOrigin( this ),
+	u_ModelMatrix( this ),
+	u_UnprojectMatrix( this ),
+	u_RefractionIndex( this ),
+	u_FogDensity( this ),
+	u_FogColor( this ),
+	u_FresnelPower ( this ),
+	u_FresnelScale ( this ),
+	u_FresnelBias ( this ),
+	u_NormalScale ( this ),
+	GLCompileMacro_USE_PARALLAX_MAPPING ( this )
+{
+	CompilePermutations();
+}
+
+void GLShader_liquid::SetShaderProgramUniformLocations( shaderProgram_t * shaderProgram )
+{
+	shaderProgram->u_CurrentMap = glGetUniformLocation(shaderProgram->program, "u_CurrentMap");
+	shaderProgram->u_PortalMap = glGetUniformLocation(shaderProgram->program, "u_PortalMap");
+	shaderProgram->u_DepthMap = glGetUniformLocation(shaderProgram->program, "u_DepthMap");
+	shaderProgram->u_NormalMap = glGetUniformLocation(shaderProgram->program, "u_NormalMap");
+}
+
+void GLShader_liquid::SetShaderProgramUniforms( shaderProgram_t * shaderProgram )
+{
+	glUniform1i( shaderProgram->u_CurrentMap, 0 );
+	glUniform1i( shaderProgram->u_PortalMap, 1 );
+	glUniform1i( shaderProgram->u_DepthMap, 2 );
+	glUniform1i( shaderProgram->u_NormalMap, 3 );
+}
+
+//Dushan
+GLShader_rotoscope::GLShader_rotoscope() :
+	GLShader( "rotoscope", ATTR_POSITION | ATTR_TEXCOORD ),
+	u_ModelViewProjectionMatrix( this ),
+	u_BlurMagnitude( this )
+{
+	CompilePermutations();
+}
+
+void GLShader_rotoscope::SetShaderProgramUniformLocations( shaderProgram_t * shaderProgram )
+{
+	shaderProgram->u_ColorMap = glGetUniformLocation(shaderProgram->program, "u_ColorMap");
+	shaderProgram->u_BlurMagnitude = glGetUniformLocation(shaderProgram->program, "u_BlurMagnitude");
+}
+
+void GLShader_rotoscope::SetShaderProgramUniforms( shaderProgram_t * shaderProgram )
+{
+	glUniform1i( shaderProgram->u_ColorMap, 0 );
+	glUniform1i( shaderProgram->u_BlurMagnitude, 1 );
+}
+
+//Dushan
+GLShader_bloom::GLShader_bloom() :
+	GLShader( "bloom", ATTR_POSITION ),
+	u_ModelViewProjectionMatrix( this ),
+	u_ColorMap( this ),
+	u_BlurMagnitude( this )
+{
+	CompilePermutations();
+}
+
+void GLShader_bloom::SetShaderProgramUniformLocations( shaderProgram_t * shaderProgram )
+{
+	shaderProgram->u_ColorMap = glGetUniformLocation(shaderProgram->program, "u_ColorMap");
+	shaderProgram->u_ContrastMap = glGetUniformLocation(shaderProgram->program, "u_ContrastMap");
+	shaderProgram->u_BlurMagnitude = glGetUniformLocation(shaderProgram->program, "u_BlurMagnitude");
+}
+
+void GLShader_bloom::SetShaderProgramUniforms( shaderProgram_t * shaderProgram )
+{
+	glUniform1i( shaderProgram->u_ColorMap, 0 );
+	glUniform1i( shaderProgram->u_ContrastMap, 1 );
+	glUniform1i( shaderProgram->u_BlurMagnitude, 2 );
+}
+
+GLShader_refraction::GLShader_refraction() :
+	GLShader ("refraction", "refraction_C", ATTR_POSITION | ATTR_NORMAL),
+	u_ColorMap( this ),
+	u_ViewOrigin( this ),
+	u_RefractionIndex ( this ),
+	u_FresnelPower ( this ),
+	u_FresnelScale ( this ),
+	u_FresnelBias ( this ),
+	u_ModelMatrix( this ),
+	u_ModelViewProjectionMatrix ( this ),
+	u_BoneMatrix( this ),
+	GLCompileMacro_USE_VERTEX_SKINNING( this )
+{
+		CompilePermutations();
+}
+
+void GLShader_refraction::BuildShaderVertexLibNames( std::string& vertexInlines )
+{
+	vertexInlines += "vertexSkinning ";
+}
+
+void GLShader_refraction::SetShaderProgramUniformLocations( shaderProgram_t * shaderProgram )
+{
+}
+
+void GLShader_refraction::SetShaderProgramUniforms( shaderProgram_t * shaderProgram )
+{
+	glUniform1i(shaderProgram->u_ColorMap, 0);
+}
+
+GLShader_depthToColor::GLShader_depthToColor() :
+	GLShader ("depthToColor", ATTR_POSITION | ATTR_NORMAL),
+	u_ModelViewProjectionMatrix	 ( this ),
+	u_BoneMatrix ( this ),
+	GLCompileMacro_USE_VERTEX_SKINNING( this )
+{
+		CompilePermutations();
+}
+
+void GLShader_depthToColor::BuildShaderVertexLibNames( std::string& vertexInlines )
+{
+	vertexInlines += "vertexSkinning ";
+}
+
+void GLShader_depthToColor::SetShaderProgramUniformLocations( shaderProgram_t * shaderProgram )
+{
+}
+
+void GLShader_depthToColor::SetShaderProgramUniforms( shaderProgram_t * shaderProgram )
+{
+}
+
+GLShader_volumetricFog::GLShader_volumetricFog() :
+	GLShader ("volumetricFog", ATTR_POSITION),
+	u_ViewOrigin ( this ),
+	u_FogDensity ( this ),
+	u_FogColor ( this ),
+	u_UnprojectMatrix ( this ),
+	u_ModelViewProjectionMatrix ( this )
+{
+		CompilePermutations();
+}
+
+void GLShader_volumetricFog::SetShaderProgramUniformLocations( shaderProgram_t * shaderProgram )
+{
+	shaderProgram->u_DepthMap = glGetUniformLocation(shaderProgram->program, "u_DepthMap");
+	shaderProgram->u_DepthMapBack = glGetUniformLocation(shaderProgram->program, "u_DepthMapBack");
+	shaderProgram->u_DepthMapFront = glGetUniformLocation(shaderProgram->program, "u_DepthMapFront");
+}
+
+void GLShader_volumetricFog::SetShaderProgramUniforms( shaderProgram_t * shaderProgram )
+{
+	glUniform1i(shaderProgram->u_DepthMap, 0);
+	glUniform1i(shaderProgram->u_DepthMapBack, 1);
+	glUniform1i(shaderProgram->u_DepthMapFront, 2);
+}
+
+GLShader_volumetricLighting::GLShader_volumetricLighting() :
+	GLShader ("lightVolume_omni", ATTR_POSITION),
+	u_ViewOrigin( this ),
+	u_LightOrigin( this ),
+	u_LightColor( this ),
+	u_LightRadius( this ),
+	u_LightScale( this ),
+	u_ShadowCompare( this ),
+	u_LightAttenuationMatrix( this ),
+	u_ModelViewProjectionMatrix( this ),
+	u_UnprojectMatrix( this )
+{
+		CompilePermutations();
+}
+
+void GLShader_volumetricLighting::SetShaderProgramUniformLocations( shaderProgram_t * shaderProgram )
+{
+	shaderProgram->u_DepthMap = glGetUniformLocation(shaderProgram->program, "u_DepthMap");
+	shaderProgram->u_AttenuationMapXY = glGetUniformLocation(shaderProgram->program, "u_AttenuationMapXY");
+	shaderProgram->u_AttenuationMapZ = glGetUniformLocation(shaderProgram->program, "u_AttenuationMapZ");
+	shaderProgram->u_ShadowMap = glGetUniformLocation(shaderProgram->program, "u_ShadowMap");
+	shaderProgram->u_ModelViewProjectionMatrix = glGetUniformLocation(shaderProgram->program, "u_ModelViewProjectionMatrix");
+	shaderProgram->u_UnprojectMatrix = glGetUniformLocation(shaderProgram->program, "u_UnprojectMatrix");
+}
+
+void GLShader_volumetricLighting::SetShaderProgramUniforms( shaderProgram_t * shaderProgram )
+{
+	glUniform1i(shaderProgram->u_DepthMap, 0);
+	glUniform1i(shaderProgram->u_AttenuationMapXY, 1);
+	glUniform1i(shaderProgram->u_AttenuationMapZ, 2);
+	glUniform1i(shaderProgram->u_ShadowMap, 3);
+}
+
+GLShader_dispersion::GLShader_dispersion() :
+	GLShader ("dispersion", "dispersion_C", ATTR_POSITION | ATTR_NORMAL),
+	u_ViewOrigin( this ),
+	u_ModelMatrix( this ),
+	u_ModelViewProjectionMatrix( this ),
+	u_EtaRatio ( this ),
+	u_FresnelPower ( this ),
+	u_FresnelScale ( this ),
+	u_FresnelBias ( this ),
+	u_BoneMatrix ( this ),
+	GLCompileMacro_USE_VERTEX_SKINNING( this )
+{
+		CompilePermutations();
+}
+
+void GLShader_dispersion::SetShaderProgramUniformLocations( shaderProgram_t * shaderProgram )
+{
+	shaderProgram->u_ColorMap = glGetUniformLocation(shaderProgram->program, "u_ColorMap");
+}
+
+void GLShader_dispersion::SetShaderProgramUniforms( shaderProgram_t * shaderProgram )
+{
+	glUniform1i(shaderProgram->u_ColorMap, 0);
 }

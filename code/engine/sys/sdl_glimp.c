@@ -455,6 +455,8 @@ GLimp_Shutdown
 */
 void GLimp_Shutdown(void)
 {
+	ri.Printf( PRINT_ALL, "Shutting down OpenGL subsystem\n" );
+
 	ri.IN_Shutdown();
 
 	SDL_QuitSubSystem(SDL_INIT_VIDEO);
@@ -594,10 +596,10 @@ static void GLimp_InitOpenGL3xContext()
 		numAttribs = 0;
 
 		attribs[numAttribs++] = WGL_CONTEXT_MAJOR_VERSION_ARB;
-		attribs[numAttribs++] = r_glMinMajorVersion->integer;
+		attribs[numAttribs++] = r_glMajorVersion->integer;
 
 		attribs[numAttribs++] = WGL_CONTEXT_MINOR_VERSION_ARB;
-		attribs[numAttribs++] = r_glMinMinorVersion->integer;
+		attribs[numAttribs++] = r_glMinorVersion->integer;
 
 
 		if(WGLEW_ARB_create_context_profile)
@@ -631,7 +633,7 @@ static void GLimp_InitOpenGL3xContext()
 			opengl_context.hGLRC = NULL;
 		}
 
-		ri.Printf(PRINT_ALL, "...initializing OpenGL %i.%i context ", r_glMinMajorVersion->integer, r_glMinMinorVersion->integer);
+		ri.Printf(PRINT_ALL, "...initializing OpenGL %i.%i context ", r_glMajorVersion->integer, r_glMinorVersion->integer);
 
 		opengl_context.hGLRC = wglCreateContextAttribsARB(opengl_context.hDC, 0, attribs);
 		
@@ -644,8 +646,8 @@ static void GLimp_InitOpenGL3xContext()
 		{
 			ri.Error(ERR_FATAL, "Could not initialize OpenGL %i.%i context\n"
 								"Make sure your graphics card supports OpenGL %i.%i or newer",
-								r_glMinMajorVersion->integer, r_glMinMinorVersion->integer,
-								r_glMinMajorVersion->integer, r_glMinMinorVersion->integer);
+								r_glMajorVersion->integer, r_glMinorVersion->integer,
+								r_glMajorVersion->integer, r_glMinorVersion->integer);
 		}
 	}
 #elif 0 //defined(__linux__)

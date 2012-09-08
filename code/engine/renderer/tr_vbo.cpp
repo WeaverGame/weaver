@@ -93,8 +93,6 @@ VBO_t          *R_CreateVBO(const char *name, byte *vertexes, int vertexesSize, 
 /*
 ============
 R_CreateVBO2
-
-RB: OPTIMIZE rewrite to not use memcpy
 ============
 */
 VBO_t          *R_CreateVBO2(const char *name, int numVertexes, srfVert_t *verts, unsigned int stateBits, vboUsage_t usage)
@@ -106,7 +104,6 @@ VBO_t          *R_CreateVBO2(const char *name, int numVertexes, srfVert_t *verts
 	int             dataSize;
 	int             dataOfs;
 
-	vec4_t          tmp;
 	int             glUsage;
 
 	switch (usage)
@@ -163,155 +160,83 @@ VBO_t          *R_CreateVBO2(const char *name, int numVertexes, srfVert_t *verts
 	data = (byte*)ri.Hunk_AllocateTempMemory(dataSize);
 	dataOfs = 0;
 
-	// set up xyz array
-	for(i = 0; i < numVertexes; i++)
-	{
-		for(j = 0; j < 3; j++)
-		{
-			tmp[j] = verts[i].xyz[j];
-		}
-		tmp[3] = 1;
+	// since this is all float, point tmp directly into data
+	// 2-entry -> { memb[0], memb[1], 0, 1 }
+	// 3-entry -> { memb[0], memb[1], memb[2], 1 }
+#define VERTEXSIZE(memb) ( sizeof( verts->memb ) / sizeof( verts->memb[ 0 ] ) )
+#define VERTEXCOPY(memb) \
+	do { \
+		vec_t *tmp = (vec_t *) ( data + dataOfs ); \
+		for ( i = 0; i < numVertexes; i++ ) \
+		{ \
+			for ( j = 0; j < VERTEXSIZE( memb ); j++ ) { *tmp++ = verts[ i ].memb[ j ]; } \
+			if ( VERTEXSIZE( memb ) < 3 ) { *tmp++ = 0; } \
+			if ( VERTEXSIZE( memb ) < 4 ) { *tmp++ = 1; } \
+		} \
+		dataOfs += i * sizeof( vec4_t ); \
+	} while ( 0 )
 
-		memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
-		dataOfs += sizeof(vec4_t);
-	}
+	// set up xyz array
+	VERTEXCOPY( xyz );
 
 	// feed vertex texcoords
 	if(stateBits & ATTR_TEXCOORD)
 	{
 		vbo->ofsTexCoords = dataOfs;
-		for(i = 0; i < numVertexes; i++)
-		{
-			for(j = 0; j < 2; j++)
-			{
-				tmp[j] = verts[i].st[j];
-			}
-			tmp[2] = 0;
-			tmp[3] = 1;
-
-			memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
-			dataOfs += sizeof(vec4_t);
-		}
+		VERTEXCOPY( st );
 	}
 
 	// feed vertex lightmap texcoords
 	if(stateBits & ATTR_LIGHTCOORD)
 	{
 		vbo->ofsLightCoords = dataOfs;
-		for(i = 0; i < numVertexes; i++)
-		{
-			for(j = 0; j < 2; j++)
-			{
-				tmp[j] = verts[i].lightmap[j];
-			}
-			tmp[2] = 0;
-			tmp[3] = 1;
-
-			memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
-			dataOfs += sizeof(vec4_t);
-		}
+		VERTEXCOPY( lightmap );
 	}
 
 	// feed vertex tangents
 	if(stateBits & ATTR_TANGENT)
 	{
 		vbo->ofsTangents = dataOfs;
-		for(i = 0; i < numVertexes; i++)
-		{
-			for(j = 0; j < 3; j++)
-			{
-				tmp[j] = verts[i].tangent[j];
-			}
-			tmp[3] = 1;
-
-			memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
-			dataOfs += sizeof(vec4_t);
-		}
+		VERTEXCOPY( tangent );
 	}
 
 	// feed vertex binormals
 	if(stateBits & ATTR_BINORMAL)
 	{
 		vbo->ofsBinormals = dataOfs;
-		for(i = 0; i < numVertexes; i++)
-		{
-			for(j = 0; j < 3; j++)
-			{
-				tmp[j] = verts[i].binormal[j];
-			}
-			tmp[3] = 1;
-
-			memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
-			dataOfs += sizeof(vec4_t);
-		}
+		VERTEXCOPY( binormal );
 	}
 
 	// feed vertex normals
 	if(stateBits & ATTR_NORMAL)
 	{
 		vbo->ofsNormals = dataOfs;
-		for(i = 0; i < numVertexes; i++)
-		{
-			for(j = 0; j < 3; j++)
-			{
-				tmp[j] = verts[i].normal[j];
-			}
-			tmp[3] = 1;
-
-			memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
-			dataOfs += sizeof(vec4_t);
-		}
+		VERTEXCOPY( normal );
 	}
 
 	// feed vertex colors
 	if(stateBits & ATTR_COLOR)
 	{
 		vbo->ofsColors = dataOfs;
-		for(i = 0; i < numVertexes; i++)
-		{
-			for(j = 0; j < 4; j++)
-			{
-				tmp[j] = verts[i].lightColor[j];
-			}
-
-			memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
-			dataOfs += sizeof(vec4_t);
-		}
+		VERTEXCOPY( lightColor );
 	}
 
-#if !defined(COMPAT_Q3A) && !defined(COMPAT_ET)
+#if !defined( COMPAT_Q3A ) && !defined( COMPAT_ET )
+
 	// feed vertex paint colors
 	if(stateBits & ATTR_PAINTCOLOR)
 	{
 		vbo->ofsPaintColors = dataOfs;
-		for(i = 0; i < numVertexes; i++)
-		{
-			for(j = 0; j < 4; j++)
-			{
-				tmp[j] = verts[i].paintColor[j];
-			}
-
-			memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
-			dataOfs += sizeof(vec4_t);
-		}
+		VERTEXCOPY( paintColor );
 	}
 
 	// feed vertex light directions
 	if(stateBits & ATTR_LIGHTDIRECTION)
 	{
 		vbo->ofsLightDirections = dataOfs;
-		for(i = 0; i < numVertexes; i++)
-		{
-			for(j = 0; j < 3; j++)
-			{
-				tmp[j] = verts[i].lightDirection[j];
-			}
-			tmp[3] = 1;
-
-			memcpy(data + dataOfs, (vec_t *) tmp, sizeof(vec4_t));
-			dataOfs += sizeof(vec4_t);
-		}
+		VERTEXCOPY( lightDirection );
 	}
+
 #endif
 
 	vbo->vertexesSize = dataSize;
@@ -470,7 +395,7 @@ IBO_t          *R_CreateIBO2(const char *name, int numTriangles, srfTriangle_t *
 R_BindVBO
 ============
 */
-void R_BindVBO(VBO_t * vbo)
+void R_BindVBO(VBO_t *vbo)
 {
 	if(!vbo)
 	{
@@ -571,9 +496,9 @@ static void R_InitUnitCubeVBO()
 {
 	vec3_t          mins = {-1, -1, -1};
 	vec3_t          maxs = { 1,  1,  1};
-	
-	int             i, j;
-	vec4_t          quadVerts[4];
+
+	int             i;
+//	vec4_t          quadVerts[4];
 	srfVert_t      *verts;
 	srfTriangle_t  *triangles;
 
@@ -677,7 +602,7 @@ R_ShutdownVBOs
 */
 void R_ShutdownVBOs(void)
 {
-	int             i, j;
+	int             i;
 	VBO_t          *vbo;
 	IBO_t          *ibo;
 
@@ -710,12 +635,14 @@ void R_ShutdownVBOs(void)
 
 	if(tr.world)
 	{
+		int j;
+
 		for(j = 0; j < MAX_VISCOUNTS; j++)
 		{
 			// FIXME: clean up this code
 			for(i = 0; i < tr.world->clusterVBOSurfaces[j].currentElements; i++)
 			{
-				srfVBOMesh_t   *vboSurf;
+				srfVBOMesh_t *vboSurf;
 
 				vboSurf = (srfVBOMesh_t *) Com_GrowListElement(&tr.world->clusterVBOSurfaces[j], i);
 				ibo = vboSurf->ibo;

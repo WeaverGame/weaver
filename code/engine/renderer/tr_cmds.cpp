@@ -376,6 +376,96 @@ void RE_SetColor(const float *rgba)
 	cmd->color[3] = rgba[3];
 }
 
+/*
+=============
+R_ClipRegion
+=============
+*/
+static qboolean R_ClipRegion ( float *x, float *y, float *w, float *h, float *s1, float *t1, float *s2, float *t2 )
+{
+	float left, top, right, bottom;
+	float _s1, _t1, _s2, _t2;
+	float clipLeft, clipTop, clipRight, clipBottom;
+
+	if ( tr.clipRegion[2] <= tr.clipRegion[0] ||
+		tr.clipRegion[3] <= tr.clipRegion[1] )
+	{
+		return qfalse;
+	}
+
+	left = *x;
+	top = *y;
+	right = *x + *w;
+	bottom = *y + *h;
+
+	_s1 = *s1;
+	_t1 = *t1;
+	_s2 = *s2;
+	_t2 = *t2;
+
+	clipLeft = tr.clipRegion[0];
+	clipTop = tr.clipRegion[1];
+	clipRight = tr.clipRegion[2];
+	clipBottom = tr.clipRegion[3];
+
+	// Completely clipped away
+	if ( right <= clipLeft || left >= clipRight ||
+		bottom <= clipTop || top >= clipBottom )
+	{
+		return qtrue;
+	}
+
+	// Clip left edge
+	if ( left < clipLeft )
+	{
+		float f = ( clipLeft - left ) / ( right - left );
+		*s1 = ( f * ( _s2 - _s1 ) ) + _s1;
+		*x = clipLeft;
+		*w -= ( clipLeft - left );
+	}
+
+	// Clip right edge
+	if ( right > clipRight )
+	{
+		float f = ( clipRight - right ) / ( left - right );
+		*s2 = ( f * ( _s1 - _s2 ) ) + _s2;
+		*w = clipRight - *x;
+	}
+
+	// Clip top edge
+	if ( top < clipTop )
+	{
+		float f = ( clipTop - top ) / ( bottom - top );
+		*t1 = ( f * ( _t2 - _t1 ) ) + _t1;
+		*y = clipTop;
+		*h -= ( clipTop - top );
+	}
+
+	// Clip bottom edge
+	if ( bottom > clipBottom )
+	{
+		float f = ( clipBottom - bottom ) / ( top - bottom );
+		*t2 = ( f * ( _t1 - _t2 ) ) + _t2;
+		*h = clipBottom - *y;
+	}
+
+	return qfalse;
+}
+
+
+/*
+=============
+RE_SetClipRegion
+=============
+*/
+void RE_SetClipRegion( const float *region ) {
+	if ( region == NULL ) {
+		Com_Memset( tr.clipRegion, 0, sizeof( vec4_t ) );
+	} else {
+		Vector4Copy( region, tr.clipRegion );
+	}
+}
+
 
 /*
 =============
@@ -390,6 +480,10 @@ void RE_StretchPic(float x, float y, float w, float h, float s1, float t1, float
 	{
 		return;
 	}
+	if ( R_ClipRegion( &x, &y, &w, &h, &s1, &t1, &s2, &t2 ) ) {
+		return;
+	}
+
 	cmd = (stretchPicCommand_t*)R_GetCommandBuffer(sizeof(*cmd));
 	if(!cmd)
 	{
@@ -604,8 +698,12 @@ void RE_BeginFrame(stereoFrame_t stereoFrame)
 	{
 		r_gamma->modified = qfalse;
 
-		R_SyncRenderThread();
-		R_SetColorMappings();
+		if( !glConfig.deviceSupportsGamma ) {
+			Com_Printf( "r_gamma will be changed upon restarting.\n" );
+		} else {
+			R_SyncRenderThread();
+			R_SetColorMappings();
+		}
 	}
 
 	// check for errors
@@ -775,9 +873,6 @@ void RE_RenderToTexture(int textureid, int x, int y, int w, int h)
 {
 	renderToTextureCommand_t *cmd;
 
-	ri.Printf(PRINT_ALL, S_COLOR_RED "TODO RE_RenderToTexture\n");
-
-#if 0
 	if(textureid > tr.numImages || textureid < 0)
 	{
 		ri.Printf(PRINT_ALL, "Warning: trap_R_RenderToTexture textureid %d out of range.\n", textureid);
@@ -795,7 +890,6 @@ void RE_RenderToTexture(int textureid, int x, int y, int w, int h)
 	cmd->y = y;
 	cmd->w = w;
 	cmd->h = h;
-#endif
 }
 
 /*

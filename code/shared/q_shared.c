@@ -46,6 +46,11 @@ void Com_Memset(void *dest, const int val, const size_t count)
 	memset(dest, val, count);
 }
 
+void Com_Memmove(void *dest, const void *src, const size_t count)
+{
+	memmove(dest, src, count);
+}
+
 #else
 
 typedef enum

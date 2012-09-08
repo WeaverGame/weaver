@@ -1058,6 +1058,181 @@ static genFunc_t NameToGenFunc(const char *funcname)
 	return GF_SIN;
 }
 
+/*
+===============
+NameToStencilOp
+===============
+*/
+static int NameToStencilOp(char *name)
+{
+	if (!Q_stricmp(name, "keep"))
+	{
+		return STO_KEEP;
+	}
+	else if (!Q_stricmp(name, "zero"))
+	{
+		return STO_ZERO;
+	}
+	else if (!Q_stricmp(name, "replace"))
+	{
+		return STO_REPLACE;
+	}
+	else if (!Q_stricmp(name, "invert"))
+	{
+		return STO_INVERT;
+	}
+	else if (!Q_stricmp(name, "incr"))
+	{
+		return STO_INCR;
+	}
+	else if (!Q_stricmp(name, "decr"))
+	{
+		return STO_DECR;
+	}
+	else
+	{
+		ri.Printf(PRINT_WARNING, "WARNING: invalid stencil op name '%s' in shader '%s'\n", name, shader.name);
+		return STO_KEEP;
+	}
+}
+
+/*
+===============
+ParseStencil
+===============
+*/
+static void ParseStencil( char **text, stencil_t *stencil )
+{
+	char *token;
+	
+	stencil->flags = 0;
+	stencil->mask  = stencil->writeMask = 0xff;
+	stencil->ref   = 1;
+
+	// [mask <mask>]
+	token = Com_ParseExt(text, qfalse);
+
+	if (token[ 0 ] == 0)
+	{
+		ri.Printf( PRINT_WARNING, "WARNING: missing stencil ref value in shader '%s'\n", shader.name );
+		return;
+	}
+
+	if (!Q_stricmp(token, "mask")) {
+		token = Com_ParseExt(text, qfalse );
+		if ( token[ 0 ] == 0 )
+		{
+			ri.Printf( PRINT_WARNING, "WARNING: missing stencil mask value in shader '%s'\n", shader.name );
+			return;
+		}
+		stencil->mask = atoi(token);
+
+		token = Com_ParseExt(text, qfalse);
+	}
+
+	if (token[ 0 ] == 0)
+	{
+		ri.Printf(PRINT_WARNING, "WARNING: missing stencil ref value in shader '%s'\n", shader.name);
+		return;
+	}
+
+	if (!Q_stricmp(token, "writeMask")) {
+		token = Com_ParseExt(text, qfalse);
+		if (token[ 0 ] == 0)
+		{
+			ri.Printf(PRINT_WARNING, "WARNING: missing stencil writeMask value in shader '%s'\n", shader.name);
+			return;
+		}
+		stencil->writeMask = atoi(token);
+
+		token = Com_ParseExt( text, qfalse );
+	}
+
+	// <ref>
+	if ( token[ 0 ] == 0 )
+	{
+		ri.Printf( PRINT_WARNING, "WARNING: missing stencil ref value in shader '%s'\n", shader.name );
+		return;
+	}
+
+	stencil->ref = atoi(token);
+
+	// <op>
+	token = Com_ParseExt( text, qfalse );
+
+	if ( token[ 0 ] == 0 )
+	{
+		ri.Printf( PRINT_WARNING, "WARNING: missing stencil test op in shader '%s'\n", shader.name );
+		return;
+	}
+	else if (!Q_stricmp( token, "always"))
+	{
+		stencil->flags |= STF_ALWAYS;
+	}
+	else if (!Q_stricmp( token, "never"))
+	{
+		stencil->flags |= STF_NEVER;
+	}
+	else if (!Q_stricmp( token, "less"))
+	{
+		stencil->flags |= STF_LESS;
+	}
+	else if (!Q_stricmp( token, "lequal"))
+	{
+		stencil->flags |= STF_LEQUAL;
+	}
+	else if (!Q_stricmp( token, "greater"))
+	{
+		stencil->flags |= STF_GREATER;
+	}
+	else if (!Q_stricmp( token, "gequal"))
+	{
+		stencil->flags |= STF_GEQUAL;
+	}
+	else if (!Q_stricmp( token, "equal"))
+	{
+		stencil->flags |= STF_EQUAL;
+	}
+	else if (!Q_stricmp( token, "nequal"))
+	{
+		stencil->flags |= STF_NEQUAL;
+	}
+	else
+	{
+		ri.Printf(PRINT_WARNING, "WARNING: missing stencil test op in shader '%s'\n", shader.name);
+		return;
+	}
+
+	// <sfail>
+	token = Com_ParseExt(text, qfalse);
+
+	if (token[ 0 ] == 0)
+	{
+		ri.Printf(PRINT_WARNING, "WARNING: missing stencil sfail op in shader '%s'\n", shader.name);
+		return;
+	}
+	stencil->flags |= NameToStencilOp(token) << STS_SFAIL;
+
+	// <zfail>
+	token = Com_ParseExt(text, qfalse);
+
+	if (token[ 0 ] == 0)
+	{
+		ri.Printf(PRINT_WARNING, "WARNING: missing stencil zfail op in shader '%s'\n", shader.name);
+		return;
+	}
+	stencil->flags |= NameToStencilOp(token) << STS_ZFAIL;
+
+	// <zpass>
+	token = Com_ParseExt(text, qfalse);
+
+	if (token[ 0 ] == 0)
+	{
+		ri.Printf(PRINT_WARNING, "WARNING: missing stencil zpass op in shader '%s'\n", shader.name);
+		return;
+	}
+	stencil->flags |= NameToStencilOp(token) << STS_ZPASS;
+}
 
 /*
 ===================
@@ -1746,6 +1921,36 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 				continue;
 			}
 		}
+		// stencil <side> [mask <mask>] [writeMask <mask>] <ref> <op> <sfail> <zfail> <zpass>
+		else if ( !Q_stricmp( token, "stencil" ) )
+		{
+			token = Com_ParseExt(text, qfalse);
+
+			if ( !token[ 0 ] )
+			{
+				ri.Printf( PRINT_WARNING, "WARNING: missing parameter for 'stencil' keyword in shader '%s'\n", shader.name );
+				return qfalse;
+			}
+
+			if ( !Q_stricmp( token, "front" ) )
+			{
+				ParseStencil( text, &stage->frontStencil );
+			}
+			else if ( !Q_stricmp( token, "back" ) )
+			{
+				ParseStencil( text, &stage->backStencil );
+			}
+			else if ( !Q_stricmp( token, "both" ) )
+			{
+				ParseStencil( text, &stage->frontStencil );
+				Com_Memcpy( &stage->backStencil, &stage->frontStencil, sizeof( stencil_t ) );
+			}
+			else
+			{
+				ri.Printf( PRINT_WARNING, "WARNING: unknown stencil side '%s' in shader '%s'\n", token, shader.name );
+				continue;
+			}
+		}
 		// ignoreAlphaTest
 		else if(!Q_stricmp(token, "ignoreAlphaTest"))
 		{
@@ -1820,8 +2025,7 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 		// detail
 		else if(!Q_stricmp(token, "detail"))
 		{
-			ri.Printf(PRINT_WARNING, "WARNING: detail keyword not supported in shader '%s'\n", shader.name);
-			continue;
+			stage->isDetail = qtrue;
 		}
 		// ET fog
 		else if(!Q_stricmp(token, "fog"))
@@ -2189,6 +2393,33 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 			{
 				stage->alphaGen = AGEN_ONE_MINUS_ENTITY;
 			}
+			else if(!Q_stricmp(token, "normalzfade"))
+			{
+				stage->alphaGen = AGEN_NORMALZFADE;
+				token = Com_ParseExt(text, qfalse);
+				if(token[0])
+				{
+					stage->constantColor[3] = 255 * atof(token);
+				}
+				else
+				{
+					stage->constantColor[3] = 255;
+				}
+
+				token = Com_ParseExt(text, qfalse);
+				if(token[0])
+				{
+					stage->zFadeBounds[0] = atof(token);	// lower range
+					token = Com_ParseExt(text, qfalse);
+					stage->zFadeBounds[1] = atof(token);	// upper range
+				}
+				else
+				{
+					stage->zFadeBounds[0] = -1.0;	// lower range
+					stage->zFadeBounds[1] = 1.0;	// upper range
+				}
+
+			}
 			else if(!Q_stricmp(token, "vertex"))
 			{
 				stage->alphaGen = AGEN_VERTEX;
@@ -2260,9 +2491,7 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 			}
 			else if(!Q_stricmp(token, "lightmap"))
 			{
-#if !defined(COMPAT_Q3A) && !defined(COMPAT_ET)
-				ri.Printf(PRINT_WARNING, "WARNING: texGen lightmap keyword not supported in shader '%s'\n", shader.name);
-#endif
+				stage->tcGen_Lightmap = qtrue;
 			}
 			else if(!Q_stricmp(token, "texture") || !Q_stricmp(token, "base"))
 			{
@@ -2425,6 +2654,11 @@ static qboolean ParseStage(shaderStage_t * stage, char **text)
 		else if(!Q_stricmp(token, "maskColor"))
 		{
 			colorMaskBits |= GLS_REDMASK_FALSE | GLS_GREENMASK_FALSE | GLS_BLUEMASK_FALSE;
+		}
+		// maskColorAlpha
+		else if ( !Q_stricmp( token, "maskColorAlpha" ) )
+		{
+			colorMaskBits |= GLS_REDMASK_FALSE | GLS_GREENMASK_FALSE | GLS_BLUEMASK_FALSE | GLS_ALPHAMASK_FALSE;
 		}
 		// maskDepth
 		else if(!Q_stricmp(token, "maskDepth"))
@@ -4880,7 +5114,7 @@ from the current global working shader
 */
 static shader_t *FinishShader(void)
 {
-	int             stage;
+	int             stage, i;
 
 	// set sky stuff appropriate
 	if(shader.isSky)
@@ -5026,6 +5260,32 @@ static shader_t *FinishShader(void)
 				}
 				break;
 			}
+		}
+
+		//
+		// ditch this stage if it's detail and detail textures are disabled
+		//
+		if(pStage->isDetail && !r_detailTextures->integer)
+		{
+			if(stage < (MAX_SHADER_STAGES - 1))
+			{
+				Com_Memmove(pStage, pStage + 1, sizeof(*pStage) * (MAX_SHADER_STAGES - stage - 1));
+				// kill the last stage, since it's now a duplicate
+				for(i = MAX_SHADER_STAGES - 1; i > stage; i--)
+				{
+					if(stages[i].active)
+					{
+						Com_Memset(&stages[i], 0, sizeof(*pStage));
+						break;
+					}
+				}
+				stage--;		// the next stage is now the current stage, so check it again
+			}
+			else
+			{
+				Com_Memset(pStage, 0, sizeof(*pStage));
+			}
+			continue;
 		}
 
 		if(shader.forceOpaque)
@@ -5363,7 +5623,6 @@ static char    *FindShaderInShaderText(const char *shaderName)
 
 	return NULL;
 }
-
 
 
 /*
@@ -6328,6 +6587,7 @@ static void ScanAndLoadShaderFiles(void)
 
 		ri.Printf(PRINT_DEVELOPER, "...loading '%s'\n", filename);
 		sum += ri.FS_ReadFile(filename, (void **)&buffers[i]);
+
 		if(!buffers[i])
 		{
 			ri.Error(ERR_DROP, "Couldn't load %s", filename);

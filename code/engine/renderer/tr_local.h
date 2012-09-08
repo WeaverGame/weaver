@@ -72,13 +72,11 @@ extern "C" {
 
 #define MAX_SHADOWMAPS			5
 
-//#define VOLUMETRIC_LIGHTING 1
-
 #define DEBUG_OPTIMIZEVERTICES 0
 #define CALC_REDUNDANT_SHADOWVERTS 0
 
 #if !defined(USE_D3D10)
-//#define GLSL_COMPILE_STARTUP_ONLY 1
+#define GLSL_COMPILE_STARTUP_ONLY 1
 #endif
 
 //#define USE_BSP_CLUSTERSURFACE_MERGING 1
@@ -705,6 +703,7 @@ typedef enum
 	AGEN_IDENTITY,
 	AGEN_ENTITY,
 	AGEN_ONE_MINUS_ENTITY,
+	AGEN_NORMALZFADE,
 	AGEN_VERTEX,
 	AGEN_ONE_MINUS_VERTEX,
 	AGEN_WAVEFORM,
@@ -898,7 +897,7 @@ typedef struct
 } texModInfo_t;
 
 
-#define	MAX_IMAGE_ANIMATIONS	16
+#define	MAX_IMAGE_ANIMATIONS	24
 
 enum
 {
@@ -961,6 +960,47 @@ typedef enum
 	COLLAPSE_color_lightmap
 } collapseType_t;
 
+// StencilFuncs
+typedef enum
+{
+	STF_ALWAYS  = 0x00,
+	STF_NEVER   = 0x01,
+	STF_LESS    = 0x02,
+	STF_LEQUAL  = 0x03,
+	STF_GREATER = 0x04,
+	STF_GEQUAL  = 0x05,
+	STF_EQUAL   = 0x06,
+	STF_NEQUAL  = 0x07,
+	STF_MASK    = 0x07
+} stencilFunc_t;
+
+// StencilOps
+typedef enum
+{
+	STO_KEEP    = 0x00,
+	STO_ZERO    = 0x01,
+	STO_REPLACE = 0x02,
+	STO_INVERT  = 0x03,
+	STO_INCR    = 0x04,
+	STO_DECR    = 0x05,
+	STO_MASK    = 0x07
+} stencilOp_t;
+
+// shifts
+typedef enum
+{
+	STS_SFAIL   = 4,
+	STS_ZFAIL   = 8,
+	STS_ZPASS   = 12
+} stencilShift_t;
+
+typedef struct stencil_s {
+	short         flags;
+	byte          ref;
+	byte          mask;
+	byte          writeMask;
+} stencil_t;
+
 typedef struct
 {
 	stageType_t     type;
@@ -985,12 +1025,15 @@ typedef struct
 	expression_t    alphaTestExp;
 
 	qboolean        tcGen_Environment;
+	qboolean        tcGen_Lightmap;
 
 	byte            constantColor[4];	// for CGEN_CONST and AGEN_CONST
 
 	uint32_t        stateBits;	// GLS_xxxx mask
 
 	acff_t          adjustColorsForFog;
+
+	stencil_t       frontStencil, backStencil;
 
 	qboolean        overrideNoPicMip;	// for images that must always be full resolution
 	qboolean        overrideFilterType;	// for console fonts, 2D elements, etc.
@@ -1026,17 +1069,14 @@ typedef struct
 
 	expression_t    wrapAroundLightingExp;
 
+	float           zFadeBounds[2];
+
+	qboolean        isDetail;
 	qboolean        noFog;		// used only for shaders that have fog disabled, so we can enable it for individual stages
+	qboolean        isFogged;
 } shaderStage_t;
 
 struct shaderCommands_s;
-
-typedef enum
-{
-	CT_FRONT_SIDED,
-	CT_BACK_SIDED,
-	CT_TWO_SIDED
-} cullType_t;
 
 typedef enum
 {
@@ -1055,6 +1095,7 @@ typedef struct
 {
 	vec3_t          color;
 	float           depthForOpaque;
+	unsigned        colorInt;	// in packed byte format
 	float           density;
 } fogParms_t;
 
@@ -1335,7 +1376,7 @@ typedef struct shaderProgram_s
 	char            name[MAX_QPATH];
 	char           *compileMacros;
 
-	GLhandleARB     program;
+	GLuint          program;
 	uint32_t        attribs;	// vertex array attributes
 
 	// uniform parameters
@@ -1493,6 +1534,7 @@ typedef struct shaderProgram_s
 	int32_t         u_DeformMagnitude;
 	float           t_DeformMagnitude;
 
+	GLint           u_BlurMagnitude;
 
 	int32_t         u_ModelMatrix;	// model -> world
 	matrix_t        t_ModelMatrix;
@@ -2325,6 +2367,8 @@ typedef struct
 	vec3_t          vieworg;
 	vec3_t          viewaxis[3];	// transformation matrix
 
+	stereoFrame_t   stereoFrame;
+
 	int             time;		// time in milliseconds for shader effects and other time dependent rendering issues
 	int             rdflags;	// RDF_NOWORLDMODEL, etc
 
@@ -2342,6 +2386,9 @@ typedef struct
 
 	int             numLights;
 	trRefLight_t   *lights;
+
+	int             num_coronas;
+	corona_t       *coronas;
 
 	int             numPolys;
 	struct srfPoly_s *polys;
@@ -2467,6 +2514,7 @@ typedef struct
 													// and the other ones are for PSSM
 
 	vec3_t          visBounds[2];
+	float           skyFar;
 	float           zNear;
 	float           zFar;
 
@@ -2475,6 +2523,7 @@ typedef struct
 
 	int             numInteractions;
 	struct interaction_s *interactions;
+	stereoFrame_t   stereoFrame;
 } viewParms_t;
 
 
@@ -3763,6 +3812,7 @@ typedef struct
 	shader_t       *sunShader;
 	char           *sunShaderName;
 
+	int             numLightmaps;
 	growList_t      lightmaps;
 	growList_t      deluxemaps;
 
@@ -3783,21 +3833,11 @@ typedef struct
 	//
 
 #if !defined(GLSL_COMPILE_STARTUP_ONLY)
-	// depth to color encoding
-	shaderProgram_t depthToColorShader;
-
-#ifdef VOLUMETRIC_LIGHTING
-	// volumetric lighting
-	shaderProgram_t lightVolumeShader_omni;
-#endif
-
-	// UT3 style player shadowing
-	shaderProgram_t deferredShadowingShader_proj;
+	// environment mapping effects
+	shaderProgram_t refractionShader_C;
+	shaderProgram_t dispersionShader_C;
 
 	// post process effects
-	shaderProgram_t rotoscopeShader;
-	shaderProgram_t liquidShader;
-	shaderProgram_t volumetricFogShader;
 #ifdef EXPERIMENTAL
 	shaderProgram_t screenSpaceAmbientOcclusionShader;
 #endif
@@ -3839,6 +3879,8 @@ typedef struct
 	frontEndCounters_t pc;
 	int             frontEndMsec;	// not in pc due to clearing issue
 
+	vec4_t          clipRegion;		// 2D clipping region
+
 	//
 	// put large tables at the end, so most elements will be
 	// within the +/32K indexed range on risc processors
@@ -3849,6 +3891,7 @@ typedef struct
 	int             numAnimations;
 	skelAnimation_t *animations[MAX_ANIMATIONFILES];
 
+	int             numImages;
 	growList_t      images;
 
 	int             numFBOs;
@@ -3912,9 +3955,10 @@ extern float    displayAspect;	// FIXME
 //
 // cvars
 //
+extern cvar_t  *r_glMajorVersion;  // override GL version autodetect (for testing)
+extern cvar_t  *r_glMinorVersion;
+extern cvar_t  *r_glDebugProfile;
 extern cvar_t  *r_glCoreProfile;
-extern cvar_t  *r_glMinMajorVersion;
-extern cvar_t  *r_glMinMinorVersion;
 
 #ifdef USE_GLSL_OPTIMIZER
 extern cvar_t  *r_glslOptimizer;
@@ -4196,12 +4240,14 @@ extern cvar_t  *r_bloom;
 extern cvar_t  *r_bloomBlur;
 extern cvar_t  *r_bloomPasses;
 extern cvar_t  *r_rotoscope;
+extern cvar_t  *r_rotoscopeBlur;
 extern cvar_t  *r_cameraPostFX;
 extern cvar_t  *r_cameraVignette;
 extern cvar_t  *r_cameraFilmGrain;
 extern cvar_t  *r_cameraFilmGrainScale;
 
 extern cvar_t  *r_evsmPostProcess;
+extern cvar_t  *r_detailTextures;
 
 //====================================================================
 
@@ -4515,6 +4561,7 @@ typedef struct shaderCommands_s
 	shader_t       *lightShader;
 
 	qboolean        skipTangentSpaces;
+	qboolean        shadowVolume;
 	qboolean        skipVBO;
 	int16_t         lightmapNum;
 	int16_t         fogNum;
@@ -5084,6 +5131,8 @@ typedef struct
 	drawSurf_t      drawSurfs[MAX_DRAWSURFS];
 	interaction_t   interactions[MAX_INTERACTIONS];
 
+	corona_t        coronas[MAX_CORONAS];
+
 	trRefLight_t    lights[MAX_REF_LIGHTS];
 	trRefEntity_t   entities[MAX_REF_ENTITIES];
 
@@ -5115,6 +5164,7 @@ void            R_SyncRenderThread(void);
 void            R_AddDrawViewCmd(void);
 
 void            RE_SetColor(const float *rgba);
+void            RE_SetClipRegion(const float *region);
 void            RE_StretchPic(float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader);
 void            RE_RotatedPic(float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader, float angle);	// NERVE - SMF
 void            RE_StretchPicGradient(float x, float y, float w, float h,

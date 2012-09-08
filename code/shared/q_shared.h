@@ -357,6 +357,7 @@ void           *Hunk_Alloc(int size, ha_pref preference);
 
 void			Com_Memcpy(void *dest, const void *src, const size_t count);
 void			Com_Memset(void *dest, const int val, const size_t count);
+void			Com_Memmove(void *dest, const void *src, const size_t count);
 
 #define Com_Allocate malloc
 #define Com_Dealloc free
@@ -2186,6 +2187,12 @@ typedef enum
 
 
 #define SQR( a ) ( ( a ) * ( a ) )
+
+typedef enum {
+	CT_FRONT_SIDED,
+	CT_BACK_SIDED,
+	CT_TWO_SIDED
+} cullType_t;
 
 #if defined(__cplusplus)
 }

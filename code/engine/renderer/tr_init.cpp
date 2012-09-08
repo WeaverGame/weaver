@@ -41,8 +41,9 @@ float           displayAspect = 0.0f;
 static void     GfxInfo_f(void);
 
 cvar_t         *r_glCoreProfile;
-cvar_t         *r_glMinMajorVersion;
-cvar_t         *r_glMinMinorVersion;
+cvar_t         *r_glMajorVersion;
+cvar_t         *r_glMinorVersion;
+cvar_t         *r_glDebugProfile;
 
 #ifdef USE_GLSL_OPTIMIZER
 cvar_t         *r_glslOptimizer;
@@ -317,13 +318,14 @@ cvar_t         *r_bloom;
 cvar_t         *r_bloomBlur;
 cvar_t         *r_bloomPasses;
 cvar_t         *r_rotoscope;
+cvar_t         *r_rotoscopeBlur;
 cvar_t         *r_cameraPostFX;
 cvar_t         *r_cameraVignette;
 cvar_t         *r_cameraFilmGrain;
 cvar_t         *r_cameraFilmGrainScale;
 
 cvar_t         *r_evsmPostProcess;
-
+cvar_t         *r_detailTextures;
 
 static void AssertCvarRange(cvar_t * cv, float minVal, float maxVal, qboolean shouldBeIntegral)
 {
@@ -520,16 +522,21 @@ qboolean R_GetModeInfo(int *width, int *height, float *windowAspect, int mode)
 {
 	const vidmode_t *vm;
 
-	if(mode < -1)
+	if ( mode < -2 )
 	{
 		return qfalse;
 	}
-	if(mode >= s_numVidModes)
+	if ( mode >= s_numVidModes )
 	{
 		return qfalse;
 	}
 
-	if(mode == -1)
+	if( mode == -2)
+	{
+		// Must set width and height to display size before calling this function!
+		*windowAspect = ( float ) *width / *height;
+	}
+	else if ( mode == -1 )
 	{
 		*width = r_customwidth->integer;
 		*height = r_customheight->integer;
@@ -538,7 +545,7 @@ qboolean R_GetModeInfo(int *width, int *height, float *windowAspect, int mode)
 	else
 	{
 		vm = &r_vidModes[mode];
-	
+
 		*width = vm->width;
 		*height = vm->height;
 		*windowAspect = (float)vm->width / (vm->height * vm->pixelAspect);
@@ -558,7 +565,7 @@ static void R_ModeList_f(void)
 
 	for(i = 0; i < s_numVidModes; i++)
 	{
-		ri.Printf(PRINT_ALL, "Mode %2d: %s\n", i, r_vidModes[i].description);
+		ri.Printf(PRINT_ALL, "Mode %-2d: %s\n", i, r_vidModes[i].description);
 	}
 
 	ri.Printf(PRINT_ALL, "\n");
@@ -1156,7 +1163,7 @@ void GL_SetDefaultState(void)
 	glState.vertexAttribPointersSet = 0;
 
 	glState.currentProgram = 0;
-	glUseProgramObjectARB(0);
+	glUseProgram(0);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -1387,15 +1394,11 @@ R_Register
 */
 void R_Register(void)
 {
-//#if defined(_WIN32)
-//	r_glCoreProfile = ri.Cvar_Get("r_glCoreProfile", "1", CVAR_INIT);
-//#else
-	// most open source Linux drivers don't support OpenGL 3
-	r_glCoreProfile = ri.Cvar_Get("r_glCoreProfile", "0", CVAR_INIT);
-//#endif
-
-	r_glMinMajorVersion = ri.Cvar_Get("r_glMinMajorVersion", "3", CVAR_LATCH);
-	r_glMinMinorVersion = ri.Cvar_Get("r_glMinMinorVersion", "2", CVAR_LATCH);
+	// OpenGL context selection
+	r_glMajorVersion = ri.Cvar_Get("r_glMajorVersion", "", CVAR_LATCH);
+	r_glMinorVersion = ri.Cvar_Get("r_glMinorVersion", "", CVAR_LATCH);
+	r_glCoreProfile = ri.Cvar_Get("r_glCoreProfile", "", CVAR_LATCH);
+	r_glDebugProfile = ri.Cvar_Get("r_glDebugProfile", "", CVAR_LATCH);
 
 #ifdef USE_GLSL_OPTIMIZER
 	r_glslOptimizer = ri.Cvar_Get("r_glslOptimizer", "1", CVAR_ARCHIVE | CVAR_LATCH | CVAR_SHADER);
@@ -1580,6 +1583,8 @@ void R_Register(void)
 	r_bloomPasses = ri.Cvar_Get("r_bloomPasses", "2", CVAR_CHEAT);
 	
 	r_rotoscope = ri.Cvar_Get("r_rotoscope", "0", CVAR_ARCHIVE);
+	r_rotoscopeBlur = ri.Cvar_Get("r_rotoscopeBlur", "5.0", CVAR_ARCHIVE);
+	
 	r_cameraPostFX = ri.Cvar_Get("r_cameraPostFX", "0", CVAR_ARCHIVE);
 	r_cameraVignette = ri.Cvar_Get("r_cameraVignette", "1", CVAR_ARCHIVE);
 	r_cameraFilmGrain = ri.Cvar_Get("r_cameraFilmGrain", "1", CVAR_ARCHIVE);
@@ -1637,7 +1642,7 @@ void R_Register(void)
 
 	r_wrapAroundLighting = ri.Cvar_Get("r_wrapAroundLighting", "0.7", CVAR_CHEAT | CVAR_SHADER);
 	r_halfLambertLighting = ri.Cvar_Get("r_halfLambertLighting", "1", CVAR_CHEAT | CVAR_SHADER);
-	r_rimLighting = ri.Cvar_Get("r_rimLighting", "1", CVAR_ARCHIVE | CVAR_LATCH | CVAR_SHADER);
+	r_rimLighting = ri.Cvar_Get("r_rimLighting", "0", CVAR_ARCHIVE | CVAR_LATCH | CVAR_SHADER);
 	r_rimExponent = ri.Cvar_Get("r_rimExponent", "3", CVAR_CHEAT);
 	AssertCvarRange(r_rimExponent, 0.5, 8.0, qfalse);
 
@@ -1646,7 +1651,7 @@ void R_Register(void)
 	r_noportals = ri.Cvar_Get("r_noportals", "0", CVAR_CHEAT);
 
 	r_shadows = ri.Cvar_Get("cg_shadows", "1", CVAR_ARCHIVE | CVAR_LATCH | CVAR_SHADER);
-	AssertCvarRange(r_shadows, 0, SHADOWING_EVSM32, qtrue);
+	AssertCvarRange(r_shadows, 0, SHADOWING_STENCIL, qtrue);
 
 	r_softShadows = ri.Cvar_Get("r_softShadows", "0", CVAR_ARCHIVE | CVAR_SHADER);
 	AssertCvarRange(r_softShadows, 0, 6, qtrue);
@@ -1748,6 +1753,8 @@ void R_Register(void)
 	r_showDeferredPosition = ri.Cvar_Get("r_showDeferredPosition", "0", CVAR_CHEAT);
 	r_showDeferredRender = ri.Cvar_Get("r_showDeferredRender", "0", CVAR_CHEAT);
 	r_showDeferredLight = ri.Cvar_Get("r_showDeferredLight", "0", CVAR_CHEAT);
+
+	r_detailTextures = ri.Cvar_Get("r_detailtextures", "1", CVAR_ARCHIVE | CVAR_LATCH);
 
 	// make sure all the commands added here are also removed in R_Shutdown
 	ri.Cmd_AddCommand("imagelist", R_ImageList_f);
@@ -2356,6 +2363,7 @@ refexport_t* GetRefAPI(int apiVersion, refimport_t * rimp)
 	re.RenderScene = RE_RenderScene;
 
 	re.SetColor = RE_SetColor;
+	re.SetClipRegion = RE_SetClipRegion;
 	re.DrawStretchPic = RE_StretchPic;
 	re.DrawStretchRaw = RE_StretchRaw;
 	re.UploadCinematic = RE_UploadCinematic;

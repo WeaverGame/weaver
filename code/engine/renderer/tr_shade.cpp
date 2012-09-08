@@ -36,867 +36,6 @@ This file deals with applying shaders to surface data in the tess struct.
 =================================================================================
 */
 
-static void GLSL_PrintInfoLog(GLhandleARB object, qboolean developerOnly)
-{
-	char           *msg;
-	static char     msgPart[1024];
-	int             maxLength = 0;
-	int             i;
-
-	glGetObjectParameterivARB(object, GL_OBJECT_INFO_LOG_LENGTH_ARB, &maxLength);
-
-	msg = (char *) Com_Allocate(maxLength);
-
-	glGetInfoLogARB(object, maxLength, &maxLength, msg);
-
-	if(developerOnly)
-	{
-		ri.Printf(PRINT_DEVELOPER, "compile log:\n");
-	}
-	else
-	{
-		ri.Printf(PRINT_ALL, "compile log:\n");
-	}
-
-	for(i = 0; i < maxLength; i += 1024)
-	{
-		Q_strncpyz(msgPart, msg + i, sizeof(msgPart));
-
-		if(developerOnly)
-			ri.Printf(PRINT_DEVELOPER, "%s\n", msgPart);
-		else
-			ri.Printf(PRINT_ALL, "%s\n", msgPart);
-	}
-
-	Com_Dealloc(msg);
-}
-
-static void GLSL_PrintShaderSource(GLhandleARB object)
-{
-	char           *msg;
-	static char     msgPart[1024];
-	int             maxLength = 0;
-	int             i;
-
-	glGetObjectParameterivARB(object, GL_OBJECT_SHADER_SOURCE_LENGTH_ARB, &maxLength);
-
-	msg = (char *) Com_Allocate(maxLength);
-
-	glGetShaderSourceARB(object, maxLength, &maxLength, msg);
-
-	for(i = 0; i < maxLength; i += 1024)
-	{
-		Q_strncpyz(msgPart, msg + i, sizeof(msgPart));
-		ri.Printf(PRINT_ALL, "%s\n", msgPart);
-	}
-
-	Com_Dealloc(msg);
-}
-
-static void GLSL_LoadGPUShader(GLhandleARB program, const char *name, const char *_libs, const char *_compileMacros, GLenum shaderType, qboolean optimize)
-{
-	char            filename[MAX_QPATH];
-	GLcharARB      *mainBuffer = NULL;
-	int             mainSize;
-	GLint           compiled;
-	GLhandleARB     shader;
-	char           *token;
-
-	int				libsSize;
-	char           *libsBuffer;		// all libs concatenated
-
-	char          **libs = (char **) &_libs;
-	char          **compileMacros = (char **) &_compileMacros;
-
-	GL_CheckErrors();
-
-	// load libs
-	libsSize = 0;
-	libsBuffer = NULL;
-	while(1)
-	{
-		int				libSize;
-		char           *libBuffer;		// single extra lib file
-
-		token = Com_ParseExt(libs, qfalse);
-		if(!token[0])
-		{
-			break;
-		}
-
-		if(shaderType == GL_VERTEX_SHADER)
-		{
-			Com_sprintf(filename, sizeof(filename), "glsl/%s_vp.glsl", token);
-			ri.Printf(PRINT_DEVELOPER, "...loading vertex shader '%s'\n", filename);
-		}
-		else
-		{
-			Com_sprintf(filename, sizeof(filename), "glsl/%s_fp.glsl", token);
-		}
-	
-		libSize = ri.FS_ReadFile(filename, (void **)&libBuffer);
-		if(!libBuffer)
-		{
-			ri.Error(ERR_DROP, "Couldn't load %s", filename);
-		}
-
-		// append it to the libsBuffer
-		libsBuffer = (char* ) realloc(libsBuffer, libsSize + libSize);
-		
-		memset(libsBuffer + libsSize, 0, libSize);
-		libsSize += libSize;
-
-		Q_strcat(libsBuffer, libsSize, libBuffer);
-		//Q_strncpyz(libsBuffer + libsSize, libBuffer, libSize -1);
-
-		
-
-		ri.FS_FreeFile(libBuffer);
-	}
-
-	// load main() program
-	if(shaderType == GL_VERTEX_SHADER)
-	{
-		Com_sprintf(filename, sizeof(filename), "glsl/%s_vp.glsl", name);
-		ri.Printf(PRINT_DEVELOPER, "...loading vertex main() shader '%s'\n", filename);
-	}
-	else
-	{
-		Com_sprintf(filename, sizeof(filename), "glsl/%s_fp.glsl", name);
-		ri.Printf(PRINT_DEVELOPER, "...loading fragment main() shader '%s'\n", filename);
-	}
-
-	mainSize = ri.FS_ReadFile(filename, (void **)&mainBuffer);
-	if(!mainBuffer)
-	{
-		ri.Error(ERR_DROP, "Couldn't load %s", filename);
-	}
-
-	shader = glCreateShaderObjectARB(shaderType);
-
-	GL_CheckErrors();
-
-	{
-		static char     bufferExtra[32000];
-		int             sizeExtra;
-
-		char           *bufferFinal = NULL;
-		int             sizeFinal;
-
-		float           fbufWidthScale, fbufHeightScale;
-		float           npotWidthScale, npotHeightScale;
-
-		Com_Memset(bufferExtra, 0, sizeof(bufferExtra));
-
-		// HACK: abuse the GLSL preprocessor to turn GLSL 1.20 shaders into 1.30 ones
-		if(glConfig.driverType == GLDRV_OPENGL3)
-		{
-			Q_strcat(bufferExtra, sizeof(bufferExtra), "#version 130\n");
-
-			if(shaderType == GL_VERTEX_SHADER)
-			{
-				Q_strcat(bufferExtra, sizeof(bufferExtra), "#define attribute in\n");
-				Q_strcat(bufferExtra, sizeof(bufferExtra), "#define varying out\n");
-			}
-			else
-			{
-				Q_strcat(bufferExtra, sizeof(bufferExtra), "#define varying in\n");
-
-				Q_strcat(bufferExtra, sizeof(bufferExtra), "out vec4 out_Color;\n");
-				Q_strcat(bufferExtra, sizeof(bufferExtra), "#define gl_FragColor out_Color\n");
-			}
-
-			Q_strcat(bufferExtra, sizeof(bufferExtra), "#define textureCube texture\n");
-		}
-		else
-		{
-			Q_strcat(bufferExtra, sizeof(bufferExtra), "#version 120\n");
-		}
-
-
-		while(1)
-		{
-			token = Com_ParseExt(compileMacros, qfalse);
-			if(!token[0])
-			{
-				break;
-			}
-
-			Q_strcat(bufferExtra, sizeof(bufferExtra), va("#ifndef %s\n#define %s 1\n#endif\n", token, token));
-		}
-
-#if defined(COMPAT_Q3A) || defined(COMPAT_ET)
-		Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef COMPAT_Q3A\n#define COMPAT_Q3A 1\n#endif\n");
-#endif
-
-		// HACK: add some macros to avoid extra uniforms and save speed and code maintenance
-		Q_strcat(bufferExtra, sizeof(bufferExtra),
-				 va("#ifndef r_SpecularExponent\n#define r_SpecularExponent %f\n#endif\n", r_specularExponent->value));
-		Q_strcat(bufferExtra, sizeof(bufferExtra),
-				 va("#ifndef r_SpecularScale\n#define r_SpecularScale %f\n#endif\n", r_specularScale->value));
-		//Q_strcat(bufferExtra, sizeof(bufferExtra),
-		//       va("#ifndef r_NormalScale\n#define r_NormalScale %f\n#endif\n", r_normalScale->value));
-
-
-		Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef M_PI\n#define M_PI 3.14159265358979323846f\n#endif\n");
-
-		Q_strcat(bufferExtra, sizeof(bufferExtra), va("#ifndef MAX_SHADOWMAPS\n#define MAX_SHADOWMAPS %i\n#endif\n", MAX_SHADOWMAPS));
-
-		Q_strcat(bufferExtra, sizeof(bufferExtra),
-						 va("#ifndef deformGen_t\n"
-							"#define deformGen_t\n"
-							"#define DGEN_WAVE_SIN %i\n"
-							"#define DGEN_WAVE_SQUARE %i\n"
-							"#define DGEN_WAVE_TRIANGLE %i\n"
-							"#define DGEN_WAVE_SAWTOOTH %i\n"
-							"#define DGEN_WAVE_INVERSE_SAWTOOTH %i\n"
-							"#define DGEN_BULGE %i\n"
-							"#define DGEN_MOVE %i\n"
-							"#endif\n",
-							DGEN_WAVE_SIN,
-							DGEN_WAVE_SQUARE,
-							DGEN_WAVE_TRIANGLE,
-							DGEN_WAVE_SAWTOOTH,
-							DGEN_WAVE_INVERSE_SAWTOOTH,
-							DGEN_BULGE,
-							DGEN_MOVE));
-
-		Q_strcat(bufferExtra, sizeof(bufferExtra),
-						 va("#ifndef colorGen_t\n"
-							"#define colorGen_t\n"
-							"#define CGEN_VERTEX %i\n"
-							"#define CGEN_ONE_MINUS_VERTEX %i\n"
-							"#endif\n",
-							CGEN_VERTEX,
-							CGEN_ONE_MINUS_VERTEX));
-
-		Q_strcat(bufferExtra, sizeof(bufferExtra),
-								 va("#ifndef alphaGen_t\n"
-									"#define alphaGen_t\n"
-									"#define AGEN_VERTEX %i\n"
-									"#define AGEN_ONE_MINUS_VERTEX %i\n"
-									"#endif\n",
-									AGEN_VERTEX,
-									AGEN_ONE_MINUS_VERTEX));
-
-		Q_strcat(bufferExtra, sizeof(bufferExtra),
-								 va("#ifndef alphaTest_t\n"
-									"#define alphaTest_t\n"
-									"#define ATEST_GT_0 %i\n"
-									"#define ATEST_LT_128 %i\n"
-									"#define ATEST_GE_128 %i\n"
-									"#endif\n",
-									ATEST_GT_0,
-									ATEST_LT_128,
-									ATEST_GE_128));
-
-		fbufWidthScale = Q_recip((float)glConfig.vidWidth);
-		fbufHeightScale = Q_recip((float)glConfig.vidHeight);
-		Q_strcat(bufferExtra, sizeof(bufferExtra),
-				 va("#ifndef r_FBufScale\n#define r_FBufScale vec2(%f, %f)\n#endif\n", fbufWidthScale, fbufHeightScale));
-
-		if(glConfig2.textureNPOTAvailable)
-		{
-			npotWidthScale = 1;
-			npotHeightScale = 1;
-		}
-		else
-		{
-			npotWidthScale = (float)glConfig.vidWidth / (float)NearestPowerOfTwo(glConfig.vidWidth);
-			npotHeightScale = (float)glConfig.vidHeight / (float)NearestPowerOfTwo(glConfig.vidHeight);
-		}
-		Q_strcat(bufferExtra, sizeof(bufferExtra),
-				 va("#ifndef r_NPOTScale\n#define r_NPOTScale vec2(%f, %f)\n#endif\n", npotWidthScale, npotHeightScale));
-
-		if(glConfig.driverType == GLDRV_MESA)
-		{
-			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef GLDRV_MESA\n#define GLDRV_MESA 1\n#endif\n");
-		}
-
-		if(glConfig.hardwareType == GLHW_ATI)
-		{
-			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef GLHW_ATI\n#define GLHW_ATI 1\n#endif\n");
-		}
-		else if(glConfig.hardwareType == GLHW_ATI_DX10)
-		{
-			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef GLHW_ATI_DX10\n#define GLHW_ATI_DX10 1\n#endif\n");
-		}
-		else if(glConfig.hardwareType == GLHW_NV_DX10)
-		{
-			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef GLHW_NV_DX10\n#define GLHW_NV_DX10 1\n#endif\n");
-		}
-
-		if(r_shadows->integer >= SHADOWING_ESM16 && glConfig2.textureFloatAvailable && glConfig2.framebufferObjectAvailable)
-		{
-			if(r_shadows->integer == SHADOWING_EVSM32)
-			{
-				Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef ESM\n#define ESM 1\n#endif\n");
-
-				if(r_debugShadowMaps->integer)
-				{
-					Q_strcat(bufferExtra, sizeof(bufferExtra),
-							 va("#ifndef DEBUG_EVSM\n#define DEBUG_EVSM %i\n#endif\n", r_debugShadowMaps->integer));
-				}
-
-				if(r_lightBleedReduction->value)
-				{
-					Q_strcat(bufferExtra, sizeof(bufferExtra),
-							 va("#ifndef r_LightBleedReduction\n#define r_LightBleedReduction %f\n#endif\n",
-								r_lightBleedReduction->value));
-				}
-
-				if(r_overDarkeningFactor->value)
-				{
-					Q_strcat(bufferExtra, sizeof(bufferExtra),
-							 va("#ifndef r_OverDarkeningFactor\n#define r_OverDarkeningFactor %f\n#endif\n",
-								r_overDarkeningFactor->value));
-				}
-
-				if(r_shadowMapDepthScale->value)
-				{
-					Q_strcat(bufferExtra, sizeof(bufferExtra),
-							 va("#ifndef r_ShadowMapDepthScale\n#define r_ShadowMapDepthScale %f\n#endif\n",
-								r_shadowMapDepthScale->value));
-				}
-			}
-			else
-			{
-				Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef VSM\n#define VSM 1\n#endif\n");
-
-				if(glConfig.hardwareType == GLHW_ATI)
-				{
-					Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef VSM_CLAMP\n#define VSM_CLAMP 1\n#endif\n");
-				}
-
-				if((glConfig.hardwareType == GLHW_NV_DX10 || glConfig.hardwareType == GLHW_ATI_DX10) && r_shadows->integer == SHADOWING_VSM32)
-				{
-					Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef VSM_EPSILON\n#define VSM_EPSILON 0.000001\n#endif\n");
-				}
-				else
-				{
-					Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef VSM_EPSILON\n#define VSM_EPSILON 0.0001\n#endif\n");
-				}
-
-				if(r_debugShadowMaps->integer)
-				{
-					Q_strcat(bufferExtra, sizeof(bufferExtra),
-							 va("#ifndef DEBUG_VSM\n#define DEBUG_VSM %i\n#endif\n", r_debugShadowMaps->integer));
-				}
-
-				if(r_lightBleedReduction->value)
-				{
-					Q_strcat(bufferExtra, sizeof(bufferExtra),
-							 va("#ifndef r_LightBleedReduction\n#define r_LightBleedReduction %f\n#endif\n",
-								r_lightBleedReduction->value));
-				}
-			}
-
-			if(r_softShadows->integer == 1)
-			{
-				Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef PCF_2X2\n#define PCF_2X2 1\n#endif\n");
-			}
-			else if(r_softShadows->integer == 2)
-			{
-				Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef PCF_3X3\n#define PCF_3X3 1\n#endif\n");
-			}
-			else if(r_softShadows->integer == 3)
-			{
-				Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef PCF_4X4\n#define PCF_4X4 1\n#endif\n");
-			}
-			else if(r_softShadows->integer == 4)
-			{
-				Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef PCF_5X5\n#define PCF_5X5 1\n#endif\n");
-			}
-			else if(r_softShadows->integer == 5)
-			{
-				Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef PCF_6X6\n#define PCF_6X6 1\n#endif\n");
-			}
-			else if(r_softShadows->integer == 6)
-			{
-				Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef PCSS\n#define PCSS 1\n#endif\n");
-			}
-
-			if(r_parallelShadowSplits->integer)
-			{
-				Q_strcat(bufferExtra, sizeof(bufferExtra),
-						 va("#ifndef r_ParallelShadowSplits_%i\n#define r_ParallelShadowSplits_%i\n#endif\n", r_parallelShadowSplits->integer, r_parallelShadowSplits->integer));
-			}
-
-			if(r_showParallelShadowSplits->integer)
-			{
-				Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef r_ShowParallelShadowSplits\n#define r_ShowParallelShadowSplits 1\n#endif\n");
-			}
-		}
-
-		
-
-		if(r_hdrRendering->integer && glConfig2.framebufferObjectAvailable && glConfig2.textureFloatAvailable)
-		{
-			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef r_HDRRendering\n#define r_HDRRendering 1\n#endif\n");
-
-			Q_strcat(bufferExtra, sizeof(bufferExtra),
-					 va("#ifndef r_HDRContrastThreshold\n#define r_HDRContrastThreshold %f\n#endif\n",
-						r_hdrContrastThreshold->value));
-
-			Q_strcat(bufferExtra, sizeof(bufferExtra),
-					 va("#ifndef r_HDRContrastOffset\n#define r_HDRContrastOffset %f\n#endif\n",
-						r_hdrContrastOffset->value));
-
-			Q_strcat(bufferExtra, sizeof(bufferExtra),
-					 va("#ifndef r_HDRToneMappingOperator\n#define r_HDRToneMappingOperator_%i\n#endif\n",
-						r_hdrToneMappingOperator->integer));
-
-			Q_strcat(bufferExtra, sizeof(bufferExtra),
-					 va("#ifndef r_HDRGamma\n#define r_HDRGamma %f\n#endif\n",
-						r_hdrGamma->value));
-		}
-
-		if(r_precomputedLighting->integer)
-		{
-			Q_strcat(bufferExtra, sizeof(bufferExtra),
-					 "#ifndef r_precomputedLighting\n#define r_precomputedLighting 1\n#endif\n");
-		}
-
-		if(r_heatHazeFix->integer && glConfig2.framebufferBlitAvailable && glConfig.hardwareType != GLHW_ATI && glConfig.hardwareType != GLHW_ATI_DX10 && glConfig.driverType != GLDRV_MESA)
-		{
-			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef r_heatHazeFix\n#define r_heatHazeFix 1\n#endif\n");
-		}
-
-		if(r_showLightMaps->integer)
-		{
-			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef r_showLightMaps\n#define r_showLightMaps 1\n#endif\n");
-		}
-
-		if(r_showDeluxeMaps->integer)
-		{
-			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef r_showDeluxeMaps\n#define r_showDeluxeMaps 1\n#endif\n");
-		}
-#ifdef EXPERIMENTAL
-		if(r_screenSpaceAmbientOcclusion->integer)
-		{
-			int             i;
-			static vec3_t   jitter[32];
-			static qboolean jitterInit = qfalse;
-
-			if(!jitterInit)
-			{
-				for(i = 0; i < 32; i++)
-				{
-					float          *jit = &jitter[i][0];
-
-					float           rad = crandom() * 1024.0f;	// FIXME radius;
-					float           a = crandom() * M_PI * 2;
-					float           b = crandom() * M_PI * 2;
-
-					jit[0] = rad * sin(a) * cos(b);
-					jit[1] = rad * sin(a) * sin(b);
-					jit[2] = rad * cos(a);
-				}
-
-				jitterInit = qtrue;
-			}
-
-			// TODO
-		}
-#endif
-
-		if(glConfig2.vboVertexSkinningAvailable)
-		{
-			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef r_VertexSkinning\n#define r_VertexSkinning 1\n#endif\n");
-
-			Q_strcat(bufferExtra, sizeof(bufferExtra),
-								 va("#ifndef MAX_GLSL_BONES\n#define MAX_GLSL_BONES %i\n#endif\n", glConfig2.maxVertexSkinningBones));
-		}
-
-		/*
-		   if(glConfig2.drawBuffersAvailable && glConfig2.maxDrawBuffers >= 4)
-		   {
-		   //Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef GL_ARB_draw_buffers\n#define GL_ARB_draw_buffers 1\n#endif\n");
-		   Q_strcat(bufferExtra, sizeof(bufferExtra), "#extension GL_ARB_draw_buffers : enable\n");
-		   }
-		 */
-
-		if(r_normalMapping->integer)
-		{
-			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef r_NormalMapping\n#define r_NormalMapping 1\n#endif\n");
-		}
-
-		if( /* TODO: check for shader model 3 hardware  && */ r_normalMapping->integer && r_parallaxMapping->integer)
-		{
-			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef r_ParallaxMapping\n#define r_ParallaxMapping 1\n#endif\n");
-		}
-
-		if(r_wrapAroundLighting->value)
-		{
-			Q_strcat(bufferExtra, sizeof(bufferExtra),
-							 va("#ifndef r_WrapAroundLighting\n#define r_WrapAroundLighting %f\n#endif\n",
-									 r_wrapAroundLighting->value));
-		}
-
-		if(r_halfLambertLighting->integer)
-		{
-			Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef r_halfLambertLighting\n#define r_halfLambertLighting 1\n#endif\n");
-		}
-
-		/*
-		   if(glConfig2.textureFloatAvailable)
-		   {
-		   Q_strcat(bufferExtra, sizeof(bufferExtra), "#ifndef GL_ARB_texture_float\n#define GL_ARB_texture_float 1\n#endif\n");
-		   }
-		 */
-
-
-		// OK we added a lot of stuff but if we do something bad in the GLSL shaders then we want the proper line
-		// so we have to reset the line counting
-		Q_strcat(bufferExtra, sizeof(bufferExtra), "#line 0\n");
-
-		sizeExtra = strlen(bufferExtra);
-		sizeFinal = sizeExtra + mainSize + libsSize;
-
-		//ri.Printf(PRINT_ALL, "GLSL extra: %s\n", bufferExtra);
-
-		bufferFinal = (char *) ri.Hunk_AllocateTempMemory(sizeFinal);
-
-		strcpy(bufferFinal, bufferExtra);
-
-		if(libsSize > 0)
-		{
-			Q_strcat(bufferFinal, sizeFinal, libsBuffer);
-		}
-
-		Q_strcat(bufferFinal, sizeFinal, mainBuffer);
-
-#if 0
-		{
-			static char     msgPart[1024];
-			int             i;
-			ri.Printf(PRINT_WARNING, "----------------------------------------------------------\n", filename);
-			ri.Printf(PRINT_WARNING, "CONCATENATED shader '%s' ----------\n", filename);
-			ri.Printf(PRINT_WARNING, " BEGIN ---------------------------------------------------\n", filename);
-
-			for(i = 0; i < sizeFinal; i += 1024)
-			{
-				Q_strncpyz(msgPart, bufferFinal + i, sizeof(msgPart));
-				ri.Printf(PRINT_ALL, "%s", msgPart);
-			}
-
-			ri.Printf(PRINT_WARNING, " END-- ---------------------------------------------------\n", filename);
-		}
-#endif
-
-#if defined(USE_GLSL_OPTIMIZER)
-		if(glConfig.driverType != GLDRV_OPENGL3 && optimize)
-		{
-			static char     msgPart[1024];
-			int             length = 0;
-			int             i;
-			
-
-			glslopt_shader_type glsloptShaderType;
-
-			if(shaderType == GL_FRAGMENT_SHADER_ARB)
-				glsloptShaderType = kGlslOptShaderFragment;
-			else
-				glsloptShaderType = kGlslOptShaderVertex;
-
-			glslopt_shader* shaderOptimized = glslopt_optimize(s_glslOptimizer, 
-				glsloptShaderType, bufferFinal, 0);
-
-			if(glslopt_get_status(shaderOptimized))
-			{
-				const char* newSource = glslopt_get_output(shaderOptimized);
-
-				ri.Printf(PRINT_WARNING, "----------------------------------------------------------\n", filename);
-				ri.Printf(PRINT_WARNING, "OPTIMIZED shader '%s' ----------\n", filename);
-				ri.Printf(PRINT_WARNING, " BEGIN ---------------------------------------------------\n", filename);
-
-				length = strlen(newSource);
-				for(i = 0; i < length; i += 1024)
-				{
-					Q_strncpyz(msgPart, newSource + i, sizeof(msgPart));
-					ri.Printf(PRINT_ALL, "%s\n", msgPart);
-				}
-
-				ri.Printf(PRINT_WARNING, " END-- ---------------------------------------------------\n", filename);
-
-				glShaderSourceARB(shader, 1, (const GLcharARB **)&newSource, &length);
-			}
-			else
-			{
-				const char* errorLog = glslopt_get_log(shaderOptimized);
-
-				//ri.Printf(PRINT_WARNING, "Couldn't optimize '%s'", filename);
-
-				length = strlen(errorLog);
-				for(i = 0; i < length; i += 1024)
-				{
-					Q_strncpyz(msgPart, errorLog + i, sizeof(msgPart));
-					ri.Printf(PRINT_ALL, "%s\n", msgPart);
-				}
-
-				ri.Error(ERR_FATAL, "Couldn't optimize %s", filename);
-			}
-			
-			glslopt_shader_delete(shaderOptimized);
-		}
-		else
-		{
-			glShaderSourceARB(shader, 1, (const GLcharARB **)&bufferFinal, &sizeFinal);
-		}
-#else
-		glShaderSourceARB(shader, 1, (const GLcharARB **)&bufferFinal, &sizeFinal);
-#endif
-
-
-		ri.Hunk_FreeTempMemory(bufferFinal);
-	}
-
-	// compile shader
-	glCompileShaderARB(shader);
-
-	GL_CheckErrors();
-
-	// check if shader compiled
-	glGetObjectParameterivARB(shader, GL_OBJECT_COMPILE_STATUS_ARB, &compiled);
-	if(!compiled)
-	{
-		GLSL_PrintShaderSource(shader);
-		GLSL_PrintInfoLog(shader, qfalse);
-		ri.Error(ERR_DROP, "Couldn't compile %s", filename);
-		ri.FS_FreeFile(mainBuffer);
-		free(libsBuffer);
-		return;
-	}
-
-	GLSL_PrintInfoLog(shader, qtrue);
-	//ri.Printf(PRINT_ALL, "%s\n", GLSL_PrintShaderSource(shader));
-
-	// attach shader to program
-	glAttachObjectARB(program, shader);
-	GL_CheckErrors();
-
-	// delete shader, no longer needed
-	glDeleteObjectARB(shader);
-	GL_CheckErrors();
-
-	ri.FS_FreeFile(mainBuffer);
-	free(libsBuffer);
-}
-
-static void GLSL_LinkProgram(GLhandleARB program)
-{
-	GLint           linked;
-	char           *msg = "";
-
-	glLinkProgramARB(program);
-
-	glGetObjectParameterivARB(program, GL_OBJECT_LINK_STATUS_ARB, &linked);
-	if(!linked)
-	{
-		GLSL_PrintInfoLog(program, qfalse);
-		ri.Error(ERR_DROP, "%s\nshaders failed to link", msg);
-	}
-}
-
-void GLSL_ValidateProgram(GLhandleARB program)
-{
-	GLint           validated;
-
-	glValidateProgramARB(program);
-
-	glGetObjectParameterivARB(program, GL_OBJECT_VALIDATE_STATUS_ARB, &validated);
-	if(!validated)
-	{
-		GLSL_PrintInfoLog(program, qfalse);
-		ri.Error(ERR_DROP, "%s\nshaders failed to validate");
-	}
-}
-
-void GLSL_ShowProgramUniforms(GLhandleARB program)
-{
-	int             i, count, size;
-	GLenum			type;
-	char            uniformName[1000];
-
-	// install the executables in the program object as part of current state.
-	glUseProgramObjectARB(program);
-
-	// check for GL Errors
-
-	// query the number of active uniforms
-	glGetObjectParameterivARB(program, GL_OBJECT_ACTIVE_UNIFORMS_ARB, &count);
-
-	// Loop over each of the active uniforms, and set their value
-	for(i = 0; i < count; i++)
-	{
-		glGetActiveUniformARB(program, i, sizeof(uniformName), NULL, &size, &type, uniformName);
-
-		ri.Printf(PRINT_DEVELOPER, "active uniform: '%s'\n", uniformName);
-	}
-
-	glUseProgramObjectARB(0);
-}
-
-static void GLSL_BindAttribLocations(GLhandleARB program, uint32_t attribs)
-{
-	if(attribs & ATTR_POSITION)
-		glBindAttribLocation(program, ATTR_INDEX_POSITION, "attr_Position");
-
-	if(attribs & ATTR_TEXCOORD)
-		glBindAttribLocation(program, ATTR_INDEX_TEXCOORD0, "attr_TexCoord0");
-
-	if(attribs & ATTR_LIGHTCOORD)
-		glBindAttribLocation(program, ATTR_INDEX_TEXCOORD1, "attr_TexCoord1");
-
-//  if(attribs & ATTR_TEXCOORD2)
-//      glBindAttribLocation(program, ATTR_INDEX_TEXCOORD2, "attr_TexCoord2");
-
-//  if(attribs & ATTR_TEXCOORD3)
-//      glBindAttribLocation(program, ATTR_INDEX_TEXCOORD3, "attr_TexCoord3");
-
-	if(attribs & ATTR_TANGENT)
-		glBindAttribLocation(program, ATTR_INDEX_TANGENT, "attr_Tangent");
-
-	if(attribs & ATTR_BINORMAL)
-		glBindAttribLocation(program, ATTR_INDEX_BINORMAL, "attr_Binormal");
-
-	if(attribs & ATTR_NORMAL)
-		glBindAttribLocation(program, ATTR_INDEX_NORMAL, "attr_Normal");
-
-	if(attribs & ATTR_COLOR)
-		glBindAttribLocation(program, ATTR_INDEX_COLOR, "attr_Color");
-
-#if !defined(COMPAT_Q3A) && !defined(COMPAT_ET)
-	if(attribs & ATTR_PAINTCOLOR)
-		glBindAttribLocation(program, ATTR_INDEX_PAINTCOLOR, "attr_PaintColor");
-
-	if(attribs & ATTR_LIGHTDIRECTION)
-		glBindAttribLocation(program, ATTR_INDEX_LIGHTDIRECTION, "attr_LightDirection");
-#endif
-
-	if(glConfig2.vboVertexSkinningAvailable)
-	{
-		glBindAttribLocation(program, ATTR_INDEX_BONE_INDEXES, "attr_BoneIndexes");
-		glBindAttribLocation(program, ATTR_INDEX_BONE_WEIGHTS, "attr_BoneWeights");
-	}
-
-	if(attribs & ATTR_POSITION2)
-		glBindAttribLocation(program, ATTR_INDEX_POSITION2, "attr_Position2");
-
-	if(attribs & ATTR_TANGENT2)
-		glBindAttribLocation(program, ATTR_INDEX_TANGENT2, "attr_Tangent2");
-
-	if(attribs & ATTR_BINORMAL2)
-		glBindAttribLocation(program, ATTR_INDEX_BINORMAL2, "attr_Binormal2");
-
-	if(attribs & ATTR_NORMAL2)
-		glBindAttribLocation(program, ATTR_INDEX_NORMAL2, "attr_Normal2");
-}
-
-static void GLSL_InitGPUShader(shaderProgram_t * program, const char *name, int attribs, qboolean fragmentShader, qboolean optimize)
-{
-	ri.Printf(PRINT_DEVELOPER, "------- GPU shader -------\n");
-
-	if(strlen(name) >= MAX_QPATH)
-	{
-		ri.Error(ERR_DROP, "GLSL_InitGPUShader: \"%s\" is too long\n", name);
-	}
-
-	Q_strncpyz(program->name, name, sizeof(program->name));
-
-	program->program = glCreateProgramObjectARB();
-	program->attribs = attribs;
-
-	GLSL_LoadGPUShader(program->program, name, "", "", GL_VERTEX_SHADER_ARB, optimize);
-	GLSL_LoadGPUShader(program->program, name, "", "", GL_FRAGMENT_SHADER_ARB, optimize);
-
-	GLSL_BindAttribLocations(program->program, attribs);
-	GLSL_LinkProgram(program->program);
-}
-
-
-/*
-static void GLSL_InitGPUShader2(shaderProgram_t * program,
-								const char *vertexMainShader,
-								const char *fragmentMainShader,
-								const char *vertexLibShaders,
-								const char *fragmentLibShaders,
-								int attribs,
-								qboolean optimize)
-{
-	ri.Printf(PRINT_DEVELOPER, "------- GPU shader -------\n");
-
-	if(strlen(vertexMainShader) >= MAX_QPATH)
-	{
-		ri.Error(ERR_DROP, "GLSL_InitGPUShader2: \"%s\" is too long\n", vertexMainShader);
-	}
-
-	if(strlen(fragmentMainShader) >= MAX_QPATH)
-	{
-		ri.Error(ERR_DROP, "GLSL_InitGPUShader2: \"%s\" is too long\n", fragmentMainShader);
-	}
-
-	Q_strncpyz(program->name, fragmentMainShader, sizeof(program->name));
-
-	program->program = glCreateProgramObjectARB();
-	program->attribs = attribs;
-
-	GLSL_LoadGPUShader(program->program, vertexMainShader, vertexLibShaders, "", GL_VERTEX_SHADER_ARB, optimize);
-	GLSL_LoadGPUShader(program->program, fragmentMainShader, fragmentLibShaders, "", GL_FRAGMENT_SHADER_ARB, optimize);
-	
-	GLSL_BindAttribLocations(program->program, attribs);
-	GLSL_LinkProgram(program->program);
-}
-*/
-
-/*
-void GLSL_InitGPUShader3(shaderProgram_t * program,
-								const char *vertexMainShader,
-								const char *fragmentMainShader,
-								const char *vertexLibShaders,
-								const char *fragmentLibShaders,
-								const char *compileMacros,
-								int attribs,
-								qboolean optimize)
-{
-	int			len;
-
-	ri.Printf(PRINT_DEVELOPER, "------- GPU shader -------\n");
-
-	if(strlen(vertexMainShader) >= MAX_QPATH)
-	{
-		ri.Error(ERR_DROP, "GLSL_InitGPUShader3: \"%s\" is too long\n", vertexMainShader);
-	}
-
-	if(strlen(fragmentMainShader) >= MAX_QPATH)
-	{
-		ri.Error(ERR_DROP, "GLSL_InitGPUShader3: \"%s\" is too long\n", fragmentMainShader);
-	}
-
-	Q_strncpyz(program->name, fragmentMainShader, sizeof(program->name));
-
-	len = strlen(compileMacros) + 1;
-	program->compileMacros = (char *) ri.Hunk_Alloc(sizeof(char) * len, h_low);
-	Q_strncpyz(program->compileMacros, compileMacros, len);
-
-	program->program = glCreateProgramObjectARB();
-	program->attribs = attribs;
-
-	GLSL_LoadGPUShader(program->program, vertexMainShader, vertexLibShaders, compileMacros, GL_VERTEX_SHADER_ARB, optimize);
-	GLSL_LoadGPUShader(program->program, fragmentMainShader, fragmentLibShaders, compileMacros, GL_FRAGMENT_SHADER_ARB, optimize);
-
-	GLSL_BindAttribLocations(program->program, attribs);
-	GLSL_LinkProgram(program->program);
-}
-*/
-
-
-
-
-
-
-
-
 void GLSL_InitGPUShaders(void)
 {
 	int             startTime, endTime;
@@ -951,118 +90,12 @@ void GLSL_InitGPUShaders(void)
 		gl_forwardLightingShader_directionalSun = new GLShader_forwardLighting_directionalSun();
 	}
 
-
-#if !defined(GLSL_COMPILE_STARTUP_ONLY)
-
-	// depth to color encoding
-	GLSL_InitGPUShader(&tr.depthToColorShader, "depthToColor", ATTR_POSITION, qtrue, qtrue);
-
-	tr.depthToColorShader.u_ModelViewProjectionMatrix =
-		glGetUniformLocation(tr.depthToColorShader.program, "u_ModelViewProjectionMatrix");
-	if(glConfig2.vboVertexSkinningAvailable)
-	{
-		tr.depthToColorShader.u_VertexSkinning = glGetUniformLocation(tr.depthToColorShader.program, "u_VertexSkinning");
-		tr.depthToColorShader.u_BoneMatrix = glGetUniformLocation(tr.depthToColorShader.program, "u_BoneMatrix");
-	}
-
-	glUseProgramObjectARB(tr.depthToColorShader.program);
-	//glUniform1i(tr.depthToColorShader.u_ColorMap, 0);
-	glUseProgramObjectARB(0);
-
-	GLSL_ValidateProgram(tr.depthToColorShader.program);
-	GLSL_ShowProgramUniforms(tr.depthToColorShader.program);
-	GL_CheckErrors();
-
-#endif // #if !defined(GLSL_COMPILE_STARTUP_ONLY)
-
-
 	// shadowmap distance compression
 	gl_shadowFillShader = new GLShader_shadowFill();
 
-	
-
-#if !defined(GLSL_COMPILE_STARTUP_ONLY)
-
-#ifdef VOLUMETRIC_LIGHTING
 	// volumetric lighting
-	GLSL_InitGPUShader(&tr.lightVolumeShader_omni, "lightVolume_omni", ATTR_POSITION, qtrue, qtrue);
-
-	tr.lightVolumeShader_omni.u_DepthMap =
-		glGetUniformLocation(tr.lightVolumeShader_omni.program, "u_DepthMap");
-	tr.lightVolumeShader_omni.u_AttenuationMapXY =
-		glGetUniformLocation(tr.lightVolumeShader_omni.program, "u_AttenuationMapXY");
-	tr.lightVolumeShader_omni.u_AttenuationMapZ =
-		glGetUniformLocation(tr.lightVolumeShader_omni.program, "u_AttenuationMapZ");
-	tr.lightVolumeShader_omni.u_ShadowMap = glGetUniformLocation(tr.lightVolumeShader_omni.program, "u_ShadowMap");
-	tr.lightVolumeShader_omni.u_ViewOrigin = glGetUniformLocation(tr.lightVolumeShader_omni.program, "u_ViewOrigin");
-	tr.lightVolumeShader_omni.u_LightOrigin = glGetUniformLocation(tr.lightVolumeShader_omni.program, "u_LightOrigin");
-	tr.lightVolumeShader_omni.u_LightColor = glGetUniformLocation(tr.lightVolumeShader_omni.program, "u_LightColor");
-	tr.lightVolumeShader_omni.u_LightRadius = glGetUniformLocation(tr.lightVolumeShader_omni.program, "u_LightRadius");
-	tr.lightVolumeShader_omni.u_LightScale = glGetUniformLocation(tr.lightVolumeShader_omni.program, "u_LightScale");
-	tr.lightVolumeShader_omni.u_LightAttenuationMatrix =
-		glGetUniformLocation(tr.lightVolumeShader_omni.program, "u_LightAttenuationMatrix");
-	tr.lightVolumeShader_omni.u_ShadowCompare = glGetUniformLocation(tr.lightVolumeShader_omni.program, "u_ShadowCompare");
-	tr.lightVolumeShader_omni.u_ModelViewProjectionMatrix =
-		glGetUniformLocation(tr.lightVolumeShader_omni.program, "u_ModelViewProjectionMatrix");
-	tr.lightVolumeShader_omni.u_UnprojectMatrix = glGetUniformLocation(tr.lightVolumeShader_omni.program, "u_UnprojectMatrix");
-
-	glUseProgramObjectARB(tr.lightVolumeShader_omni.program);
-	glUniform1i(tr.lightVolumeShader_omni.u_DepthMap, 0);
-	glUniform1i(tr.lightVolumeShader_omni.u_AttenuationMapXY, 1);
-	glUniform1i(tr.lightVolumeShader_omni.u_AttenuationMapZ, 2);
-	glUniform1i(tr.lightVolumeShader_omni.u_ShadowMap, 3);
-	glUseProgramObjectARB(0);
-
-	GLSL_ValidateProgram(tr.lightVolumeShader_omni.program);
-	GLSL_ShowProgramUniforms(tr.lightVolumeShader_omni.program);
-	GL_CheckErrors();
-#endif
-
-	// UT3 style player shadowing
-	GLSL_InitGPUShader(&tr.deferredShadowingShader_proj, "deferredShadowing_proj", ATTR_POSITION, qtrue, qtrue);
-
-	tr.deferredShadowingShader_proj.u_DepthMap =
-		glGetUniformLocation(tr.deferredShadowingShader_proj.program, "u_DepthMap");
-	tr.deferredShadowingShader_proj.u_AttenuationMapXY =
-		glGetUniformLocation(tr.deferredShadowingShader_proj.program, "u_AttenuationMapXY");
-	tr.deferredShadowingShader_proj.u_AttenuationMapZ =
-		glGetUniformLocation(tr.deferredShadowingShader_proj.program, "u_AttenuationMapZ");
-	tr.deferredShadowingShader_proj.u_ShadowMap =
-		glGetUniformLocation(tr.deferredShadowingShader_proj.program, "u_ShadowMap");
-	tr.deferredShadowingShader_proj.u_LightOrigin =
-		glGetUniformLocation(tr.deferredShadowingShader_proj.program, "u_LightOrigin");
-	tr.deferredShadowingShader_proj.u_LightColor =
-		glGetUniformLocation(tr.deferredShadowingShader_proj.program, "u_LightColor");
-	tr.deferredShadowingShader_proj.u_LightRadius =
-		glGetUniformLocation(tr.deferredShadowingShader_proj.program, "u_LightRadius");
-	tr.deferredShadowingShader_proj.u_LightAttenuationMatrix =
-		glGetUniformLocation(tr.deferredShadowingShader_proj.program, "u_LightAttenuationMatrix");
-	tr.deferredShadowingShader_proj.u_ShadowMatrix =
-		glGetUniformLocation(tr.deferredShadowingShader_proj.program, "u_ShadowMatrix");
-	tr.deferredShadowingShader_proj.u_ShadowCompare =
-		glGetUniformLocation(tr.deferredShadowingShader_proj.program, "u_ShadowCompare");
-	tr.deferredShadowingShader_proj.u_PortalClipping =
-		glGetUniformLocation(tr.deferredShadowingShader_proj.program, "u_PortalClipping");
-	tr.deferredShadowingShader_proj.u_PortalPlane =
-		glGetUniformLocation(tr.deferredShadowingShader_proj.program, "u_PortalPlane");
-	tr.deferredShadowingShader_proj.u_ModelViewProjectionMatrix =
-		glGetUniformLocation(tr.deferredShadowingShader_proj.program, "u_ModelViewProjectionMatrix");
-	tr.deferredShadowingShader_proj.u_UnprojectMatrix =
-		glGetUniformLocation(tr.deferredShadowingShader_proj.program, "u_UnprojectMatrix");
-
-	glUseProgramObjectARB(tr.deferredShadowingShader_proj.program);
-	glUniform1i(tr.deferredShadowingShader_proj.u_DepthMap, 0);
-	glUniform1i(tr.deferredShadowingShader_proj.u_AttenuationMapXY, 1);
-	glUniform1i(tr.deferredShadowingShader_proj.u_AttenuationMapZ, 2);
-	glUniform1i(tr.deferredShadowingShader_proj.u_ShadowMap, 3);
-	glUseProgramObjectARB(0);
-
-	GLSL_ValidateProgram(tr.deferredShadowingShader_proj.program);
-	GLSL_ShowProgramUniforms(tr.deferredShadowingShader_proj.program);
-	GL_CheckErrors();
-
-#endif // #if !defined(GLSL_COMPILE_STARTUP_ONLY)
-
+	gl_volumetricLightingShader = new GLShader_volumetricLighting();
+	
 	// bumped cubemap reflection for abitrary polygons ( EMBM )
 	gl_reflectionShader = new GLShader_reflection();
 
@@ -1101,69 +134,28 @@ void GLSL_InitGPUShaders(void)
 	// debug utils
 	gl_debugShadowMapShader = new GLShader_debugShadowMap();
 
-#if !defined(GLSL_COMPILE_STARTUP_ONLY)
-
 	// liquid post process effect
-	GLSL_InitGPUShader(&tr.liquidShader, "liquid",
-			ATTR_POSITION | ATTR_TEXCOORD | ATTR_TANGENT | ATTR_BINORMAL | ATTR_NORMAL | ATTR_COLOR
-			
-#if !defined(COMPAT_Q3A) && !defined(COMPAT_ET)
-			| ATTR_LIGHTDIRECTION
-#endif
-			, qtrue, qtrue);
+	gl_liquidShader = new GLShader_liquid();
 
-	tr.liquidShader.u_CurrentMap = glGetUniformLocation(tr.liquidShader.program, "u_CurrentMap");
-	tr.liquidShader.u_PortalMap = glGetUniformLocation(tr.liquidShader.program, "u_PortalMap");
-	tr.liquidShader.u_DepthMap = glGetUniformLocation(tr.liquidShader.program, "u_DepthMap");
-	tr.liquidShader.u_NormalMap = glGetUniformLocation(tr.liquidShader.program, "u_NormalMap");
-	tr.liquidShader.u_NormalTextureMatrix = glGetUniformLocation(tr.liquidShader.program, "u_NormalTextureMatrix");
-	tr.liquidShader.u_ViewOrigin = glGetUniformLocation(tr.liquidShader.program, "u_ViewOrigin");
-	tr.liquidShader.u_RefractionIndex = glGetUniformLocation(tr.liquidShader.program, "u_RefractionIndex");
-	tr.liquidShader.u_FresnelPower = glGetUniformLocation(tr.liquidShader.program, "u_FresnelPower");
-	tr.liquidShader.u_FresnelScale = glGetUniformLocation(tr.liquidShader.program, "u_FresnelScale");
-	tr.liquidShader.u_FresnelBias = glGetUniformLocation(tr.liquidShader.program, "u_FresnelBias");
-	tr.liquidShader.u_NormalScale = glGetUniformLocation(tr.liquidShader.program, "u_NormalScale");
-	tr.liquidShader.u_FogDensity = glGetUniformLocation(tr.liquidShader.program, "u_FogDensity");
-	tr.liquidShader.u_FogColor = glGetUniformLocation(tr.liquidShader.program, "u_FogColor");
-	tr.liquidShader.u_ModelMatrix = glGetUniformLocation(tr.liquidShader.program, "u_ModelMatrix");
-	tr.liquidShader.u_ModelViewProjectionMatrix =
-		glGetUniformLocation(tr.liquidShader.program, "u_ModelViewProjectionMatrix");
-	tr.liquidShader.u_UnprojectMatrix = glGetUniformLocation(tr.liquidShader.program, "u_UnprojectMatrix");
+	// rotoscope post process effect
+	gl_rotoscopeShader = new GLShader_rotoscope();
 
-	glUseProgramObjectARB(tr.liquidShader.program);
-	glUniform1i(tr.liquidShader.u_CurrentMap, 0);
-	glUniform1i(tr.liquidShader.u_PortalMap, 1);
-	glUniform1i(tr.liquidShader.u_DepthMap, 2);
-	glUniform1i(tr.liquidShader.u_NormalMap, 3);
-	glUseProgramObjectARB(0);
+	// bloom post process effects
+	gl_bloomShader = new GLShader_bloom();
 
-	GLSL_ValidateProgram(tr.liquidShader.program);
-	GLSL_ShowProgramUniforms(tr.liquidShader.program);
-	GL_CheckErrors();
+	// cubemap refraction for abitrary polygons
+	gl_refractionShader = new GLShader_refraction();
+
+	// depth to color encoding
+	gl_depthToColorShader = new GLShader_depthToColor();
 
 	// volumetric fog post process effect
-	GLSL_InitGPUShader(&tr.volumetricFogShader, "volumetricFog", ATTR_POSITION, qtrue, qtrue);
+	gl_volumetricFogShader = new GLShader_volumetricFog();
 
-	tr.volumetricFogShader.u_DepthMap = glGetUniformLocation(tr.volumetricFogShader.program, "u_DepthMap");
-	tr.volumetricFogShader.u_DepthMapBack = glGetUniformLocation(tr.volumetricFogShader.program, "u_DepthMapBack");
-	tr.volumetricFogShader.u_DepthMapFront = glGetUniformLocation(tr.volumetricFogShader.program, "u_DepthMapFront");
-	tr.volumetricFogShader.u_ViewOrigin = glGetUniformLocation(tr.volumetricFogShader.program, "u_ViewOrigin");
-	tr.volumetricFogShader.u_FogDensity = glGetUniformLocation(tr.volumetricFogShader.program, "u_FogDensity");
-	tr.volumetricFogShader.u_FogColor = glGetUniformLocation(tr.volumetricFogShader.program, "u_FogColor");
-	tr.volumetricFogShader.u_UnprojectMatrix = glGetUniformLocation(tr.volumetricFogShader.program, "u_UnprojectMatrix");
-	tr.volumetricFogShader.u_ModelViewProjectionMatrix =
-		glGetUniformLocation(tr.volumetricFogShader.program, "u_ModelViewProjectionMatrix");
+	// cubemap dispersion for abitrary polygons
+	gl_dispersionShader = new GLShader_dispersion();
 
-	glUseProgramObjectARB(tr.volumetricFogShader.program);
-	glUniform1i(tr.volumetricFogShader.u_DepthMap, 0);
-	glUniform1i(tr.volumetricFogShader.u_DepthMapBack, 1);
-	glUniform1i(tr.volumetricFogShader.u_DepthMapFront, 2);
-	glUseProgramObjectARB(0);
-
-	GLSL_ValidateProgram(tr.volumetricFogShader.program);
-	GLSL_ShowProgramUniforms(tr.volumetricFogShader.program);
-	GL_CheckErrors();
-
+#if !defined(GLSL_COMPILE_STARTUP_ONLY)
 #ifdef EXPERIMENTAL
 	// screen space ambien occlusion post process effect
 	GLSL_InitGPUShader(&tr.screenSpaceAmbientOcclusionShader, "screenSpaceAmbientOcclusion", ATTR_POSITION, qtrue, qtrue);
@@ -1180,10 +172,10 @@ void GLSL_InitGPUShaders(void)
 	//tr.screenSpaceAmbientOcclusionShader.u_UnprojectMatrix = glGetUniformLocation(tr.screenSpaceAmbientOcclusionShader.program, "u_UnprojectMatrix");
 	//tr.screenSpaceAmbientOcclusionShader.u_ProjectMatrix = glGetUniformLocation(tr.screenSpaceAmbientOcclusionShader.program, "u_ProjectMatrix");
 
-	glUseProgramObjectARB(tr.screenSpaceAmbientOcclusionShader.program);
+	glUseProgramObject(tr.screenSpaceAmbientOcclusionShader.program);
 	glUniform1i(tr.screenSpaceAmbientOcclusionShader.u_CurrentMap, 0);
 	glUniform1i(tr.screenSpaceAmbientOcclusionShader.u_DepthMap, 1);
-	glUseProgramObjectARB(0);
+	glUseProgramObject(0);
 
 	GLSL_ValidateProgram(tr.screenSpaceAmbientOcclusionShader.program);
 	GLSL_ShowProgramUniforms(tr.screenSpaceAmbientOcclusionShader.program);
@@ -1198,10 +190,10 @@ void GLSL_InitGPUShaders(void)
 	tr.depthOfFieldShader.u_ModelViewProjectionMatrix =
 		glGetUniformLocation(tr.depthOfFieldShader.program, "u_ModelViewProjectionMatrix");
 
-	glUseProgramObjectARB(tr.depthOfFieldShader.program);
+	glUseProgramObject(tr.depthOfFieldShader.program);
 	glUniform1i(tr.depthOfFieldShader.u_CurrentMap, 0);
 	glUniform1i(tr.depthOfFieldShader.u_DepthMap, 1);
-	glUseProgramObjectARB(0);
+	glUseProgramObject(0);
 
 	GLSL_ValidateProgram(tr.depthOfFieldShader.program);
 	GLSL_ShowProgramUniforms(tr.depthOfFieldShader.program);
@@ -1265,15 +257,11 @@ void GLSL_ShutdownGPUShaders(void)
 		gl_deferredLightingShader_omniXYZ = NULL;
 	}
 
-#if !defined(GLSL_COMPILE_STARTUP_ONLY)
-
-	if(tr.depthToColorShader.program)
+	if(gl_depthToColorShader)
 	{
-		glDeleteObjectARB(tr.depthToColorShader.program);
-		Com_Memset(&tr.depthToColorShader, 0, sizeof(shaderProgram_t));
+		delete gl_depthToColorShader;
+		gl_depthToColorShader = NULL;
 	}
-
-#endif // #if !defined(GLSL_COMPILE_STARTUP_ONLY)
 
 	if(gl_shadowFillShader)
 	{
@@ -1299,23 +287,39 @@ void GLSL_ShutdownGPUShaders(void)
 		gl_forwardLightingShader_directionalSun = NULL;
 	}
 
+	if(gl_rotoscopeShader)
+	{
+		delete gl_rotoscopeShader;
+		gl_rotoscopeShader = NULL;
+	}
+
+	if(gl_refractionShader)
+	{
+		delete gl_refractionShader;
+		gl_refractionShader = NULL;
+	}
+
 #if !defined(GLSL_COMPILE_STARTUP_ONLY)
 
-#ifdef VOLUMETRIC_LIGHTING
-	if(tr.lightVolumeShader_omni.program)
+	if(tr.dispersionShader_C.program)
 	{
-		glDeleteObjectARB(tr.lightVolumeShader_omni.program);
-		Com_Memset(&tr.lightVolumeShader_omni, 0, sizeof(shaderProgram_t));
+		glDeleteObject(tr.dispersionShader_C.program);
+		Com_Memset(&tr.dispersionShader_C, 0, sizeof(shaderProgram_t));
 	}
-#endif
 
 	if(tr.deferredShadowingShader_proj.program)
 	{
-		glDeleteObjectARB(tr.deferredShadowingShader_proj.program);
+		glDeleteObject(tr.deferredShadowingShader_proj.program);
 		Com_Memset(&tr.deferredShadowingShader_proj, 0, sizeof(shaderProgram_t));
 	}
 
 #endif // #if !defined(GLSL_COMPILE_STARTUP_ONLY)
+
+	if(gl_bloomShader)
+	{
+		delete gl_bloomShader;
+		gl_bloomShader = NULL;
+	}
 
 	if(gl_reflectionShader)
 	{
@@ -1395,30 +399,43 @@ void GLSL_ShutdownGPUShaders(void)
 		gl_debugShadowMapShader = NULL;
 	}
 
+	if(gl_liquidShader)
+	{
+		delete gl_liquidShader;
+		gl_liquidShader = NULL;
+	}
+
+	if(gl_volumetricFogShader)
+	{
+		delete gl_volumetricFogShader;
+		gl_volumetricFogShader = NULL;
+	}
+
+	if(gl_volumetricLightingShader)
+	{
+		delete gl_volumetricLightingShader;
+		gl_volumetricLightingShader = NULL;
+	}
+
+	if(gl_dispersionShader)
+	{
+		delete gl_dispersionShader;
+		gl_dispersionShader = NULL;
+	}
+
 #if !defined(GLSL_COMPILE_STARTUP_ONLY)
 
-	if(tr.liquidShader.program)
-	{
-		glDeleteObjectARB(tr.liquidShader.program);
-		Com_Memset(&tr.liquidShader, 0, sizeof(shaderProgram_t));
-	}
-
-	if(tr.volumetricFogShader.program)
-	{
-		glDeleteObjectARB(tr.volumetricFogShader.program);
-		Com_Memset(&tr.volumetricFogShader, 0, sizeof(shaderProgram_t));
-	}
 #ifdef EXPERIMENTAL
 	if(tr.screenSpaceAmbientOcclusionShader.program)
 	{
-		glDeleteObjectARB(tr.screenSpaceAmbientOcclusionShader.program);
+		glDeleteObject(tr.screenSpaceAmbientOcclusionShader.program);
 		Com_Memset(&tr.screenSpaceAmbientOcclusionShader, 0, sizeof(shaderProgram_t));
 	}
 #endif
 #ifdef EXPERIMENTAL
 	if(tr.depthOfFieldShader.program)
 	{
-		glDeleteObjectARB(tr.depthOfFieldShader.program);
+		glDeleteObject(tr.depthOfFieldShader.program);
 		Com_Memset(&tr.depthOfFieldShader, 0, sizeof(shaderProgram_t));
 	}
 #endif
@@ -1426,9 +443,9 @@ void GLSL_ShutdownGPUShaders(void)
 #endif // #if !defined(GLSL_COMPILE_STARTUP_ONLY)
 
 	glState.currentProgram = 0;
-	if(glUseProgramObjectARB != NULL)
+	if(glUseProgram != NULL)
 	{
-		glUseProgramObjectARB(0);
+		glUseProgram(0);
 	}
 }
 
@@ -1594,6 +611,7 @@ static void DrawTris()
 
 	gl_genericShader->DisableDeformVertexes();
 	gl_genericShader->DisableTCGenEnvironment();
+	gl_genericShader->DisableTCGenLightmap();
 
 	gl_genericShader->BindProgram();
 	gl_genericShader->SetRequiredVertexPointers();
@@ -1767,6 +785,7 @@ static void Render_generic(int stage)
 
 	gl_genericShader->SetDeformVertexes(tess.surfaceShader->numDeforms);
 	gl_genericShader->SetTCGenEnvironment(pStage->tcGen_Environment);
+	gl_genericShader->SetTCGenLightmap(pStage->tcGen_Lightmap);
 
 	gl_genericShader->BindProgram();
 	// end choose right shader program ------------------------------
@@ -3505,9 +2524,53 @@ static void Render_reflection_CB(int stage)
 	GL_CheckErrors();
 }
 
+static void Render_refraction_C(int stage)
+{
+	vec3_t			viewOrigin;
+	shaderStage_t	*pStage = tess.surfaceStages[stage];
+ 
+	GLimp_LogComment("--- Render_refraction_C ---\n");
+ 
+	GL_State(pStage->stateBits);
+ 
+	gl_refractionShader->SetVertexSkinning(glConfig2.vboVertexSkinningAvailable && tess.vboVertexSkinning);
+
+	// enable shader, set arrays
+	gl_refractionShader->BindProgram();
+	GL_VertexAttribsState(ATTR_POSITION | ATTR_NORMAL);
+ 
+	// set uniforms
+	VectorCopy(backEnd.viewParms.orientation.origin, viewOrigin); // in world space
+
+	gl_refractionShader->SetUniform_ViewOrigin(viewOrigin);
+	gl_refractionShader->SetUniform_RefractionIndex(RB_EvalExpression(&pStage->refractionIndexExp, 1.0));
+	gl_refractionShader->SetUniform_FresnelPowerValue(RB_EvalExpression(&pStage->fresnelPowerExp, 2.0));
+	gl_refractionShader->SetUniform_FresnelScaleValue(RB_EvalExpression(&pStage->fresnelScaleExp, 2.0));
+	gl_refractionShader->SetUniform_FresnelBiasValue(RB_EvalExpression(&pStage->fresnelBiasExp, 1.0));
+ 
+	gl_refractionShader->SetUniform_ModelMatrix(backEnd.orientation.transformMatrix);
+	gl_refractionShader->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
+ 
+	if(glConfig2.vboVertexSkinningAvailable)
+	{
+		gl_refractionShader->SetVertexSkinning(tess.vboVertexSkinning);
+ 
+		if(tess.vboVertexSkinning) {
+			gl_refractionShader->SetUniform_BoneMatrix(MAX_BONES, tess.boneMatrices);
+		}
+	}
+ 
+	// bind u_ColorMap
+	GL_SelectTexture(0);
+	GL_Bind(pStage->bundle[TB_COLORMAP].image[0]);
+ 
+	Tess_DrawElements();
+ 
+	GL_CheckErrors();
+}
+
 static void Render_dispersion_C(int stage)
 {
-#if 0 //!defined(GLSL_COMPILE_STARTUP_ONLY)
 	vec3_t          viewOrigin;
 	shaderStage_t  *pStage = tess.surfaceStages[stage];
 	float           eta;
@@ -3518,29 +2581,28 @@ static void Render_dispersion_C(int stage)
 	GL_State(pStage->stateBits);
 
 	// enable shader, set arrays
-	GL_BindProgram(&tr.dispersionShader_C);
-	GL_VertexAttribsState(tr.dispersionShader_C.attribs);
+	gl_dispersionShader->SetVertexSkinning(glConfig2.vboVertexSkinningAvailable && tess.vboVertexSkinning);
+
+	gl_dispersionShader->BindProgram();
+	GL_VertexAttribsState(ATTR_POSITION | ATTR_NORMAL);
 
 	// set uniforms
 	VectorCopy(backEnd.viewParms.orientation.origin, viewOrigin);	// in world space
 	eta = RB_EvalExpression(&pStage->etaExp, (float)1.1);
 	etaDelta = RB_EvalExpression(&pStage->etaDeltaExp, (float)-0.02);
 
-	GLSL_SetUniform_ViewOrigin(&tr.dispersionShader_C, viewOrigin);
-	glUniform3fARB(tr.dispersionShader_C.u_EtaRatio, eta, eta + etaDelta, eta + (etaDelta * 2));
-	glUniform1fARB(tr.dispersionShader_C.u_FresnelPower, RB_EvalExpression(&pStage->fresnelPowerExp, 2.0f));
-	glUniform1fARB(tr.dispersionShader_C.u_FresnelScale, RB_EvalExpression(&pStage->fresnelScaleExp, 2.0f));
-	glUniform1fARB(tr.dispersionShader_C.u_FresnelBias, RB_EvalExpression(&pStage->fresnelBiasExp, 1.0f));
+	gl_dispersionShader->SetUniform_ViewOrigin(viewOrigin);
+	gl_dispersionShader->SetUniform_EtaRatioValue(eta, eta + etaDelta, eta + (etaDelta * 2));
+	gl_dispersionShader->SetUniform_FresnelPowerValue(RB_EvalExpression(&pStage->fresnelPowerExp, 2.0f));
+	gl_dispersionShader->SetUniform_FresnelScaleValue(RB_EvalExpression(&pStage->fresnelScaleExp, 2.0f));
+	gl_dispersionShader->SetUniform_FresnelBiasValue(RB_EvalExpression(&pStage->fresnelBiasExp, 1.0f));
 
-	GLSL_SetUniform_ModelMatrix(&tr.dispersionShader_C, backEnd.orientation.transformMatrix);
-	GLSL_SetUniform_ModelViewProjectionMatrix(&tr.dispersionShader_C, glState.modelViewProjectionMatrix[glState.stackIndex]);
+	gl_dispersionShader->SetUniform_ModelMatrix(backEnd.orientation.transformMatrix);
+	gl_dispersionShader->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
 
-	if(glConfig2.vboVertexSkinningAvailable)
+	if(glConfig2.vboVertexSkinningAvailable && tess.vboVertexSkinning)
 	{
-		GLSL_SetUniform_VertexSkinning(&tr.dispersionShader_C, tess.vboVertexSkinning);
-
-		if(tess.vboVertexSkinning)
-			glUniformMatrix4fvARB(tr.dispersionShader_C.u_BoneMatrix, MAX_BONES, GL_FALSE, &tess.boneMatrices[0][0]);
+		gl_dispersionShader->SetUniform_BoneMatrix(MAX_BONES, tess.boneMatrices);
 	}
 
 	// bind u_ColorMap
@@ -3550,7 +2612,6 @@ static void Render_dispersion_C(int stage)
 	Tess_DrawElements();
 
 	GL_CheckErrors();
-#endif
 }
 
 static void Render_skybox(int stage)
@@ -3613,7 +2674,7 @@ static void Render_screen(int stage)
 	*/
 	{
 		GL_VertexAttribsState(ATTR_POSITION);
-		glVertexAttrib4fvARB(ATTR_INDEX_COLOR, tess.svars.color);
+		glVertexAttrib4fv(ATTR_INDEX_COLOR, tess.svars.color);
 	}
 
 	gl_screenShader->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
@@ -3647,7 +2708,7 @@ static void Render_portal(int stage)
 	*/
 	{
 		GL_VertexAttribsState(ATTR_POSITION);
-		glVertexAttrib4fvARB(ATTR_INDEX_COLOR, tess.svars.color);
+		glVertexAttrib4fv(ATTR_INDEX_COLOR, tess.svars.color);
 	}
 
 	gl_portalShader->SetUniform_PortalRange(tess.surfaceShader->portalRange);
@@ -3903,20 +2964,25 @@ static void Render_heatHaze(int stage)
 
 static void Render_liquid(int stage)
 {
-#if !defined(GLSL_COMPILE_STARTUP_ONLY)
 	vec3_t          viewOrigin;
 	float           fogDensity;
-	vec3_t          fogColor;
+	GLfloat         fogColor[3];
 	shaderStage_t  *pStage = tess.surfaceStages[stage];
 
 	GLimp_LogComment("--- Render_liquid ---\n");
 
-	// Tr3B: don't allow blend effects
-	GL_State(pStage->stateBits & ~(GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS | GLS_DEPTHMASK_TRUE));
+	GL_State(pStage->stateBits);
+
+	// choose right shader program ----------------------------------
+	gl_liquidShader->SetParallaxMapping(r_parallaxMapping->integer && tess.surfaceShader->parallax);
 
 	// enable shader, set arrays
-	GL_BindProgram(&tr.liquidShader);
-	GL_VertexAttribsState(tr.liquidShader.attribs);
+	gl_liquidShader->BindProgram();
+	GL_VertexAttribsState(ATTR_POSITION | ATTR_TEXCOORD | ATTR_TANGENT | ATTR_BINORMAL | ATTR_NORMAL | ATTR_COLOR
+#if !defined(COMPAT_Q3A) && !defined(COMPAT_ET)
+			| ATTR_LIGHTDIRECTION
+#endif
+			);
 
 	// set uniforms
 	VectorCopy(backEnd.viewParms.orientation.origin, viewOrigin);	// in world space
@@ -3924,18 +2990,19 @@ static void Render_liquid(int stage)
 	fogDensity = RB_EvalExpression(&pStage->fogDensityExp, 0.001);
 	VectorCopy(tess.svars.color, fogColor);
 
-	GLSL_SetUniform_ViewOrigin(&tr.liquidShader, viewOrigin);
-	GLSL_SetUniform_RefractionIndex(&tr.liquidShader, RB_EvalExpression(&pStage->refractionIndexExp, 1.0));
-	glUniform1fARB(tr.liquidShader.u_FresnelPower, RB_EvalExpression(&pStage->fresnelPowerExp, 2.0));
-	glUniform1fARB(tr.liquidShader.u_FresnelScale, RB_EvalExpression(&pStage->fresnelScaleExp, 1.0));
-	glUniform1fARB(tr.liquidShader.u_FresnelBias, RB_EvalExpression(&pStage->fresnelBiasExp, 0.05));
-	glUniform1fARB(tr.liquidShader.u_NormalScale, RB_EvalExpression(&pStage->normalScaleExp, 0.05));
-	glUniform1fARB(tr.liquidShader.u_FogDensity, fogDensity);
-	glUniform3fARB(tr.liquidShader.u_FogColor, fogColor[0], fogColor[1], fogColor[2]);
+	gl_liquidShader->SetUniform_ViewOrigin(viewOrigin);
+	gl_liquidShader->SetUniform_RefractionIndex(RB_EvalExpression(&pStage->refractionIndexExp, 1.0));
+	
+	gl_liquidShader->SetUniform_FresnelPowerValue(RB_EvalExpression(&pStage->fresnelPowerExp, 2.0));
+	gl_liquidShader->SetUniform_FresnelScaleValue(RB_EvalExpression(&pStage->fresnelScaleExp, 1.0));
+	gl_liquidShader->SetUniform_FresnelBiasValue(RB_EvalExpression(&pStage->fresnelBiasExp, 0.05));
+	gl_liquidShader->SetUniform_NormalScaleValue(RB_EvalExpression(&pStage->normalScaleExp, 0.05));
+	gl_liquidShader->SetUniform_FogDensityValue(fogDensity);
+	gl_liquidShader->SetUniform_FogColorValue(fogColor[0], fogColor[1], fogColor[2]);
 
-	GLSL_SetUniform_UnprojectMatrix(&tr.liquidShader, backEnd.viewParms.unprojectionMatrix);
-	GLSL_SetUniform_ModelMatrix(&tr.liquidShader, backEnd.orientation.transformMatrix);
-	GLSL_SetUniform_ModelViewProjectionMatrix(&tr.liquidShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
+	gl_liquidShader->SetUniform_UnprojectMatrix(backEnd.viewParms.unprojectionMatrix);
+	gl_liquidShader->SetUniform_ModelMatrix(backEnd.orientation.transformMatrix);
+	gl_liquidShader->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 	// capture current color buffer for u_CurrentMap
 	GL_SelectTexture(0);
@@ -3977,12 +3044,11 @@ static void Render_liquid(int stage)
 	// bind u_NormalMap
 	GL_SelectTexture(3);
 	GL_Bind(pStage->bundle[TB_COLORMAP].image[0]);
-	GLSL_SetUniform_NormalTextureMatrix(&tr.liquidShader, tess.svars.texMatrices[TB_COLORMAP]);
+	gl_liquidShader->SetUniform_NormalTextureMatrix(tess.svars.texMatrices[TB_COLORMAP]);
 
 	Tess_DrawElements();
 
 	GL_CheckErrors();
-#endif
 }
 
 
@@ -4148,12 +3214,9 @@ static void Render_fog()
 	GL_CheckErrors();
 }
 
-
-
 // see Fog Polygon Volumes documentation by Nvidia for further information
 static void Render_volumetricFog()
 {
-#if 0
 	vec3_t          viewOrigin;
 	float           fogDensity;
 	vec3_t          fogColor;
@@ -4198,22 +3261,21 @@ static void Render_volumetricFog()
 								   GL_NEAREST);
 		}
 
+		gl_depthToColorShader->SetVertexSkinning(glConfig2.vboVertexSkinningAvailable && tess.vboVertexSkinning);
+
 		// setup shader with uniforms
-		GL_BindProgram(&tr.depthToColorShader);
-		GL_VertexAttribsState(tr.depthToColorShader.attribs);
+		gl_depthToColorShader->BindProgram();
+		GL_VertexAttribsState(ATTR_POSITION | ATTR_NORMAL);
 		GL_State(0);//GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
 
-		GLSL_SetUniform_ModelViewProjectionMatrix(&tr.depthToColorShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
+		gl_depthToColorShader->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
 
 		// Tr3B: might be cool for ghost player effects
 		if(glConfig2.vboVertexSkinningAvailable)
 		{
-			GLSL_SetUniform_VertexSkinning(&tr.depthToColorShader, tess.vboVertexSkinning);
-
 			if(tess.vboVertexSkinning)
-				glUniformMatrix4fvARB(tr.depthToColorShader.u_BoneMatrix, MAX_BONES, GL_FALSE, &tess.boneMatrices[0][0]);
+				gl_depthToColorShader->SetUniform_BoneMatrix(MAX_BONES, tess.boneMatrices);
 		}
-
 
 		// render back faces
 		R_BindFBO(tr.occlusionRenderFBO);
@@ -4239,15 +3301,15 @@ static void Render_volumetricFog()
 
 
 		// enable shader, set arrays
-		GL_BindProgram(&tr.volumetricFogShader);
-		GL_VertexAttribsState(tr.volumetricFogShader.attribs);
+		gl_volumetricFogShader->BindProgram();
+		GL_VertexAttribsState(ATTR_POSITION);
 
 		//GL_State(GLS_DEPTHTEST_DISABLE);	// | GLS_DEPTHMASK_TRUE);
 		//GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_ZERO | GLS_DSTBLEND_ONE_MINUS_SRC_COLOR);
 		GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_ONE_MINUS_SRC_ALPHA | GLS_DSTBLEND_SRC_ALPHA);
 		GL_Cull(CT_TWO_SIDED);
 
-		glVertexAttrib4fvARB(ATTR_INDEX_COLOR, colorWhite);
+		glVertexAttrib4fv(ATTR_INDEX_COLOR, colorWhite);
 
 		// set uniforms
 		VectorCopy(backEnd.viewParms.orientation.origin, viewOrigin);	// in world space
@@ -4257,12 +3319,12 @@ static void Render_volumetricFog()
 			VectorCopy(tess.surfaceShader->fogParms.color, fogColor);
 		}
 
-		GLSL_SetUniform_ModelViewProjectionMatrix(&tr.volumetricFogShader, glState.modelViewProjectionMatrix[glState.stackIndex]);
-		GLSL_SetUniform_UnprojectMatrix(&tr.volumetricFogShader, backEnd.viewParms.unprojectionMatrix);
+		gl_volumetricFogShader->SetUniform_ModelViewProjectionMatrix(glState.modelViewProjectionMatrix[glState.stackIndex]);
+		gl_volumetricFogShader->SetUniform_UnprojectMatrix(backEnd.viewParms.unprojectionMatrix);
 
-		GLSL_SetUniform_ViewOrigin(&tr.volumetricFogShader, viewOrigin);
-		glUniform1fARB(tr.volumetricFogShader.u_FogDensity, fogDensity);
-		glUniform3fARB(tr.volumetricFogShader.u_FogColor, fogColor[0], fogColor[1], fogColor[2]);
+		gl_volumetricFogShader->SetUniform_ViewOrigin(viewOrigin);
+		gl_volumetricFogShader->SetUniform_FogDensityValue(fogDensity);
+		gl_volumetricFogShader->SetUniform_FogColorValue(fogColor[0], fogColor[1], fogColor[2]);
 
 		// bind u_DepthMap
 		GL_SelectTexture(0);
@@ -4294,7 +3356,6 @@ static void Render_volumetricFog()
 	}
 
 	GL_CheckErrors();
-#endif
 }
 
 /*
@@ -4309,6 +3370,7 @@ void Tess_ComputeColor(shaderStage_t * pStage)
 	float           green;
 	float           blue;
 	float           alpha;
+	int             i;
 
 	GLimp_LogComment("--- Tess_ComputeColor ---\n");
 
@@ -4545,7 +3607,81 @@ void Tess_ComputeColor(shaderStage_t * pStage)
 			}
 			break;
 		}
+		case AGEN_NORMALZFADE:
+		{
+#if 0
+			// FIX ME
+			float           alpha, range, lowest, highest, dot;
+			vec3_t          worldUp;
+			qboolean        zombieEffect = qfalse;
 
+			if(VectorCompare(backEnd.currentEntity->e.fireRiseDir, vec3_origin)) {
+				VectorSet(backEnd.currentEntity->e.fireRiseDir, 0, 0, 1);
+			}
+
+			if(backEnd.currentEntity->e.hModel) { // world surfaces dont have an axis
+				VectorRotate(backEnd.currentEntity->e.fireRiseDir, backEnd.currentEntity->e.axis, worldUp);
+			} else {
+				VectorCopy(backEnd.currentEntity->e.fireRiseDir, worldUp);
+			}
+
+			lowest = pStage->zFadeBounds[0];
+			if(lowest == -1000) { // use entity alpha
+				lowest = backEnd.currentEntity->e.shaderTime;
+				zombieEffect = qtrue;
+			}
+			highest = pStage->zFadeBounds[1];
+			if(highest == -1000) { // use entity alpha
+				highest = backEnd.currentEntity->e.shaderTime;
+				zombieEffect = qtrue;
+			}
+			range = highest - lowest;
+			for(i = 0; i < tess.numVertexes; i++) {
+				//dot = DotProduct(tess.normal[i].v, worldUp);
+				dot = DotProduct(tess.normals[i], worldUp);
+
+				// special handling for Zombie fade effect
+				if(zombieEffect) {
+					alpha = (float)backEnd.currentEntity->e.shaderRGBA[3] * (dot + 1.0) / 2.0;
+					alpha += (2.0 * (float)backEnd.currentEntity->e.shaderRGBA[3]) * (1.0 - (dot + 1.0) / 2.0);
+					if(alpha > 255.0) {
+						alpha = 255.0;
+					} else if(alpha < 0.0) {
+						alpha = 0.0;
+					}
+					tess.svars.color[3] = (byte) (alpha);
+					continue;
+				}
+
+				if(dot < highest) {
+					if(dot > lowest) {
+						if(dot < lowest + range / 2) {
+							alpha = ((float)pStage->constantColor[3] * ((dot - lowest) / (range / 2)));
+						} else {
+							alpha = ((float)pStage->constantColor[3] * (1.0 - ((dot - lowest - range / 2) / (range / 2))));
+						}
+						if(alpha > 255.0) {
+							alpha = 255.0;
+						} else if(alpha < 0.0) {
+							alpha = 0.0;
+						}
+
+						// finally, scale according to the entity's alpha
+						if(backEnd.currentEntity->e.hModel) {
+							alpha *= (float)backEnd.currentEntity->e.shaderRGBA[3] / 255.0;
+						}
+
+						tess.svars.color[3] = (byte) (alpha);
+					} else {
+						tess.svars.color[3] = 0;
+					}
+				} else {
+					tess.svars.color[3] = 0;
+				}
+			}
+#endif
+		}
+		break;
 		case AGEN_WAVEFORM:
 		{
 			float           glow;
@@ -4587,6 +3723,12 @@ static void Tess_ComputeTexMatrices(shaderStage_t * pStage)
 		matrix = tess.svars.texMatrices[i];
 
 		RB_CalcTexMatrix(&pStage->bundle[i], matrix);
+		if( pStage->tcGen_Lightmap && i == TB_COLORMAP ) {
+			MatrixMultiplyScale(matrix,
+				tr.fatLightmapStep,
+				tr.fatLightmapStep,
+				tr.fatLightmapStep);
+		}
 	}
 }
 
@@ -4671,6 +3813,74 @@ void Tess_StageIteratorDebug()
 	Tess_DrawElements();
 }
 
+static ID_INLINE GLenum RB_StencilOp( int op )
+{
+	switch( op & STO_MASK ) {
+	case STO_KEEP:
+		return GL_KEEP;
+	case STO_ZERO:
+		return GL_ZERO;
+	case STO_REPLACE:
+		return GL_REPLACE;
+	case STO_INVERT:
+		return GL_INVERT;
+	case STO_INCR:
+		return GL_INCR_WRAP;
+	case STO_DECR:
+		return GL_DECR_WRAP;
+	default:
+		return GL_KEEP;
+	}
+}
+
+static void RB_SetStencil( GLenum side, stencil_t *stencil )
+{
+	GLenum  sfailOp, zfailOp, zpassOp;
+
+	if( !side ) {
+		glDisable( GL_STENCIL_TEST );
+		return;
+	}
+
+	if( !stencil->flags ) {
+		return;
+	}
+
+	glEnable( GL_STENCIL_TEST );
+	switch( stencil->flags & STF_MASK ) {
+	case STF_ALWAYS:
+		glStencilFuncSeparate( side, GL_ALWAYS, stencil->ref, stencil->mask);
+		break;
+	case STF_NEVER:
+		glStencilFuncSeparate( side, GL_NEVER, stencil->ref, stencil->mask);
+		break;
+	case STF_LESS:
+		glStencilFuncSeparate( side, GL_LESS, stencil->ref, stencil->mask);
+		break;
+	case STF_LEQUAL:
+		glStencilFuncSeparate( side, GL_LEQUAL, stencil->ref, stencil->mask);
+		break;
+	case STF_GREATER:
+		glStencilFuncSeparate( side, GL_GREATER, stencil->ref, stencil->mask);
+		break;
+	case STF_GEQUAL:
+		glStencilFuncSeparate( side, GL_GEQUAL, stencil->ref, stencil->mask);
+		break;
+	case STF_EQUAL:
+		glStencilFuncSeparate( side, GL_EQUAL, stencil->ref, stencil->mask);
+		break;
+	case STF_NEQUAL:
+		glStencilFuncSeparate( side, GL_NOTEQUAL, stencil->ref, stencil->mask);
+		break;
+	}
+
+	sfailOp = RB_StencilOp( stencil->flags >> STS_SFAIL );
+	zfailOp = RB_StencilOp( stencil->flags >> STS_ZFAIL );
+	zpassOp = RB_StencilOp( stencil->flags >> STS_ZPASS );
+	glStencilOpSeparate( side, sfailOp, zfailOp, zpassOp );
+	glStencilMaskSeparate( side, (GLuint) stencil->writeMask );
+}
+
 void Tess_StageIteratorGeneric()
 {
 	int             stage;
@@ -4695,8 +3905,16 @@ void Tess_StageIteratorGeneric()
 		Tess_UpdateVBOs(0);
 	}
 
+	if(tess.surfaceShader->fogVolume)
+	{
+		Render_volumetricFog();
+		return;
+	}
+
+#if defined(COMPAT_ET)
 	// set GL fog
-	//SetIteratorFog();
+	SetIteratorFog();
+#endif
 
 	// set face culling appropriately
 	GL_Cull(tess.surfaceShader->cullType);
@@ -4723,7 +3941,7 @@ void Tess_StageIteratorGeneric()
 			continue;
 		}
 
-#if 0
+#if defined(COMPAT_ET)
 		// Ridah, per stage fogging (detail textures)
 		if(tess.surfaceShader->noFog && pStage->isFogged)
 		{
@@ -4742,6 +3960,11 @@ void Tess_StageIteratorGeneric()
 
 		Tess_ComputeColor(pStage);
 		Tess_ComputeTexMatrices(pStage);
+
+		if( pStage->frontStencil.flags || pStage->backStencil.flags ) {
+			RB_SetStencil( GL_FRONT, &pStage->frontStencil );
+			RB_SetStencil( GL_BACK, &pStage->backStencil );
+		}
 
 		switch (pStage->type)
 		{
@@ -4805,7 +4028,7 @@ void Tess_StageIteratorGeneric()
 
 			case ST_REFRACTIONMAP:
 			{
-				//Render_refraction_C(stage);
+				Render_refraction_C(stage);
 				break;
 			}
 
@@ -4848,6 +4071,10 @@ void Tess_StageIteratorGeneric()
 
 			default:
 				break;
+		}
+
+		if( pStage->frontStencil.flags || pStage->backStencil.flags ) {
+			RB_SetStencil( 0, NULL );
 		}
 
 #if defined(COMPAT_Q3A) || defined(COMPAT_ET)
@@ -4997,14 +4224,12 @@ void Tess_StageIteratorGBuffer()
 
 			case ST_REFRACTIONMAP:
 			{
-				/*
 				if(r_deferredShading->integer == DS_STANDARD)
 				{
 
 					R_BindFBO(tr.deferredRenderFBO);
 					Render_refraction_C(stage);
 				}
-				*/
 				break;
 			}
 

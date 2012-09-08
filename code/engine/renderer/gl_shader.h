@@ -245,6 +245,7 @@ protected:
 		USE_VERTEX_ANIMATION,
 		USE_DEFORM_VERTEXES,
 		USE_TCGEN_ENVIRONMENT,
+		USE_TCGEN_LIGHTMAP,
 		USE_NORMAL_MAPPING,
 		USE_PARALLAX_MAPPING,
 		USE_REFLECTIVE_SPECULAR,
@@ -628,9 +629,55 @@ public:
 	}
 };
 
+class GLCompileMacro_USE_TCGEN_LIGHTMAP :
+	GLCompileMacro
+{
+public:
+	GLCompileMacro_USE_TCGEN_LIGHTMAP( GLShader *shader ) :
+		GLCompileMacro( shader )
+	{
+	}
 
-class GLCompileMacro_USE_NORMAL_MAPPING:
-GLCompileMacro
+	const char *GetName() const
+	{
+		return "USE_TCGEN_LIGHTMAP";
+	}
+
+	EGLCompileMacro GetType() const
+	{
+		return USE_TCGEN_LIGHTMAP;
+	}
+
+	uint32_t        GetRequiredVertexAttributes() const
+	{
+		return ATTR_LIGHTCOORD;
+	}
+
+	void EnableTCGenLightmap()
+	{
+		EnableMacro();
+	}
+
+	void DisableTCGenLightmap()
+	{
+		DisableMacro();
+	}
+
+	void SetTCGenLightmap( bool enable )
+	{
+		if ( enable )
+		{
+			EnableMacro();
+		}
+		else
+		{
+			DisableMacro();
+		}
+	}
+};
+
+class GLCompileMacro_USE_NORMAL_MAPPING :
+	GLCompileMacro
 {
 public:
 	GLCompileMacro_USE_NORMAL_MAPPING(GLShader* shader):
@@ -638,7 +685,7 @@ public:
 	{
 	}
 
-	const char* GetName() const
+	const char *GetName() const
 	{
 		return "USE_NORMAL_MAPPING";
 	}
@@ -685,7 +732,7 @@ public:
 	{
 	}
 
-	const char* GetName() const
+	const char *GetName() const
 	{
 		return "USE_PARALLAX_MAPPING";
 	}
@@ -729,7 +776,7 @@ public:
 	{
 	}
 
-	const char* GetName() const
+	const char *GetName() const
 	{
 		return "USE_REFLECTIVE_SPECULAR";
 	}
@@ -773,7 +820,7 @@ public:
 	{
 	}
 
-	const char* GetName() const
+	const char *GetName() const
 	{
 		return "TWOSIDED";
 	}
@@ -2462,6 +2509,367 @@ public:
 	}
 };
 
+// Dushan
+class u_RefractionIndex :
+	GLUniform
+{
+public:
+	u_RefractionIndex( GLShader *shader ) :
+		GLUniform( shader )
+	{
+	}
+
+	const char *GetName() const
+	{
+		return "u_RefractionIndex";
+	}
+
+	void                            UpdateShaderProgramUniformLocation( shaderProgram_t *shaderProgram ) const
+	{
+		shaderProgram->u_RefractionIndex = glGetUniformLocation( shaderProgram->program, GetName() );
+	}
+
+	void SetUniform_RefractionIndex( float value )
+	{
+		shaderProgram_t *program = _shader->GetProgram();
+
+#if defined( USE_UNIFORM_FIREWALL )
+		if(program->t_RefractionIndex == value) {
+			return;
+		}
+
+		program->t_RefractionIndex = value;
+#endif
+
+#if defined( LOG_GLSL_UNIFORMS )
+
+		if ( r_logFile->integer )
+		{
+			GLimp_LogComment(va("--- SetUniform_RefractionIndex( program = %s, value = %f ) ---\n", program->name, value));
+		}
+
+#endif
+
+		glUniform1f(program->u_RefractionIndex, value);
+	}
+};
+
+// Dushan
+class u_FogDensity :
+	GLUniform
+{
+public:
+	u_FogDensity( GLShader *shader ) :
+		GLUniform( shader )
+	{
+	}
+
+	const char *GetName() const
+	{
+		return "u_FogDensity";
+	}
+
+	void                            UpdateShaderProgramUniformLocation( shaderProgram_t *shaderProgram ) const
+	{
+		shaderProgram->u_FogDensity = glGetUniformLocation( shaderProgram->program, GetName() );
+	}
+
+	void SetUniform_FogDensityValue( float value )
+	{
+		shaderProgram_t *program = _shader->GetProgram();
+
+#if defined( LOG_GLSL_UNIFORMS )
+		if ( r_logFile->integer )
+		{
+			GLimp_LogComment(va("--- SetUniform_FogDensityValue( program = %s, value = %f ) ---\n", program->name, value));
+		}
+#endif
+
+		glUniform1f(program->u_FogDensity, value);
+	}
+};
+
+class u_FogColor :
+	GLUniform
+{
+public:
+	u_FogColor( GLShader *shader ) :
+		GLUniform( shader )
+	{
+	}
+
+	const char *GetName() const
+	{
+		return "u_FogColor";
+	}
+
+	void                            UpdateShaderProgramUniformLocation( shaderProgram_t *shaderProgram ) const
+	{
+		shaderProgram->u_FogColor = glGetUniformLocation( shaderProgram->program, GetName() );
+	}
+
+	void SetUniform_FogColorValue( GLfloat v0, GLfloat v1, GLfloat v2 )
+	{
+		shaderProgram_t *program = _shader->GetProgram();
+
+#if defined( LOG_GLSL_UNIFORMS )
+		if ( r_logFile->integer )
+		{
+			GLimp_LogComment(va("--- SetUniform_FogColorValue( program = %s, value1 = %f, value2 = %f, value3 = %f ) ---\n", 
+				program->name, v0, v1, v2));
+		}
+#endif
+		glUniform3f(program->u_FogColor, v0, v1, v2);
+	}
+};
+
+class u_FresnelPower :
+	GLUniform
+{
+public:
+	u_FresnelPower( GLShader *shader ) :
+		GLUniform( shader )
+	{
+	}
+
+	const char *GetName() const
+	{
+		return "u_FresnelPower";
+	}
+
+	void                            UpdateShaderProgramUniformLocation( shaderProgram_t *shaderProgram ) const
+	{
+		shaderProgram->u_FresnelPower = glGetUniformLocation( shaderProgram->program, GetName() );
+	}
+
+	void SetUniform_FresnelPowerValue( float value )
+	{
+		shaderProgram_t *program = _shader->GetProgram();
+
+#if defined( LOG_GLSL_UNIFORMS )
+		if ( r_logFile->integer )
+		{
+			GLimp_LogComment(va("--- SetUniform_FresnelPowerValue( program = %s, value = %f ) ---\n", program->name, value));
+		}
+#endif
+
+		glUniform1f(program->u_FresnelPower, value);
+	}
+};
+
+class u_FresnelScale :
+	GLUniform
+{
+public:
+	u_FresnelScale( GLShader *shader ) :
+		GLUniform( shader )
+	{
+	}
+
+	const char *GetName() const
+	{
+		return "u_FresnelScale";
+	}
+
+	void                            UpdateShaderProgramUniformLocation( shaderProgram_t *shaderProgram ) const
+	{
+		shaderProgram->u_FresnelScale = glGetUniformLocation( shaderProgram->program, GetName() );
+	}
+
+	void SetUniform_FresnelScaleValue( float value )
+	{
+		shaderProgram_t *program = _shader->GetProgram();
+
+#if defined( LOG_GLSL_UNIFORMS )
+		if ( r_logFile->integer )
+		{
+			GLimp_LogComment(va("--- SetUniform_FresnelScaleValue( program = %s, value = %f ) ---\n", program->name, value));
+		}
+#endif
+
+		glUniform1f(program->u_FresnelScale, value);
+	}
+};
+
+class u_FresnelBias :
+	GLUniform
+{
+public:
+	u_FresnelBias( GLShader *shader ) :
+		GLUniform( shader )
+	{
+	}
+
+	const char *GetName() const
+	{
+		return "u_FresnelBias";
+	}
+
+	void                            UpdateShaderProgramUniformLocation( shaderProgram_t *shaderProgram ) const
+	{
+		shaderProgram->u_FresnelBias = glGetUniformLocation( shaderProgram->program, GetName() );
+	}
+
+	void SetUniform_FresnelBiasValue( float value )
+	{
+		shaderProgram_t *program = _shader->GetProgram();
+
+#if defined( LOG_GLSL_UNIFORMS )
+		if ( r_logFile->integer )
+		{
+			GLimp_LogComment(va("--- SetUniform_FresnelBiasValue( program = %s, value = %f ) ---\n", program->name, value));
+		}
+#endif
+
+		glUniform1f(program->u_FresnelBias, value);
+	}
+};
+
+class u_BlurMagnitude :
+	GLUniform
+{
+public:
+	u_BlurMagnitude( GLShader *shader ) :
+		GLUniform( shader )
+	{
+	}
+
+	const char *GetName() const
+	{
+		return "u_BlurMagnitude";
+	}
+
+	void                            UpdateShaderProgramUniformLocation( shaderProgram_t *shaderProgram ) const
+	{
+		shaderProgram->u_BlurMagnitude = glGetUniformLocation( shaderProgram->program, GetName() );
+	}
+
+	void SetUniform_BlurMargnitudeValue( float value )
+	{
+		shaderProgram_t *program = _shader->GetProgram();
+
+#if defined( LOG_GLSL_UNIFORMS )
+		if ( r_logFile->integer )
+		{
+			GLimp_LogComment(va("--- SetUniform_BlurMargnitudeValue( program = %s, value = %f ) ---\n", program->name, value));
+		}
+#endif
+
+		glUniform1f(program->u_BlurMagnitude, value);
+	}
+};
+
+class u_NormalScale :
+	GLUniform
+{
+public:
+	u_NormalScale( GLShader *shader ) :
+		GLUniform( shader )
+	{
+	}
+
+	const char *GetName() const
+	{
+		return "u_NormalScale";
+	}
+
+	void                            UpdateShaderProgramUniformLocation( shaderProgram_t *shaderProgram ) const
+	{
+		shaderProgram->u_NormalScale = glGetUniformLocation( shaderProgram->program, GetName() );
+	}
+
+	void SetUniform_NormalScaleValue( float value )
+	{
+		shaderProgram_t *program = _shader->GetProgram();
+
+#if defined( LOG_GLSL_UNIFORMS )
+		if ( r_logFile->integer )
+		{
+			GLimp_LogComment(va("--- SetUniform_NormalScaleValue( program = %s, value = %f ) ---\n", program->name, value));
+		}
+#endif
+
+		glUniform1f(program->u_NormalScale, value);
+	}
+};
+
+class u_ShadowCompare :
+	GLUniform
+{
+public:
+	u_ShadowCompare( GLShader *shader ) :
+		GLUniform( shader )
+	{
+	}
+
+	const char *GetName() const
+	{
+		return "u_ShadowCompare";
+	}
+
+	void                            UpdateShaderProgramUniformLocation( shaderProgram_t *shaderProgram ) const
+	{
+		shaderProgram->u_ShadowCompare = glGetUniformLocation( shaderProgram->program, GetName() );
+	}
+
+	void SetUniform_ShadowCompare(float value)
+	{
+		shaderProgram_t *program = _shader->GetProgram();
+
+#if defined( USE_UNIFORM_FIREWALL )
+	if(program->t_ShadowTexelSize == value)
+		return;
+
+	program->t_ShadowTexelSize = value;
+#endif
+
+#if defined( LOG_GLSL_UNIFORMS )
+
+		if ( r_logFile->integer )
+		{
+			GLimp_LogComment( va( "--- SetUniform_ShadowTexelSize( program = %s, value = %f ) ---\n", program->name, value));
+		}
+
+#endif
+
+		glUniform1f(program->u_ShadowCompare, value);
+	}
+};
+
+class u_EtaRatio :
+	GLUniform
+{
+public:
+	u_EtaRatio( GLShader *shader ) :
+		GLUniform( shader )
+	{
+	}
+
+	const char *GetName() const
+	{
+		return "u_EtaRatio";
+	}
+
+	void                            UpdateShaderProgramUniformLocation( shaderProgram_t *shaderProgram ) const
+	{
+		shaderProgram->u_EtaRatio = glGetUniformLocation( shaderProgram->program, GetName() );
+	}
+
+	void SetUniform_EtaRatioValue( GLfloat v0, GLfloat v1, GLfloat v2 )
+	{
+		shaderProgram_t *program = _shader->GetProgram();
+
+#if defined( LOG_GLSL_UNIFORMS )
+		if ( r_logFile->integer )
+		{
+			GLimp_LogComment(va("--- SetUniform_EtaRatio( program = %s, value1 = %f, value2 = %f, value3 = %f ) ---\n", 
+				program->name, v0, v1, v2));
+		}
+#endif
+		glUniform3f(program->u_EtaRatio, v0, v1, v2);
+	}
+};
+
 class GLShader_generic:
 public GLShader,
 public u_ColorMap,
@@ -2481,7 +2889,8 @@ public GLCompileMacro_USE_ALPHA_TESTING,
 public GLCompileMacro_USE_VERTEX_SKINNING,
 public GLCompileMacro_USE_VERTEX_ANIMATION,
 public GLCompileMacro_USE_DEFORM_VERTEXES,
-public GLCompileMacro_USE_TCGEN_ENVIRONMENT
+	public GLCompileMacro_USE_TCGEN_ENVIRONMENT,
+	public GLCompileMacro_USE_TCGEN_LIGHTMAP
 {
 public:
 	GLShader_generic();
@@ -3083,6 +3492,135 @@ public:
 	void		SetShaderProgramUniforms( shaderProgram_t * shaderProgram );
 };
 
+// Dushan
+class GLShader_liquid :
+	public GLShader,
+	public u_NormalTextureMatrix,
+	public u_ModelViewProjectionMatrix,
+	public u_ViewOrigin,
+	public u_ModelMatrix,
+	public u_UnprojectMatrix,
+	public u_RefractionIndex,
+	public u_FogDensity,
+	public u_FogColor,
+	public u_FresnelPower,
+	public u_FresnelScale,
+	public u_FresnelBias,
+	public u_NormalScale,
+	public GLCompileMacro_USE_PARALLAX_MAPPING
+{
+public:
+	GLShader_liquid();
+	void SetShaderProgramUniformLocations( shaderProgram_t * shaderProgram );
+	void SetShaderProgramUniforms( shaderProgram_t * shaderProgram );
+};
+
+class GLShader_rotoscope :
+	public GLShader,
+	public u_ModelViewProjectionMatrix,
+	public u_BlurMagnitude
+{
+public:
+	GLShader_rotoscope();
+	void SetShaderProgramUniformLocations( shaderProgram_t * shaderProgram );
+	void SetShaderProgramUniforms( shaderProgram_t * shaderProgram );
+};
+
+class GLShader_bloom :
+	public GLShader,
+	public u_ModelViewProjectionMatrix,
+	public u_ColorMap,
+	public u_BlurMagnitude
+{
+public:
+	GLShader_bloom();
+	void SetShaderProgramUniformLocations( shaderProgram_t * shaderProgram );
+	void SetShaderProgramUniforms( shaderProgram_t * shaderProgram );
+};
+
+class GLShader_refraction :
+	public GLShader,
+	public u_ColorMap,
+	public u_ViewOrigin,
+	public u_RefractionIndex ,
+	public u_FresnelPower ,
+	public u_FresnelScale ,
+	public u_FresnelBias ,
+	public u_ModelMatrix,
+	public u_ModelViewProjectionMatrix ,
+	public u_BoneMatrix,
+	public GLCompileMacro_USE_VERTEX_SKINNING
+{
+public:
+	GLShader_refraction();
+	void BuildShaderVertexLibNames( std::string& vertexInlines );
+	void SetShaderProgramUniformLocations( shaderProgram_t * shaderProgram );
+	void SetShaderProgramUniforms( shaderProgram_t * shaderProgram );
+};
+
+class GLShader_depthToColor :
+	public GLShader,
+	public u_ModelViewProjectionMatrix,
+	public u_BoneMatrix,
+	public GLCompileMacro_USE_VERTEX_SKINNING
+{
+public:
+	GLShader_depthToColor();
+	void BuildShaderVertexLibNames( std::string& vertexInlines );
+	void SetShaderProgramUniformLocations( shaderProgram_t * shaderProgram );
+	void SetShaderProgramUniforms( shaderProgram_t * shaderProgram );
+};
+
+class GLShader_volumetricFog :
+	public GLShader,
+	public u_ViewOrigin,
+	public u_FogDensity,
+	public u_FogColor,
+	public u_UnprojectMatrix,
+	public u_ModelViewProjectionMatrix
+{
+public:
+	GLShader_volumetricFog();
+	void SetShaderProgramUniformLocations( shaderProgram_t * shaderProgram );
+	void SetShaderProgramUniforms( shaderProgram_t * shaderProgram );
+};
+
+class GLShader_volumetricLighting :
+	public GLShader,
+	public u_ViewOrigin,
+	public u_LightOrigin,
+	public u_LightColor,
+	public u_LightRadius,
+	public u_LightScale,
+	public u_LightAttenuationMatrix,
+	public u_ShadowCompare,
+	public u_ModelViewProjectionMatrix,
+	public u_UnprojectMatrix
+{
+public:
+	GLShader_volumetricLighting();
+	void SetShaderProgramUniformLocations( shaderProgram_t * shaderProgram );
+	void SetShaderProgramUniforms( shaderProgram_t * shaderProgram );
+};
+
+class GLShader_dispersion :
+	public GLShader,
+	public u_ViewOrigin,
+	public u_ModelMatrix,
+	public u_ModelViewProjectionMatrix,
+	public u_EtaRatio,
+	public u_FresnelPower,
+	public u_FresnelScale,
+	public u_FresnelBias,
+	public u_BoneMatrix,
+	public GLCompileMacro_USE_VERTEX_SKINNING
+{
+public:
+	GLShader_dispersion();
+	void SetShaderProgramUniformLocations( shaderProgram_t * shaderProgram );
+	void SetShaderProgramUniforms( shaderProgram_t * shaderProgram );
+};
+
 extern GLShader_generic* gl_genericShader;
 extern GLShader_lightMapping* gl_lightMappingShader;
 extern GLShader_vertexLighting_DBS_entity* gl_vertexLightingShader_DBS_entity;
@@ -3108,6 +3646,15 @@ extern GLShader_cameraEffects* gl_cameraEffectsShader;
 extern GLShader_blurX* gl_blurXShader;
 extern GLShader_blurY* gl_blurYShader;
 extern GLShader_debugShadowMap* gl_debugShadowMapShader;
+//Dushan
+extern GLShader_liquid                          *gl_liquidShader;
+extern GLShader_rotoscope                       *gl_rotoscopeShader;
+extern GLShader_bloom                           *gl_bloomShader;
+extern GLShader_refraction                      *gl_refractionShader;
+extern GLShader_depthToColor                    *gl_depthToColorShader;
+extern GLShader_volumetricFog                   *gl_volumetricFogShader;
+extern GLShader_volumetricLighting              *gl_volumetricLightingShader;
+extern GLShader_dispersion                      *gl_dispersionShader;
 
 #ifdef USE_GLSL_OPTIMIZER
 extern struct glslopt_ctx *s_glslOptimizer;

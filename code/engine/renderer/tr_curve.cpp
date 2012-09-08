@@ -603,7 +603,6 @@ static srfGridMesh_t *R_CreateSurfaceGridMesh(int width, int height,
 
 	if(r_stitchCurves->integer)
 	{
-		//TODO: choose ri.Hunk_Alloc or Com_Allocate
 		grid = /*ri.Hunk_Alloc */ (srfGridMesh_t*)Com_Allocate(size);
 		Com_Memset(grid, 0, size);
 

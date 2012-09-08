@@ -32,6 +32,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define MAX_WEIGHTS			4		// GPU vertex skinning limit, never change this without rewriting many GLSL shaders
 // XreaL END
 
+#define MAX_CORONAS     	32			//----(SA)  not really a reason to limit this other than trying to keep a reasonable count
+#define MAX_DLIGHTS     	32			// can't be increased, because bit flags are used on surfaces
 
 // renderfx flags
 #define	RF_MINLIGHT			0x00000001	// allways have some light (viewmodel, some items)
@@ -259,6 +261,55 @@ typedef struct
 
 // XreaL END
 
+// ================================================================================================
+
+//----(SA)
+
+//                                                                  //
+// WARNING:: synch FOG_SERVER in sv_ccmds.c if you change anything  //
+//                                                                  //
+typedef enum
+{
+	FOG_NONE,					//  0
+
+	FOG_SKY,					//  1   fog values to apply to the sky when using density fog for the world (non-distance clipping fog) (only used if(glfogsettings[FOG_MAP].registered) or if(glfogsettings[FOG_MAP].registered))
+	FOG_PORTALVIEW,				//  2   used by the portal sky scene
+	FOG_HUD,					//  3   used by the 3D hud scene
+
+	//      The result of these for a given frame is copied to the scene.glFog when the scene is rendered
+
+	// the following are fogs applied to the main world scene
+	FOG_MAP,					//  4   use fog parameter specified using the "fogvars" in the sky shader
+	FOG_WATER,					//  5   used when underwater
+	FOG_SERVER,					//  6   the server has set my fog (probably a target_fog) (keep synch in sv_ccmds.c !!!)
+	FOG_CURRENT,				//  7   stores the current values when a transition starts
+	FOG_LAST,					//  8   stores the current values when a transition starts
+	FOG_TARGET,					//  9   the values it's transitioning to.
+
+	FOG_CMD_SWITCHFOG,			// 10   transition to the fog specified in the second parameter of R_SetFog(...) (keep synch in sv_ccmds.c !!!)
+
+	NUM_FOGS
+} glfogType_t;
+
+
+typedef struct
+{
+	int             mode;		// GL_LINEAR, GL_EXP
+	int             hint;		// GL_DONT_CARE
+	int             startTime;	// in ms
+	int             finishTime;	// in ms
+	float           color[4];
+	float           start;		// near
+	float           end;		// far
+	qboolean        useEndForClip;	// use the 'far' value for the far clipping plane
+	float           density;	// 0.0-1.0
+	qboolean        registered;	// has this fog been set up?
+	qboolean        drawsky;	// draw skybox
+	qboolean        clearscreen;	// clear the GL color buffer
+} glfog_t;
+
+//----(SA)  end
+
 
 #define	MAX_RENDER_STRINGS			8
 #define	MAX_RENDER_STRING_LENGTH	32
@@ -280,6 +331,12 @@ typedef struct
 
 	// text messages for deform text shaders
 	char            text[MAX_RENDER_STRINGS][MAX_RENDER_STRING_LENGTH];
+
+
+//----(SA)  added (needed to pass fog infos into the portal sky scene)
+	glfog_t         glfog;
+//----(SA)  end
+
 } refdef_t;
 
 
@@ -303,6 +360,8 @@ typedef enum
 	SHADOWING_VSM16,
 	SHADOWING_VSM32,
 	SHADOWING_EVSM32,
+	//SHADOWING_PLANAR,
+	SHADOWING_STENCIL,
 } shadowingMode_t;
 // XreaL END
 
@@ -359,12 +418,25 @@ typedef struct
 
 	qboolean        deviceSupportsGamma;
 	textureCompression_t textureCompression;
+	qboolean        textureEnvAddAvailable;
+	qboolean        anisotropicAvailable;	//----(SA)  added
+	float           maxAnisotropy;	//----(SA)  added
+
+	// vendor-specific support
+	// NVidia
+	qboolean        NVFogAvailable;	//----(SA)  added
+	int             NVFogMode;	//----(SA)  added
+	// ATI
+	int             ATIMaxTruformTess;	// for truform support
+	int             ATINormalMode;	// for truform support
+	int             ATIPointMode;	// for truform support
 
 	int             vidWidth, vidHeight;
 	// aspect is the screen's physical width / height, which may be different
 	// than scrWidth / scrHeight if the pixels are non-square
 	// normal screens should be 4/3, but wide aspect monitors may be 16/9
 	float           windowAspect;
+	float			xscale,yscale,xbias;
 
 	int             displayFrequency;
 
@@ -412,8 +484,10 @@ typedef struct
 	int             maxColorAttachments;
 	qboolean        framebufferPackedDepthStencilAvailable;
 	qboolean        framebufferBlitAvailable;
+	qboolean        framebufferMixedFormatsAvailable;
 
 	qboolean        generateMipmapAvailable;
+	qboolean        vertexBufferObjectAvailable;
 } glconfig2_t;
 // XreaL END
 

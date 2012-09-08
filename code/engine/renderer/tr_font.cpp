@@ -437,7 +437,7 @@ void RE_RegisterFont(const char *fontName, int pointSize, fontInfo_t * font)
 	len = ri.FS_ReadFile(fileName, &faceData);
 	if(len <= 0)
 	{
-		ri.Printf(PRINT_WARNING, "RE_RegisterFont: Unable to read font file '%s'\n", fileName);
+		ri.Printf(PRINT_ALL, "RE_RegisterFont: Unable to read font file %s\n", fileName);
 		return;
 	}
 

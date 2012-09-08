@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "tr_types.h"
 
-#define	REF_API_VERSION		16
+#define	REF_API_VERSION		17
 
 // *INDENT-OFF*
 
@@ -77,11 +77,17 @@ typedef struct
 	//void            (*AddPolysToScene) (qhandle_t hShader, int numVerts, const polyVert_t * verts, int numPolys);
 	
 	void            (*AddLightToScene) (const vec3_t org, float intensity, float r, float g, float b);
+
+//----(SA)
+	void            (*AddCoronaToScene) (const vec3_t org, float r, float g, float b, float scale, int id, qboolean visible);
+	void            (*SetFog) (int fogvar, int var1, int var2, float r, float g, float b, float density);
+//----(SA)
 	void            (*RenderScene) (const refdef_t * fd);
 
 	void            (*SetColor) (const float *rgba);	// NULL = 1,1,1,1
+	void            (*SetClipRegion)(const float *region);
 	void            (*DrawStretchPic) (float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader);	// 0 = white
-	void            (*DrawRotatedPic) (float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader, float angle);
+	void            (*DrawRotatedPic) (float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader, float angle);	// NERVE - SMF
 	void            (*DrawStretchPicGradient) (float x, float y, float w, float h, float s1, float t1, float s2, float t2,
 											   qhandle_t hShader, const float *gradientColor, int gradientType);
 	void            (*Add2dPolys) (polyVert_t * polys, int numverts, qhandle_t hShader);
