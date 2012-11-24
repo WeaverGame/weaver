@@ -972,57 +972,18 @@ static void CG_RegisterGraphics(void)
 		cgs.media.numberShaders[i] = trap_R_RegisterShader(sb_nums[i]);
 	}
 
-	/*
-	cgs.media.hud_top_team_middle = trap_R_RegisterShaderNoMip("hud/hud_top_team_middle");
-	cgs.media.hud_top_team_middle_overlay = trap_R_RegisterShaderNoMip("hud/hud_top_team_middle_overlay");
-	cgs.media.hud_top_team_left = trap_R_RegisterShaderNoMip("hud/hud_top_team_left");
-	cgs.media.hud_top_team_left_overlay = trap_R_RegisterShaderNoMip("hud/hud_top_team_left_overlay");
-	cgs.media.hud_top_ctf_left = trap_R_RegisterShaderNoMip("hud/hud_top_ctf_left");
-	cgs.media.hud_top_ctf_right = trap_R_RegisterShaderNoMip("hud/hud_top_ctf_right");
-	cgs.media.hud_top_team_right = trap_R_RegisterShaderNoMip("hud/hud_top_team_right");
-	cgs.media.hud_top_team_right_overlay = trap_R_RegisterShaderNoMip("hud/hud_top_team_right_overlay");
-	cgs.media.hud_top_ffa_middle = trap_R_RegisterShaderNoMip("hud/hud_top_ffa_middle");
-	cgs.media.hud_top_ffa_middle_overlay = trap_R_RegisterShaderNoMip("hud/hud_top_ffa_middle_overlay");
-	cgs.media.hud_top_ffa_left = trap_R_RegisterShaderNoMip("hud/hud_top_ffa_left");
-	cgs.media.hud_top_ffa_left_overlay = trap_R_RegisterShaderNoMip("hud/hud_top_ffa_left_overlay");
-	cgs.media.hud_top_ffa_right = trap_R_RegisterShaderNoMip("hud/hud_top_ffa_right");
-	cgs.media.hud_top_ffa_right_overlay = trap_R_RegisterShaderNoMip("hud/hud_top_ffa_right_overlay");
-
-	cgs.media.hud_bar_left = trap_R_RegisterShaderNoMip("hud/hud_bar_left");
-	cgs.media.hud_bar_left_overlay = trap_R_RegisterShaderNoMip("hud/hud_bar_left_overlay");
-	cgs.media.hud_bar_middle_middle = trap_R_RegisterShaderNoMip("hud/hud_bar_middle_middle");
-	cgs.media.hud_bar_middle_left_end = trap_R_RegisterShaderNoMip("hud/hud_bar_middle_left_end");
-	cgs.media.hud_bar_middle_left_middle = trap_R_RegisterShaderNoMip("hud/hud_bar_middle_left_middle");
-	cgs.media.hud_bar_middle_left_right = trap_R_RegisterShaderNoMip("hud/hud_bar_middle_left_right");
-	cgs.media.hud_bar_middle_right_left = trap_R_RegisterShaderNoMip("hud/hud_bar_middle_right_left");
-	cgs.media.hud_bar_middle_right_middle = trap_R_RegisterShaderNoMip("hud/hud_bar_middle_right_middle");
-	cgs.media.hud_bar_middle_right_end = trap_R_RegisterShaderNoMip("hud/hud_bar_middle_right_end");
-	cgs.media.hud_bar_middle_overlay = trap_R_RegisterShaderNoMip("hud/hud_bar_middle_overlay");
-	cgs.media.hud_bar_right = trap_R_RegisterShaderNoMip("hud/hud_bar_right");
-	cgs.media.hud_bar_right_overlay = trap_R_RegisterShaderNoMip("hud/hud_bar_right_overlay");
-
-	cgs.media.hud_icon_health = trap_R_RegisterShaderNoMip("hud/hud_icon_health");
-	cgs.media.hud_icon_armor = trap_R_RegisterShaderNoMip("hud/hud_icon_armor");
-	*/
-
 	cgs.media.osd_button = trap_R_RegisterShaderNoMip("ui/button");
 	cgs.media.osd_button_focus = trap_R_RegisterShaderNoMip("ui/button_focus");
-
-	/*
-	cgs.media.backTileShader = trap_R_RegisterShader("gfx/2d/backtile");
-	cgs.media.noammoShader = trap_R_RegisterShader("icons/noammo");
-	*/
-
-	/*
-	cgs.media.sideBarItemShader = trap_R_RegisterShaderNoMip("hud/sidebar_item");
-	cgs.media.sideBarItemSelectShader = trap_R_RegisterShaderNoMip("hud/sidebar_item_select");
-	cgs.media.sideBarPowerupShader = trap_R_RegisterShaderNoMip("hud/sidebar_powerup");
-	*/
 
 	cgs.media.scoreboard_row = trap_R_RegisterShaderNoMip("gfx/scoreboard/row");
 	cgs.media.scoreboard_top_red = trap_R_RegisterShaderNoMip("gfx/scoreboard/top_red");
 	cgs.media.scoreboard_top_blue = trap_R_RegisterShaderNoMip("gfx/scoreboard/top_blue");
 	cgs.media.scoreboard_vs = trap_R_RegisterShaderNoMip("gfx/scoreboard/vs");
+	
+	cgs.media.spell_frame[0] = trap_R_RegisterShader("gfx/icons/spell_frame/unselect");
+	cgs.media.spell_frame[1] = trap_R_RegisterShader("gfx/icons/spell_frame/select");
+	cgs.media.spell_frame[2] = trap_R_RegisterShader("gfx/icons/spell_frame/unselect_process");
+	cgs.media.spell_frame[3] = trap_R_RegisterShader("gfx/icons/spell_frame/select_process");
 
 	// weaver disc
 	for(i = 1; i <= NUM_WEAVERDISCS; i++)
@@ -1080,21 +1041,6 @@ static void CG_RegisterGraphics(void)
 	// raynorpat: used to be a standard strcpy, but can be exploited via
 	// a remote stack overflow. see http://www.milw0rm.com/exploits/1977
 	Q_strncpyz(items, CG_ConfigString(CS_ITEMS), sizeof(items));
-
-	
-	/*
-	memset(cg_items, 0, sizeof(cg_items));
-	memset(cg_weapons, 0, sizeof(cg_weapons));
-	*/
-	/*
-	CG_LoadingString("items", qfalse);
-
-	for(i = 1; i < bg_numItems; i++)
-	{
-		if(items[i] == '1' || cg_buildScript.integer)
-			CG_RegisterItemVisuals(i);
-	}
-	*/
 
 	CG_LoadingString("Effects", qfalse);
 
@@ -1288,10 +1234,6 @@ static void CG_RegisterGraphics(void)
 	cgs.media.capturePointFlag[TEAM_RED] = trap_R_RegisterModel("models/entities/flag_red.md5mesh");
 	cgs.media.capturePointFlag[TEAM_BLUE] = trap_R_RegisterModel("models/entities/flag_blue.md5mesh");
 	cgs.media.objItemIcon = trap_R_RegisterShader("sprites/objitemicon");
-	cgs.media.spell_frame[0] = trap_R_RegisterShader("gfx/icons/spell_frame/unselect");
-	cgs.media.spell_frame[1] = trap_R_RegisterShader("gfx/icons/spell_frame/select");
-	cgs.media.spell_frame[2] = trap_R_RegisterShader("gfx/icons/spell_frame/unselect_process");
-	cgs.media.spell_frame[3] = trap_R_RegisterShader("gfx/icons/spell_frame/select_process");
 
 	// weaver sword
 	cgs.media.swordModel = trap_R_RegisterModel("models/sword/sword.md5mesh");
