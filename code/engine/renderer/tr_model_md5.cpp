@@ -25,6 +25,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tr_local.h"
 #include "tr_model_skel.h"
 
+#define DEBUG_MESH_DATA
+
 /*
 =================
 R_LoadMD5
@@ -56,6 +58,10 @@ qboolean R_LoadMD5(model_t * mod, byte *buffer, int bufferSize, const char *modN
 	int				boneReferences[MAX_BONES];
 
 	buf_p = (char *)buffer;
+
+#if defined(DEBUG_MESH_DATA)
+	ri.Printf(PRINT_ALL, "md5model load \"%s\"\n", modName);
+#endif
 
 	// skip MD5Version indent string
 	Com_ParseExt(&buf_p, qfalse);
@@ -198,6 +204,15 @@ qboolean R_LoadMD5(model_t * mod, byte *buffer, int bufferSize, const char *modN
 			ri.Printf(PRINT_WARNING, "R_LoadMD5: expected '(' found '%s' in model '%s'\n", token, modName);
 			return qfalse;
 		}
+
+#if defined(DEBUG_MESH_DATA)
+		ri.Printf(PRINT_ALL, "bone %i \"%s\" origin: (%f, %f, %f) quat: (%f, %f, %f, %f) rotmat: (%f, %f, %f, %f / %f, %f, %f, %f / %f, %f, %f, %f / %f, %f, %f, %f) \n", i, bone->name, bone->origin[0], bone->origin[1], bone->origin[2],
+			bone->rotation[0], bone->rotation[1], bone->rotation[2], bone->rotation[3],
+			boneMat[0], boneMat[1], boneMat[2], boneMat[3],
+			boneMat[4], boneMat[5], boneMat[6], boneMat[7],
+			boneMat[8], boneMat[9], boneMat[10], boneMat[11],
+			boneMat[12], boneMat[13], boneMat[14], boneMat[15]);
+#endif
 	}
 
 	// parse }
@@ -450,6 +465,10 @@ qboolean R_LoadMD5(model_t * mod, byte *buffer, int bufferSize, const char *modN
 
 			VectorClear(tmpVert);
 
+#if defined(DEBUG_MESH_DATA)
+			ri.Printf(PRINT_ALL, "vert %i { ", j);
+#endif
+
 			for(k = 0, w = v->weights[0]; k < v->numWeights; k++, w++)
 			{
 				vec3_t          offsetVec;
@@ -460,10 +479,18 @@ qboolean R_LoadMD5(model_t * mod, byte *buffer, int bufferSize, const char *modN
 				VectorAdd(bone->origin, offsetVec, offsetVec);
 
 				VectorMA(tmpVert, w->boneWeight, offsetVec, tmpVert);
+
+#if defined(DEBUG_MESH_DATA)
+				ri.Printf(PRINT_ALL, "{w b=%i (%f, %f, %f) * %f} ", w->boneIndex, w->offset[0], w->offset[1], w->offset[2], w->boneWeight);
+#endif
 			}
 
 			VectorCopy(tmpVert, v->position);
 			AddPointToBounds(tmpVert, md5->bounds[0], md5->bounds[1]);
+
+#if defined(DEBUG_MESH_DATA)
+			ri.Printf(PRINT_ALL, "} pos: (%f, %f, %f)\n", v->position[0], v->position[1], v->position[2]);
+#endif
 		}
 
 		// calc tangent spaces

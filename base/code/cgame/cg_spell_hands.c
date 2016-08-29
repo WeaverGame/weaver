@@ -86,8 +86,38 @@ void CG_AddWeaverViewWeapon(playerState_t * ps)
 	weaponNum = ps->weapon;
 	weaponState = ps->weaponstate;
 	weaponTime = ps->weaponTime;
-	CG_RegisterWeapon(weaponNum);
-	weapon = &cg_weapons[weaponNum];
+
+	if(weaponNum == WP_NONE)
+	{
+		return;
+	}
+
+	if(weaponNum == WP_SWORD)
+	{
+		// Draw Sword
+		refEntity_t     sword;
+		vec3_t          angles;
+
+		memset(&sword, 0, sizeof(sword));
+
+		// set up gun position
+		CG_CalculateWeaponPosition(sword.origin, angles);
+
+		AnglesToAxis(angles, sword.axis);
+
+		VectorMA(sword.origin, cg_gunX.value, cg.refdef.viewaxis[0], sword.origin);
+		VectorMA(sword.origin, cg_gunY.value, cg.refdef.viewaxis[1], sword.origin);
+		VectorMA(sword.origin, (cg_gunZ.value + fovOffset), cg.refdef.viewaxis[2], sword.origin);
+
+		sword.hModel = cgs.media.swordModel;
+		sword.renderfx = RF_DEPTHHACK | RF_FIRST_PERSON | RF_MINLIGHT;
+
+		trap_R_AddRefEntityToScene(&sword);
+	}
+	else
+	{
+	}
+	return;
 
 	if(weapon->viewModel && weapon->viewModel_animations[WEAPON_READY].handle)
 	{
